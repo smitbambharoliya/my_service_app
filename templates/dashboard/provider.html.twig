@@ -1,21 +1,102 @@
-<h3>Your Billing History</h3>
-<table class="table">
-    <thead>
-        <tr>
-            <th>Date</th>
-            <th>Amount</th>
-            <th>Transaction ID</th>
-            <th>Status</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for bill in app.user.billings %}
-        <tr>
-            <td>{{ bill.createdAt|date('Y-m-d') }}</td>
-            <td>₹{{ bill.amount }}</td>
-            <td>{{ bill.transactionId }}</td>
-            <td><span class="badge bg-success">{{ bill.paymentStatus }}</span></td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+{% extends 'provider_base.html.twig' %}
+
+{% block title %}Provider Dashboard{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="p-5 mb-4 bg-dark text-white rounded-4 shadow-lg position-relative overflow-hidden">
+                <div class="position-relative z-1">
+                    <h1 class="display-5 fw-bold">Hello, {{ app.user.email }}!</h1>
+                    <p class="col-md-8 fs-4 text-light-50">Manage your services, track bookings, and grow your business.</p>
+                    {% if is_granted('ROLE_PROVIDER') and not app.user.services|first.isPremium|default(false) %}
+                        <a href="{{ path('app_premium_upgrade') }}" class="btn btn-warning btn-lg px-4 rounded-pill fw-bold">
+                            <i class="fas fa-crown me-2"></i>Upgrade to Premium
+                        </a>
+                    {% endif %}
+                </div>
+                <div class="position-absolute end-0 top-0 bg-primary opacity-25 rounded-circle" style="width: 300px; height: 300px; transform: translate(30%, -30%);"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-5">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm rounded-4 p-4 text-center">
+                <div class="h1 fw-bold text-primary mb-1">{{ bookings|length }}</div>
+                <div class="text-muted text-uppercase small fw-bold">Total Bookings</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm rounded-4 p-4 text-center">
+                <div class="h1 fw-bold text-success mb-1">₹{{ bookings|length * 500 }}</div> {# Dummy Calculation #}
+                <div class="text-muted text-uppercase small fw-bold">Estimated Revenue</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm rounded-4 p-4 text-center">
+                <div class="h1 fw-bold text-warning mb-1">
+                    <i class="fas fa-star"></i>
+                </div>
+                <div class="text-muted text-uppercase small fw-bold">Pro Status</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+        <div class="card-header bg-white py-4 px-4 border-0 d-flex justify-content-between align-items-center">
+            <h4 class="mb-0 fw-bold"><i class="fas fa-list me-2"></i>Incoming Service Requests</h4>
+            <span class="badge bg-primary-soft text-primary rounded-pill px-3">Real-time Updates</span>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-4">Service Name</th>
+                        <th>Customer</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th class="text-end pe-4">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for booking in bookings %}
+                    <tr>
+                        <td class="ps-4">
+                            <div class="fw-bold">{{ booking.service.title }}</div>
+                            <small class="text-muted">{{ booking.service.category }}</small>
+                        </td>
+                        <td>{{ booking.customer.email }}</td>
+                        <td>{{ booking.bookingDate|date('d M, Y') }}</td>
+                        <td>
+                            <span class="badge rounded-pill px-3 
+                                {{ booking.status == 'pending' ? 'bg-warning-soft text-warning' : 'bg-success-soft text-success' }}">
+                                {{ booking.status|upper }}
+                            </span>
+                        </td>
+                        <td class="text-end pe-4">
+                            <button class="btn btn-sm btn-outline-dark rounded-pill">View Details</button>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center py-5">
+                            <p class="text-muted mb-0">Haji koi bookings nathi malya. Potani service share karo!</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<style>
+    .bg-primary-soft { background-color: rgba(13, 110, 253, 0.1); }
+    .bg-warning-soft { background-color: rgba(255, 193, 7, 0.1); }
+    .bg-success-soft { background-color: rgba(25, 135, 84, 0.1); }
+    .card { transition: all 0.3s ease; }
+    .card:hover { transform: translateY(-5px); }
+</style>
+{% endblock %}

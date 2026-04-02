@@ -1,11 +1,39 @@
-<h1>Hi! Please confirm your email!</h1>
+<div style="background-color: #f4f7f6; padding: 50px 0; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #333;">
+    <table align="center" border="0" cellpadding="0" cellspacing="0" width="600" style="background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+        <tr>
+            <td bgcolor="#28a745" style="padding: 40px 0; text-align: center;">
+                <h1 style="color: #ffffff; margin: 0; font-size: 28px; letter-spacing: 1px;">Confirm Your Email</h1>
+            </td>
+        </tr>
 
-<p>
-    Please confirm your email address by clicking the following link: <br><br>
-    <a href="{{ signedUrl|raw }}">Confirm my Email</a>.
-    This link will expire in {{ expiresAtMessageKey|trans(expiresAtMessageData, 'VerifyEmailBundle') }}.
-</p>
+        <tr>
+            <td style="padding: 40px 30px;">
+                <p style="font-size: 18px; margin-bottom: 20px;">Hi there!</p>
+                <p style="line-height: 1.6; color: #666; font-size: 16px;">
+                    Thank you for joining <strong>ServiceHub</strong>. We're excited to have you on board! Before we get started, we just need to verify that this is your email address.
+                </p>
+                
+                <div style="text-align: center; margin: 40px 0;">
+                    <a href="{{ signedUrl|raw }}" style="background-color: #28a745; color: #ffffff; padding: 15px 30px; text-decoration: none; border-radius: 50px; font-weight: bold; font-size: 16px; display: inline-block; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                        Confirm My Email Address
+                    </a>
+                </div>
 
-<p>
-    Cheers!
-</p>
+                <p style="line-height: 1.6; color: #666; font-size: 14px;">
+                    This link will expire in <strong>{{ expiresAtMessageKey|trans(expiresAtMessageData, 'VerifyEmailBundle') }}</strong>.
+                </p>
+                <p style="line-height: 1.6; color: #999; font-size: 12px;">
+                    If you didn't create an account, you can safely ignore this email.
+                </p>
+            </td>
+        </tr>
+
+        <tr>
+            <td bgcolor="#f8f9fa" style="padding: 20px 30px; text-align: center; border-top: 1px solid #eeeeee;">
+                <p style="margin: 0; color: #999; font-size: 12px;">
+                    &copy; 2026 ServiceHub Project. All rights reserved.
+                </p>
+            </td>
+        </tr>
+    </table>
+</div>

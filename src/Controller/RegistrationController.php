@@ -39,6 +39,12 @@ class RegistrationController extends AbstractController
             $entityManager->persist($user);
             $entityManager->flush();
 
+
+            if (in_array('ROLE_PROVIDER', $user->getRoles())) {    
+            $this->addFlash('success', 'Welcome! Please complete your profile as a Provider');
+            return $this->redirectToRoute('app_provider_profile');
+            }
+
             // generate a signed url and email it to the user
             $this->emailVerifier->sendEmailConfirmation('app_verify_email', $user,
                 (new TemplatedEmail())
@@ -50,7 +56,7 @@ class RegistrationController extends AbstractController
 
             // do anything else you need here, like send an email
 
-            return $this->redirectToRoute('app_home');
+            return $this->redirectToRoute('app_customer_dashboard');
         }
 
         return $this->render('registration/register.html.twig', [

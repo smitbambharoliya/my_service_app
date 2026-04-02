@@ -1,20 +1,120 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello HomeController!{% endblock %}
+{% block title %}Welcome to ServiceHub - Your Local Service Expert{% endblock %}
 
 {% block body %}
-<style>
-    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
-</style>
-
-<div class="example-wrapper">
-    <h1>Hello {{ controller_name }}! ✅</h1>
-
-    This friendly message is coming from:
-    <ul>
-        <li>Your controller at <code>D:/xampp/my_service_app/src/Controller/HomeController.php</code></li>
-        <li>Your template at <code>D:/xampp/my_service_app/templates/home/index.html.twig</code></li>
-    </ul>
+{# 1. Hero Section #}
+<div class="bg-primary text-white py-5 mb-5 position-relative overflow-hidden" style="min-height: 500px; display: flex; align-items: center;">
+    <div class="container position-relative z-1">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="display-3 fw-bold mb-4">Find Professional Services for Your Home</h1>
+                <p class="lead mb-5 opacity-75">Connect with trusted Plumbers, Electricians, Carpenters, and more. Quality service, just a click away.</p>
+                <div class="d-grid gap-2 d-md-flex justify-content-md-start">
+                    <a href="{{ path('app_service_list') }}" class="btn btn-warning btn-lg px-4 me-md-2 rounded-pill fw-bold shadow">
+                        <i class="fas fa-search me-2"></i>Find a Service
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-6 d-none d-lg-block text-center">
+                <img src="https://cdn-icons-png.flaticon.com/512/3063/3063822.png" alt="Service Illustration" class="img-fluid floating-animation" style="max-height: 400px;">
+            </div>
+        </div>
+    </div>
 </div>
+
+{# 2. Popular Categories Section #}
+<div class="container mb-5">
+    <div class="text-center mb-5">
+        <h2 class="fw-bold">Popular Categories</h2>
+        <p class="text-muted">Click on a category to book instantly</p>
+    </div>
+    <div class="row g-4">
+        {% set categories = [
+            {'name': 'Plumbing', 'icon': 'fa-faucet', 'color': 'text-primary', 'anim': 'cat-plumbing', 'desc': 'Leaking pipes & taps'},
+            {'name': 'Electrician', 'icon': 'fa-bolt', 'color': 'text-warning', 'anim': 'cat-electric', 'desc': 'Wiring & Appliances'},
+            {'name': 'Carpentry', 'icon': 'fa-hammer', 'color': 'text-danger', 'anim': 'cat-carpenter', 'desc': 'Furniture & Woodwork'},
+            {'name': 'Cleaning', 'icon': 'fa-broom', 'color': 'text-info', 'anim': 'cat-cleaning', 'desc': 'Home & Office Deep Clean'},
+            {'name': 'Domestic Support', 'icon': 'fa-house-user', 'color': 'text-success', 'anim': 'cat-generic', 'desc': 'Daily household help'},
+            {'name': 'Painting', 'icon': 'fa-paint-roller', 'color': 'text-secondary', 'anim': 'cat-generic', 'desc': 'Wall & Exterior painting'},
+            {'name': 'Gardening', 'icon': 'fa-seedling', 'color': 'text-success', 'anim': 'cat-generic', 'desc': 'Lawn & Garden care'},
+            {'name': 'Appliance Repair', 'icon': 'fa-tv', 'color': 'text-primary', 'anim': 'cat-generic', 'desc': 'TV, Fridge & AC repair'}
+        ] %}
+        
+        {% for cat in categories %}
+            <div class="col-6 col-md-3">
+                <a href="{{ path('app_book_by_category', {'categoryName': cat.name}) }}" class="text-decoration-none">
+                    <div class="card border-0 shadow-sm text-center p-4 h-100 category-card {{ cat.anim }}">
+                        <div class="h1 mb-3 {{ cat.color }}">
+                            <i class="fas {{ cat.icon }}"></i>
+                        </div>
+                        <h5 class="fw-bold mb-1 text-dark">{{ cat.name }}</h5>
+                        <small class="text-muted d-block mb-2">{{ cat.desc }}</small>
+                        <p class="small text-primary fw-bold mb-0 mt-auto">Book Now <i class="fas fa-arrow-right ms-1"></i></p>
+                    </div>
+                </a>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+{# 3. How It Works Section (AA TAME KAHETU HATU TE) #}
+<div class="bg-light py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold font-heading">How It Works</h2>
+            <p class="text-muted">Simple 3-step process to get your job done</p>
+        </div>
+        <div class="row text-center g-4">
+            <div class="col-md-4">
+                <div class="p-4 bg-white rounded-4 shadow-sm h-100">
+                    <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px; font-size: 24px; font-weight: bold;">1</div>
+                    <h4 class="fw-bold">Search</h4>
+                    <p class="text-muted mb-0">Choose from our wide range of professional services and verified experts.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="p-4 bg-white rounded-4 shadow-sm h-100 border-primary border-top border-4">
+                    <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px; font-size: 24px; font-weight: bold;">2</div>
+                    <h4 class="fw-bold">Book</h4>
+                    <p class="text-muted mb-0">Select a provider and book a time that suits your schedule perfectly.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="p-4 bg-white rounded-4 shadow-sm h-100">
+                    <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px; font-size: 24px; font-weight: bold;">3</div>
+                    <h4 class="fw-bold">Relax</h4>
+                    <p class="text-muted mb-0">The expert arrives at your doorstep and completes the task with quality.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# Styles & Animations #}
+<style>
+    .category-card {
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        border-radius: 20px;
+        display: flex;
+        flex-direction: column;
+    }
+    .category-card:hover {
+        transform: translateY(-12px);
+        background-color: #f8f9fa;
+        box-shadow: 0 15px 30px rgba(0,0,0,0.1) !important;
+    }
+    .cat-plumbing:hover i { animation: drip 1s infinite; color: #00d2ff !important; }
+    .cat-electric:hover i { animation: spark 0.2s infinite; color: #ffc107 !important; }
+    .cat-carpenter:hover i { animation: hammer 0.5s infinite; color: #8B4513 !important; }
+    .cat-cleaning:hover i { animation: sweep 1s infinite; color: #20c997 !important; }
+
+    @keyframes drip { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(15px); opacity: 0; } }
+    @keyframes spark { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(1.2); } }
+    @keyframes hammer { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(-35deg); } }
+    @keyframes sweep { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(-10px) rotate(-10deg); } }
+    
+    .floating-animation { animation: float 4s ease-in-out infinite; }
+    @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-20px); } }
+</style>
 {% endblock %}

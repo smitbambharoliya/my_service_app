@@ -1,0 +1,58 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}My Bookings{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1 class="fw-bold"><i class="fas fa-calendar-check text-primary me-2"></i>My Bookings</h1>
+            <p class="text-muted">Track the status of services you have requested.</p>
+        </div>
+    </div>
+
+    <div class="row">
+        {% for booking in bookings %}
+            <div class="col-md-6 mb-4">
+                <div class="card border-0 shadow-sm rounded-4 overflow-hidden card-hover">
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div>
+                                <h4 class="fw-bold mb-1">{{ booking.service.title }}</h4>
+                                <span class="badge bg-light text-primary border">{{ booking.service.category }}</span>
+                            </div>
+                            <span class="badge rounded-pill px-3 py-2 
+                                {{ booking.status == 'pending' ? 'bg-warning-soft text-warning' : 
+                                   booking.status == 'confirmed' ? 'bg-primary-soft text-primary' : 'bg-success-soft text-success' }}">
+                                {{ booking.status|upper }}
+                            </span>
+                        </div>
+
+                        <div class="text-muted mb-3">
+                            <i class="fas fa-user-tie me-2"></i><strong>Provider:</strong> {{ booking.service.provider.email }}<br>
+                            <i class="fas fa-clock me-2"></i><strong>Booked on:</strong> {{ booking.bookingDate|date('d M, Y') }}
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mt-4">
+                            <span class="h5 fw-bold text-dark mb-0">₹{{ booking.service.price }}</span>
+                            <button class="btn btn-outline-danger btn-sm rounded-pill px-3">Cancel Request</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="col-12 text-center py-5">
+                <h3 class="text-muted">Tame haji koi service book nathi kari.</h3>
+                <a href="{{ path('app_service_list') }}" class="btn btn-primary mt-3 rounded-pill px-4">Browse Services</a>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+    .bg-primary-soft { background-color: rgba(13, 110, 253, 0.1); }
+    .bg-warning-soft { background-color: rgba(255, 193, 7, 0.1); }
+    .bg-success-soft { background-color: rgba(25, 135, 84, 0.1); }
+    .card-hover:hover { transform: translateY(-5px); transition: 0.3s; }
+</style>
+{% endblock %}

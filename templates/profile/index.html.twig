@@ -1,0 +1,120 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}My Profile{% endblock %}
+
+{% block body %}
+<div class="container mt-5 mb-5">
+    <div class="row">
+        
+        {# ડાબી બાજુનું પ્રોફાઈલ મેનુ (Sidebar) #}
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm border-0" style="border-radius: 15px;">
+                <div class="card-body text-center mt-4">
+                    {# ગોળ એવતાર (નામનો પહેલો અક્ષર) #}
+                    <div class="bg-primary text-white rounded-circle d-inline-flex justify-content-center align-items-center mb-3 shadow" style="width: 100px; height: 100px; font-size: 40px; font-weight: bold;">
+                        {{ app.user.email|slice(0,1)|upper }}
+                    </div>
+                    <h4 class="fw-bold">{{ app.user.email|split('@')[0] }}</h4>
+                    <p class="text-muted">{{ app.user.email }}</p>
+                    <hr>
+                    
+                    {# મેનુના બટન્સ (Tabs) #}
+                    <div class="nav flex-column nav-pills text-start" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+                        <button class="nav-link active mb-2 fw-bold" id="v-pills-profile-tab" data-bs-toggle="pill" data-bs-target="#v-pills-profile" type="button" role="tab" aria-controls="v-pills-profile" aria-selected="true">
+                            👤 My Details
+                        </button>
+                        <button class="nav-link mb-2 fw-bold" id="v-pills-history-tab" data-bs-toggle="pill" data-bs-target="#v-pills-history" type="button" role="tab" aria-controls="v-pills-history" aria-selected="false">
+                            🕒 My History
+                        </button>
+                        <button class="nav-link mb-2 fw-bold" id="v-pills-payment-tab" data-bs-toggle="pill" data-bs-target="#v-pills-payment" type="button" role="tab" aria-controls="v-pills-payment" aria-selected="false">
+                            💳 Payment Methods
+                        </button>
+                        <a href="{{ path('app_logout') }}" class="nav-link text-danger fw-bold mt-3">
+                            🚪 Logout
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# જમણી બાજુની ડીટેલ્સ (Content Area) #}
+        <div class="col-md-8">
+            <div class="card shadow-sm border-0" style="border-radius: 15px;">
+                <div class="card-body p-4">
+                    <div class="tab-content" id="v-pills-tabContent">
+                        
+                        {# ૧. પ્રોફાઈલ ડીટેલ્સ ટેબ #}
+                        <div class="tab-pane fade show active" id="v-pills-profile" role="tabpanel" aria-labelledby="v-pills-profile-tab">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <h3 class="fw-bold">Personal Information</h3>
+                                <button class="btn btn-outline-primary btn-sm">✏️ Edit Profile</button>
+                            </div>
+                            
+                            <div class="row mb-3">
+                                <div class="col-sm-4 text-muted">Mobile Number</div>
+                                <div class="col-sm-8 fw-bold">{{ app.user.mobile|default('Not Added') }}</div>
+                            </div>
+                            <hr>
+                            <div class="row mb-3">
+                                <div class="col-sm-4 text-muted">Age</div>
+                                <div class="col-sm-8 fw-bold">{{ app.user.age|default('Not Added') }} Years</div>
+                            </div>
+                            <hr>
+                            <div class="row mb-3">
+                                <div class="col-sm-4 text-muted">Gender</div>
+                                <div class="col-sm-8 fw-bold">{{ app.user.gender|default('Not Added') }}</div>
+                            </div>
+                            <hr>
+                            <div class="row mb-3">
+                                <div class="col-sm-4 text-muted">Country</div>
+                                <div class="col-sm-8 fw-bold">{{ app.user.country|default('Not Added') }}</div>
+                            </div>
+                        </div>
+
+                        {# ૨. હિસ્ટ્રી ટેબ (અત્યારે ડેમો ડેટા છે) #}
+                        <div class="tab-pane fade" id="v-pills-history" role="tabpanel" aria-labelledby="v-pills-history-tab">
+                            <h3 class="fw-bold mb-4">Recent Activity</h3>
+                            <div class="timeline">
+                                <div class="alert alert-secondary border-0 border-start border-4 border-primary">
+                                    <strong>Yesterday:</strong> Tame ek navo vichar (Thought) post karyo hato.
+                                </div>
+                                <div class="alert alert-secondary border-0 border-start border-4 border-success">
+                                    <strong>Last Week:</strong> Tame tamaru profile update karyu hatu.
+                                </div>
+                                <div class="alert alert-secondary border-0 border-start border-4 border-info">
+                                    <strong>10th Feb:</strong> Tame amari website par account banavyu. Welcome! 🎉
+                                </div>
+                            </div>
+                        </div>
+
+                        {# ૩. પેમેન્ટ ટેબ (અત્યારે ડેમો ડિઝાઇન છે) #}
+                        <div class="tab-pane fade" id="v-pills-payment" role="tabpanel" aria-labelledby="v-pills-payment-tab">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <h3 class="fw-bold">Payment Methods</h3>
+                                <button class="btn btn-primary btn-sm">+ Add Card</button>
+                            </div>
+                            
+                            <div class="card bg-dark text-white rounded-3 mb-3" style="max-width: 350px;">
+                                <div class="card-body p-4">
+                                    <h5 class="mb-4">HDFC Bank Visa</h5>
+                                    <h3 class="mb-3">**** **** **** 4589</h3>
+                                    <div class="d-flex justify-content-between">
+                                        <small>Card Holder<br>{{ app.user.email|split('@')[0]|upper }}</small>
+                                        <small>Expires<br>12/28</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="text-muted small">Tamari payment detail ekdum secure chhe.</p>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+</div>
+
+{# Bootstrap 5 CSS/JS (Jo base.html.twig ma na hoy to) #}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+{% endblock %}

@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
@@ -24,15 +25,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 180)]
     private ?string $email = null;
 
-    /**
-     * @var list<string> The user roles
-     */
     #[ORM\Column]
     private array $roles = [];
 
-    /**
-     * @var string The hashed password
-     */
     #[ORM\Column]
     private ?string $password = null;
 
@@ -43,25 +38,31 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $fullName = null;
 
     #[ORM\Column(length: 20, nullable: true)]
-    private ?string $phoneNumber = null;
+    private ?string $mobile = null;
 
-    /**
-     * @var Collection<int, Service>
-     */
     #[ORM\OneToMany(targetEntity: Service::class, mappedBy: 'provider')]
     private Collection $services;
 
-    /**
-     * @var Collection<int, Booking>
-     */
     #[ORM\OneToMany(targetEntity: Booking::class, mappedBy: 'customer')]
     private Collection $bookings;
 
-    /**
-     * @var Collection<int, Billing>
-     */
     #[ORM\OneToMany(targetEntity: Billing::class, mappedBy: 'user')]
     private Collection $billings;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $address = null;
+
+    #[ORM\Column(length: 40, nullable: true)]
+    private ?string $city = null;
+
+    #[ORM\Column(length: 10, nullable: true)]
+    private ?string $pincode = null;
+
+    #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
+    private ?\DateTime $dot = null;
+
+    #[ORM\Column(length: 10, nullable: true)]
+    private ?string $gender = null;
 
     public function __construct()
     {
@@ -70,210 +71,59 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->billings = new ArrayCollection();
     }
 
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
+    public function getId(): ?int { return $this->id; }
 
-    public function getEmail(): ?string
-    {
-        return $this->email;
-    }
+    public function getEmail(): ?string { return $this->email; }
+    public function setEmail(string $email): static { $this->email = $email; return $this; }
 
-    public function setEmail(string $email): static
-    {
-        $this->email = $email;
+    public function getUserIdentifier(): string { return (string) $this->email; }
 
-        return $this;
-    }
-
-    /**
-     * A visual identifier that represents this user.
-     *
-     * @see UserInterface
-     */
-    public function getUserIdentifier(): string
-    {
-        return (string) $this->email;
-    }
-
-    /**
-     * @see UserInterface
-     */
     public function getRoles(): array
     {
         $roles = $this->roles;
-        // guarantee every user at least has ROLE_USER
         $roles[] = 'ROLE_USER';
-
         return array_unique($roles);
     }
 
-    /**
-     * @param list<string> $roles
-     */
-    public function setRoles(array $roles): static
-    {
-        $this->roles = $roles;
+    public function setRoles(array $roles): static { $this->roles = $roles; return $this; }
 
-        return $this;
-    }
+    public function getPassword(): ?string { return $this->password; }
+    public function setPassword(string $password): static { $this->password = $password; return $this; }
 
-    /**
-     * @see PasswordAuthenticatedUserInterface
-     */
-    public function getPassword(): ?string
-    {
-        return $this->password;
-    }
-
-    public function setPassword(string $password): static
-    {
-        $this->password = $password;
-
-        return $this;
-    }
-
-    /**
-     * Ensure the session doesn't contain actual password hashes by CRC32C-hashing them, as supported since Symfony 7.3.
-     */
     public function __serialize(): array
     {
         $data = (array) $this;
         $data["\0".self::class."\0password"] = hash('crc32c', $this->password);
-
         return $data;
     }
 
-    #[\Deprecated]
-    public function eraseCredentials(): void
-    {
-        // @deprecated, to be removed when upgrading to Symfony 8
-    }
+    public function eraseCredentials(): void {}
 
-    public function isVerified(): bool
-    {
-        return $this->isVerified;
-    }
+    public function isVerified(): bool { return $this->isVerified; }
+    public function setIsVerified(bool $isVerified): static { $this->isVerified = $isVerified; return $this; }
 
-    public function setIsVerified(bool $isVerified): static
-    {
-        $this->isVerified = $isVerified;
+    public function getFullName(): ?string { return $this->fullName; }
+    public function setFullName(string $fullName): static { $this->fullName = $fullName; return $this; }
 
-        return $this;
-    }
+    public function getMobile(): ?string { return $this->mobile; }
+    public function setMobile(?string $mobile): static { $this->mobile = $mobile; return $this; }
 
-    public function getFullName(): ?string
-    {
-        return $this->fullName;
-    }
+    public function getServices(): Collection { return $this->services; }
+    public function getBookings(): Collection { return $this->bookings; }
+    public function getBillings(): Collection { return $this->billings; }
 
-    public function setFullName(string $fullName): static
-    {
-        $this->fullName = $fullName;
+    public function getAddress(): ?string { return $this->address; }
+    public function setAddress(?string $address): static { $this->address = $address; return $this; }
 
-        return $this;
-    }
+    public function getCity(): ?string { return $this->city; }
+    public function setCity(?string $city): static { $this->city = $city; return $this; }
 
-    public function getPhoneNumber(): ?string
-    {
-        return $this->phoneNumber;
-    }
+    public function getPincode(): ?string { return $this->pincode; }
+    public function setPincode(?string $pincode): static { $this->pincode = $pincode; return $this; }
 
-    public function setPhoneNumber(?string $phoneNumber): static
-    {
-        $this->phoneNumber = $phoneNumber;
+    public function getDot(): ?\DateTime { return $this->dot; }
+    public function setDot(?\DateTime $dot): static { $this->dot = $dot; return $this; }
 
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, Service>
-     */
-    public function getServices(): Collection
-    {
-        return $this->services;
-    }
-
-    public function addService(Service $service): static
-    {
-        if (!$this->services->contains($service)) {
-            $this->services->add($service);
-            $service->setProvider($this);
-        }
-
-        return $this;
-    }
-
-    public function removeService(Service $service): static
-    {
-        if ($this->services->removeElement($service)) {
-            // set the owning side to null (unless already changed)
-            if ($service->getProvider() === $this) {
-                $service->setProvider(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, Booking>
-     */
-    public function getBookings(): Collection
-    {
-        return $this->bookings;
-    }
-
-    public function addBooking(Booking $booking): static
-    {
-        if (!$this->bookings->contains($booking)) {
-            $this->bookings->add($booking);
-            $booking->setCustomer($this);
-        }
-
-        return $this;
-    }
-
-    public function removeBooking(Booking $booking): static
-    {
-        if ($this->bookings->removeElement($booking)) {
-            // set the owning side to null (unless already changed)
-            if ($booking->getCustomer() === $this) {
-                $booking->setCustomer(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, Billing>
-     */
-    public function getBillings(): Collection
-    {
-        return $this->billings;
-    }
-
-    public function addBilling(Billing $billing): static
-    {
-        if (!$this->billings->contains($billing)) {
-            $this->billings->add($billing);
-            $billing->setUser($this);
-        }
-
-        return $this;
-    }
-
-    public function removeBilling(Billing $billing): static
-    {
-        if ($this->billings->removeElement($billing)) {
-            // set the owning side to null (unless already changed)
-            if ($billing->getUser() === $this) {
-                $billing->setUser(null);
-            }
-        }
-
-        return $this;
-    }
+    public function getGender(): ?string { return $this->gender; }
+    public function setGender(?string $gender): static { $this->gender = $gender; return $this; }
 }
