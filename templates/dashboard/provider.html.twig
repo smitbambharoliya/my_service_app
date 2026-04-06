@@ -1,272 +1,189 @@
 {% extends 'dashboard_base.html.twig' %}
-{% import 'partials/_components.html.twig' as ui %}
 
-{% block page_title %}Operational Intelligence / Provider{% endblock %}
+{% block title %}Atelier Control — ServiceHub{% endblock %}
+{% block page_title %}Atelier Control{% endblock %}
 
 {% block body %}
-
-{# ── WELCOME & REPUTATION ── #}
-<div class="row g-4 mb-5 fade-up">
-    <div class="col-xl-8">
-        <div class="glass-card p-5 h-100 d-flex flex-column justify-content-center" style="background: linear-gradient(135deg, rgba(124, 58, 237, 0.1), transparent); border: 1px solid var(--brand-alpha);">
-            <div class="text-xs text-brand-1 fw-900 mb-2">OPERATIONAL STATUS: ACTIVE</div>
-            <h1 class="text-4xl text-white fw-900 mb-3">Welcome Back,<br>{{ app.user.fullName|default(app.user.email|split('@')[0]) }}</h1>
-            <p class="text-sm text-muted mb-4 pb-2" style="max-width:450px;">Your service node is currently synchronized with the ServiceHub network. Review your incoming protocols below.</p>
-            <div class="d-flex gap-3">
-                <a href="{{ path('app_service_new') }}" class="btn-violet px-4 py-3 text-xs"><i class="fas fa-plus-circle me-2"></i> Deploy New Service</a>
-                <a href="{{ path('app_provider_my_services') }}" class="btn-ghost border-subtle px-4 py-3 text-xs">Manage Catalog</a>
-            </div>
-        </div>
-    </div>
-    <div class="col-xl-4 text-center">
-        <div class="glass-card p-5 h-100 d-flex flex-column align-items-center justify-content-center border-subtle">
-            <div class="text-xs text-muted fw-900 mb-4 text-uppercase">Reputation Score</div>
-            <div class="position-relative mb-4">
-                <svg width="120" height="120" viewBox="0 0 120 120">
-                    <circle cx="60" cy="60" r="54" fill="none" stroke="rgba(124, 58, 237, 0.1)" stroke-width="8" />
-                    <circle cx="60" cy="60" r="54" fill="none" stroke="var(--brand-1)" stroke-width="8" stroke-dasharray="339.29" stroke-dashoffset="{{ 339.29 * (1 - (app.user.reputationPoints|default(0) / 1000)) }}" stroke-linecap="round" transform="rotate(-90 60 60)" />
-                </svg>
-                <div class="position-absolute top-50 start-50 translate-middle text-center">
-                    <div class="h2 text-white fw-900 mb-0">{{ app.user.reputationPoints|default(0) }}</div>
-                    <div class="text-xxs text-muted">PTS</div>
+<div class="animate-fade-in">
+    {# ── WELCOME & REPUTATION ── #}
+    <div class="row g-4 mb-5">
+        <div class="col-xl-8">
+            <div class="glass-card p-5 h-100 d-flex flex-column justify-content-center" style="background: linear-gradient(135deg, rgba(239, 68, 68, 0.10), transparent); border: 1px solid rgba(239, 68, 68, 0.32);">
+                <div class="text-xxs text-admin fw-800 letter-spacing-2 mb-3">
+                    {% if app.user.services|length == 0 %}
+                        NEW PROVIDER: INITIALIZATION REQUIRED
+                    {% else %}
+                        PROTOCOL STATUS: OPERATIONAL
+                    {% endif %}
                 </div>
-            </div>
-            <div class="badge-pill badge-confirmed px-4 py-2" style="font-size:0.65rem">AURORA ELITE</div>
-        </div>
-    </div>
-</div>
-
-{# ── KPI LAYER ── #}
-<div class="row g-4 mb-5 fade-up" style="transition-delay: 100ms;">
-    <div class="col-xl-4 col-md-6">
-        {{ ui.kpi_card('Active Protocols', bookings|filter(b => b.status in ['Pending', 'Confirmed'])|length, 'fa-network-wired', 'brand') }}
-    </div>
-    
-    {% set totalRev = 0 %}
-    {% for b in bookings|filter(b => b.status == 'Completed') %}
-        {% set priceToUse = b.type == 'visit' and b.estimation and b.estimation.status == 'accepted' ? b.estimation.amount : b.service.price %}
-        {% set totalRev = totalRev + priceToUse %}
-    {% endfor %}
-    <div class="col-xl-4 col-md-6">
-        {{ ui.kpi_card('Net Revenue', '₹' ~ totalRev|number_format(0), 'fa-coins', 'amber') }}
-    </div>
-    
-    <div class="col-xl-4 col-md-12">
-        {{ ui.kpi_card('Sent Estimates', bookings|filter(b => b.type == 'visit' and b.estimation)|length, 'fa-file-invoice', 'cyan') }}
-    </div>
-</div>
-
-<div class="row g-5 mb-5">
-    {# ── ANALYTICS: EARNINGS VELOCITY ── #}
-    <div class="col-xl-8 fade-up" style="transition-delay: 200ms;">
-        {% embed 'partials/_components.html.twig' with {'title': 'Earnings Velocity', 'subtitle': 'Capital generation over time (Last 6 Months)'} %}
-            {% block body %}
-                <div style="height: 350px;">
-                    <canvas id="earningsChart"></canvas>
-                </div>
-            {% endblock %}
-        {% endembed %}
-    </div>
-
-    {# ── SERVICE STATUS ── #}
-    <div class="col-xl-4 fade-up" style="transition-delay: 300ms;">
-        {% embed 'partials/_components.html.twig' with {'title': 'Quick Actions', 'subtitle': 'Node management tools'} %}
-            {% block body %}
-                <div class="d-grid gap-3">
-                    <div class="p-4 rounded-4 border-subtle bg-surface-2">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <span class="text-xs text-muted fw-bold">NODE STATUS</span>
-                            <span class="text-xs text-green fw-bold d-flex align-items-center"><span class="pulsing-dot bg-green me-2"></span> DISCOVERABLE</span>
-                        </div>
-                        <div class="text-sm text-balance">Your services are visible to 1,240 potential nodes in this cluster.</div>
-                    </div>
-                    <a href="{{ path('app_billing_history') }}" class="glass-card p-3 d-flex align-items-center justify-content-between hover-glow border-subtle">
-                        <div class="d-flex align-items-center gap-3">
-                            <div class="p-2 rounded-3 bg-amber-alpha text-amber"><i class="fas fa-hand-holding-dollar"></i></div>
-                            <div>
-                                <div class="fw-800 text-sm">Finance Hub</div>
-                                <div class="text-xs text-muted">Withdraw earnings</div>
-                            </div>
-                        </div>
-                        <i class="fas fa-chevron-right text-muted opacity-50"></i>
+                <h1 class="luxury-serif text-pure mb-3" style="font-size: 3rem;">Salutations, {{ app.user.fullName }}</h1>
+                <p class="text-silver mb-5 opacity-70" style="max-width:550px; line-height: 1.6;">
+                    {% if app.user.services|length == 0 %}
+                        Your atelier is offline. Publish your first technical artifact to integrate with the ServiceHub global network.
+                    {% else %}
+                        Your atelier is synchronized. Monitor live telemetry and legacy protocols through your high-fidelity dashboard.
+                    {% endif %}
+                </p>
+                <div class="d-flex gap-3">
+                    <a href="{{ path('app_service_new') }}" class="btn-luxury px-4 py-2" style="background: var(--admin-accent) !important; font-size: 0.75rem;">
+                        <i class="fas fa-plus me-2"></i> UNVEIL NEW SERVICE
                     </a>
+                    <a href="{{ path('app_provider_my_services') }}" class="btn-outline-luxury px-4 py-2" style="border-color: var(--admin-accent) !important; color: var(--admin-accent) !important; font-size: 0.75rem;">COLLECTION MANIFEST</a>
                 </div>
-            {% endblock %}
-        {% endembed %}
+            </div>
+        </div>
+        <div class="col-xl-4">
+            <div class="glass-card p-5 h-100 d-flex flex-column align-items-center justify-content-center border-admin-glow">
+                <div class="text-xxs text-admin fw-800 letter-spacing-3 mb-4">REPUTATION HERITAGE</div>
+                <div class="user-orb" style="width:120px; height:120px; font-size:2.5rem; margin-bottom:24px; border-color: var(--admin-accent); box-shadow: 0 0 40px rgba(239, 68, 68, 0.15);">
+                    {{ app.user.reputationPoints }}
+                </div>
+                <div class="badge-status status-active px-4 py-2" style="background: rgba(239,68,68,0.1); color: var(--admin-accent); border-color: rgba(239,68,68,0.3);">
+                    {{ app.user.tier|upper }} ARCHITECT
+                </div>
+            </div>
+        </div>
     </div>
-</div>
 
-{# ── INCOMING REQUESTS ── #}
-<div class="fade-up" style="transition-delay: 400ms;">
-    <div class="d-flex align-items-center justify-content-between mb-4">
-        <h2 class="text-2xl text-white">Incoming Protocols</h2>
-        <div class="badge-pill bg-surface-2 border-subtle px-4 py-2 text-xs text-muted fw-bold">AUTO-REFRESH: ON</div>
+    {# ── KPI ANALYTICS ── #}
+    <div class="row g-4 mb-5">
+        <div class="col-md-3">
+            <div class="glass-card p-4">
+                <div class="text-xxs text-dim fw-800 mb-2">ACTIVE PROTOCOLS</div>
+                <div class="h2 text-pure fw-800 mb-0">{{ bookings|filter(b => b.status in ['Pending', 'Confirmed', 'on-the-way', 'Accepted'])|length }}</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="glass-card p-4">
+                <div class="text-xxs text-dim fw-800 mb-2">LIFETIME YIELD</div>
+                {% set totalRev = 0 %}
+                {% for b in bookings|filter(b => b.status == 'Completed') %}{% set totalRev = totalRev + (b.estimatedCost|default(b.service.price)) %}{% endfor %}
+                <div class="h2 text-pure fw-800 mb-0">₹{{ totalRev|number_format(0) }}</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="glass-card p-4">
+                <div class="text-xxs text-dim fw-800 mb-2">HERITAGE SCORE</div>
+                <div class="h2 text-teal fw-800 mb-0">9.8<span class="text-xxs text-dim">/10</span></div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="glass-card p-4">
+                <div class="text-xxs text-dim fw-800 mb-2">PENDING ESTIMATES</div>
+                <div class="h2 text-admin fw-800 mb-0">{{ bookings|filter(b => b.bookingType == 'visit' and b.estimatedCost is empty)|length }}</div>
+            </div>
+        </div>
     </div>
 
-    <div class="glass-card overflow-hidden border-subtle mb-5">
-        <div class="table-responsive">
-            <table class="table table-dark table-hover mb-0 align-middle" style="--bs-table-bg:transparent; border-color: var(--border-subtle);">
-                <thead>
-                    <tr class="text-xs text-muted fw-900 border-subtle">
-                        <th class="ps-4 py-3">NODE / CUSTOMER</th>
-                        <th class="py-3">SERVICE PROTOCOL</th>
-                        <th class="py-3">DEVICES</th>
-                        <th class="py-3">STATUS</th>
-                        <th class="pe-4 py-3 text-end">ACTIONS</th>
-                    </tr>
-                </thead>
-                <tbody class="border-0">
-                    {% for booking in bookings %}
-                        <tr class="border-subtle">
-                            <td class="ps-4 py-4">
-                                <div class="d-flex align-items-center gap-3">
-                                    <div class="mini-avatar" style="width:40px;height:40px;background:var(--brand-1);color:#fff;font-weight:900;font-size:0.7rem;">{{ booking.user.email|slice(0,1)|upper }}</div>
-                                    <div>
-                                        <div class="text-sm fw-800 text-white">{{ booking.user.fullName|default(booking.user.email|split('@')[0]) }}</div>
-                                        <div class="text-xxs text-muted fw-bold">{{ booking.user.email }}</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="py-4">
-                                <div class="text-sm fw-800 text-white text-uppercase letter-spacing-1">{{ booking.service.title }}</div>
-                                <div class="text-xxs text-muted fw-bold"><i class="fas fa-tag me-1"></i> {{ booking.service.category }}</div>
-                            </td>
-                            <td class="py-4">
-                                {{ ui.pill_badge(booking.type|upper, 'confirmed') }}
-                            </td>
-                            <td class="py-4">
-                                {{ ui.pill_badge(booking.status|upper, booking.status|lower) }}
-                            </td>
-                            <td class="pe-4 py-4 text-end">
-                                <div class="d-flex align-items-center justify-content-end gap-2">
-                                    {% if booking.status == 'Confirmed' %}
-                                        <form action="{{ path('app_provider_dispatch_booking', {'id': booking.id}) }}" method="post">
-                                            <input type="hidden" name="_token" value="{{ csrf_token('dispatch' ~ booking.id) }}">
-                                            <button type="submit" class="btn-violet text-xxs py-2 px-4 shadow-sm">DISPATCH NODE</button>
-                                        </form>
-                                    {% elseif booking.status == 'on-the-way' %}
-                                        <div class="d-flex align-items-center gap-2">
-                                            <span class="text-xs text-cyan fw-bold"><i class="fas fa-truck-fast me-1 pulsate"></i> IN TRANSIT</span>
-                                            <form action="{{ path('app_provider_complete_booking', {'id': booking.id}) }}" method="post">
-                                                <input type="hidden" name="_token" value="{{ csrf_token('complete' ~ booking.id) }}">
-                                                <button type="submit" class="btn-violet text-xxs py-2 px-3">FINISH</button>
-                                            </form>
+    <div class="row g-5 mb-5">
+        {# ── PROTOCOL LEDGER ── #}
+        <div class="col-xl-8">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="luxury-serif text-pure mb-0">Protocol Ledger</h2>
+                <a href="#all-logs" class="text-xxs text-admin fw-800 letter-spacing-1 text-decoration-none">VIEW ALL LOGS</a>
+            </div>
+            <div class="glass-card p-0 overflow-hidden">
+                <div class="table-responsive">
+                    <table class="table mb-0">
+                        <thead>
+                            <tr class="text-xxs text-dim fw-800">
+                                <th class="ps-4 py-4">CLIENT NODE</th>
+                                <th class="py-4">ARTIFACT</th>
+                                <th class="py-4">STATUS</th>
+                                <th class="pe-4 py-4 text-end">OPERATIONS</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for booking in bookings|slice(0, 5) %}
+                                <tr class="border-top border-glass">
+                                    <td class="ps-4 py-4">
+                                        <div class="d-flex align-items-center gap-3">
+                                            <div class="user-orb" style="width:36px; height:36px; font-size:0.8rem; background: var(--bg-deep);">{{ booking.customer.fullName|slice(0,1)|upper }}</div>
+                                            <div>
+                                                <div class="text-pure fw-bold" style="font-size:0.85rem;">{{ booking.customer.fullName }}</div>
+                                                <div class="text-xxs text-dim">{{ booking.customer.tier|upper }}</div>
+                                            </div>
                                         </div>
-                                    {% elseif booking.status == 'Pending' %}
-                                        {# ... Existing Pending Logic ... #}
-                                        {% if booking.type == 'online' %}
-                                            <form action="{{ path('app_provider_complete_booking', {'id': booking.id}) }}" method="post">
-                                                <input type="hidden" name="_token" value="{{ csrf_token('complete' ~ booking.id) }}">
-                                                <button type="submit" class="btn-violet text-xxs py-2 px-4 shadow-sm">FINALIZE</button>
-                                            </form>
-                                        {% elseif booking.type == 'visit' %}
-                                            {% if not booking.estimatedCost %}
+                                    </td>
+                                    <td class="py-4">
+                                        <div class="text-pure fw-bold text-xxs mb-1">{{ booking.service.title|upper }}</div>
+                                        <div class="text-xxs text-dim">{{ booking.bookingDate|date('d M Y') }}</div>
+                                    </td>
+                                    <td class="py-4">
+                                        <span class="badge-status status-{{ booking.status|lower in ['completed', 'accepted'] ? 'active' : 'pending' }} px-3" 
+                                              style="{{ booking.status|lower == 'completed' ? '' : 'background: rgba(239,68,68,0.1); color: var(--admin-accent); border-color: rgba(239,68,68,0.2);' }}">
+                                            {{ booking.status|upper }}
+                                        </span>
+                                    </td>
+                                    <td class="pe-4 py-4 text-end">
+                                        <div class="d-flex justify-content-end gap-2">
+                                            {% if booking.status == 'Confirmed' %}
+                                                <form action="{{ path('app_provider_dispatch_booking', {'id': booking.id}) }}" method="post">
+                                                    <input type="hidden" name="_token" value="{{ csrf_token('dispatch' ~ booking.id) }}">
+                                                    <button type="submit" class="btn-luxury px-3 py-1" style="font-size: 0.6rem; background: var(--admin-accent) !important;">DISPATCH</button>
+                                                </form>
+                                            {% elseif booking.status == 'on-the-way' %}
+                                                <form action="{{ path('app_provider_complete_booking', {'id': booking.id}) }}" method="post">
+                                                    <input type="hidden" name="_token" value="{{ csrf_token('complete' ~ booking.id) }}">
+                                                    <button type="submit" class="btn-luxury px-3 py-1" style="font-size: 0.6rem; background: var(--admin-accent) !important;">CONCLUDE</button>
+                                                </form>
+                                            {% endif %}
+                                            
+                                            {% if booking.bookingType == 'visit' and not booking.estimatedCost %}
                                                 <form action="{{ path('app_provider_send_estimate', {'id': booking.id}) }}" method="post" class="d-flex gap-2">
                                                     <input type="hidden" name="_token" value="{{ csrf_token('estimate' ~ booking.id) }}">
-                                                    <input type="number" name="estimatedCost" class="glass-input text-xxs py-2 px-3 border-subtle" placeholder="₹ Est." required style="width:100px;">
-                                                    <button type="submit" class="btn-violet text-xxs py-2 px-3"><i class="fas fa-paper-plane"></i></button>
+                                                    <input type="number" name="estimatedCost" class="luxury-input py-1 px-2 mb-0" style="width:80px; font-size:0.65rem;" placeholder="₹ Est." required>
+                                                    <button type="submit" class="btn-outline-luxury py-1 px-2" style="font-size:0.6rem; border-color: var(--admin-accent) !important; color: var(--admin-accent) !important;">PROPOSE</button>
                                                 </form>
-                                            {% else %}
-                                                {% if booking.estimationStatus == 'sent' %}
-                                                    <div class="text-xs text-amber fw-bold"><i class="fas fa-hourglass-half me-1"></i> ₹{{ booking.estimatedCost }} SENT</div>
-                                                {% elseif booking.estimationStatus == 'accepted' %}
-                                                    <div class="d-flex gap-2 align-items-center">
-                                                        <form action="{{ path('app_provider_dispatch_booking', {'id': booking.id}) }}" method="post">
-                                                            <input type="hidden" name="_token" value="{{ csrf_token('dispatch' ~ booking.id) }}">
-                                                            <button type="submit" class="btn-violet text-xxs py-2 px-4 shadow-sm">DISPATCH</button>
-                                                        </form>
-                                                    </div>
-                                                {% endif %}
                                             {% endif %}
-                                        {% endif %}
-                                    {% else %}
-                                        <span class="text-xxs text-muted fw-bold"><i class="fas fa-check-double me-1 opacity-50"></i> ARCHIVED</span>
-                                    {% endif %}
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        {# ── RECENT REVIEWS ── #}
+        <div class="col-xl-4">
+            <h2 class="luxury-serif text-pure mb-4">Heritage Voices</h2>
+            <div class="glass-card p-4">
+                <div class="d-flex flex-column gap-4">
+                    {% set reviews = [] %}
+                    {% for b in bookings %}{% if b.review is not empty %}{% set reviews = reviews|merge([b.review]) %}{% endif %}{% endfor %}
+                    
+                    {% for review in reviews|reverse|slice(0, 3) %}
+                        <div class="review-feedback p-3 rounded-4" style="background: rgba(255,255,255,0.02); border: 1px solid var(--glass-border);">
+                            <div class="d-flex justify-content-between mb-2">
+                                <div class="text-gold" style="font-size: 0.7rem;">
+                                    {% for i in 1..5 %}<i class="f{{ review.rating >= i ? 'as' : 'ar' }} fa-star"></i>{% endfor %}
                                 </div>
-                            </td>
-                        </tr>
+                                <div class="text-xxs text-dim fw-800">{{ review.createdAt|date('d M Y') }}</div>
+                            </div>
+                            <p class="text-xs text-silver italic mb-2">"{{ review.comment|slice(0, 80) }}..."</p>
+                            <div class="text-xxs text-pure fw-800">— {{ review.customer.fullName|upper }}</div>
+                        </div>
                     {% else %}
-                        <tr>
-                            <td colspan="5" class="text-center py-5">
-                                <i class="fas fa-terminal h1 mb-4 opacity-10"></i>
-                                <h4 class="text-muted">No protocols detected in the current sector.</h4>
-                            </td>
-                        </tr>
+                        <div class="text-center py-5 opacity-40">
+                            <i class="fas fa-comment-slash fs-2 mb-3"></i>
+                            <p class="text-xxs text-dim fw-800">NO RECENT FEEDBACK NODES</p>
+                        </div>
                     {% endfor %}
-                </tbody>
-            </table>
+                </div>
+                <div class="mt-4 pt-4 border-top border-glass text-center">
+                    <a href="#" class="btn-outline-luxury w-100 py-3" style="font-size: 0.65rem;">VIEW FULL REPUTATION MANIFEST</a>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
-{% endblock %}
-
-{% block javascripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const ctx = document.getElementById('earningsChart').getContext('2d');
-        
-        // Prepare data from Twig
-        {% set months = [] %}
-        {% set amounts = [] %}
-        {% for i in 5..0 %}
-            {% set targetDate = "now"|date_modify("-" ~ i ~ " months")|date("M") %}
-            {% set monthTotal = 0 %}
-            {% for b in bookings|filter(b => b.status == 'Completed' and b.scheduledTime|date("M") == targetDate) %}
-                {% set priceToUse = b.type == 'visit' and b.estimation and b.estimation.status == 'accepted' ? b.estimation.amount : b.service.price %}
-                {% set monthTotal = monthTotal + priceToUse %}
-            {% endfor %}
-            {% set months = months|merge([targetDate]) %}
-            {% set amounts = amounts|merge([monthTotal]) %}
-        {% endfor %}
-
-        new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: {{ months|json_encode|raw }},
-                datasets: [{
-                    label: 'Yield (₹)',
-                    data: {{ amounts|json_encode|raw }},
-                    backgroundColor: 'rgba(124, 58, 237, 0.4)',
-                    borderColor: '#7C3AED',
-                    borderWidth: 2,
-                    borderRadius: 8,
-                    hoverBackgroundColor: '#7C3AED'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        grid: { color: 'rgba(255,255,255,0.05)' },
-                        ticks: { color: '#666', font: { size: 10 } }
-                    },
-                    x: {
-                        grid: { display: false },
-                        ticks: { color: '#666', font: { size: 10 } }
-                    }
-                }
-            }
-        });
+        // Analytics can be added here if needed in future
     });
 </script>
-<style>
-    .pulsing-dot {
-        width: 8px; height: 8px; border-radius: 50%;
-        box-shadow: 0 0 10px var(--accent-green);
-        animation: pulse-green 2s infinite;
-    }
-    @keyframes pulse-green {
-        0% { opacity: 1; transform: scale(1); }
-        50% { opacity: 0.4; transform: scale(1.5); }
-        100% { opacity: 1; transform: scale(1); }
-    }
-</style>
-{% endblock %}
-
 {% endblock %}

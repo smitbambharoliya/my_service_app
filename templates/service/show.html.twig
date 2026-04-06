@@ -1,101 +1,109 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ service.title }} - Service Details{% endblock %}
+{% block title %}{{ service.title }} — Exhibit Details{% endblock %}
 
 {% block body %}
-<div class="container py-5">
-    <div class="row mb-4 align-items-center">
-        <div class="col-md-8">
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb mb-2">
-                    <li class="breadcrumb-item"><a href="{{ path('app_home') }}" class="text-decoration-none">Home</a></li>
-                    <li class="breadcrumb-item"><a href="{{ path('app_service_list') }}" class="text-decoration-none">Services</a></li>
-                    <li class="breadcrumb-item"><a href="{{ path('app_book_by_category', {'categoryName': service.category}) }}" class="text-decoration-none">{{ service.category }}</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">Details</li>
+<div class="animate-fade-in">
+    {# ── 1. IMMERSIVE HEADER ── #}
+    <section class="py-5" style="background: linear-gradient(to bottom, var(--bg-deep), var(--bg-surface)); border-bottom: 1px solid var(--glass-border);">
+        <div class="container">
+            <nav class="mb-4" style="--bs-breadcrumb-divider: '·';">
+                <ol class="breadcrumb text-xs fw-800 text-uppercase letter-spacing-1">
+                    <li class="breadcrumb-item"><a href="{{ path('app_home') }}" class="text-dim text-decoration-none">Home</a></li>
+                    <li class="breadcrumb-item"><a href="{{ path('app_service_list') }}" class="text-dim text-decoration-none">Services</a></li>
+                    <li class="breadcrumb-item active text-gold" aria-current="page">{{ service.category|upper }}</li>
                 </ol>
             </nav>
-            <h1 class="fw-bold mb-1">{{ service.title }}</h1>
-            <div class="d-flex align-items-center gap-2 mb-3">
-                <span class="badge bg-primary text-white px-3 py-2 rounded-pill"><i class="fas fa-tag me-1"></i>{{ service.category }}</span>
-                {% if service.isPremium %}
-                    <span class="badge bg-warning text-dark px-3 py-2 rounded-pill"><i class="fas fa-star me-1"></i>Premium Service</span>
-                {% endif %}
-            </div>
-        </div>
-        <div class="col-md-4 text-md-end mt-3 mt-md-0">
-            <a href="{{ path('app_service_list') }}" class="btn btn-outline-secondary rounded-pill px-4">
-                <i class="fas fa-arrow-left me-1"></i> Back to Services
-            </a>
-        </div>
-    </div>
-
-    <div class="row g-4">
-        {# Left Column: Service Details #}
-        <div class="col-lg-8">
-            <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
-                <div class="bg-light p-5 text-center border-bottom">
-                    <div class="display-1 text-primary mb-3">
-                        {# Dynamic icon based on category #}
-                        {% if service.category|lower == 'plumbing' %}<i class="fas fa-faucet text-primary"></i>
-                        {% elseif service.category|lower == 'electrician' %}<i class="fas fa-bolt text-warning"></i>
-                        {% elseif service.category|lower == 'carpentry' %}<i class="fas fa-hammer text-danger"></i>
-                        {% elseif service.category|lower == 'cleaning' %}<i class="fas fa-broom text-info"></i>
-                        {% else %}<i class="fas fa-tools text-secondary"></i>
-                        {% endif %}
+            
+            <div class="row align-items-end g-5">
+                <div class="col-lg-8">
+                    <h1 class="luxury-serif text-pure mb-4" style="font-size: 3.5rem;">{{ service.title }}</h1>
+                    <div class="d-flex align-items-center gap-4">
+                        <div class="tier-badge tier-gold px-4 py-2">EXERT LEVEL</div>
+                        <div class="text-silver fw-bold"><i class="fas fa-star text-gold me-2"></i> 4.9 <span class="text-dim">/ 5.0</span></div>
+                        <div class="text-dim text-xs fw-800">PROTOCOL ID: #EX-{{ service.id }}</div>
                     </div>
                 </div>
-                <div class="card-body p-4 p-md-5">
-                    <h4 class="fw-bold border-bottom pb-3 mb-4">About this service</h4>
-                    <p class="text-muted lh-lg" style="white-space: pre-line;">{{ service.description }}</p>
-                    
-                    <h5 class="fw-bold mt-5 mb-3">What's included?</h5>
-                    <ul class="list-unstyled text-muted">
-                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Professional service by a verified expert</li>
-                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Quality workmanship guaranteed</li>
-                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Transparent pricing, no hidden fees</li>
-                    </ul>
+                <div class="col-lg-4 text-lg-end">
+                    <div class="text-dim text-xs mb-2">INITIAL RESERVE</div>
+                    <div class="luxury-serif text-gold" style="font-size: 2.5rem;">₹{{ service.price|number_format }}</div>
                 </div>
             </div>
         </div>
+    </section>
 
-        {# Right Column: Provider & Booking Card #}
-        <div class="col-lg-4">
-            <div class="card border-0 shadow-lg rounded-4 sticky-top" style="top: 20px;">
-                <div class="card-body p-4 p-md-5">
-                    <div class="text-center mb-4">
-                        <p class="text-muted text-uppercase small fw-bold mb-1">Service Price</p>
-                        <h2 class="display-5 fw-bold text-success mb-0">₹{{ service.price }}</h2>
-                    </div>
+    {# ── 2. PRODUCT SHOWCASE ── #}
+    <section class="py-5 container">
+        <div class="row g-5">
+            {# Left: Visuals & Narrative #}
+            <div class="col-lg-8">
+                <div class="glass-card p-0 mb-5 overflow-hidden" style="height: 500px;">
+                    <img src="https://images.unsplash.com/photo-1581578731548-c64695cc6952?q=80&w=1200&auto=format&fit=crop" class="w-100 h-100 object-fit-cover" alt="Service Exhibit">
+                </div>
 
-                    <div class="d-grid mb-4">
-                        <a href="{{ path('app_service_book', {id: service.id}) }}" class="btn btn-primary btn-lg rounded-pill fw-bold shadow-sm">
-                            <i class="fas fa-calendar-check me-2"></i>Book This Service
-                        </a>
-                    </div>
+                <div class="mb-5">
+                    <h3 class="luxury-serif text-pure mb-4">Executive Narrative</h3>
+                    <p class="text-silver mb-5" style="font-size: 1.1rem; line-height: 1.8;">
+                        {{ service.description }}
+                    </p>
 
-                    <hr class="my-4">
-
-                    <h6 class="fw-bold mb-3">About the Provider</h6>
-                    <div class="d-flex align-items-center">
-                        <div class="bg-primary text-white rounded-circle d-flex justify-content-center align-items-center shadow-sm me-3" style="width: 50px; height: 50px; font-size: 20px; font-weight: bold;">
-                            {{ service.provider.fullName|default(service.provider.email)|slice(0,1)|upper }}
+                    <div class="row g-4">
+                        <div class="col-md-6 text-start">
+                            <div class="p-4 rounded-4" style="background: rgba(255,255,255,0.02); border: 1px solid var(--glass-border);">
+                                <div class="text-gold mb-3"><i class="fas fa-feather fs-4"></i></div>
+                                <h5 class="text-pure fw-bold mb-2">Sensory Notes</h5>
+                                <p class="text-xs text-dim mb-0">High-precision execution, silent operation protocols, and premium structural integrity.</p>
+                            </div>
                         </div>
-                        <div>
-                            <h6 class="fw-bold mb-0 text-dark">{{ service.provider.fullName|default('Verified Expert') }}</h6>
-                            <small class="text-muted">Member Since {{ '2023' }}</small>
+                        <div class="col-md-6 text-start">
+                            <div class="p-4 rounded-4" style="background: rgba(255,255,255,0.02); border: 1px solid var(--glass-border);">
+                                <div class="text-gold mb-3"><i class="fas fa-shield-halved fs-4"></i></div>
+                                <h5 class="text-pure fw-bold mb-2">Heritage Guarantee</h5>
+                                <p class="text-xs text-dim mb-0">Includes a 12-month post-operational audit and priority access to follow-up consultations.</p>
+                            </div>
                         </div>
                     </div>
-                    
-                    <div class="mt-4 bg-light p-3 rounded-3 text-center">
-                        <small class="text-muted"><i class="fas fa-shield-alt text-success me-1"></i> 100% Secure Booking via ServiceHub</small>
+                </div>
+            </div>
+
+            {# Right: Reservation Control #}
+            <div class="col-lg-4">
+                <div class="sticky-top" style="top: 120px;">
+                    <div class="glass-card mb-4" style="background: rgba(212, 175, 55, 0.03); border-color: var(--gold-border);">
+                        <h4 class="luxury-serif text-pure mb-4">Request Protocol</h4>
+                        
+                        <div class="mb-4">
+                            <div class="text-xs text-dim mb-2 text-uppercase">Selected Tier</div>
+                            <div class="p-3 rounded-4 bg-deep d-flex justify-content-between align-items-center">
+                                <span class="text-pure fw-bold">Standard Professional</span>
+                                <span class="text-gold fs-5">₹{{ service.price|number_format }}</span>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-3">
+                            <a href="{{ path('app_service_book', {id: service.id}) }}" class="btn-luxury w-100 justify-content-center">
+                                RESERVE EXHIBIT <i class="fas fa-calendar-check ms-2"></i>
+                            </a>
+                            <p class="text-center text-xs text-dim mt-3">NO INITIAL DEPOSIT REQUIRED</p>
+                        </div>
+                    </div>
+
+                    <div class="glass-card text-center">
+                        <div class="sb-user-orb mx-auto mb-3" style="width: 60px; height: 60px;">
+                            {{ service.provider.fullName|slice(0,1)|upper }}
+                        </div>
+                        <div class="text-pure fw-bold mb-1">{{ service.provider.fullName }}</div>
+                        <div class="text-xs text-dim text-uppercase letter-spacing-1 mb-4">{{ service.provider.tier }} ARTISAN</div>
+                        <a href="#" class="btn-outline w-100" style="font-size: 0.75rem;">VIEW PORTFOLIO</a>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+    </section>
 </div>
 
 <style>
-    body { background-color: #f8f9fa; }
+    .object-fit-cover { object-fit: cover; }
+    .cursor-pointer { cursor: pointer; }
 </style>
 {% endblock %}

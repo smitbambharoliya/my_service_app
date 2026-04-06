@@ -27,6 +27,10 @@ class RegistrationController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            // Manually handle the role from the unmapped dropdown
+            $selectedRole = $form->get('roles')->getData();
+            $user->setRoles([$selectedRole]);
+
             /** @var string $plainPassword */
             $plainPassword = $form->get('plainPassword')->getData();
 

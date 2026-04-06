@@ -42,12 +42,14 @@ class RegistrationFormType extends AbstractType
             ])
             ->add('roles', ChoiceType::class, [
                 'choices' => [
-                    'Customer' => 'ROLE_USER',
-                    'Service Provider' => 'ROLE_PROVIDER',
+                    'Sovereign Client (Customer)' => 'ROLE_USER',
+                    'Heritage Artisan (Provider)' => 'ROLE_PROVIDER',
                 ],
                 'expanded' => false,
-                'multiple' => true,
-                'label' => 'Register as:'
+                'multiple' => false,
+                'mapped' => false,
+                'label' => 'Register as:',
+                'attr' => ['class' => 'auth-input']
             ])
             ->add('gender', ChoiceType::class, [
                 'choices' => [

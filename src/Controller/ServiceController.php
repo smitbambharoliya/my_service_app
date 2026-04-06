@@ -53,6 +53,15 @@ final class ServiceController extends AbstractController
     {
         $this->denyAccessUnlessGranted('ROLE_PROVIDER');
 
+        /** @var User $user */
+        $user = $this->getUser();
+
+        // Hard checkpoint for new providers: require basic profile before creating services
+        if (!$user->getAddress() || !$user->getCity() || !$user->getMobile()) {
+            $this->addFlash('warning', 'Please complete your profile (address, city and mobile) before publishing a service.');
+            return $this->redirectToRoute('app_provider_onboarding');
+        }
+
         $service = new Service();
         $form = $this->createForm(ServiceType::class, $service);
         $form->handleRequest($request);
@@ -77,6 +86,7 @@ final class ServiceController extends AbstractController
     public function providerDashboard(EntityManagerInterface $entityManager): Response
     {
         $this->denyAccessUnlessGranted('ROLE_PROVIDER');
+        /** @var User $user */
         $user = $this->getUser();
 
         $bookings = $entityManager->getRepository(Booking::class)->createQueryBuilder('b')
@@ -90,6 +100,14 @@ final class ServiceController extends AbstractController
         return $this->render('dashboard/provider.html.twig', [
             'bookings' => $bookings,
         ]);
+    }
+
+    #[Route('/dashboard/provider/onboarding', name: 'app_provider_onboarding')]
+    public function providerOnboarding(): Response
+    {
+        $this->denyAccessUnlessGranted('ROLE_PROVIDER');
+
+        return $this->render('dashboard/provider_onboarding.html.twig');
     }
 
     // --- BOOKING LOGIC ---
@@ -237,11 +255,32 @@ final class ServiceController extends AbstractController
 
         if ($this->isCsrfTokenValid('dispatch' . $booking->getId(), $request->request->get('_token'))) {
             $booking->setStatus('on-the-way');
+            
+            // Set initial tracking coordinates (from provider's profile or default)
+            $provider = $booking->getService()->getProvider();
+            $booking->setLatitude($provider->getLatitude() ?? '21.1702'); // Default Surat lat
+            $booking->setLongitude($provider->getLongitude() ?? '72.8311'); // Default Surat long
+            
             $entityManager->flush();
             $this->addFlash('success', 'Protocol Status: DISPATCHED. Node is currently transit to sector.');
         }
 
         return $this->redirectToRoute('app_provider_dashboard');
+    }
+
+    #[Route('/booking/{id}/track', name: 'app_booking_track')]
+    public function trackLive(Booking $booking): Response
+    {
+        $this->denyAccessUnlessGranted('ROLE_USER');
+        
+        // Ensure only customer or provider can track
+        if ($booking->getCustomer() !== $this->getUser() && $booking->getService()->getProvider() !== $this->getUser()) {
+             throw $this->createAccessDeniedException();
+        }
+
+        return $this->render('booking/track.html.twig', [
+            'booking' => $booking,
+        ]);
     }
 
     #[Route('/premium/upgrade', name: 'app_premium_upgrade')]

@@ -3,142 +3,150 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>{% block title %}ServiceHub — Obsidian X{% endblock %}</title>
-        <meta name="description" content="Premium Concierge Service Marketplace.">
+        <meta name="theme-color" content="#0a0e16">
+        <title>{% block title %}ServiceHub — Digital Luxury Heritage{% endblock %}</title>
+        <meta name="description" content="Premium Concierge & Service Marketplace. Redefining Digital Luxury.">
         
-        {# ── Fonts (Plus Jakarta Sans & Inter) ── #}
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
 
-        {# ── Icons ── #}
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
-        {# ── Bootstrap (Internal Grid Only) ── #}
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
         
-        {# ── Custom App Styles ── #}
         <link rel="stylesheet" href="{{ asset('styles/app.css') }}">
         
         {% block stylesheets %}{% endblock %}
 
         <style>
-            /* ── Global Navbar (Obsidian X) ── */
-            .site-navbar {
-                background: rgba(7, 8, 15, 0.7);
-                backdrop-filter: blur(16px);
-                border-bottom: 1px solid var(--border-subtle);
-                padding: 16px 0;
+            .luxury-navbar {
+                background: rgba(10, 14, 22, 0.4);
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                border-bottom: 1px solid var(--glass-border);
+                padding: 1.25rem 0;
                 position: sticky;
                 top: 0;
                 z-index: 1000;
-                transition: all var(--duration-base);
+                transition: all 0.4s var(--ease-luxury);
             }
-            .site-navbar.scrolled {
-                padding: 12px 0;
-                background: rgba(7, 8, 15, 0.9);
-                border-bottom-color: var(--border-brand);
+            .luxury-navbar.scrolled {
+                padding: 0.85rem 0;
+                background: rgba(10, 14, 22, 0.95);
+                border-bottom-color: rgba(16, 185, 129, 0.3);
             }
-            .nav-brand {
-                font-family: 'Plus Jakarta Sans', sans-serif;
-                font-size: 1.5rem;
-                font-weight: 800;
-                color: var(--text-primary) !important;
+            .nav-brand-luxury {
+                font-family: 'Playfair Display', serif;
+                font-size: 1.6rem;
+                font-weight: 700;
+                color: var(--text-pure) !important;
                 display: flex; align-items: center; gap: 10px;
-                letter-spacing: -0.03em;
+                text-decoration: none;
             }
-            .brand-dot { color: var(--brand-1); }
+            .gold-dot { color: var(--accent-gold); }
             
-            .nav-link-x {
-                color: var(--text-body);
+            .nav-link-luxury {
+                color: var(--text-silver);
                 font-weight: 600;
-                font-size: 0.95rem;
+                font-size: 0.75rem;
+                text-transform: uppercase;
+                letter-spacing: 0.12em;
                 padding: 8px 16px;
-                border-radius: var(--r-md);
-                transition: all var(--duration-base);
+                transition: all 0.3s var(--ease-luxury);
+                text-decoration: none;
+                opacity: 0.8;
             }
-            .nav-link-x:hover, .nav-link-x.active {
-                color: var(--text-primary);
-                background: rgba(255,255,255,0.05);
+            .nav-link-luxury:hover, .nav-link-luxury.active {
+                color: var(--accent-teal);
+                opacity: 1;
+                transform: translateY(-1px);
             }
 
-            /* ── Dropdown ── */
-            .dropdown-menu-x {
-                background: var(--bg-elevated);
-                border: 1px solid var(--border-default);
-                border-radius: var(--r-md);
-                box-shadow: var(--shadow-lg);
-                padding: 8px;
-                margin-top: 12px !important;
+            .nav-notification {
+                position: relative;
+                color: var(--text-muted);
+                font-size: 1.1rem;
+                cursor: pointer;
+                transition: color 0.3s;
             }
-            .dropdown-item-x {
-                color: var(--text-body);
-                padding: 10px 14px;
-                border-radius: var(--r-sm);
-                font-weight: 500;
-                display: flex; align-items: center; gap: 10px;
+            .nav-notification:hover { color: var(--accent-teal); }
+            .notif-dot {
+                position: absolute;
+                top: -2px; right: -2px;
+                width: 8px; height: 8px;
+                background: var(--accent-red);
+                border-radius: 50%;
+                border: 2px solid var(--bg-deep);
             }
-            .dropdown-item-x:hover {
-                background: var(--bg-hover);
-                color: var(--text-primary);
+
+            .user-orb {
+                width: 38px; height: 38px;
+                border-radius: 12px;
+                background: linear-gradient(135deg, var(--accent-teal), var(--accent-violet));
+                display: flex; align-items: center; justify-content: center;
+                font-weight: 800; color: #0a0e16;
+                box-shadow: 0 4px 15px var(--accent-teal-glow);
+                border: 1px solid rgba(255,255,255,0.1);
             }
         </style>
     </head>
-    <body>
+    <body class="customer-accent">
 
-    {# ── NAVBAR ── #}
     {% if app.request.get('_route') not in ['app_login', 'app_register', 'app_verify_otp'] %}
-    <nav class="site-navbar" id="mainNavbar">
+    <nav class="luxury-navbar" id="mainNavbar">
         <div class="container d-flex align-items-center justify-content-between">
             
-            <a class="nav-brand" href="{{ path('app_home') }}">
-                ServiceHub<span class="brand-dot">.</span>
+            <a class="nav-brand-luxury" href="{{ path('app_home') }}">
+                Service<span class="gold-dot">Hub</span>
             </a>
 
             <ul class="nav d-none d-lg-flex align-items-center gap-2">
-                <li><a href="{{ path('app_home') }}" class="nav-link-x {{ app.request.get('_route') == 'app_home' ? 'active' : '' }}">Home</a></li>
-                <li><a href="{{ path('app_service_list') }}" class="nav-link-x {{ app.request.get('_route') == 'app_service_list' ? 'active' : '' }}">Services</a></li>
+                <li><a href="{{ path('app_home') }}" class="nav-link-luxury {{ app.request.get('_route') == 'app_home' ? 'active' : '' }}">Registry</a></li>
+                <li><a href="{{ path('app_service_list') }}" class="nav-link-luxury {{ app.request.get('_route') == 'app_service_list' ? 'active' : '' }}">Curation</a></li>
+                {% if app.user %}
+                    {% if is_granted('ROLE_PROVIDER') %}
+                        <li><a href="{{ path('app_provider_dashboard') }}" class="nav-link-luxury {{ app.request.get('_route') == 'app_provider_dashboard' ? 'active' : '' }}">Atelier</a></li>
+                    {% else %}
+                        <li><a href="{{ path('app_customer_dashboard') }}" class="nav-link-luxury {{ app.request.get('_route') == 'app_customer_dashboard' ? 'active' : '' }}">Manifest</a></li>
+                    {% endif %}
+                {% endif %}
             </ul>
 
-            <div class="d-flex align-items-center gap-3">
+            <div class="d-flex align-items-center gap-4">
                 {% if app.user %}
+                    <div class="nav-notification d-none d-md-block">
+                        <i class="fa-regular fa-bell"></i>
+                        <span class="notif-dot"></span>
+                    </div>
+
                     <div class="dropdown">
-                        <button class="d-flex align-items-center gap-2 bg-transparent border-0" data-bs-toggle="dropdown">
-                            <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg, var(--brand-1), var(--brand-2));display:flex;align-items:center;justify-content:center;font-weight:800;color:#FFF;">
-                                {{ app.user.email|slice(0,1)|upper }}
+                        <button class="bg-transparent border-0 p-0 d-flex align-items-center gap-3" data-bs-toggle="dropdown">
+                            <div class="user-orb">{{ app.user.fullName|slice(0,1)|upper }}</div>
+                            <div class="text-start d-none d-md-block">
+                                <div class="text-xxs text-muted fw-800" style="letter-spacing:0.15em;">{{ app.user.tier|upper }}</div>
+                                <div class="text-pure fw-bold" style="font-size:0.8rem;">{{ app.user.fullName|split(' ')[0] }}</div>
                             </div>
-                            <i class="fas fa-chevron-down text-muted" style="font-size:0.7em;"></i>
                         </button>
-                        <ul class="dropdown-menu dropdown-menu-end dropdown-menu-x">
-                            <li><h6 class="dropdown-header text-xs text-muted mb-2">Account Control</h6></li>
-                            {% if is_granted('ROLE_ADMIN') %}
-                                <li><a class="dropdown-item-x" href="{{ path('app_admin_dashboard') }}"><i class="fas fa-shield-halved"></i> Admin Panel</a></li>
-                            {% elseif is_granted('ROLE_PROVIDER') %}
-                                <li><a class="dropdown-item-x" href="{{ path('app_provider_dashboard') }}"><i class="fas fa-chart-pie"></i> Provider Portal</a></li>
-                            {% else %}
-                                <li><a class="dropdown-item-x" href="{{ path('app_customer_dashboard') }}"><i class="fas fa-calendar-alt"></i> My Bookings</a></li>
-                            {% endif %}
-                            <li><hr class="dropdown-divider border-subtle"></li>
-                            <li><a class="dropdown-item-x text-danger" href="{{ path('app_logout') }}"><i class="fas fa-power-off"></i> Logout</a></li>
+                        <ul class="dropdown-menu dropdown-menu-end glass-card p-2 mt-3" style="min-width:220px; background: rgba(10,14,22,0.98); border-color: var(--glass-border);">
+                            <li><a class="dropdown-item p-3 rounded-3 text-silver border-0" href="{{ path('app_profile') }}"><i class="fa-regular fa-user me-3 text-teal"></i> Heritage Profile</a></li>
+                            <li><hr class="dropdown-divider opacity-10"></li>
+                            <li><a class="dropdown-item p-3 rounded-3 text-silver border-0" href="{{ path('app_logout') }}"><i class="fa-solid fa-arrow-right-from-bracket me-3 text-gold"></i> Relinquish Session</a></li>
                         </ul>
                     </div>
                 {% else %}
-                    <a href="{{ path('app_register') }}" class="btn-ghost d-none d-md-flex">Join Hub</a>
-                    <a href="{{ path('app_login') }}" class="btn-violet">Get Started</a>
+                    <a href="{{ path('app_login') }}" class="btn-luxury">Access Portal</a>
                 {% endif %}
             </div>
         </div>
     </nav>
     {% endif %}
 
-    {# ── FLASH MESSAGES ── #}
-    <div class="container mt-4">
+    <div class="container">
         {% for label, messages in app.flashes %}
             {% for message in messages %}
-                <div class="glass-card mb-3 p-3 d-flex align-items-center gap-3" style="border-left: 4px solid var(--accent-{{ label == 'success' ? 'green' : (label == 'danger' ? 'red' : 'amber') }});">
-                    <i class="fas {{ label == 'success' ? 'fa-check-circle text-success' : (label == 'danger' ? 'fa-triangle-exclamation text-danger' : 'fa-circle-info text-warning') }} fs-5"></i>
-                    <div class="fw-medium text-primary">{{ message }}</div>
-                    <button type="button" class="btn-close btn-close-white ms-auto" data-bs-dismiss="alert"></button>
+                <div class="glass-card p-3 mb-4 d-flex align-items-center gap-3 border-0 animate-fade-in" style="background: rgba(16, 185, 129, 0.05);">
+                    <i class="fas {{ label == 'success' ? 'fa-circle-check text-teal' : (label == 'error' ? 'fa-circle-exclamation text-red' : 'fa-info-circle text-silver') }} fs-5"></i>
+                    <div class="text-silver fw-medium" style="font-size: 0.9rem;">{{ message }}</div>
                 </div>
             {% endfor %}
         {% endfor %}
@@ -149,24 +157,25 @@
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
     <script>
-        // Navbar scroll effect
         window.addEventListener('scroll', () => {
             const nav = document.getElementById('mainNavbar');
             if(nav) {
-                if(window.scrollY > 50) nav.classList.add('scrolled');
+                if(window.scrollY > 30) nav.classList.add('scrolled');
                 else nav.classList.remove('scrolled');
             }
         });
 
-        // Intersection Observer for fade-up animations
-        document.addEventListener('DOMContentLoaded', () => {
-            const obs = new IntersectionObserver((entries) => {
-                entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
-            }, { threshold: 0.1 });
-            document.querySelectorAll('.fade-up').forEach(el => obs.observe(el));
-        });
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if(entry.isIntersecting) {
+                    entry.target.classList.add('animate-fade-in');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.05 });
+
+        document.querySelectorAll('.glass-card, .timeline-node').forEach(el => observer.observe(el));
     </script>
     
     {% block javascripts %}
@@ -174,3 +183,4 @@
     {% endblock %}
     </body>
 </html>
+

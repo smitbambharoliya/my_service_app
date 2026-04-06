@@ -3,16 +3,16 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>{% block title %}Dashboard — ServiceHub{% endblock %}</title>
+        <title>{% block title %}Atelier — ServiceHub Luxury Dashboard{% endblock %}</title>
         
-        {# ── Fonts (Plus Jakarta Sans & Inter) ── #}
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
         
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        
         <link rel="stylesheet" href="{{ asset('styles/app.css') }}">
 
         <style>
@@ -22,71 +22,107 @@
             }
 
             body {
-                background: var(--bg-base);
-                color: var(--text-body);
+                background: var(--bg-deep);
+                color: var(--text-silver);
                 display: flex;
                 min-height: 100vh;
                 overflow-x: hidden;
             }
 
-            /* ── SIDEBAR (Obsidian X) ── */
+            /* ── SIDEBAR (Editorial) ── */
             #sidebar {
                 width: var(--sb-w);
-                background: var(--bg-surface);
-                border-right: 1px solid var(--border-subtle);
+                background: rgba(18, 24, 38, 0.4);
+                backdrop-filter: blur(30px);
+                -webkit-backdrop-filter: blur(30px);
+                border-right: 1px solid var(--glass-border);
                 display: flex;
                 flex-direction: column;
                 position: fixed; top: 0; left: 0; bottom: 0;
                 z-index: 1000;
-                transition: transform var(--duration-base) var(--ease-out);
+                transition: transform 0.6s var(--ease-luxury);
             }
 
             .sb-brand {
                 height: var(--tb-h);
-                display: flex; align-items: center; padding: 0 24px;
-                font-family: 'Plus Jakarta Sans', sans-serif;
-                font-weight: 800; font-size: 1.25rem; color: var(--text-primary);
-                letter-spacing: -0.03em;
-                border-bottom: 1px solid var(--border-subtle);
+                display: flex; align-items: center; padding: 0 30px;
+                font-family: 'Playfair Display', serif;
+                font-weight: 700; font-size: 1.4rem; color: var(--text-pure);
+                border-bottom: 1px solid var(--glass-border);
             }
-            .sb-brand span { color: var(--brand-1); }
+            .sb-brand span { color: var(--accent-primary); }
 
             .sb-user-card {
-                padding: 24px;
-                border-bottom: 1px solid var(--border-subtle);
-                background: linear-gradient(to bottom, rgba(124, 58, 237, 0.05), transparent);
+                padding: 30px;
+                border-bottom: 1px solid var(--glass-border);
             }
-            .sb-user-avatar {
-                width: 48px; height: 48px;
-                border-radius: var(--r-md);
-                background: linear-gradient(135deg, var(--brand-1), var(--brand-2));
+            .sb-user-orb {
+                width: 60px; height: 60px;
+                border-radius: 16px;
+                background: linear-gradient(135deg, var(--accent-primary), #b91c1c);
+                margin-bottom: 20px;
                 display: flex; align-items: center; justify-content: center;
-                font-weight: 800; color: #FFF; font-size: 1.2rem;
-                margin-bottom: 12px;
-                box-shadow: var(--glow-brand);
+                font-family: 'Playfair Display', serif;
+                font-weight: 700; color: #0a0e16; font-size: 1.8rem;
+                box-shadow: 0 10px 25px var(--accent-primary-glow);
+                border: 1px solid rgba(255,255,255,0.1);
             }
-            .sb-user-info .name { color: var(--text-primary); font-weight: 700; font-size: 0.95rem; }
-            .sb-user-info .role { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; font-weight: 600; }
+            .sb-user-info .name { color: var(--text-pure); font-weight: 700; font-size: 1rem; margin-bottom: 2px; }
+            .sb-user-info .tier-label { 
+                font-size: 0.6rem; color: var(--accent-primary); 
+                text-transform: uppercase; letter-spacing: 0.15em; font-weight: 800; 
+            }
 
-            .sb-nav { flex: 1; padding: 20px 12px; overflow-y: auto; }
-            .sb-nav-label { font-size: 0.65rem; font-weight: 700; color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.15em; margin: 24px 0 8px 12px; }
+            /* Gamification Tracker */
+            .gamify-mini {
+                margin-top: 15px;
+                background: rgba(255,255,255,0.03);
+                padding: 12px;
+                border-radius: 12px;
+                border: 1px solid rgba(255,255,255,0.05);
+            }
+            .gamify-progress-bar {
+                height: 4px;
+                background: rgba(255,255,255,0.1);
+                border-radius: 2px;
+                margin: 8px 0;
+                overflow: hidden;
+            }
+            .gamify-progress-fill {
+                height: 100%;
+                background: var(--accent-primary);
+                box-shadow: 0 0 10px var(--accent-primary-glow);
+            }
+
+            .sb-nav { flex: 1; padding: 25px 15px; overflow-y: auto; }
+            .sb-nav-label { 
+                font-size: 0.6rem; font-weight: 800; color: var(--text-dim); 
+                text-transform: uppercase; letter-spacing: 0.15em; margin: 30px 0 10px 15px; 
+            }
             
             .sb-link {
-                display: flex; align-items: center; gap: 12px;
-                padding: 12px 14px; border-radius: var(--r-md);
-                color: var(--text-body); font-weight: 600; font-size: 0.9rem;
-                transition: all var(--duration-base);
-                margin-bottom: 4px;
+                display: flex; align-items: center; gap: 15px;
+                padding: 12px 15px; border-radius: 12px;
+                color: var(--text-silver); font-weight: 600; font-size: 0.85rem;
+                transition: all 0.3s var(--ease-luxury);
+                margin-bottom: 5px;
+                text-decoration: none;
+                opacity: 0.7;
             }
-            .sb-link i { font-size: 1.1rem; width: 24px; text-align: center; }
-            .sb-link:hover { background: rgba(255,255,255,0.03); color: var(--text-primary); }
+            .sb-link i { font-size: 1rem; width: 22px; color: var(--accent-primary); transition: all 0.3s; }
+            .sb-link:hover { 
+                background: rgba(255,255,255,0.05);
+                color: #ffffff;
+                opacity: 1;
+                transform: translateX(5px);
+            }
             .sb-link.active {
-                background: var(--brand-1);
-                color: #FFF;
-                box-shadow: var(--glow-brand);
+                background: var(--accent-primary-glow);
+                color: var(--accent-primary);
+                border: 1px solid rgba(239, 68, 68, 0.2);
+                opacity: 1;
             }
-
-            .sb-footer { padding: 16px; border-top: 1px solid var(--border-subtle); }
+            .sb-link.active i { transform: scale(1.1); }
 
             /* ── MAIN CONTENT ── */
             #main-wrapper {
@@ -95,37 +131,32 @@
                 min-width: 0;
             }
 
-            .topbar {
+            .dashboard-topbar {
                 height: var(--tb-h);
-                background: rgba(7, 8, 15, 0.8);
-                backdrop-filter: blur(12px);
-                border-bottom: 1px solid var(--border-subtle);
+                background: rgba(10, 14, 22, 0.6);
+                backdrop-filter: blur(15px);
+                border-bottom: 1px solid var(--glass-border);
                 display: flex; align-items: center; justify-content: space-between;
-                padding: 0 32px;
+                padding: 0 40px;
                 position: sticky; top: 0; z-index: 100;
             }
-            .topbar-title { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 1.1rem; color: var(--text-primary); }
+            .page-title-luxury { 
+                font-family: 'Playfair Display', serif; 
+                font-weight: 700; font-size: 1.25rem; color: var(--text-pure); 
+            }
 
-            .content-area { padding: 32px; flex: 1; max-width: 1600px; width: 100%; margin: 0 auto; }
+            .content-area { padding: 40px; flex: 1; max-width: 1400px; width: 100%; margin: 0 auto; }
 
-            /* Mobile */
-            .mobile-nav-toggle { display: none; background: transparent; border: none; color: var(--text-primary); font-size: 1.5rem; }
-
-            @media (max-width: 992px) {
+            @media (max-width: 1100px) {
                 #sidebar { transform: translateX(-100%); }
                 #sidebar.open { transform: translateX(0); box-shadow: 20px 0 60px rgba(0,0,0,0.8); }
                 #main-wrapper { margin-left: 0; }
-                .mobile-nav-toggle { display: block; }
-                .topbar { padding: 0 16px; }
+                .dashboard-topbar { padding: 0 20px; }
             }
-
-            /* Fix Bootstrap Card styles for Obsidian X */
-            .card { background: var(--bg-surface) !important; border: 1px solid var(--border-subtle) !important; color: var(--text-body) !important; }
-            .card-header { background: transparent !important; border-bottom: 1px solid var(--border-subtle) !important; color: var(--text-primary) !important; font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; }
         </style>
         {% block stylesheets %}{% endblock %}
     </head>
-    <body>
+    <body class="{{ is_granted('ROLE_PROVIDER') ? 'provider-accent' : 'customer-accent' }}">
 
     {# ── SIDEBAR ── #}
     <aside id="sidebar">
@@ -134,102 +165,79 @@
         </div>
 
         <div class="sb-user-card">
-            <div class="sb-user-avatar">
-                {{ app.user.email|slice(0,1)|upper }}
+            <div class="sb-user-orb">
+                {{ app.user.fullName|slice(0,1)|upper }}
             </div>
             <div class="sb-user-info">
-                <div class="name">{{ app.user.fullName|default(app.user.email|split('@')[0]) }}</div>
-                <div class="role d-flex align-items-center gap-2">
-                    {% if is_granted('ROLE_ADMIN') %}
-                        <span class="text-danger">Administrator</span>
-                    {% elseif is_granted('ROLE_PROVIDER') %}
-                        <span class="text-success">Provider</span>
-                    {% else %}
-                        <span>Customer</span>
-                    {% endif %}
-                </div>
+                <div class="name">{{ app.user.fullName }}</div>
+                <div class="tier-label">{{ app.user.tier|upper }} MEMBER</div>
             </div>
+
+            {% if is_granted('ROLE_PROVIDER') %}
+                <div class="gamify-mini">
+                    <div class="d-flex justify-content-between text-xxs fw-800 text-dim">
+                        <span>PROGRESSION</span>
+                        <span class="text-pure">PLATINUM</span>
+                    </div>
+                    <div class="gamify-progress-bar">
+                        <div class="gamify-progress-fill" style="width: 65%;"></div>
+                    </div>
+                    <div class="text-xxs text-dim">Level 4 Artisan</div>
+                </div>
+            {% endif %}
         </div>
 
         <nav class="sb-nav">
             <a href="{{ path('app_home') }}" class="sb-link">
-                <i class="fas fa-home"></i> Home Page
+                <i class="fa-solid fa-house-chimney"></i> Frontispiece
             </a>
 
-            {% if is_granted('ROLE_ADMIN') %}
-                <div class="sb-nav-label">Management</div>
-                <a href="{{ path('app_admin_dashboard') }}" class="sb-link {{ app.request.get('_route') == 'app_admin_dashboard' ? 'active' : '' }}">
-                    <i class="fas fa-chart-line"></i> Analytics
-                </a>
-                <a href="{{ path('app_admin_users') }}" class="sb-link {{ app.request.get('_route') starts with 'app_admin_user' ? 'active' : '' }}">
-                    <i class="fas fa-users"></i> User Engine
-                </a>
-                <a href="{{ path('app_admin_services') }}" class="sb-link {{ app.request.get('_route') starts with 'app_admin_service' ? 'active' : '' }}">
-                    <i class="fas fa-briefcase"></i> Service Control
-                </a>
-            {% elseif is_granted('ROLE_PROVIDER') %}
-                <div class="sb-nav-label">Core Business</div>
+            <div class="sb-nav-label">Curatorship</div>
+            {% if is_granted('ROLE_PROVIDER') %}
                 <a href="{{ path('app_provider_dashboard') }}" class="sb-link {{ app.request.get('_route') == 'app_provider_dashboard' ? 'active' : '' }}">
-                    <i class="fas fa-grid-2"></i> Dashboard
+                    <i class="fa-solid fa-chart-line"></i> Atelier
                 </a>
                 <a href="{{ path('app_provider_my_services') }}" class="sb-link {{ app.request.get('_route') == 'app_provider_my_services' ? 'active' : '' }}">
-                    <i class="fas fa-layer-group"></i> My Services
-                </a>
-                <a href="{{ path('app_billing_history') }}" class="sb-link {{ app.request.get('_route') == 'app_billing_history' ? 'active' : '' }}">
-                    <i class="fas fa-file-invoice-dollar"></i> Finance
+                    <i class="fa-solid fa-gem"></i> Collections
                 </a>
             {% else %}
-                <div class="sb-nav-label">Navigation</div>
                 <a href="{{ path('app_customer_dashboard') }}" class="sb-link {{ app.request.get('_route') == 'app_customer_dashboard' ? 'active' : '' }}">
-                    <i class="fas fa-calendar-alt"></i> My Bookings
+                    <i class="fa-solid fa-book-open"></i> Manifest
                 </a>
                 <a href="{{ path('app_service_list') }}" class="sb-link">
-                    <i class="fas fa-search"></i> Browse Services
-                </a>
-                <a href="{{ path('app_billing_index') }}" class="sb-link {{ app.request.get('_route') == 'app_billing_index' ? 'active' : '' }}">
-                    <i class="fas fa-receipt"></i> Billing History
+                    <i class="fa-solid fa-magnifying-glass-chart"></i> Explore
                 </a>
             {% endif %}
 
-            <div class="sb-nav-label">Settings</div>
-            <a href="{{ path('app_profile') }}" class="sb-link">
-                <i class="fas fa-id-card"></i> Profile
+            <div class="sb-nav-label">Identity</div>
+            <a href="{{ path('app_profile') }}" class="sb-link {{ app.request.get('_route') == 'app_profile' ? 'active' : '' }}">
+                <i class="fa-regular fa-id-badge"></i> Heritage
+            </a>
+            <a href="{{ path('app_billing_index') }}" class="sb-link {{ app.request.get('_route') == 'app_billing_index' ? 'active' : '' }}">
+                <i class="fa-solid fa-vault"></i> Exchequer
+            </a>
+
+            <div class="sb-nav-label">Protocol</div>
+            <a href="{{ path('app_logout') }}" class="sb-link text-red">
+                <i class="fa-solid fa-power-off"></i> Cease Session
             </a>
         </nav>
-
-        <div class="sb-footer">
-            <a href="{{ path('app_logout') }}" class="btn-ghost d-flex align-items-center justify-content-center gap-2 w-100">
-                <i class="fas fa-sign-out-alt"></i> Logout
-            </a>
-        </div>
     </aside>
 
-    {# ── MAIN CONTENT ── #}
     <div id="main-wrapper">
-        <header class="topbar">
+        <header class="dashboard-topbar">
             <div class="d-flex align-items-center gap-3">
-                <button class="mobile-nav-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">
-                    <i class="fas fa-bars"></i>
+                <button class="bg-transparent border-0 text-teal d-xl-none fs-4" onclick="document.getElementById('sidebar').classList.toggle('open')">
+                    <i class="fa-solid fa-bars-staggered"></i>
                 </button>
-                <div class="topbar-title">{% block page_title %}Dashboard{% endblock %}</div>
+                <div class="page-title-luxury">{% block page_title %}Atelier{% endblock %}</div>
             </div>
-            <div class="d-flex align-items-center gap-3">
-                <div class="d-none d-md-flex text-xs text-muted fw-bold">ID: #{{ app.user.id|slice(0,8) }}</div>
-                <div class="badge-pill badge-confirmed px-3 py-2">
-                    <i class="fas fa-shield-check text-cyan me-1"></i> Verified
+            <div class="d-flex align-items-center gap-4">
+                <div class="d-flex align-items-center gap-2 text-dim fw-bold" style="font-size: 0.65rem; letter-spacing: 0.1em;">
+                    <i class="fa-solid fa-fingerprint"></i> PROTOCOL v2.4
                 </div>
             </div>
         </header>
-
-        {% for label, messages in app.flashes %}
-            <div class="px-4 mt-3">
-                {% for message in messages %}
-                    <div class="glass-card p-3 border-0" style="border-left: 4px solid var(--accent-{{ label == 'success' ? 'green' : 'red' }}) !important;">
-                        <span class="text-primary fw-bold">{{ message }}</span>
-                    </div>
-                {% endfor %}
-            </div>
-        {% endfor %}
 
         <main class="content-area">
             {% block body %}{% endblock %}
@@ -237,6 +245,21 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const widgets = document.querySelectorAll('.glass-card');
+            widgets.forEach((w, i) => {
+                w.style.opacity = '0';
+                w.style.transform = 'translateY(15px)';
+                setTimeout(() => {
+                    w.style.transition = 'all 0.6s var(--ease-luxury)';
+                    w.style.opacity = '1';
+                    w.style.transform = 'translateY(0)';
+                }, i * 60);
+            });
+        });
+    </script>
     {% block javascripts %}{% endblock %}
     </body>
 </html>
+

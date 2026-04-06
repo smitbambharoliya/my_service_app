@@ -1,183 +1,181 @@
-{% extends 'dashboard_base.html.twig' %}
+{% extends 'base.html.twig' %}
 
-{% block page_title %}High-Fidelity Tracking / Operational ID: #{{ booking.id|slice(0,8) }}{% endblock %}
+{% block title %}Telemetry — {{ booking.service.title }}{% endblock %}
 
 {% block body %}
-
-<div class="row g-4">
-    <div class="col-xl-8 fade-up">
-        <div class="glass-card overflow-hidden h-100 border-subtle" style="min-height: 500px; position: relative;">
-            <div id="map" style="height: 100%; width: 100%; background: #07080F;"></div>
-            
-            <div class="position-absolute top-0 start-0 m-4 z-index-1000">
-                <div class="glass-card p-3 border-subtle bg-surface-2" style="backdrop-filter: blur(24px);">
-                    <div class="d-flex align-items-center gap-3">
-                        <div class="pulsing-dot bg-cyan"></div>
-                        <div class="text-xs text-white fw-bold">REAL-TIME TELEMETRY ACTIVE</div>
-                    </div>
+<div class="animate-fade-in" style="padding-top: 100px;">
+    {# ── 1. TELEMETRY HEADER & TIMELINE ── #}
+    <section class="py-5" style="background: linear-gradient(to bottom, var(--bg-deep), transparent);">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center mb-5">
+                <div>
+                    <span class="text-teal text-xxs fw-800 letter-spacing-3 mb-2 d-block">REAL-TIME TELEMETRY</span>
+                    <h1 class="luxury-serif text-pure mb-0">Expedition Alpha-{{ booking.id }}</h1>
+                </div>
+                <div class="text-end">
+                    <div class="badge-status status-active px-4">Live Satellite Link</div>
+                    <div class="text-xxs text-dim mt-2 fw-800">REFRESHING EVERY 5.0s</div>
                 </div>
             </div>
 
-            <div class="position-absolute bottom-0 start-0 m-4 z-index-1000 w-100 pe-5">
-                <div class="glass-card p-4 border-subtle bg-surface-2" style="backdrop-filter: blur(24px); max-width: 400px;">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <span class="text-xs text-muted fw-900">ESTIMATED ARRIVAL</span>
-                        <span class="text-xs text-cyan fw-900" id="eta-display">8 MINUTES</span>
+            {# Booking Timeline Component #}
+            <div class="booking-timeline mb-5">
+                <div class="timeline-track">
+                    <div class="timeline-progress" style="width: {{ booking.status|lower == 'pending' ? '12.5%' : (booking.status|lower == 'on-the-way' ? '62.5%' : (booking.status|lower == 'completed' ? '100%' : '37.5%')) }};"></div>
+                </div>
+                <div class="timeline-steps">
+                    <div class="step {{ booking.status|lower in ['pending', 'accepted', 'on-the-way', 'completed'] ? 'active' : '' }}">
+                        <div class="step-node"></div>
+                        <div class="step-label">PROPOSAL</div>
                     </div>
-                    <div class="progress bg-dark-2 mb-3" style="height: 4px;">
-                        <div id="tracking-progress" class="progress-bar bg-cyan" style="width: 45%; transition: width 1s linear;"></div>
+                    <div class="step {{ booking.status|lower in ['accepted', 'on-the-way', 'completed'] ? 'active' : '' }}">
+                        <div class="step-node"></div>
+                        <div class="step-label">CONFIRMED</div>
                     </div>
-                    <div class="text-xxs text-muted fw-bold">CURRENT SECTOR: {{ booking.service.category|upper }} DEPLOYMENT</div>
+                    <div class="step {{ booking.status|lower in ['on-the-way', 'completed'] ? 'active' : '' }}">
+                        <div class="step-node"></div>
+                        <div class="step-label">DISPATCHED</div>
+                    </div>
+                    <div class="step {{ booking.status|lower == 'completed' ? 'active' : '' }}">
+                        <div class="step-node"></div>
+                        <div class="step-label">COMPLETED</div>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
+    </section>
 
-    <div class="col-xl-4">
-        <div class="d-grid gap-4 h-100">
-            {# Provider Profile #}
-            <div class="glass-card p-4 border-subtle fade-up" style="transition-delay: 100ms;">
-                <div class="text-xs text-muted fw-900 mb-4">OPERATIONAL LEAD</div>
-                <div class="d-flex align-items-center gap-3 mb-4">
-                    <div class="sb-user-avatar" style="width: 64px; height: 64px; font-size: 1.5rem;">
-                        {{ booking.service.provider.email|slice(0,1)|upper }}
+    {# ── 2. MAP & HUD INTERFACE ── #}
+    <section class="container mb-5">
+        <div class="row g-5">
+            {# Map Sidebar (HUD) #}
+            <div class="col-xl-4">
+                <div class="glass-card mb-4 p-4 border-teal-glow">
+                    <div class="d-flex align-items-center gap-4 mb-5">
+                        <div class="user-orb" style="width: 50px; height: 50px; font-size: 1.2rem;">
+                            {{ booking.service.provider.fullName|slice(0,1)|upper }}
+                        </div>
+                        <div>
+                            <div class="text-pure fw-bold h5 mb-0">{{ booking.service.provider.fullName }}</div>
+                            <div class="text-xxs text-teal fw-800">{{ booking.service.provider.tier|upper }} PROFESSIONAL</div>
+                        </div>
                     </div>
-                    <div>
-                        <h4 class="text-white fw-900 mb-1">{{ booking.service.provider.fullName|default(booking.service.provider.email|split('@')[0]) }}</h4>
-                        <div class="badge-pill badge-confirmed px-2 py-1" style="font-size: 0.6rem">AURORA ELITE</div>
+
+                    <div class="hud-stats d-grid gap-4">
+                        <div class="hud-stat">
+                            <i class="fas fa-location-dot text-teal"></i>
+                            <div>
+                                <div class="label">CURRENT SECTOR</div>
+                                <div class="value">Bhatar, Sector 7-X</div>
+                            </div>
+                        </div>
+                        <div class="hud-stat">
+                            <i class="fas fa-clock text-teal"></i>
+                            <div>
+                                <div class="label">EST. ARRIVAL</div>
+                                <div class="value">14.2 Minutes</div>
+                            </div>
+                        </div>
+                        <div class="hud-stat">
+                            <i class="fas fa-bolt text-teal"></i>
+                            <div>
+                                <div class="label">PROTOCOL STATUS</div>
+                                <div class="value text-pure">{{ booking.status|upper }}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-5 pt-5 border-top border-glass">
+                        <div class="d-grid gap-3">
+                            <a href="tel:{{ booking.service.provider.mobile }}" class="btn-luxury py-3 w-100"><i class="fas fa-phone-alt me-2"></i> ESTABLISH VOICE LINK</a>
+                            <a href="{{ path('app_customer_dashboard') }}" class="btn-outline-luxury py-3 w-100">RETURN TO MANIFEST</a>
+                        </div>
                     </div>
                 </div>
-                <div class="glass-card bg-surface-2 border-0 p-3 d-flex align-items-center justify-content-between">
-                    <div>
-                        <div class="text-xxs text-muted">Vehicle</div>
-                        <div class="text-xs text-white fw-bold">Service Node v2.4</div>
-                    </div>
-                    <div class="text-end">
-                        <div class="text-xxs text-muted">Verification</div>
-                        <div class="text-xs text-green fw-bold">SECURE</div>
-                    </div>
+
+                <div class="glass-card p-4" style="background: rgba(16, 185, 129, 0.03);">
+                    <p class="text-xxs text-dim mb-0 italic">Secure end-to-end encryption active. Telemetry data is restricted to authorized session tokens.</p>
                 </div>
             </div>
 
-            {# Protocol Details #}
-            <div class="glass-card p-4 border-subtle fade-up" style="transition-delay: 200ms;">
-                <div class="text-xs text-muted fw-900 mb-4">PROTOCOL LOGS</div>
-                <div class="timeline-simple">
-                    <div class="d-flex gap-3 mb-3">
-                        <div class="text-green mt-1"><i class="fas fa-circle-check"></i></div>
-                        <div>
-                            <div class="text-xs text-white fw-bold">Request Finalized</div>
-                            <div class="text-xxs text-muted">{{ booking.bookingDate|date('H:i') }}</div>
-                        </div>
-                    </div>
-                    <div class="d-flex gap-3 mb-3">
-                        <div class="text-cyan mt-1"><i class="fas fa-truck-fast"></i></div>
-                        <div>
-                            <div class="text-xs text-white fw-bold">Node Dispatched</div>
-                            <div class="text-xxs text-muted">T-minus 12 mins</div>
-                        </div>
-                    </div>
-                    <div class="d-flex gap-3 opacity-50">
-                        <div class="text-muted mt-1"><i class="fas fa-location-crosshairs"></i></div>
-                        <div>
-                            <div class="text-xs text-muted fw-bold">Sector Neutralization</div>
-                            <div class="text-xxs text-muted">Pending Arrival</div>
-                        </div>
-                    </div>
+            {# Main Telemetry Feed (Map) #}
+            <div class="col-xl-8">
+                <div class="glass-card p-0 overflow-hidden" style="height: 650px; border-radius: 32px;">
+                    <div id="tracking-map" style="height: 100%; width: 100%; z-index: 1;"></div>
                 </div>
-            </div>
-
-            {# Action #}
-            <div class="glass-card p-4 border-subtle fade-up" style="transition-delay: 300ms;">
-                <a href="tel:1234567890" class="btn-violet w-100 py-3 text-xs mb-3">
-                    <i class="fas fa-phone me-2"></i> CONTACT LEAD
-                </a>
-                <a href="{{ path('app_message_index') }}" class="btn-ghost border-subtle w-100 py-3 text-xs">
-                    <i class="fas fa-comment-dots me-2"></i> SECURE COMMS
-                </a>
             </div>
         </div>
-    </div>
+    </section>
 </div>
 
-{% endblock %}
-
-{% block stylesheets %}
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <style>
-    #map .leaflet-container { background: #07080F; }
-    .timeline-simple { border-left: 2px solid var(--border-subtle); padding-left: 20px; margin-left: 5px; }
-    .pulsing-dot {
-        width: 10px; height: 10px; border-radius: 50%;
-        animation: pulse-cyan 1.5s infinite;
-    }
-    @keyframes pulse-cyan {
-        0% { box-shadow: 0 0 0 0 rgba(0, 212, 255, 0.7); }
-        70% { box-shadow: 0 0 0 10px rgba(0, 212, 255, 0); }
-        100% { box-shadow: 0 0 0 0 rgba(0, 212, 255, 0); }
-    }
+    /* HUD Stats */
+    .hud-stat { display: flex; align-items: flex-start; gap: 20px; }
+    .hud-stat i { font-size: 1.1rem; margin-top: 4px; }
+    .hud-stat .label { font-size: 0.6rem; font-weight: 800; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.15em; }
+    .hud-stat .value { font-size: 0.95rem; font-weight: 700; color: var(--text-silver); }
 
-    /* Leaflet Overrides */
-    .leaflet-tile-pane { filter: invert(1) hue-rotate(180deg) brightness(0.6) contrast(1.2); }
-    .provider-marker { border: 2px solid var(--brand-1); background: #fff; border-radius: 50%; }
+    /* Map Pulsing Animation */
+    @keyframes map-pulse {
+        0% { transform: scale(1); box-shadow: 0 0 10px var(--accent-teal-glow); }
+        50% { transform: scale(1.4); box-shadow: 0 0 30px var(--accent-teal-glow); }
+        100% { transform: scale(1); box-shadow: 0 0 10px var(--accent-teal-glow); }
+    }
+    .custom-teal-pulse {
+        background: var(--accent-teal);
+        width: 14px; height: 14px;
+        border-radius: 50%;
+        border: 3px solid #FFF;
+        animation: map-pulse 2s infinite ease-in-out;
+    }
 </style>
-{% endblock %}
 
-{% block javascripts %}
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const start = [{{ start_lat }}, {{ start_lng }}];
-        const dest = [{{ dest_lat }}, {{ dest_lng }}];
-        
-        const map = L.map('map', {
-            zoomControl: false,
-            attributionControl: false
-        }).setView(start, 15);
+    document.addEventListener('DOMContentLoaded', () => {
+        const centerLat = {{ booking.latitude|default('21.1702') }};
+        const centerLng = {{ booking.longitude|default('72.8311') }};
+        const destLat = centerLat + 0.015;
+        const destLng = centerLng + 0.012;
 
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+        const map = L.map('tracking-map', { zoomControl: false, attributionControl: false }).setView([centerLat, centerLng], 14);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom: 19 }).addTo(map);
 
-        const providerIcon = L.divIcon({
+        const tealIcon = L.divIcon({
             className: 'custom-div-icon',
-            html: '<div class="glass-card" style="width:40px;height:40px;background:var(--brand-1);border:3px solid #fff;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:var(--glow-brand);"><i class="fas fa-truck-fast text-white"></i></div>',
-            iconSize: [40, 40],
-            iconAnchor: [20, 20]
+            html: '<div class="custom-teal-pulse"></div>',
+            iconSize: [14, 14], iconAnchor: [7, 7]
         });
 
         const destIcon = L.divIcon({
-            className: 'custom-div-icon',
-            html: '<div class="glass-card" style="width:40px;height:40px;background:var(--accent-cyan);border:3px solid #fff;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:var(--glow-cyan);"><i class="fas fa-house-user text-white"></i></div>',
-            iconSize: [40, 40],
-            iconAnchor: [20, 20]
+            className: 'dest-icon',
+            html: '<div class="p-2 bg-deep border-teal rounded-circle" style="box-shadow: 0 0 20px var(--accent-teal-glow);"><i class="fas fa-home text-teal" style="font-size: 16px;"></i></div>',
+            iconSize: [32, 32], iconAnchor: [16, 16]
         });
 
-        const marker = L.marker(start, { icon: providerIcon }).addTo(map);
-        L.marker(dest, { icon: destIcon }).addTo(map);
+        L.marker([destLat, destLng], { icon: destIcon }).addTo(map).bindPopup("PRIMARY ESTATE NODE", { closeButton: false }).openPopup();
+        const providerMarker = L.marker([centerLat, centerLng], { icon: tealIcon }).addTo(map);
 
-        // Simulation: Move the marker
+        // Track Polyline
+        L.polyline([[centerLat, centerLng], [destLat, destLng]], {
+            color: 'var(--accent-teal)', weight: 2, opacity: 0.2, dashArray: '8, 8'
+        }).addTo(map);
+
+        // Smooth Simulation
         let progress = 0;
-        const interval = setInterval(() => {
-            progress += 0.005;
-            if (progress >= 1) {
-                clearInterval(interval);
-                document.getElementById('eta-display').innerText = 'ARRIVED';
-                document.getElementById('tracking-progress').style.width = '100%';
-                return;
+        const animateNode = () => {
+            if (progress <= 1) {
+                const lat = centerLat + (destLat - centerLat) * progress;
+                const lng = centerLng + (destLng - centerLng) * progress;
+                providerMarker.setLatLng([lat, lng]);
+                progress += 0.005;
+                setTimeout(animateNode, 200);
             }
-
-            const currentPos = [
-                start[0] + (dest[0] - start[0]) * progress,
-                start[1] + (dest[1] - start[1]) * progress
-            ];
-
-            marker.setLatLng(currentPos);
-            map.panTo(currentPos);
-
-            // Update UI
-            const eta = Math.ceil(12 * (1 - progress));
-            document.getElementById('eta-display').innerText = eta + ' MINUTES';
-            document.getElementById('tracking-progress').style.width = (progress * 100) + '%';
-        }, 1000);
+        };
+        {% if booking.status|lower == 'on-the-way' %}
+            animateNode();
+        {% endif %}
     });
 </script>
 {% endblock %}
+

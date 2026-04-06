@@ -9,9 +9,15 @@
         <h4 style="font-weight:700;color:#0f172a;margin:0;">My Services</h4>
         <p style="color:#94a3b8;font-size:0.85rem;margin:4px 0 0;">Manage all your listed services</p>
     </div>
-    <a href="{{ path('app_service_new') }}" class="btn btn-primary rounded-pill px-4 shadow-sm" style="font-size:0.875rem;font-weight:600;">
-        <i class="fas fa-plus me-2"></i>Add New Service
-    </a>
+    {% if app.user.services|length == 0 %}
+        <a href="{{ path('app_provider_onboarding') }}" class="btn btn-primary rounded-pill px-4 shadow-sm" style="font-size:0.875rem;font-weight:600;">
+            <i class="fas fa-route me-2"></i> Start setup
+        </a>
+    {% else %}
+        <a href="{{ path('app_service_new') }}" class="btn btn-primary rounded-pill px-4 shadow-sm" style="font-size:0.875rem;font-weight:600;">
+            <i class="fas fa-plus me-2"></i>Add New Service
+        </a>
+    {% endif %}
 </div>
 
 <div class="card border-0 rounded-4 shadow-sm" style="background:#fff;overflow:hidden;">
@@ -66,9 +72,15 @@
                             </div>
                             <h6 style="color:#0f172a;font-weight:700;margin-bottom:6px;">No Services Yet</h6>
                             <p style="font-size:0.85rem;margin-bottom:18px;">You haven't added any services. Start listing to attract customers!</p>
-                            <a href="{{ path('app_service_new') }}" class="btn btn-primary rounded-pill px-4" style="font-weight:600;font-size:0.875rem;">
-                                <i class="fas fa-plus me-2"></i>Add Your First Service
-                            </a>
+                            {% if app.user.services|length == 0 %}
+                                <a href="{{ path('app_provider_onboarding') }}" class="btn btn-primary rounded-pill px-4" style="font-weight:600;font-size:0.875rem;">
+                                    <i class="fas fa-route me-2"></i>Start provider setup
+                                </a>
+                            {% else %}
+                                <a href="{{ path('app_service_new') }}" class="btn btn-primary rounded-pill px-4" style="font-weight:600;font-size:0.875rem;">
+                                    <i class="fas fa-plus me-2"></i>Add Your First Service
+                                </a>
+                            {% endif %}
                         </div>
                     </td>
                 </tr>

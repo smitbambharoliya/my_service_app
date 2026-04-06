@@ -1,0 +1,107 @@
+{% extends 'dashboard_base.html.twig' %}
+
+{% block page_title %}Identity Calibration{% endblock %}
+
+{% block stylesheets %}
+<style>
+    .profile-canvas {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    .profile-avatar-large {
+        width: 120px; height: 120px;
+        background: var(--heritage-black);
+        color: var(--heritage-gold);
+        display: flex; align-items: center; justify-content: center;
+        font-family: var(--font-serif);
+        font-size: 3rem;
+        font-weight: 900;
+        margin-bottom: 40px;
+        position: relative;
+    }
+    .avatar-edit-overlay {
+        position: absolute; inset: 0;
+        background: rgba(0,0,0,0.5);
+        display: flex; align-items: center; justify-content: center;
+        opacity: 0; transition: opacity 0.3s; cursor: pointer;
+        font-size: 1rem; color: #FFF;
+    }
+    .profile-avatar-large:hover .avatar-edit-overlay { opacity: 1; }
+
+    .identity-section {
+        margin-bottom: 60px;
+        padding-bottom: 40px;
+        border-bottom: 1px solid var(--border-subtle);
+    }
+    .identity-h3 {
+        font-family: var(--font-serif);
+        font-size: 1.8rem;
+        font-weight: 800;
+        margin-bottom: 30px;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+
+<div class="profile-canvas fade-up">
+    <div class="text-center mb-5">
+        <div class="profile-avatar-large mx-auto">
+            {{ app.user.fullName|slice(0,1)|upper }}
+            <div class="avatar-edit-overlay">
+                <i class="fas fa-camera"></i>
+            </div>
+        </div>
+        <span class="story-meta">Legacy Member since {{ app.user.createdAt|date('Y') }}</span>
+        <h1 class="font-serif text-5xl mt-2">{{ app.user.fullName }}</h1>
+    </div>
+
+    {{ form_start(form) }}
+        <div class="identity-section">
+            <h3 class="identity-h3">Core Designation</h3>
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <label class="auth-label">Full Designation Name</label>
+                    {{ form_widget(form.fullName, {'attr': {'class': 'auth-input'}}) }}
+                </div>
+                <div class="col-md-6">
+                    <label class="auth-label">Establishment ID (Email)</label>
+                    {{ form_widget(form.email, {'attr': {'class': 'auth-input'}}) }}
+                </div>
+            </div>
+        </div>
+
+        <div class="identity-section">
+            <h3 class="identity-h3">Neural Coordinates</h3>
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <label class="auth-label">Sector Phone</label>
+                    {{ form_widget(form.phoneNumber, {'attr': {'class': 'auth-input'}}) }}
+                </div>
+                <div class="col-md-6">
+                    <label class="auth-label">Current Sector</label>
+                    <input type="text" class="auth-input" value="India Sector G-Alpha" readonly>
+                </div>
+            </div>
+        </div>
+
+        {% if form.plainPassword is defined %}
+            <div class="identity-section">
+                <h3 class="identity-h3">Security Cipher</h3>
+                <div class="row g-4">
+                    <div class="col-md-12">
+                        <label class="auth-label">New Private Cipher (Leave blank to maintain current)</label>
+                        {{ form_widget(form.plainPassword, {'attr': {'class': 'auth-input'}}) }}
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        <div class="mt-5 d-flex gap-3">
+            <button type="submit" class="btn-heritage py-3 px-5">Calibrate Profile</button>
+            <a href="{{ path('app_profile') }}" class="btn-heritage-outline py-3 px-5">Cancel Protocol</a>
+        </div>
+    {{ form_end(form) }}
+</div>
+
+{% endblock %}

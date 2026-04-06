@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Mailer\MailerInterface;
@@ -14,7 +15,7 @@ use Symfony\Component\Routing\Attribute\Route;
 class OtpController extends AbstractController
 {
     #[Route('/verify-otp', name: 'app_verify_otp')]
-    public function verify(Request $request, EntityManagerInterface $entityManager): Response
+    public function verify(Request $request, EntityManagerInterface $entityManager, Security $security): Response
     {
         $email = $request->getSession()->get('verify_email');
         
@@ -32,16 +33,13 @@ class OtpController extends AbstractController
                 $user->setOtpCode(null); // Clear OTP after success
                 $entityManager->flush();
 
-                // Clear session
                 $request->getSession()->remove('verify_email');
 
-                $this->addFlash('success', 'Email verified successfully! You can now log in.');
-                return $this->redirectToRoute('app_home');
-            }
-            /** @var user $user */
-            $user = $this->getUser();
-            if($user && $user->isVerified()){
-                return $this->redirectToRoute('app_home');
+                $this->addFlash('success', 'Email verified! Welcome to ServiceHub.');
+
+                $response = $security->login($user);
+
+                return $response ?? $this->redirectToRoute('app_home');
             }
 
             $this->addFlash('error', 'Invalid OTP. Please try again.');

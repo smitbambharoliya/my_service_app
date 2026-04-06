@@ -1,162 +1,296 @@
 {% extends 'dashboard_base.html.twig' %}
 
-{% block title %}My Profile{% endblock %}
+{% block title %}Heritage Profile — {{ app.user.fullName }}{% endblock %}
+
+{% block stylesheets %}
+<style>
+    /* ── HERITAGE PROFILE PORTFOLIO ── */
+    .pp-portfolio {
+        display: flex;
+        gap: 32px;
+        align-items: flex-start;
+        max-width: 1300px;
+        margin: 0 auto;
+        padding: 40px 0;
+    }
+
+    /* Sidebar HUD */
+    .pp-sidebar {
+        width: 320px;
+        position: sticky;
+        top: 120px;
+        z-index: 5;
+        transition: all 0.5s var(--ease-luxury);
+        border: 1px solid var(--glass-border);
+    }
+
+    .pp-avatar-orb {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--accent-teal), var(--accent-violet));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        font-weight: 900;
+        color: var(--bg-deep);
+        margin: 0 auto 24px;
+        box-shadow: 0 0 30px var(--accent-teal-glow);
+        border: 2px solid rgba(255,255,255,0.2);
+    }
+
+    .pp-sidebar-content {
+        text-align: center;
+    }
+
+    .pp-name { font-size: 1.5rem; font-weight: 800; color: var(--text-pure); margin-bottom: 4px; }
+    .pp-tier { font-size: 0.6rem; font-weight: 900; color: var(--accent-teal); letter-spacing: 0.2em; text-transform: uppercase; }
+
+    .pp-divider { height: 1px; background: var(--glass-border); margin: 30px 0; }
+
+    /* Contact List */
+    .pp-contact-list { text-align: left; }
+    .pp-contact-item { display: flex; align-items: flex-start; gap: 16px; margin-bottom: 20px; }
+    .pp-contact-icon { 
+        width: 40px; height: 40px; border-radius: 12px; background: rgba(16, 185, 129, 0.05);
+        display: flex; align-items: center; justify-content: center; color: var(--accent-teal);
+        border: 1px solid rgba(16, 185, 129, 0.1); font-size: 0.9rem;
+    }
+    .pp-contact-label { font-size: 0.6rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.1em; font-weight: 800; }
+    .pp-contact-value { font-size: 0.85rem; color: var(--text-silver); font-weight: 600; margin-top: 2px; }
+
+    /* Main Area */
+    .pp-main { flex: 1; min-width: 0; }
+
+    /* Heritage Nav */
+    .pp-navbar {
+        display: flex; gap: 12px; margin-bottom: 32px;
+        background: rgba(10, 14, 22, 0.3); border: 1px solid var(--glass-border);
+        border-radius: 20px; padding: 10px;
+    }
+    .pp-nav-link {
+        flex: 1; padding: 12px; border-radius: 14px; border: none; background: transparent;
+        color: var(--text-dim); font-size: 0.75rem; font-weight: 800; letter-spacing: 0.1em;
+        text-transform: uppercase; transition: all 0.4s var(--ease-luxury);
+        display: flex; align-items: center; justify-content: center; gap: 10px;
+    }
+    .pp-nav-link:hover { color: var(--text-pure); background: rgba(255,255,255,0.03); }
+    .pp-nav-link.active { color: var(--accent-teal); background: rgba(16, 185, 129, 0.08); box-shadow: inset 0 0 10px rgba(16, 185, 129, 0.05); }
+
+    /* Article Content */
+    .pp-article { display: none; }
+    .pp-article.active { display: block; animation: fadeInUp 0.6s var(--ease-luxury); }
+
+    @media (max-width: 992px) {
+        .pp-portfolio { flex-direction: column; padding: 20px; }
+        .pp-sidebar { width: 100%; position: static; }
+        .pp-navbar { overflow-x: auto; white-space: nowrap; }
+        .pp-nav-link { flex: none; padding: 12px 24px; }
+    }
+</style>
+{% endblock %}
 
 {% block body %}
-<div class="container py-4">
-    <div class="row mb-5">
-        <div class="col-12">
-            <h2 class="fw-bold mb-0">My Account Settings</h2>
-            <p class="text-muted">Manage your personal information, history, and payment methods.</p>
-        </div>
-    </div>
+<div class="container pp-portfolio">
+    {# ── SIDEBAR HUD ── #}
+    <aside class="pp-sidebar glass-card p-4">
+        <div class="pp-sidebar-content">
+            <div class="pp-avatar-orb">
+                {{ app.user.fullName|slice(0,1)|upper }}
+            </div>
+            <h1 class="pp-name">{{ app.user.fullName }}</h1>
+            <div class="pp-tier">{{ app.user.tier|upper }} MEMBER</div>
+            
+            <div class="pp-divider"></div>
 
-    <div class="row">
-        {# ટોપ નેવિગેશન ટેબ્સ (Horizontal Tabs) #}
-        <div class="col-12 mb-4">
-            <ul class="nav nav-pills nav-fill bg-white shadow-sm rounded-pill p-1" id="pills-tab" role="tablist">
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link active rounded-pill fw-bold" id="pills-profile-tab" data-bs-toggle="pill" data-bs-target="#pills-profile" type="button" role="tab" aria-controls="pills-profile" aria-selected="true">
-                        <i class="fas fa-user-circle me-2"></i>Personal Details
-                    </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link rounded-pill fw-bold" id="pills-history-tab" data-bs-toggle="pill" data-bs-target="#pills-history" type="button" role="tab" aria-controls="pills-history" aria-selected="false">
-                        <i class="fas fa-history me-2"></i>Activity History
-                    </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link rounded-pill fw-bold" id="pills-payment-tab" data-bs-toggle="pill" data-bs-target="#pills-payment" type="button" role="tab" aria-controls="pills-payment" aria-selected="false">
-                        <i class="fas fa-credit-card me-2"></i>Payment Methods
-                    </button>
-                </li>
-            </ul>
-        </div>
-
-        {# ટેબ્સનું કન્ટેન્ટ #}
-        <div class="col-12">
-            <div class="card shadow-sm border-0 rounded-4">
-                <div class="card-body p-4 p-md-5">
-                    <div class="tab-content" id="pills-tabContent">
-                        
-                        {# ૧. પ્રોફાઈલ ડીટેલ્સ ટેબ #}
-                        <div class="tab-pane fade show active" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">
-                            <div class="d-flex justify-content-between align-items-center mb-5 pb-3 border-bottom">
-                                <div>
-                                    <h4 class="fw-bold mb-1">Personal Information</h4>
-                                    <p class="text-muted small mb-0">Update your photo and personal details here.</p>
-                                </div>
-                                <button class="btn btn-outline-primary rounded-pill px-4">
-                                    <i class="fas fa-edit me-2"></i>Edit Profile
-                                </button>
-                            </div>
-                            
-                            <div class="row align-items-center mb-5">
-                                <div class="col-sm-3 text-muted fw-semibold">Avatar</div>
-                                <div class="col-sm-9">
-                                    <div class="d-flex align-items-center">
-                                        <div class="bg-primary text-white rounded-circle d-flex justify-content-center align-items-center shadow-sm me-4" style="width: 80px; height: 80px; font-size: 30px; font-weight: bold;">
-                                            {{ app.user.email|slice(0,1)|upper }}
-                                        </div>
-                                        <div>
-                                            <button class="btn btn-sm btn-outline-secondary rounded-pill me-2">Change</button>
-                                            <button class="btn btn-sm btn-link text-danger text-decoration-none">Remove</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="row mb-4">
-                                <div class="col-sm-3 text-muted fw-semibold">Full Name</div>
-                                <div class="col-sm-9 fw-bold text-dark">{{ app.user.fullName|default(app.user.email|split('@')[0]) }}</div>
-                            </div>
-                            <div class="row mb-4">
-                                <div class="col-sm-3 text-muted fw-semibold">Email Address</div>
-                                <div class="col-sm-9 fw-bold text-dark">{{ app.user.email }}</div>
-                            </div>
-                            <div class="row mb-4">
-                                <div class="col-sm-3 text-muted fw-semibold">Mobile Number</div>
-                                <div class="col-sm-9 fw-bold text-dark">{{ app.user.mobile|default('Not Added') }}</div>
-                            </div>
-                            <div class="row mb-4">
-                                <div class="col-sm-3 text-muted fw-semibold">Date of Birth</div>
-                                <div class="col-sm-9 fw-bold text-dark">{{ app.user.dot ? app.user.dot|date('d M, Y') : 'Not Added' }}</div>
-                            </div>
-                            <div class="row mb-4">
-                                <div class="col-sm-3 text-muted fw-semibold">Gender</div>
-                                <div class="col-sm-9 fw-bold text-dark">{{ app.user.gender|default('Not Added') }}</div>
-                            </div>
-                            <div class="row mb-0">
-                                <div class="col-sm-3 text-muted fw-semibold">City</div>
-                                <div class="col-sm-9 fw-bold text-dark">{{ app.user.city|default('Not Added') }}</div>
-                            </div>
-                        </div>
-
-                        {# ૨. હિસ્ટ્રી ટેબ (અત્યારે ડેમો ડેટા છે) #}
-                        <div class="tab-pane fade" id="pills-history" role="tabpanel" aria-labelledby="pills-history-tab">
-                            <h4 class="fw-bold mb-4 pb-3 border-bottom">Recent Activity</h4>
-                            <div class="timeline mt-4">
-                                <div class="d-flex mb-4">
-                                    <div class="mt-1 me-4 text-primary"><i class="fas fa-circle ms-1"></i></div>
-                                    <div>
-                                        <h6 class="fw-bold mb-1">Account Creation</h6>
-                                        <p class="text-muted small mb-0">You successfully joined ServiceHub.</p>
-                                        <small class="text-primary fw-bold">10th Feb, 2024</small>
-                                    </div>
-                                </div>
-                                <div class="d-flex mb-4">
-                                    <div class="mt-1 me-4 text-success"><i class="fas fa-circle ms-1"></i></div>
-                                    <div>
-                                        <h6 class="fw-bold mb-1">Profile Updated</h6>
-                                        <p class="text-muted small mb-0">You updated your personal information.</p>
-                                        <small class="text-success fw-bold">Last Week</small>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {# ૩. પેમેન્ટ ટેબ (અત્યારે ડેમો ડિઝાઇન છે) #}
-                        <div class="tab-pane fade" id="pills-payment" role="tabpanel" aria-labelledby="pills-payment-tab">
-                            <div class="d-flex justify-content-between align-items-center mb-5 pb-3 border-bottom">
-                                <div>
-                                    <h4 class="fw-bold mb-1">Payment Methods</h4>
-                                    <p class="text-muted small mb-0">Manage your saved cards and payment options.</p>
-                                </div>
-                                <button class="btn btn-primary rounded-pill px-4">
-                                    <i class="fas fa-plus me-2"></i>Add Card
-                                </button>
-                            </div>
-                            
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="card bg-dark text-white rounded-4 border-0 shadow-sm position-relative overflow-hidden">
-                                        <div class="position-absolute end-0 top-0 opacity-25 p-3">
-                                            <i class="fab fa-cc-visa fa-4x"></i>
-                                        </div>
-                                        <div class="card-body p-4 p-md-5 position-relative z-1">
-                                            <h5 class="mb-4 fw-normal opacity-75">HDFC Bank</h5>
-                                            <h3 class="mb-4 fw-bold letter-spacing-2">**** **** **** 4589</h3>
-                                            <div class="d-flex justify-content-between align-items-end">
-                                                <div>
-                                                    <small class="d-block opacity-75 mb-1 text-uppercase" style="font-size: 0.7rem;">Card Holder</small>
-                                                    <div class="fw-bold">{{ app.user.email|split('@')[0]|upper }}</div>
-                                                </div>
-                                                <div>
-                                                    <small class="d-block opacity-75 mb-1 text-uppercase" style="font-size: 0.7rem;">Expires</small>
-                                                    <div class="fw-bold">12/28</div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
+            <div class="pp-contact-list">
+                <div class="pp-contact-item">
+                    <div class="pp-contact-icon"><i class="fas fa-envelope"></i></div>
+                    <div>
+                        <div class="pp-contact-label">Secure Access</div>
+                        <div class="pp-contact-value">{{ app.user.email }}</div>
+                    </div>
+                </div>
+                <div class="pp-contact-item">
+                    <div class="pp-contact-icon"><i class="fas fa-phone-volume"></i></div>
+                    <div>
+                        <div class="pp-contact-label">VoIP Signal</div>
+                        <div class="pp-contact-value">{{ app.user.mobile|default('Protocol Offline') }}</div>
+                    </div>
+                </div>
+                <div class="pp-contact-item">
+                    <div class="pp-contact-icon"><i class="fas fa-location-arrow"></i></div>
+                    <div>
+                        <div class="pp-contact-label">Sovereign Domain</div>
+                        <div class="pp-contact-value">{{ app.user.city|default('Unknown Sector') }}, {{ app.user.address|default('N/A') }}</div>
                     </div>
                 </div>
             </div>
+
+            <div class="mt-5">
+                <a href="{{ path('app_profile_edit') }}" class="btn-outline-luxury w-100 py-3" style="font-size: 0.65rem;">RECONFIGURE IDENTITY</a>
+            </div>
         </div>
-        
+    </aside>
+
+    {# ── MAIN CONTENT ── #}
+    <div class="pp-main">
+        <nav class="pp-navbar">
+            <button class="pp-nav-link active" data-target="about"><i class="fas fa-fingerprint"></i> Identity</button>
+            <button class="pp-nav-link" data-target="activity"><i class="fas fa-stream"></i> History</button>
+            <button class="pp-nav-link" data-target="portfolio"><i class="fas fa-vault"></i> Portfolio</button>
+            <button class="pp-nav-link" data-target="config"><i class="fas fa-sliders"></i> Security</button>
+        </nav>
+
+        <div class="pp-articles">
+            {# IDENTITY SECTION #}
+            <section class="pp-article active animate-fade-in" id="about">
+                <div class="glass-card p-5">
+                    <h2 class="luxury-serif text-pure mb-4">Identity Profile</h2>
+                    <p class="text-silver opacity-60 mb-5">Manage your high-fidelity membership parameters and estate preferences.</p>
+                    
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <div class="hud-stat-card p-4 rounded-4" style="background: rgba(255,255,255,0.02); border: 1px solid var(--glass-border);">
+                                <div class="pp-contact-label mb-2">Member Since</div>
+                                <div class="text-pure fw-bold">January 2024</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="hud-stat-card p-4 rounded-4" style="background: rgba(255,255,255,0.02); border: 1px solid var(--glass-border);">
+                                <div class="pp-contact-label mb-2">Verification Status</div>
+                                <div class="text-teal fw-bold"><i class="fas fa-shield-check me-2"></i> LEVEL 2 ENCRYPTED</div>
+                            </div>
+                        </div>
+                        <div class="col-12 mt-4">
+                            <div class="glass-card p-4 border-dashed border-teal" style="background: rgba(16, 185, 129, 0.02);">
+                                <div class="d-flex align-items-center gap-4">
+                                    <i class="fas fa-star-of-life text-teal fs-3"></i>
+                                    <div>
+                                        <div class="text-pure fw-bold">Priority Support Access</div>
+                                        <div class="text-xxs text-dim mt-1">As a {{ app.user.tier|upper }} member, you have a direct uplink to our concierge leads.</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {# HISTORY SECTION #}
+            <section class="pp-article animate-fade-in" id="activity">
+                <div class="glass-card p-5">
+                    <h2 class="luxury-serif text-pure mb-4">Activity Log</h2>
+                    <div class="d-flex flex-column gap-3">
+                        {% for booking in app.user.bookings|reverse|slice(0, 5) %}
+                            <div class="glass-card p-4 border-teal-hover transition-all" style="background: rgba(255,255,255,0.01);">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="d-flex align-items-center gap-4">
+                                        <div class="user-orb" style="width: 45px; height: 45px; background: var(--bg-deep);">
+                                            <i class="fas fa-toolbox text-teal"></i>
+                                        </div>
+                                        <div>
+                                            <div class="text-pure fw-bold">{{ booking.service.title }}</div>
+                                            <div class="text-xxs text-dim mt-1">{{ booking.bookingDate|date('D, d M Y') }}</div>
+                                        </div>
+                                    </div>
+                                    <div class="text-end">
+                                        <div class="badge-status status-{{ booking.status|lower == 'completed' ? 'active' : 'pending' }} px-3">{{ booking.status|upper }}</div>
+                                        <div class="text-xxs text-pure mt-2 fw-800">₹{{ booking.estimatedCost|number_format }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% else %}
+                            <div class="py-5 text-center">
+                                <i class="fas fa-ghost text-dim mb-3 fs-1 opacity-20"></i>
+                                <p class="text-dim">No historical records found in this sector.</p>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </section>
+
+            {# PORTFOLIO SECTION #}
+            <section class="pp-article animate-fade-in" id="portfolio">
+                <div class="glass-card p-5">
+                    <h2 class="luxury-serif text-pure mb-2">Service Portfolio</h2>
+                    <p class="text-dim mb-5">CURATED COLLECTION OF YOUR OPERATIONAL ASSETS</p>
+                    
+                    {% set portfolio_items = is_granted('ROLE_PROVIDER') ? app.user.services : app.user.bookings %}
+                    <div class="row g-4">
+                        {% for item in portfolio_items|slice(0, 6) %}
+                            <div class="col-md-6">
+                                <div class="glass-card p-4 h-100" style="background: rgba(255,255,255,0.02);">
+                                    <div class="pp-contact-label mb-2">{{ is_granted('ROLE_PROVIDER') ? item.category : item.bookingType }}</div>
+                                    <div class="text-pure fw-bold mb-3">{{ is_granted('ROLE_PROVIDER') ? item.title : item.service.title }}</div>
+                                    <div class="d-flex justify-content-between align-items-end">
+                                        <div class="text-teal fw-800">₹{{ (is_granted('ROLE_PROVIDER') ? item.price : item.estimatedCost)|number_format }}</div>
+                                        <a href="#" class="text-xxs text-dim text-decoration-none hover:text-pure transition-all">VIEW SPECS <i class="fas fa-arrow-right-long ms-2"></i></a>
+                                    </div>
+                                </div>
+                            </div>
+                        {% else %}
+                            <div class="col-12 text-center py-5">
+                                <p class="text-dim">Portfolio initialization pending.</p>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </section>
+
+            {# SECURITY SECTION #}
+            <section class="pp-article animate-fade-in" id="config">
+                <div class="glass-card p-5">
+                    <h2 class="luxury-serif text-pure mb-4">Security Protocol</h2>
+                    <div class="d-grid gap-4">
+                        <div class="d-flex justify-content-between align-items-center p-4 rounded-4" style="background: rgba(255,255,255,0.02); border: 1px solid var(--glass-border);">
+                            <div>
+                                <div class="text-pure fw-bold">Two-Factor Authentication</div>
+                                <div class="text-xxs text-dim mt-1">Status: SECURE (Hardware Key)</div>
+                            </div>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" checked disabled>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center p-4 rounded-4" style="background: rgba(255,255,255,0.02); border: 1px solid var(--glass-border);">
+                            <div>
+                                <div class="text-pure fw-bold">Session Sanitization</div>
+                                <div class="text-xxs text-dim mt-1">Auto-terminate inactive links after 15m.</div>
+                            </div>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" checked>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
     </div>
 </div>
-{% endblock %}
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const navLinks = document.querySelectorAll('.pp-nav-link');
+        const articles = document.querySelectorAll('.pp-article');
+
+        navLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                const target = link.getAttribute('data-target');
+                
+                // Update active link
+                navLinks.forEach(l => l.classList.remove('active'));
+                link.classList.add('active');
+
+                // Update visible article
+                articles.forEach(art => {
+                    art.classList.remove('active');
+                    if (art.id === target) {
+                        art.classList.add('active');
+                    }
+                });
+            });
+        });
+    });
+</script>
+{% endblock %}

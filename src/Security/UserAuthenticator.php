@@ -63,16 +63,6 @@ class UserAuthenticator extends AbstractLoginFormAuthenticator
             return new RedirectResponse($this->urlGenerator->generate('app_verify_otp'));
         }
 
-        $roles = $user->getRoles();
-
-        if (in_array('ROLE_PROVIDER', $roles)) {
-            return new RedirectResponse($this->urlGenerator->generate('app_provider_dashboard'));
-        }
-
-        if (in_array('ROLE_USER', $roles)) {
-            return new RedirectResponse($this->urlGenerator->generate('app_customer_dashboard'));
-        }
-
         return new RedirectResponse($this->urlGenerator->generate('app_home'));
     }
 

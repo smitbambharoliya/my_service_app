@@ -42,6 +42,15 @@ class Booking
     #[ORM\Column]
     private ?\DateTimeImmutable $bookingDate = null;
 
+    #[ORM\Column(type: 'decimal', precision: 10, scale: 7, nullable: true)]
+    private ?string $latitude = null;
+
+    #[ORM\Column(type: 'decimal', precision: 10, scale: 7, nullable: true)]
+    private ?string $longitude = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $trackingId = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -115,4 +124,13 @@ class Booking
 
         return $this;
     }
+
+    public function getLatitude(): ?string { return $this->latitude; }
+    public function setLatitude(?string $latitude): static { $this->latitude = $latitude; return $this; }
+
+    public function getLongitude(): ?string { return $this->longitude; }
+    public function setLongitude(?string $longitude): static { $this->longitude = $longitude; return $this; }
+
+    public function getTrackingId(): ?string { return $this->trackingId; }
+    public function setTrackingId(?string $trackingId): static { $this->trackingId = $trackingId; return $this; }
 }

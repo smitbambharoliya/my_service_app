@@ -1,181 +1,170 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Sign In — ServiceHub{% endblock %}
+{% block title %}Sign In — ServiceHub Luxury Portal{% endblock %}
 
 {% block stylesheets %}
 <style>
-    body { background: var(--bg-base); overflow-x: hidden; }
-    
-    .auth-container {
-        display: flex;
+    html { scroll-behavior: smooth; }
+    body {
+        background: var(--bg-deep, #121826);
+        overflow-x: hidden;
+        overflow-y: auto;
         min-height: 100vh;
-        width: 100%;
     }
 
-    /* ── Left: Form Side ── */
-    .auth-side-form {
-        flex: 1;
-        max-width: 600px;
-        background: var(--bg-base);
+    .portal-wrapper {
+        min-height: 100vh;
         display: flex;
         align-items: center;
         justify-content: center;
-        padding: 40px;
+        position: relative;
+        padding: clamp(1.5rem, 4vw, 2.5rem) clamp(1rem, 3vw, 2.5rem) clamp(2.5rem, 6vh, 4rem);
+        box-sizing: border-box;
+    }
+
+    .portal-bg-accent {
+        position: absolute;
+        width: 1200px; height: 1200px;
+        background: radial-gradient(circle, rgba(244, 204, 92, 0.1) 0%, transparent 70%);
+        top: -400px; right: -400px;
+        z-index: 1;
+        pointer-events: none;
+    }
+
+    .portal-card {
+        width: 100%;
+        max-width: 1100px;
+        display: grid;
+        grid-template-columns: 1.2fr 1fr;
+        background: rgba(26, 34, 51, 0.5);
+        backdrop-filter: blur(40px);
+        border: 1px solid var(--gold-border);
+        border-radius: var(--r-xl);
+        overflow: hidden;
         position: relative;
         z-index: 10;
+        box-shadow: 0 50px 100px rgba(0,0,0,0.8), 0 0 40px var(--gold-glow);
     }
-    
-    .auth-card { width: 100%; max-width: 400px; }
-    
-    .auth-header { margin-bottom: 40px; }
-    .auth-header h1 { font-size: 2.5rem; margin-bottom: 12px; letter-spacing: -0.04em; }
-    .auth-header p { color: var(--text-muted); font-weight: 500; }
 
-    /* ── Right: Brand Side ── */
-    .auth-side-brand {
-        flex: 1.5;
-        background: linear-gradient(135deg, #1A103D 0%, #07080F 100%);
-        display: flex;
-        align-items: center;
-        justify-content: center;
+    /* Left: The Visual Narrative */
+    .portal-visual {
+        background-size: cover;
+        background-position: center;
+        position: relative;
         padding: 60px;
-        position: relative;
-        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
     }
-    
-    .auth-side-brand::before {
-        content: '';
-        position: absolute;
-        width: 600px; height: 600px;
-        background: radial-gradient(circle, var(--brand-glow) 0%, transparent 70%);
-        top: -100px; right: -100px;
-        z-index: 1;
+    .portal-visual::after {
+        content: ''; position: absolute; inset: 0;
+        background: linear-gradient(to top, rgba(7, 8, 15, 0.9) 0%, transparent 100%);
+    }
+    .visual-content { position: relative; z-index: 10; }
+
+    /* Right: The Secure Terminal */
+    .portal-form-side {
+        padding: 60px;
+        background: rgba(15, 23, 42, 0.25);
     }
 
-    .brand-visual {
-        position: relative;
-        z-index: 2;
-        text-align: center;
-        max-width: 500px;
+    .input-label {
+        font-size: 0.65rem;
+        font-weight: 800;
+        color: var(--text-dim);
+        text-transform: uppercase;
+        letter-spacing: 0.2em;
+        margin-bottom: 12px;
+        display: block;
     }
-    
-    .visual-image {
+
+    .auth-input {
         width: 100%;
-        border-radius: var(--r-xl);
-        border: 1px solid var(--border-brand);
-        box-shadow: var(--shadow-lg), var(--glow-brand);
-        transform: perspective(1000px) rotateY(-10deg) rotateX(5deg);
-        transition: transform 0.5s var(--ease-out);
+        background: rgba(255,255,255,0.03);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--r-md);
+        padding: 16px 20px;
+        color: var(--text-pure);
+        font-size: 0.9rem;
+        transition: all 0.4s var(--ease-luxury);
+        margin-bottom: 24px;
     }
-    .visual-image:hover { transform: perspective(1000px) rotateY(0deg) rotateX(0deg); }
-
-    .input-group-x { margin-bottom: 24px; }
-    .input-group-x label { display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
-    
-    .auth-footer { margin-top: 40px; text-align: center; border-top: 1px solid var(--border-subtle); pt-4; }
+    .auth-input:focus {
+        background: rgba(255,255,255,0.05);
+        border-color: var(--accent-gold);
+        outline: none;
+        box-shadow: 0 0 20px var(--gold-glow);
+    }
 
     @media (max-width: 992px) {
-        .auth-side-brand { display: none; }
-        .auth-side-form { max-width: 100%; }
+        .portal-card { grid-template-columns: 1fr; max-width: 500px; }
+        .portal-visual { display: none; }
+        .portal-form-side { padding: 40px; }
     }
 </style>
 {% endblock %}
 
 {% block body %}
-<div class="auth-container">
+<div class="portal-wrapper">
+    <div class="portal-bg-accent"></div>
     
-    {# ── FORM SIDE ── #}
-    <div class="auth-side-form">
-        <div class="auth-card fade-up">
-            
-            <div class="auth-header">
-                <a href="{{ path('app_home') }}" class="nav-brand mb-4 d-inline-flex">
-                    ServiceHub<span class="brand-dot">.</span>
-                </a>
-                <h1>Welcome back</h1>
-                <p>Enter your credentials to access your dashboard.</p>
+    <div class="portal-card animate-fade-in">
+        {# ── LEFT: VISUAL ── #}
+        <div class="portal-visual" style="background-image: url('https://images.unsplash.com/photo-1621905251189-08b45d6a269e?q=80&w=1200&auto=format&fit=crop');">
+            <div class="visual-content">
+                <span class="text-gold text-xs fw-800 letter-spacing-2 mb-3 d-block">WELCOME BACK</span>
+                <h2 class="luxury-serif text-pure mb-4" style="font-size: 2.3rem;">Sign in to<br>continue with ServiceHub.</h2>
+                <p class="text-silver mb-0" style="max-width: 350px;">Access your bookings, services and history in one place.</p>
+            </div>
+        </div>
+
+        {# ── RIGHT: THE SECURE TERMINAL ── #}
+        <div class="portal-form-side">
+            <div class="text-center mb-5">
+                <a href="{{ path('app_home') }}" class="luxury-serif text-pure text-decoration-none h3 mb-1 d-block">ServiceHub<span class="text-gold">.</span></a>
+                <p class="text-xs text-dim fw-bold letter-spacing-1 mb-1">Sign in to your account</p>
+                <p class="text-xxs text-muted mb-0">Use your email and password to continue.</p>
             </div>
 
             {% if error %}
-                <div class="glass-card mb-4 p-3 d-flex align-items-center gap-3" style="border-left: 4px solid var(--accent-red) !important;">
-                    <i class="fas fa-triangle-exclamation text-danger fs-5"></i>
-                    <div class="text-sm text-primary fw-bold">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+                <div class="glass-card mb-4 p-3 d-flex align-items-center gap-3" style="border-left: 2px solid var(--accent-gold) !important; background: rgba(255,0,0,0.05);">
+                    <i class="fas fa-shield-halved text-gold fs-5"></i>
+                    <div class="text-xs text-pure fw-bold">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
                 </div>
             {% endif %}
 
             <form method="post">
-                <div class="input-group-x">
-                    <label for="inputEmail">Work Email</label>
-                    <input type="email" name="email" id="inputEmail" class="form-input" value="{{ last_username }}" required autofocus placeholder="name@company.com">
+                <div class="mb-4">
+                    <label class="input-label">Identity (Email)</label>
+                    <input type="email" name="email" value="{{ last_username }}" class="auth-input" placeholder="representative@domain.com" required autofocus>
                 </div>
 
-                <div class="input-group-x">
+                <div class="mb-4">
                     <div class="d-flex justify-content-between align-items-center mb-2">
-                        <label class="m-0" for="inputPassword">Password</label>
-                        <a href="#" class="text-xs fw-bold text-brand-1">Forgot?</a>
+                        <label class="input-label mb-0">Security Key</label>
+                        <a href="#" class="text-xxs text-gold text-decoration-none fw-bold">RECOVER KEY</a>
                     </div>
-                    <div class="position-relative">
-                        <input type="password" name="password" id="inputPassword" class="form-input" required placeholder="••••••••">
-                        <button type="button" class="position-absolute end-0 top-50 translate-middle-y bg-transparent border-0 pe-3 text-muted" onclick="togglePass()">
-                            <i class="fas fa-eye" id="toggleIcon"></i>
-                        </button>
-                    </div>
+                    <input type="password" name="password" class="auth-input" placeholder="••••••••" required>
                 </div>
 
                 <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
 
-                <div class="mb-4 d-flex align-items-center gap-2">
-                    <input type="checkbox" name="_remember_me" class="form-check-input bg-transparent border-subtle" id="rememberMe">
-                    <label class="text-sm text-muted fw-medium" for="rememberMe">Keep me signed in</label>
+                <div class="mb-5 d-flex align-items-center gap-3">
+                    <input type="checkbox" name="_remember_me" id="rememberMe" class="form-check-input bg-transparent border-glass">
+                    <label class="text-xs text-dim fw-bold cursor-pointer" for="rememberMe">TRUST THIS DEVICE</label>
                 </div>
 
-                <button class="btn-violet w-100 py-3" type="submit">
-                    Sign into Hub <i class="fas fa-arrow-right ms-2"></i>
+                <button class="btn-luxury w-100 py-3 mb-4 justify-content-center" type="submit">
+                    INITIALIZE SESSION <i class="fas fa-arrow-right ms-2"></i>
                 </button>
+
+                <div class="text-center">
+                    <p class="text-xs text-dim mb-0">
+                        New to the Heritage? <a href="{{ path('app_register') }}" class="text-gold fw-bold text-decoration-none">SIGN UP NOW</a>
+                    </p>
+                </div>
             </form>
-
-            <div class="auth-footer pt-4">
-                <p class="text-sm text-muted">
-                    New to ServiceHub? <a href="{{ path('app_register') }}" class="text-primary fw-bold">Create Account</a>
-                </p>
-            </div>
         </div>
     </div>
-
-    {# ── BRAND SIDE ── #}
-    <div class="auth-side-brand">
-        <div class="brand-visual fade-up" style="transition-delay: 200ms;">
-            <div class="mb-5">
-                <span class="badge-pill badge-confirmed px-3 py-2 mb-4">
-                    <i class="fas fa-star text-cyan me-2"></i> Obsidian X Experience
-                </span>
-                <h2 class="text-hero text-white mb-4">Elevate your service standard.</h2>
-                <p class="text-lg text-muted opacity-75">Connect with the top 1% of service professionals in an ecosystem designed for speed and reliability.</p>
-            </div>
-            
-            <img src="https://images.unsplash.com/photo-1621905251189-08b45d6a269e?q=80&w=2069&auto=format&fit=crop" class="visual-image" alt="Premium Service">
-            
-            <div class="mt-5 d-flex align-items-center justify-content-center gap-5 text-muted opacity-50">
-                <div class="text-center"><div class="fw-800 text-primary h4 mb-0">12k+</div><div class="text-xs">Experts</div></div>
-                <div class="text-center"><div class="fw-800 text-primary h4 mb-0">99.9%</div><div class="text-xs">Success</div></div>
-                <div class="text-center"><div class="fw-800 text-primary h4 mb-0">2min</div><div class="text-xs">TAT</div></div>
-            </div>
-        </div>
-    </div>
-
 </div>
-
-<script>
-    function togglePass() {
-        const pass = document.getElementById('inputPassword');
-        const icon = document.getElementById('toggleIcon');
-        if(pass.type === 'password') {
-            pass.type = 'text';
-            icon.classList.replace('fa-eye', 'fa-eye-slash');
-        } else {
-            pass.type = 'password';
-            icon.classList.replace('fa-eye-slash', 'fa-eye');
-        }
-    }
-</script>
 {% endblock %}

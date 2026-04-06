@@ -94,6 +94,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 50, options: ["default" => "Bronze"])]
     private string $tier = 'Bronze';
 
+    #[ORM\Column]
+    private ?\DateTimeImmutable $createdAt = null;
+
     public function __construct()
     {
         $this->services = new ArrayCollection();
@@ -101,6 +104,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->billings = new ArrayCollection();
         $this->reviewsGiven = new ArrayCollection();
         $this->reviewsReceived = new ArrayCollection();
+        $this->createdAt = new \DateTimeImmutable();
     }
 
     public function getId(): ?int { return $this->id; }
@@ -218,5 +222,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             'Silver'       => '#c0c0c0',
             default        => '#cd7f32', // Bronze
         };
+    }
+
+    public function getCreatedAt(): ?\DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(\DateTimeImmutable $createdAt): static
+    {
+        $this->createdAt = $createdAt;
+
+        return $this;
     }
 }

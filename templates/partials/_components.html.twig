@@ -1,15 +1,15 @@
 {# ── Obsidian X Macro System ── #}
 
-{% macro glass_card(title = '', subtitle = '', class = '') %}
-<div class="glass-card {{ class }}">
-    {% if title or subtitle %}
+{% macro glass_card(params = {}) %}
+<div class="glass-card {{ params.class|default('') }}">
+    {% if params.title|default('') or params.subtitle|default('') %}
         <div class="card-header border-0 pb-0">
-            {% if title %}<h3 class="text-xl mb-1">{{ title }}</h3>{% endif %}
-            {% if subtitle %}<p class="text-xs text-muted mb-0">{{ subtitle }}</p>{% endif %}
+            {% if params.title|default('') %}<h3 class="text-xl mb-1">{{ params.title }}</h3>{% endif %}
+            {% if params.subtitle|default('') %}<p class="text-xs text-muted mb-0">{{ params.subtitle }}</p>{% endif %}
         </div>
     {% endif %}
     <div class="p-4">
-        {{ caller() }}
+        {{ params.body|default('')|raw }}
     </div>
 </div>
 {% endmacro %}
