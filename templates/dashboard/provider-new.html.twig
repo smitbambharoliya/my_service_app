@@ -1,0 +1,452 @@
+{% extends 'base-new.html.twig' %}
+
+{% block title %}Atelier — ServiceHub Provider Dashboard{% endblock %}
+
+{% block stylesheets %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+    .dashboard-container {
+        padding: 3rem 2rem;
+        background: linear-gradient(135deg, 
+            rgba(239, 68, 68, 0.02) 0%, 
+            rgba(245, 158, 11, 0.01) 50%, 
+            rgba(139, 92, 246, 0.02) 100%);
+    }
+
+    .dashboard-header {
+        margin-bottom: 3rem;
+    }
+
+    .dashboard-header h1 {
+        font-size: 3rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .dashboard-header p {
+        color: var(--text-muted);
+        font-size: 1rem;
+    }
+
+    .dashboard-widgets {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 3rem;
+    }
+
+    .widget {
+        padding: 2rem;
+        border-radius: var(--r-lg);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: rgba(36, 48, 68, 0.52);
+    }
+
+    .widget.red { 
+        background: rgba(239, 68, 68, 0.03); 
+        border: 1px solid rgba(239, 68, 68, 0.2); 
+    }
+
+    .widget.gold { 
+        background: rgba(245, 158, 11, 0.03); 
+        border: 1px solid rgba(245, 158, 11, 0.2); 
+    }
+
+    .widget.violet { 
+        background: rgba(139, 92, 246, 0.03); 
+        border: 1px solid rgba(139, 92, 246, 0.2); 
+    }
+
+    .widget-label {
+        font-size: 0.65rem;
+        font-weight: 800;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+        margin-bottom: 1rem;
+    }
+
+    .widget-value {
+        font-size: 2.5rem;
+        font-family: 'Playfair Display', serif;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        line-height: 1;
+    }
+
+    .widget-value.red { color: var(--accent-red); }
+    .widget-value.gold { color: var(--accent-gold); }
+    .widget-value.violet { color: var(--accent-violet); }
+
+    .widget-subtext {
+        font-size: 0.75rem;
+        color: var(--text-dim);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+    }
+
+    .widget-trend {
+        font-size: 0.8rem;
+        margin-top: 0.5rem;
+        color: var(--accent-teal);
+    }
+
+    .dashboard-row {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 1.5rem;
+        margin-bottom: 3rem;
+    }
+
+    @media (max-width: 1024px) {
+        .dashboard-row {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .chart-card {
+        padding: 2rem;
+        border-radius: var(--r-lg);
+        background: rgba(36, 48, 68, 0.52);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(20px);
+    }
+
+    .chart-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .chart-subtitle {
+        font-size: 0.7rem;
+        color: var(--text-dim);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-bottom: 1.5rem;
+    }
+
+    .chart-container {
+        position: relative;
+        height: 350px;
+        margin-bottom: 2rem;
+    }
+
+    .performance-metrics {
+        display: grid;
+        gap: 1rem;
+    }
+
+    .metric-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem;
+        border-radius: var(--r-md);
+        background: rgba(255, 255, 255, 0.02);
+    }
+
+    .metric-icon {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        background: rgba(245, 158, 11, 0.1);
+        color: var(--accent-gold);
+    }
+
+    .metric-info {
+        flex: 1;
+    }
+
+    .metric-label {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+    }
+
+    .metric-value {
+        font-weight: 600;
+        font-size: 1.1rem;
+        color: var(--text-pure);
+    }
+
+    .booking-cards-container {
+        display: grid;
+        gap: 1.5rem;
+    }
+
+    .booking-card {
+        padding: 1.5rem;
+        padding-left: 2rem;
+        border-radius: var(--r-lg);
+        background: rgba(36, 48, 68, 0.52);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-left: 4px solid;
+        backdrop-filter: blur(20px);
+        transition: all 0.3s;
+    }
+
+    .booking-card.pending { border-left-color: rgba(245, 158, 11, 0.6); }
+    .booking-card.confirmed { border-left-color: rgba(139, 92, 246, 0.6); }
+    .booking-card.completed { border-left-color: rgba(16, 185, 129, 0.6); }
+
+    .booking-card:hover {
+        transform: translateX(4px);
+        box-shadow: 0 0 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .booking-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .booking-title {
+        font-weight: 600;
+        color: var(--text-pure);
+    }
+
+    .booking-body {
+        font-size: 0.9rem;
+        color: var(--text-silver);
+        margin-bottom: 1rem;
+        line-height: 1.6;
+    }
+
+    .booking-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.8rem;
+        color: var(--text-muted);
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 0.75rem;
+    }
+
+    .action-btn {
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        background: rgba(245, 158, 11, 0.1);
+        border: 1px solid rgba(245, 158, 11, 0.2);
+        color: var(--accent-gold);
+        font-size: 0.75rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-decoration: none;
+    }
+
+    .action-btn:hover {
+        background: rgba(245, 158, 11, 0.2);
+        border-color: rgba(245, 158, 11, 0.4);
+    }
+
+    .action-btn.accept {
+        background: rgba(16, 185, 129, 0.1);
+        border-color: rgba(16, 185, 129, 0.2);
+        color: var(--accent-teal);
+    }
+
+    .action-btn.accept:hover {
+        background: rgba(16, 185, 129, 0.2);
+        border-color: rgba(16, 185, 129, 0.4);
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="dashboard-container">
+    {# ── HEADER ── #}
+    <div class="dashboard-header animate-slide-up">
+        <h1 class="text-gradient">Atelier</h1>
+        <p>Your service provisioning command center and earnings intelligence</p>
+    </div>
+
+    {# ── KPI WIDGETS ── #}
+    <div class="dashboard-widgets">
+        <div class="widget red liquid-glass">
+            <div class="widget-label">Active Bookings</div>
+            <div class="widget-value red">
+                {{ bookings|filter(b => b.status|lower in ['confirmed', 'pending', 'accepted'])|length }}
+            </div>
+            <div class="widget-subtext">Awaiting Completion</div>
+            <div class="widget-trend">↑ 12% from last month</div>
+        </div>
+
+        <div class="widget gold liquid-glass">
+            <div class="widget-label">Total Earnings</div>
+            {% set totalEarnings = 0 %}
+            {% for b in bookings|filter(b => b.status|lower == 'completed') %}
+                {% set totalEarnings = totalEarnings + (b.estimatedCost|default(b.service.price) * 0.8) %}
+            {% endfor %}
+            <div class="widget-value gold">₹{{ (totalEarnings / 100000)|round(1) }}L</div>
+            <div class="widget-subtext">Lifetime Revenue</div>
+            <div class="widget-trend">↑ 8% from last month</div>
+        </div>
+
+        <div class="widget violet liquid-glass">
+            <div class="widget-label">Completion Rate</div>
+            {% set completed = bookings|filter(b => b.status|lower == 'completed')|length %}
+            {% set total = bookings|length %}
+            <div class="widget-value violet">
+                {% if total > 0 %}{{ ((completed / total) * 100)|round(0) }}%{% else %}0%{% endif %}
+            </div>
+            <div class="widget-subtext">Service Success</div>
+        </div>
+    </div>
+
+    {# ── EARNINGS CHART & METRICS ── #}
+    <div class="dashboard-row">
+        <div class="chart-card">
+            <h3 class="chart-title">Earnings Trajectory</h3>
+            <p class="chart-subtitle">Monthly Revenue Pattern</p>
+            <div class="chart-container">
+                <canvas id="earningsChart"></canvas>
+            </div>
+        </div>
+
+        <div class="chart-card">
+            <h3 class="chart-title">Performance Metrics</h3>
+            <div class="performance-metrics">
+                <div class="metric-item">
+                    <div class="metric-icon">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <div class="metric-info">
+                        <div class="metric-label">Avg Rating</div>
+                        <div class="metric-value">4.8 / 5.0</div>
+                    </div>
+                </div>
+
+                <div class="metric-item">
+                    <div class="metric-icon" style="background: rgba(16, 185, 129, 0.1); color: var(--accent-teal);">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="metric-info">
+                        <div class="metric-label">Response Time</div>
+                        <div class="metric-value">&lt; 2 hours</div>
+                    </div>
+                </div>
+
+                <div class="metric-item">
+                    <div class="metric-icon" style="background: rgba(139, 92, 246, 0.1); color: var(--accent-violet);">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="metric-info">
+                        <div class="metric-label">Repeat Clients</div>
+                        <div class="metric-value">42 customers</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# ── PENDING BOOKINGS ── #}
+    <div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+            <h2 class="luxury-serif" style="margin: 0;">Booking Requests</h2>
+            <a href="{{ path('app_admin_service_new') }}" class="btn-premium gold">Add New Service</a>
+        </div>
+
+        <div class="booking-cards-container">
+            {% if bookings|length > 0 %}
+                {% for booking in bookings|slice(0, 10) %}
+                    <div class="booking-card {{ booking.status|lower }}">
+                        <div class="booking-header">
+                            <div>
+                                <div class="booking-title">{{ booking.customer.fullName }} - {{ booking.service.name }}</div>
+                            </div>
+                            <span class="badge-premium {{ booking.status|lower }}">{{ booking.status }}</span>
+                        </div>
+                        <div class="booking-body">
+                            <strong>Booking Date:</strong> {{ booking.bookingDate|date('M d, Y H:i') }}<br>
+                            <strong>Estimated Price:</strong> ₹{{ (booking.estimatedCost|default(booking.service.price))|number_format(0) }}<br>
+                            <strong>Your Earnings:</strong> <span style="color: var(--accent-gold); font-weight: 600;">₹{{ ((booking.estimatedCost|default(booking.service.price)) * 0.8)|number_format(0) }}</span>
+                        </div>
+                        <div class="booking-footer">
+                            <span>Request ID: #{{ booking.id|substring(0, 8) }}</span>
+                            <div class="action-buttons">
+                                {% if booking.status|lower == 'pending' %}
+                                    <form method="POST" style="display: inline;">
+                                        <button type="submit" class="action-btn accept">Accept Booking</button>
+                                    </form>
+                                    <button class="action-btn">Decline</button>
+                                {% elif booking.status|lower == 'confirmed' %}
+                                    <a href="{{ path('app_booking_update', {id: booking.id}) }}" class="action-btn accept">Mark Complete</a>
+                                {% else %}
+                                    <a href="{{ path('app_booking_show', {id: booking.id}) }}" class="action-btn">View Details</a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="chart-card" style="text-align: center; padding: 3rem;">
+                    <p style="color: var(--text-muted); margin: 0;">No active bookings. Your services are ready for customers!</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+    // Earnings Chart (Bar Chart)
+    const earningsCtx = document.getElementById('earningsChart').getContext('2d');
+    new Chart(earningsCtx, {
+        type: 'bar',
+        data: {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+            datasets: [{
+                label: 'Monthly Earnings',
+                data: [45000, 52000, 48000, 61000, 75000, 68000],
+                backgroundColor: [
+                    'rgba(245, 158, 11, 0.8)',
+                    'rgba(245, 158, 11, 0.7)',
+                    'rgba(245, 158, 11, 0.8)',
+                    'rgba(245, 158, 11, 0.9)',
+                    'rgba(245, 158, 11, 1)',
+                    'rgba(245, 158, 11, 0.85)'
+                ],
+                borderColor: 'var(--accent-gold)',
+                borderWidth: 1,
+                borderRadius: 8,
+            }]
+        },
+        options: {
+            indexAxis: 'x',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.05)',
+                        drawBorder: false
+                    },
+                    ticks: { 
+                        color: 'var(--text-muted)',
+                        callback: function(value) {
+                            return '₹' + (value/1000).toFixed(0) + 'K';
+                        }
+                    }
+                },
+                x: {
+                    grid: { display: false },
+                    ticks: { color: 'var(--text-muted)' }
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}

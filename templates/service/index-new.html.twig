@@ -1,0 +1,655 @@
+{% extends 'base-new.html.twig' %}
+
+{% block title %}Collection — ServiceHub Digital Heritage{% endblock %}
+
+{% block stylesheets %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+    body { background: var(--bg-deep); }
+
+    .explorer-hero {
+        padding: 100px 0 60px;
+        background: linear-gradient(135deg, 
+            rgba(16, 185, 129, 0.05) 0%, 
+            rgba(139, 92, 246, 0.03) 50%,
+            rgba(245, 158, 11, 0.02) 100%);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .hero-content {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+
+    .hero-title {
+        font-size: 2.5rem;
+        font-family: 'Playfair Display', serif;
+        margin-bottom: 1rem;
+    }
+
+    .hero-subtitle {
+        font-size: 1rem;
+        color: var(--text-muted);
+    }
+
+    /* ── AI SERVICE ORB (Intelligent Search) ── */
+    
+    .search-orb-wrapper {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 3rem;
+    }
+
+    .search-orb {
+        width: 100%;
+        max-width: 600px;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1.5rem 2rem;
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 9999px;
+        background: rgba(16, 185, 129, 0.03);
+        transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.25);
+        animation: float 3s ease-in-out infinite;
+    }
+
+    .search-orb:focus-within {
+        border-color: rgba(16, 185, 129, 0.5);
+        background: rgba(16, 185, 129, 0.05);
+        box-shadow: 0 0 50px rgba(16, 185, 129, 0.3), inset 0 0 20px rgba(16, 185, 129, 0.05);
+    }
+
+    .search-orb .orb-icon {
+        color: var(--accent-teal);
+        font-size: 1.5rem;
+    }
+
+    .search-orb input {
+        background: transparent;
+        border: none;
+        outline: none;
+        color: var(--text-pure);
+        flex: 1;
+        font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+        font-size: 1rem;
+    }
+
+    .search-orb input::placeholder {
+        color: var(--text-muted);
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-8px); }
+    }
+
+    /* ── EXPLORER LAYOUT ── */
+
+    .explorer-container {
+        display: grid;
+        grid-template-columns: 300px 1fr;
+        gap: 3rem;
+        padding: 2rem 0;
+    }
+
+    @media (max-width: 1200px) {
+        .explorer-container {
+            grid-template-columns: 1fr;
+        }
+        
+        .sidebar-atelier {
+            display: none;
+        }
+    }
+
+    /* ── SIDEBAR FILTERS ── */
+
+    .sidebar-atelier {
+        position: sticky;
+        top: 120px;
+        height: fit-content;
+    }
+
+    .filter-group {
+        margin-bottom: 3rem;
+    }
+
+    .filter-label {
+        font-size: 0.6rem;
+        font-weight: 800;
+        color: var(--text-dim);
+        text-transform: uppercase;
+        letter-spacing: 0.25em;
+        margin-bottom: 1.5rem;
+        display: block;
+    }
+
+    .filter-checkbox {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+        cursor: pointer;
+    }
+
+    .filter-checkbox input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        border-radius: 4px;
+        border: 2px solid rgba(16, 185, 129, 0.3);
+        background: transparent;
+        cursor: pointer;
+        accent-color: var(--accent-teal);
+    }
+
+    .filter-checkbox label {
+        cursor: pointer;
+        color: var(--text-silver);
+        font-size: 0.9rem;
+    }
+
+    /* ── SERVICE GRID ── */
+
+    .exhibit-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 2rem;
+    }
+
+    /* ── SERVICE CARD WITH SENSORY OVERLAY ── */
+
+    .exhibit-card {
+        position: relative;
+        overflow: hidden;
+        border-radius: 20px;
+        aspect-ratio: 4 / 5;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        background: rgba(36, 48, 68, 0.52);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        cursor: pointer;
+    }
+
+    .exhibit-card .exhibit-image {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+    }
+
+    .exhibit-card:hover .exhibit-image {
+        transform: scale(1.15);
+    }
+
+    .sensory-note-overlay {
+        position: absolute;
+        inset: 0;
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        background: linear-gradient(180deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.7) 100%);
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        padding: 2rem;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+        z-index: 10;
+    }
+
+    .exhibit-card:hover .sensory-note-overlay {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .sensory-note-overlay .service-name {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--text-pure);
+        margin-bottom: 0.5rem;
+        line-height: 1.1;
+    }
+
+    .sensory-note-overlay .sensory-vibe {
+        font-size: 0.9rem;
+        color: var(--text-silver);
+        line-height: 1.6;
+        margin-bottom: 1.5rem;
+        italic: true;
+    }
+
+    .sensory-note-overlay .card-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .sensory-note-overlay .price {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--accent-gold);
+    }
+
+    .sensory-note-overlay .rating {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--accent-teal);
+        font-size: 0.85rem;
+    }
+
+    /* ── MAP TOGGLE & LIVE MAP ── #}
+
+    .map-toggle-btn {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        z-index: 40;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--accent-teal), var(--accent-violet));
+        border: none;
+        color: white;
+        font-size: 1.5rem;
+        cursor: pointer;
+        box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4);
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .map-toggle-btn:hover {
+        transform: scale(1.1);
+        box-shadow: 0 8px 30px rgba(16, 185, 129, 0.5);
+    }
+
+    #mapContainer {
+        position: fixed;
+        inset: 0;
+        z-index: 45;
+        width: 100%;
+        height: 100vh;
+        border-radius: 0;
+        display: none;
+        overflow: hidden;
+    }
+
+    #mapContainer.active {
+        display: block;
+    }
+
+    .map-close-btn {
+        position: absolute;
+        top: 30px;
+        left: 30px;
+        z-index: 50;
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        background: rgba(0, 0, 0, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: white;
+        font-size: 1.5rem;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        backdrop-filter: blur(10px);
+    }
+
+    .map-close-btn:hover {
+        background: rgba(0, 0, 0, 0.8);
+    }
+
+    /* ── NO RESULTS STATE ── */
+
+    .no-results {
+        text-align: center;
+        padding: 3rem 2rem;
+    }
+
+    .no-results-icon {
+        font-size: 4rem;
+        color: var(--text-muted);
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+
+    .no-results-text {
+        color: var(--text-muted);
+        font-size: 1rem;
+    }
+
+    /* ── RESPONSIVE ── */
+
+    @media (max-width: 768px) {
+        .explorer-hero {
+            padding: 60px 0 40px;
+        }
+
+        .hero-title {
+            font-size: 1.8rem;
+        }
+
+        .exhibit-grid {
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .search-orb {
+            padding: 1rem 1.5rem;
+        }
+
+        .map-toggle-btn {
+            width: 50px;
+            height: 50px;
+            font-size: 1.2rem;
+            bottom: 20px;
+            right: 20px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+{# ── HERO SECTION WITH AI SEARCH ORB ── #}
+<div class="explorer-hero">
+    <div class="container">
+        <div class="hero-content">
+            <h1 class="hero-title">Discover Premium Services</h1>
+            <p class="hero-subtitle">Explore curated experiences tailored to your needs</p>
+        </div>
+
+        <div class="search-orb-wrapper">
+            <div class="search-orb">
+                <i class="fas fa-sparkles orb-icon"></i>
+                <input 
+                    type="text" 
+                    placeholder="Ask me anything... 'massage near me', 'photography for events'..."
+                    id="serviceSearch"
+                    class="search-input"
+                >
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container" style="padding: 3rem 0;">
+    <div class="explorer-container">
+        {# ── SIDEBAR FILTERS ── #}
+        <div class="sidebar-atelier">
+            <div class="filter-group">
+                <label class="filter-label">Category</label>
+                <div class="filter-checkbox">
+                    <input type="checkbox" id="cat-wellness" checked>
+                    <label for="cat-wellness">Wellness & Spa</label>
+                </div>
+                <div class="filter-checkbox">
+                    <input type="checkbox" id="cat-beauty">
+                    <label for="cat-beauty">Beauty & Grooming</label>
+                </div>
+                <div class="filter-checkbox">
+                    <input type="checkbox" id="cat-events">
+                    <label for="cat-events">Events & Photography</label>
+                </div>
+                <div class="filter-checkbox">
+                    <input type="checkbox" id="cat-maintenance">
+                    <label for="cat-maintenance">Home Maintenance</label>
+                </div>
+            </div>
+
+            <div class="filter-group">
+                <label class="filter-label">Price Range</label>
+                <div class="filter-checkbox">
+                    <input type="checkbox" id="price-budget">
+                    <label for="price-budget">Under ₹500</label>
+                </div>
+                <div class="filter-checkbox">
+                    <input type="checkbox" id="price-mid">
+                    <label for="price-mid">₹500 - ₹2000</label>
+                </div>
+                <div class="filter-checkbox">
+                    <input type="checkbox" id="price-premium">
+                    <label for="price-premium">₹2000+</label>
+                </div>
+            </div>
+
+            <div class="filter-group">
+                <label class="filter-label">Experience Level</label>
+                <div class="filter-checkbox">
+                    <input type="checkbox" id="exp-new">
+                    <label for="exp-new">Emerging Providers</label>
+                </div>
+                <div class="filter-checkbox">
+                    <input type="checkbox" id="exp-established">
+                    <label for="exp-established">Established Masters</label>
+                </div>
+                <div class="filter-checkbox">
+                    <input type="checkbox" id="exp-elite">
+                    <label for="exp-elite">Elite Concierge</label>
+                </div>
+            </div>
+        </div>
+
+        {# ── SERVICE GRID ── #}
+        <div>
+            <div class="exhibit-grid" id="serviceGrid">
+                {% if services is defined and services|length > 0 %}
+                    {% for service in services %}
+                        <div class="exhibit-card" data-service-id="{{ service.id }}">
+                            {% if service.image %}
+                                <img src="{{ asset('uploads/services/' ~ service.image) }}" class="exhibit-image" alt="{{ service.name }}">
+                            {% else %}
+                                <div style="position: absolute; inset: 0; background: linear-gradient(135deg, var(--accent-teal), var(--accent-violet)); display: flex; align-items: center; justify-content: center; font-size: 4rem; color: rgba(255, 255, 255, 0.1);">
+                                    <i class="fas fa-image"></i>
+                                </div>
+                            {% endif %}
+
+                            <div class="sensory-note-overlay">
+                                <div class="service-name">{{ service.name }}</div>
+                                <p class="sensory-vibe" style="font-style: italic;">
+                                    {% set vibes = ['Luxurious & rejuvenating', 'Artistic & transformative', 'Professional & seamless', 'Premium & exclusive', 'Personalized & intimate'] %}
+                                    {{ vibes|random }}
+                                </p>
+                                <div class="card-meta">
+                                    <div class="price">₹{{ service.price|number_format(0) }}</div>
+                                    <div class="rating">
+                                        <i class="fas fa-star" style="color: var(--accent-gold);"></i>
+                                        4.8 (124 reviews)
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button 
+                                onclick="openBookingModal('{{ service.id }}', '{{ service.name }}')"
+                                style="position: absolute; inset: 0; border: none; background: transparent; cursor: pointer; z-index: 5;">
+                            </button>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="no-results" style="grid-column: 1 / -1;">
+                        <div class="no-results-icon">
+                            <i class="fas fa-search"></i>
+                        </div>
+                        <p class="no-results-text">No services found. Try adjusting your filters!</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{# ── MAP TOGGLE BUTTON ── #}
+<button class="map-toggle-btn" id="mapToggleBtn" onclick="toggleMap()">
+    <i class="fas fa-map"></i>
+</button>
+
+{# ── LEAFLET MAP CONTAINER ── #}
+<div id="mapContainer">
+    <button class="map-close-btn" onclick="toggleMap()">
+        <i class="fas fa-times"></i>
+    </button>
+</div>
+
+{# ── BOOKING MODAL ── #}
+<div id="bookingModal" class="modal-luxury" style="opacity: 0; visibility: hidden; transition: all 0.3s;">
+    <div class="modal-content glass-card" style="max-width: 600px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+            <h2 class="luxury-serif" style="margin: 0;">Complete Your Booking</h2>
+            <button onclick="closeBookingModal()" style="background: transparent; border: none; font-size: 1.5rem; color: var(--text-muted); cursor: pointer;">×</button>
+        </div>
+
+        <div id="bookingSteps">
+            {# Step 1: Confirm Service #}
+            <div class="booking-step" id="step1">
+                <h3 style="margin-bottom: 1.5rem;">Step 1: Confirm Service</h3>
+                <div id="serviceInfo" style="margin-bottom: 2rem;"></div>
+                <button onclick="nextStep()" class="btn-premium gold" style="width: 100%;">Continue</button>
+            </div>
+
+            {# Step 2: Select Date & Time #}
+            <div class="booking-step" id="step2" style="display: none;">
+                <h3 style="margin-bottom: 1.5rem;">Step 2: Schedule</h3>
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; color: var(--text-silver); font-weight: 600;">Preferred Date</label>
+                    <input type="date" id="bookingDate" class="input-luxury" style="width: 100%;">
+                </div>
+                <div style="margin-bottom: 2rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; color: var(--text-silver); font-weight: 600;">Preferred Time</label>
+                    <input type="time" id="bookingTime" class="input-luxury" style="width: 100%;">
+                </div>
+                <div style="display: flex; gap: 1rem;">
+                    <button onclick="prevStep()" class="btn-premium outline" style="flex: 1;">Back</button>
+                    <button onclick="nextStep()" class="btn-premium gold" style="flex: 1;">Continue</button>
+                </div>
+            </div>
+
+            {# Step 3: Special Requests #}
+            <div class="booking-step" id="step3" style="display: none;">
+                <h3 style="margin-bottom: 1.5rem;">Step 3: Special Requests</h3>
+                <div style="margin-bottom: 2rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; color: var(--text-silver); font-weight: 600;">Additional Notes</label>
+                    <textarea id="bookingNotes" class="input-luxury" rows="4" placeholder="Any specific preferences or special requests..."></textarea>
+                </div>
+                <div style="display: flex; gap: 1rem;">
+                    <button onclick="prevStep()" class="btn-premium outline" style="flex: 1;">Back</button>
+                    <button onclick="submitBooking()" class="btn-premium gold" style="flex: 1;">Complete Booking</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+    let currentStep = 1;
+    let selectedService = { id: null, name: null, price: null };
+    let map = null;
+
+    function openBookingModal(serviceId, serviceName, price = 0) {
+        selectedService = { id: serviceId, name: serviceName, price: price };
+        document.getElementById('serviceInfo').innerHTML = `
+            <div class="glass-card" style="padding: 1.5rem;">
+                <p><strong>Service:</strong> ${serviceName}</p>
+                <p><strong>Estimated Price:</strong> ₹${price}</p>
+            </div>
+        `;
+        const modal = document.getElementById('bookingModal');
+        modal.style.opacity = '1';
+        modal.style.visibility = 'visible';
+        currentStep = 1;
+        showStep(1);
+    }
+
+    function closeBookingModal() {
+        const modal = document.getElementById('bookingModal');
+        modal.style.opacity = '0';
+        modal.style.visibility = 'hidden';
+    }
+
+    function showStep(step) {
+        document.querySelectorAll('.booking-step').forEach(s => s.style.display = 'none');
+        document.getElementById('step' + step).style.display = 'block';
+    }
+
+    function nextStep() {
+        if (currentStep < 3) {
+            currentStep++;
+            showStep(currentStep);
+        }
+    }
+
+    function prevStep() {
+        if (currentStep > 1) {
+            currentStep--;
+            showStep(currentStep);
+        }
+    }
+
+    function submitBooking() {
+        const date = document.getElementById('bookingDate').value;
+        const time = document.getElementById('bookingTime').value;
+        const notes = document.getElementById('bookingNotes').value;
+
+        // Submit booking via form or fetch
+        console.log('Booking submitted:', { service: selectedService, date, time, notes });
+        alert('Booking submitted! Your service provider will contact you shortly.');
+        closeBookingModal();
+    }
+
+    function toggleMap() {
+        const mapContainer = document.getElementById('mapContainer');
+        mapContainer.classList.toggle('active');
+
+        if (mapContainer.classList.contains('active') && !map) {
+            initMap();
+        }
+    }
+
+    function initMap() {
+        map = L.map('mapContainer').setView([28.6139, 77.2090], 13); // Default: Delhi
+
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            attribution: '© OpenStreetMap contributors',
+            maxZoom: 19
+        }).addTo(map);
+
+        // Add sample markers
+        const providers = [
+            { lat: 28.6139, lng: 77.2090, name: 'Premium Spa Delhi', icon: 'heart' },
+            { lat: 28.5355, lng: 77.3910, name: 'Elite Photography', icon: 'camera' },
+            { lat: 28.6692, lng: 77.1920, name: 'Event Planning', icon: 'star' }
+        ];
+
+        providers.forEach(provider => {
+            const marker = L.circleMarker([provider.lat, provider.lng], {
+                radius: 12,
+                fillColor: '#10b981',
+                color: '#07080f',
+                weight: 2,
+                opacity: 1,
+                fillOpacity: 0.8
+            }).addTo(map).bindPopup(`<div style="color: #07080f;"><strong>${provider.name}</strong></div>`);
+        });
+    }
+
+    // Search functionality
+    document.getElementById('serviceSearch').addEventListener('input', function(e) {
+        console.log('Search:', e.target.value);
+        // Implement actual search logic here
+    });
+</script>
+{% endblock %}

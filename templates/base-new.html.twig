@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="theme-color" content="#07080f">
+        <title>{% block title %}ServiceHub — Digital Luxury Heritage{% endblock %}</title>
+        <meta name="description" content="Premium Concierge & Service Marketplace. Redefining Digital Luxury.">
+        
+        {# ── GOOGLE FONTS ── #}
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+
+        {# ── LUCIDE ICONS ── #}
+        <script src="https://cdn.jsdelivr.net/npm/lucide@latest"></script>
+
+        {# ── BOOTSTRAP (For Grid) ── #}
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+        
+        {# ── STYLESHEETS ── #}
+        <link rel="stylesheet" href="{{ asset('styles/app.css') }}">
+        <link rel="stylesheet" href="{{ asset('styles/liquid-glass.css') }}">
+        
+        {% block stylesheets %}{% endblock %}
+
+        <style>
+            body {
+                padding-top: 100px;
+            }
+        </style>
+    </head>
+    <body class="customer-accent">
+
+    {% if app.request.get('_route') not in ['app_login', 'app_register', 'app_verify_otp'] %}
+    {# ──  FLOATING GLASSMORPHIC NAVBAR ── #}
+    <nav class="navbar-floating" id="mainNavbar">
+        <a class="nav-brand" href="{{ path('app_home') }}">
+            Service<span class="accent">Hub</span>
+        </a>
+
+        <div class="nav-links d-lg-flex gap-2" id="navLinks">
+            <a href="{{ path('app_home') }}" class="nav-link {{ app.request.get('_route') == 'app_home' ? 'active' : '' }}">Registry</a>
+            <a href="{{ path('app_service_list') }}" class="nav-link {{ app.request.get('_route') == 'app_service_list' ? 'active' : '' }}">Curation</a>
+            {% if app.user %}
+                {% if is_granted('ROLE_PROVIDER') %}
+                    <a href="{{ path('app_provider_dashboard') }}" class="nav-link {{ app.request.get('_route') == 'app_provider_dashboard' ? 'active' : '' }}">Atelier</a>
+                {% else %}
+                    <a href="{{ path('app_customer_dashboard') }}" class="nav-link {{ app.request.get('_route') == 'app_customer_dashboard' ? 'active' : '' }}">Manifest</a>
+                {% endif %}
+            {% endif %}
+        </div>
+
+        <div class="nav-actions">
+            {% if app.user %}
+                <div style="position: relative; cursor: pointer;" class="d-none d-md-flex align-items-center">
+                    <svg class="lucide" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-muted); transition: color 0.3s;">
+                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                        <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                    </svg>
+                    <span style="position: absolute; top: -4px; right: -4px; width: 8px; height: 8px; background: var(--accent-red); border-radius: 50%; border: 2px solid var(--bg-deep);"></span>
+                </div>
+
+                <div class="dropdown">
+                    <button class="bg-transparent border-0 p-0 d-flex align-items-center gap-3" data-bs-toggle="dropdown" style="cursor: pointer;">
+                        <div style="width: 38px; height: 38px; border-radius: 12px; background: linear-gradient(135deg, var(--accent-teal), var(--accent-violet)); display: flex; align-items: center; justify-content: center; font-weight: 800; color: #07080f; box-shadow: 0 4px 15px var(--accent-teal-glow); border: 1px solid rgba(255,255,255,0.1);">
+                            {{ app.user.fullName|slice(0,1)|upper }}
+                        </div>
+                        <div class="text-start d-none d-md-block">
+                            <div style="font-size: 0.65rem; letter-spacing: 0.15em; color: var(--text-muted); font-weight: 800;">{{ app.user.tier|upper }}</div>
+                            <div style="color: var(--text-pure); font-weight: bold; font-size: 0.8rem;">{{ app.user.fullName|split(' ')[0] }}</div>
+                        </div>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end glass-card p-2 mt-3" style="min-width: 220px; background: rgba(10,14,22,0.98); border-color: var(--glass-border);">
+                        <li><a class="dropdown-item p-3 rounded-3 text-silver border-0" href="{{ path('app_profile') }}" style="color: var(--text-silver) !important;"><i class="lucide" style="width: 18px; height: 18px; margin-right: 12px;"></i> Heritage Profile</a></li>
+                        <li><hr class="dropdown-divider opacity-10"></li>
+                        <li><a class="dropdown-item p-3 rounded-3 text-silver border-0" href="{{ path('app_logout') }}" style="color: var(--text-silver) !important;"><i class="lucide" style="width: 18px; height: 18px; margin-right: 12px;"></i> Relinquish Session</a></li>
+                    </ul>
+                </div>
+            {% else %}
+                <a href="{{ path('app_login') }}" class="btn-premium gold">Access Portal</a>
+            {% endif %}
+        </div>
+    </nav>
+    {% endif %}
+
+    <div class="container">
+        {# ── FLASH MESSAGES ── #}
+        {% for label, messages in app.flashes %}
+            {% for message in messages %}
+                <div class="glass-card p-3 mb-4 d-flex align-items-center gap-3 border-0 animate-fade-in" style="background: rgba(16, 185, 129, 0.05); margin-top: 30px;">
+                    <svg class="lucide" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: {% if label == 'success' %}var(--accent-teal){% elif label == 'error' %}var(--accent-red){% else %}var(--text-silver){% endif %};"></svg>
+                    <div style="color: var(--text-silver); font-weight: 500; font-size: 0.9rem;">{{ message }}</div>
+                </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+
+    <main>
+        {% block body %}{% endblock %}
+    </main>
+
+    {# ── SCRIPTS ── #}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <script>
+        // Floating navbar scroll effect
+        window.addEventListener('scroll', () => {
+            const nav = document.getElementById('mainNavbar');
+            if (nav) {
+                if (window.scrollY > 100) nav.classList.add('scrolled');
+                else nav.classList.remove('scrolled');
+            }
+        });
+
+        // Intersection Observer for fade-in animations
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate-fade-in');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.05 });
+
+        document.querySelectorAll('.glass-card, .service-card-premium, .protocol-card').forEach(el => observer.observe(el));
+
+        // Initialize Lucide icons
+        lucide.createIcons();
+    </script>
+    
+    {% block javascripts %}
+        {% block importmap %}{{ importmap('app') }}{% endblock %}
+    {% endblock %}
+    </body>
+</html>

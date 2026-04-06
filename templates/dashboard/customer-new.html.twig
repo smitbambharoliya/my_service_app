@@ -1,0 +1,406 @@
+{% extends 'base-new.html.twig' %}
+
+{% block title %}Manifest — ServiceHub Heritage Dashboard{% endblock %}
+
+{% block stylesheets %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+    .dashboard-container {
+        padding: 3rem 2rem;
+        background: linear-gradient(135deg, 
+            rgba(16, 185, 129, 0.02) 0%, 
+            rgba(139, 92, 246, 0.01) 50%, 
+            rgba(6, 182, 212, 0.02) 100%);
+    }
+
+    .dashboard-header {
+        margin-bottom: 3rem;
+    }
+
+    .dashboard-header h1 {
+        font-size: 3rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .dashboard-header p {
+        color: var(--text-muted);
+        font-size: 1rem;
+    }
+
+    .dashboard-widgets {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 3rem;
+    }
+
+    .widget {
+        padding: 2rem;
+        border-radius: var(--r-lg);
+    }
+
+    .widget.teal { background: rgba(16, 185, 129, 0.03); border: 1px solid rgba(16, 185, 129, 0.2); }
+    .widget.violet { background: rgba(139, 92, 246, 0.03); border: 1px solid rgba(139, 92, 246, 0.2); }
+    .widget.gold { background: rgba(245, 158, 11, 0.03); border: 1px solid rgba(245, 158, 11, 0.2); }
+
+    .widget-label {
+        font-size: 0.65rem;
+        font-weight: 800;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+        margin-bottom: 1rem;
+    }
+
+    .widget-value {
+        font-size: 2.5rem;
+        font-family: 'Playfair Display', serif;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        line-height: 1;
+    }
+
+    .widget-value.teal { color: var(--accent-teal); }
+    .widget-value.violet { color: var(--accent-violet); }
+    .widget-value.gold { color: var(--accent-gold); }
+
+    .widget-subtext {
+        font-size: 0.75rem;
+        color: var(--text-dim);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+    }
+
+    .dashboard-row {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 1.5rem;
+        margin-bottom: 3rem;
+    }
+
+    @media (max-width: 1024px) {
+        .dashboard-row {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .chart-card {
+        padding: 2rem;
+        border-radius: var(--r-lg);
+        background: rgba(36, 48, 68, 0.52);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(20px);
+    }
+
+    .chart-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .chart-subtitle {
+        font-size: 0.7rem;
+        color: var(--text-dim);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-bottom: 1.5rem;
+    }
+
+    .chart-container {
+        position: relative;
+        height: 350px;
+        margin-bottom: 2rem;
+    }
+
+    .discovery-hub {
+        display: grid;
+        gap: 1rem;
+    }
+
+    .discovery-link {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1.5rem;
+        border-radius: var(--r-md);
+        background: rgba(16, 185, 129, 0.05);
+        border: 1px solid rgba(16, 185, 129, 0.1);
+        text-decoration: none;
+        color: inherit;
+        transition: all 0.3s;
+    }
+
+    .discovery-link:hover {
+        background: rgba(16, 185, 129, 0.1);
+        transform: translateX(4px);
+    }
+
+    .discovery-icon {
+        width: 50px;
+        height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+        background: rgba(16, 185, 129, 0.1);
+        color: var(--accent-teal);
+        font-size: 1.5rem;
+    }
+
+    .protocol-cards-container {
+        display: grid;
+        gap: 1.5rem;
+    }
+
+    .protocol-card {
+        padding: 1.5rem;
+        padding-left: 2rem;
+        border-radius: var(--r-lg);
+        background: rgba(36, 48, 68, 0.52);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-left: 4px solid;
+        backdrop-filter: blur(20px);
+        transition: all 0.3s;
+    }
+
+    .protocol-card.pending { border-left-color: rgba(245, 158, 11, 0.6); }
+    .protocol-card.completed { border-left-color: rgba(16, 185, 129, 0.6); }
+    .protocol-card.on-the-way { border-left-color: rgba(6, 182, 212, 0.6); }
+
+    .protocol-card:hover {
+        transform: translateX(4px);
+        box-shadow: 0 0 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .protocol-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .protocol-title {
+        font-weight: 600;
+        color: var(--text-pure);
+    }
+
+    .protocol-body {
+        font-size: 0.9rem;
+        color: var(--text-silver);
+        margin-bottom: 1rem;
+        line-height: 1.6;
+    }
+
+    .protocol-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.8rem;
+        color: var(--text-muted);
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 0.75rem;
+    }
+
+    .action-btn {
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        background: rgba(16, 185, 129, 0.1);
+        border: 1px solid rgba(16, 185, 129, 0.2);
+        color: var(--accent-teal);
+        font-size: 0.75rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-decoration: none;
+    }
+
+    .action-btn:hover {
+        background: rgba(16, 185, 129, 0.2);
+        border-color: rgba(16, 185, 129, 0.4);
+    }
+
+    .insight-box {
+        padding: 1.5rem;
+        border-radius: var(--r-lg);
+        background: linear-gradient(135deg, rgba(139, 92, 246, 0.05), transparent);
+        border: 1px solid var(--glass-border);
+        margin-top: 2rem;
+    }
+
+    .insight-title {
+        font-weight: 600;
+        color: var(--accent-violet);
+        margin-bottom: 0.75rem;
+    }
+
+    .insight-text {
+        font-size: 0.9rem;
+        color: var(--text-silver);
+        line-height: 1.6;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="dashboard-container">
+    {# ── HEADER ── #}
+    <div class="dashboard-header animate-slide-up">
+        <h1 class="text-gradient">Manifest</h1>
+        <p>Your personalized service discovery and booking intelligence</p>
+    </div>
+
+    {# ── KPI WIDGETS GRID ── #}
+    <div class="dashboard-widgets">
+        <div class="widget teal liquid-glass">
+            <div class="widget-label">Active Expeditions</div>
+            <div class="widget-value teal">
+                {{ bookings|filter(b => b.status|lower in ['confirmed', 'pending', 'on-the-way', 'accepted'])|length }}
+            </div>
+            <div class="widget-subtext">Current Operations</div>
+        </div>
+
+        <div class="widget gold liquid-glass">
+            <div class="widget-label">Capital Deployed</div>
+            {% set totalSpent = 0 %}
+            {% for b in bookings|filter(b => b.status|lower == 'completed') %}
+                {% set totalSpent = totalSpent + (b.estimatedCost|default(b.service.price)) %}
+            {% endfor %}
+            <div class="widget-value gold">₹{{ (totalSpent / 100000)|round(1) }}L</div>
+            <div class="widget-subtext">Lifetime Expenditure</div>
+        </div>
+
+        <div class="widget violet liquid-glass">
+            <div class="widget-label">Member Tier</div>
+            <div class="widget-value violet">{{ app.user.tier }}</div>
+            <div class="widget-subtext">{{ app.user.reputationPoints }} Reputation Points</div>
+        </div>
+    </div>
+
+    {# ── CHARTS & DISCOVERY ── #}
+    <div class="dashboard-row">
+        <div class="chart-card">
+            <h3 class="chart-title">Spending Velocity</h3>
+            <p class="chart-subtitle">Monthly Expenditure Pattern</p>
+            <div class="chart-container">
+                <canvas id="spendingChart"></canvas>
+            </div>
+        </div>
+
+        <div class="chart-card">
+            <h3 class="chart-title">Discovery Hub</h3>
+            <div class="discovery-hub">
+                <a href="{{ path('app_service_list') }}" class="discovery-link">
+                    <div class="discovery-icon">
+                        <i class="fas fa-compass"></i>
+                    </div>
+                    <div>
+                        <div style="font-weight: 600; color: var(--text-pure);">Explore Curation</div>
+                        <div style="font-size: 0.8rem; color: var(--text-dim);">Browse premium services</div>
+                    </div>
+                </a>
+                <a href="{{ path('app_billing_index') }}" class="discovery-link" style="background: rgba(245, 158, 11, 0.05); border-color: rgba(245, 158, 11, 0.1);">
+                    <div class="discovery-icon" style="background: rgba(245, 158, 11, 0.1); color: var(--accent-gold);">
+                        <i class="fas fa-receipt"></i>
+                    </div>
+                    <div>
+                        <div style="font-weight: 600; color: var(--text-pure);">Audit Exchequer</div>
+                        <div style="font-size: 0.8rem; color: var(--text-dim);">Review financial records</div>
+                    </div>
+                </a>
+            </div>
+
+            <div class="insight-box">
+                <div class="insight-title">Heritage Insight</div>
+                <p class="insight-text">High-tier members receive priority on-site arrivals and exclusive "Aurora Elite" service packages.</p>
+            </div>
+        </div>
+    </div>
+
+    {# ── SESSION LOGS (Booking Records) ── #}
+    <div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+            <h2 class="luxury-serif" style="margin: 0;">Session Logs</h2>
+            <a href="{{ path('app_service_list') }}" class="btn-premium outline">Initiate Protocol</a>
+        </div>
+
+        <div class="protocol-cards-container">
+            {% if bookings|length > 0 %}
+                {% for booking in bookings|slice(0, 8) %}
+                    <div class="protocol-card {{ booking.status|lower }}">
+                        <div class="protocol-header">
+                            <div class="protocol-title">{{ booking.service.name }}</div>
+                            <span class="badge-premium {{ booking.status|lower }}">{{ booking.status }}</span>
+                        </div>
+                        <div class="protocol-body">
+                            <strong>Provider:</strong> {{ booking.provider.fullName }}<br>
+                            <strong>Date:</strong> {{ booking.bookingDate|date('M d, Y') }}<br>
+                            <strong>Amount:</strong> ₹{{ (booking.estimatedCost|default(booking.service.price))|number_format(0) }}
+                        </div>
+                        <div class="protocol-footer">
+                            <span>ID: #{{ booking.id|substring(0, 8) }}</span>
+                            <div class="action-buttons">
+                                <a href="{{ path('app_service_show', {id: booking.service.id}) }}" class="action-btn">View Service</a>
+                                {% if booking.status|lower == 'completed' %}
+                                    <a href="{{ path('app_review_create', {bookingId: booking.id}) }}" class="action-btn">Leave Review</a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="chart-card" style="text-align: center; padding: 3rem;">
+                    <p style="color: var(--text-muted); margin: 0;">No bookings yet. Start exploring services!</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+    // Spending Velocity Chart
+    const spendingCtx = document.getElementById('spendingChart').getContext('2d');
+    new Chart(spendingCtx, {
+        type: 'line',
+        data: {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+            datasets: [{
+                label: 'Monthly Spending',
+                data: [2400, 3100, 2800, 3500, 4200, 3800],
+                fill: true,
+                borderColor: 'var(--accent-teal)',
+                backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                borderWidth: 2,
+                pointBackgroundColor: 'var(--accent-teal)',
+                pointBorderColor: '#07080f',
+                pointRadius: 5,
+                pointHoverRadius: 7,
+                tension: 0.4,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.05)',
+                        drawBorder: false
+                    },
+                    ticks: { color: 'var(--text-muted)' }
+                },
+                x: {
+                    grid: { display: false },
+                    ticks: { color: 'var(--text-muted)' }
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}
