@@ -40,6 +40,8 @@ class RegistrationController extends AbstractController
             // Generate 6-digit OTP
             $otp = str_pad((string)random_int(0, 999999), 6, '0', STR_PAD_LEFT);
             $user->setOtpCode($otp);
+            $expiryMinutes = (int)($_ENV['OTP_EXPIRY_MINUTES'] ?? 10);
+            $user->setOtpExpiresAt(new \DateTimeImmutable("+ {$expiryMinutes} minutes"));
             $user->setIsVerified(false);
 
             $entityManager->persist($user);
@@ -52,7 +54,7 @@ class RegistrationController extends AbstractController
             $emailSent = false;
             try {
                 $emailMsg = (new Email())
-                    ->from('smitbambharoliya76@gmail.com')
+                    ->from($_ENV['MAILER_FROM'] ?? 'noreply@servicehub.local')
                     ->to($user->getEmail())
                     ->subject('Your ServiceHub Verification Code')
                     ->html($this->renderView('registration/otp_email.html.twig', [

@@ -13,34 +13,34 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-#[IsGranted('ROLE_USER')] 
+#[IsGranted('ROLE_USER')]
 class BillingController extends AbstractController
 {
 
-    
+
     #[Route('/billing', name: 'app_billing_index')]
     public function index(EntityManagerInterface $entityManager): Response
-  {
-    $user = $this->getUser();
-    $billings = $entityManager->getRepository(Billing::class)->findBy(['user' => $user], ['createdAt' => 'DESC']);
+    {
+        $user = $this->getUser();
+        $billings = $entityManager->getRepository(Billing::class)->findBy(['user' => $user], ['createdAt' => 'DESC']);
 
-    return $this->render('billing/index.html.twig', [
-        'billings' => $billings,
-    ]);
- }
+        return $this->render('billing/index.html.twig', [
+            'billings' => $billings,
+        ]);
+    }
 
     #[Route('/billing/history', name: 'app_billing_history')]
     public function history(EntityManagerInterface $entityManager): Response
     {
         $user = $this->getUser();
-        
-   
+
+
         $billings = $entityManager->getRepository(Billing::class)->findBy(
             ['user' => $user],
             ['createdAt' => 'DESC']
         );
 
-     
+
         $totalSpent = 0;
         foreach ($billings as $bill) {
             if ($bill->getPaymentStatus() === 'success') {
@@ -55,7 +55,7 @@ class BillingController extends AbstractController
     }
 
     #[Route('/billing/upgrade-premium', name: 'app_billing_upgrade')]
-    #[IsGranted('ROLE_PROVIDER')] 
+    #[IsGranted('ROLE_PROVIDER')]
     public function upgrade(EntityManagerInterface $entityManager): Response
     {
         /** @var \App\Entity\User $user */
@@ -64,9 +64,9 @@ class BillingController extends AbstractController
 
         $billing = new Billing();
         $billing->setUser($user);
-        $billing->setAmount('999.00'); // Premium Plan Price
+        $billing->setAmount($_ENV['PREMIUM_PLAN_PRICE'] ?? '999.00');
         $billing->setPaymentStatus('success');
-        $billing->setTransactionId('TXN-' . strtoupper(bin2hex(random_bytes(4))));
+        $billing->setTransactionId('TXN-' . strtoupper(bin2hex(random_bytes(8))) . '-' . time());
         $billing->setCreatedAt(new \DateTimeImmutable());
         $billing->setCategory('Subscription');
         $billing->setServiceName('Premium Plan Upgrade');
@@ -74,7 +74,7 @@ class BillingController extends AbstractController
 
         $entityManager->persist($billing);
 
- 
+
         $services = $entityManager->getRepository(Service::class)->findBy(['provider' => $user]);
         foreach ($services as $service) {
             $service->setIsPremium(true);
@@ -93,14 +93,14 @@ class BillingController extends AbstractController
     {
         /** @var User $provider */
         $provider = $this->getUser();
-        
+
         $bookings = $entityManager->getRepository(Booking::class)->createQueryBuilder('b')
             ->join('b.service', 's')
             ->where('s.provider = :provider')
             ->setParameter('provider', $provider)
             ->getQuery()
             ->getResult();
-            
+
         $customers = [];
         foreach ($bookings as $b) {
             $customer = $b->getCustomer();
@@ -108,7 +108,7 @@ class BillingController extends AbstractController
                 $customers[$customer->getId()] = $customer;
             }
         }
-        
+
         if ($request->isMethod('POST')) {
             if (!$this->isCsrfTokenValid('create_bill', $request->request->get('_token'))) {
                 $this->addFlash('danger', 'Invalid CSRF token.');
@@ -118,13 +118,13 @@ class BillingController extends AbstractController
             $customerId = $request->request->get('customer_id');
             $category = $request->request->get('category');
             $description = $request->request->get('description');
-            
+
             $itemNames = $request->request->all('item_name');
             $itemAmounts = $request->request->all('item_amount');
-            
+
             $totalAmount = 0.0;
             $items = [];
-            
+
             if (is_array($itemNames) && is_array($itemAmounts)) {
                 foreach ($itemNames as $index => $name) {
                     $amt = isset($itemAmounts[$index]) ? (float)$itemAmounts[$index] : 0.0;
@@ -137,10 +137,10 @@ class BillingController extends AbstractController
                     }
                 }
             }
-            
+
             if ($customerId && $totalAmount > 0) {
                 $customer = array_key_exists($customerId, $customers) ? $customers[$customerId] : null;
-                
+
                 if ($customer) {
                     $billing = new Billing();
                     $billing->setUser($customer);
@@ -152,10 +152,10 @@ class BillingController extends AbstractController
                     $billing->setServiceName('Custom Bill (' . count($items) . ' items)');
                     $billing->setDescription($description);
                     $billing->setItems($items);
-                    
+
                     $entityManager->persist($billing);
                     $entityManager->flush();
-                    
+
                     $this->addFlash('success', 'Custom bill of ₹' . $totalAmount . ' generated successfully for ' . $customer->getFullName() . '.');
                     return $this->redirectToRoute('app_provider_billing_new');
                 } else {

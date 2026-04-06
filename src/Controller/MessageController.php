@@ -40,7 +40,7 @@ class MessageController extends AbstractController
             'receiver' => $currentUser,
             'isRead' => false
         ]);
-        
+
         foreach ($unreadMessages as $msg) {
             $msg->setIsRead(true);
         }
@@ -50,6 +50,10 @@ class MessageController extends AbstractController
 
         // Handle quick POST sending from standard form fallback
         if ($request->isMethod('POST')) {
+            if (!$this->isCsrfTokenValid('send_message' . $contact->getId(), $request->request->get('_token'))) {
+                $this->addFlash('danger', 'Invalid CSRF token. Please try again.');
+                return $this->redirectToRoute('app_message_chat', ['id' => $contact->getId()]);
+            }
             $content = $request->request->get('content');
             if ($content) {
                 $msg = new Message();
@@ -76,7 +80,7 @@ class MessageController extends AbstractController
     {
         $currentUser = $this->getUser();
         $conversation = $messageRepo->getConversation($currentUser, $contact);
-        
+
         $messagesFormat = [];
         foreach ($conversation as $msg) {
             $messagesFormat[] = [
@@ -97,6 +101,11 @@ class MessageController extends AbstractController
     public function apiSend(User $contact, Request $request, EntityManagerInterface $em): JsonResponse
     {
         $currentUser = $this->getUser();
+
+        if (!$this->isCsrfTokenValid('send_message' . $contact->getId(), $request->headers->get('X-CSRF-TOKEN'))) {
+            return $this->json(['error' => 'Invalid CSRF token'], 403);
+        }
+
         $data = json_decode($request->getContent(), true);
         $content = current($data) ?: $request->request->get('content'); // handle raw json or standard payload
 

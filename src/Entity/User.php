@@ -85,6 +85,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 6, nullable: true)]
     private ?string $otpCode = null;
 
+    #[ORM\Column(type: Types::INTEGER, options: ["default" => 0])]
+    private int $otpAttempts = 0;
+
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    private ?\DateTimeImmutable $otpExpiresAt = null;
+
     #[ORM\Column(options: ["default" => true])]
     private bool $isActive = true;
 
@@ -107,12 +113,25 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->createdAt = new \DateTimeImmutable();
     }
 
-    public function getId(): ?int { return $this->id; }
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
 
-    public function getEmail(): ?string { return $this->email; }
-    public function setEmail(string $email): static { $this->email = $email; return $this; }
+    public function getEmail(): ?string
+    {
+        return $this->email;
+    }
+    public function setEmail(string $email): static
+    {
+        $this->email = $email;
+        return $this;
+    }
 
-    public function getUserIdentifier(): string { return (string) $this->email; }
+    public function getUserIdentifier(): string
+    {
+        return (string) $this->email;
+    }
 
     public function getRoles(): array
     {
@@ -121,68 +140,226 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return array_unique($roles);
     }
 
-    public function setRoles(array $roles): static { $this->roles = $roles; return $this; }
+    public function setRoles(array $roles): static
+    {
+        $this->roles = $roles;
+        return $this;
+    }
 
-    public function getPassword(): ?string { return $this->password; }
-    public function setPassword(string $password): static { $this->password = $password; return $this; }
+    public function getPassword(): ?string
+    {
+        return $this->password;
+    }
+    public function setPassword(string $password): static
+    {
+        $this->password = $password;
+        return $this;
+    }
 
     public function __serialize(): array
     {
         $data = (array) $this;
-        $data["\0".self::class."\0password"] = hash('crc32c', $this->password);
+        $data["\0" . self::class . "\0password"] = hash('crc32c', $this->password);
         return $data;
     }
 
     public function eraseCredentials(): void {}
 
-    public function isVerified(): bool { return $this->isVerified; }
-    public function setIsVerified(bool $isVerified): static { $this->isVerified = $isVerified; return $this; }
+    public function isVerified(): bool
+    {
+        return $this->isVerified;
+    }
+    public function setIsVerified(bool $isVerified): static
+    {
+        $this->isVerified = $isVerified;
+        return $this;
+    }
 
-    public function getFullName(): ?string { return $this->fullName; }
-    public function setFullName(string $fullName): static { $this->fullName = $fullName; return $this; }
+    public function getFullName(): ?string
+    {
+        return $this->fullName;
+    }
+    public function setFullName(string $fullName): static
+    {
+        $this->fullName = $fullName;
+        return $this;
+    }
 
-    public function getMobile(): ?string { return $this->mobile; }
-    public function setMobile(?string $mobile): static { $this->mobile = $mobile; return $this; }
+    public function getMobile(): ?string
+    {
+        return $this->mobile;
+    }
+    public function setMobile(?string $mobile): static
+    {
+        $this->mobile = $mobile;
+        return $this;
+    }
 
-    public function getServices(): Collection { return $this->services; }
-    public function getBookings(): Collection { return $this->bookings; }
-    public function getBillings(): Collection { return $this->billings; }
+    public function getServices(): Collection
+    {
+        return $this->services;
+    }
+    public function getBookings(): Collection
+    {
+        return $this->bookings;
+    }
+    public function getBillings(): Collection
+    {
+        return $this->billings;
+    }
 
-    public function getReviewsGiven(): Collection { return $this->reviewsGiven; }
-    public function getReviewsReceived(): Collection { return $this->reviewsReceived; }
+    public function getReviewsGiven(): Collection
+    {
+        return $this->reviewsGiven;
+    }
+    public function getReviewsReceived(): Collection
+    {
+        return $this->reviewsReceived;
+    }
 
-    public function isPremium(): bool { return $this->isPremium; }
-    public function setIsPremium(bool $isPremium): static { $this->isPremium = $isPremium; return $this; }
+    public function isPremium(): bool
+    {
+        return $this->isPremium;
+    }
+    public function setIsPremium(bool $isPremium): static
+    {
+        $this->isPremium = $isPremium;
+        return $this;
+    }
 
-    public function getStripeCustomerId(): ?string { return $this->stripeCustomerId; }
-    public function setStripeCustomerId(?string $stripeCustomerId): static { $this->stripeCustomerId = $stripeCustomerId; return $this; }
+    public function getStripeCustomerId(): ?string
+    {
+        return $this->stripeCustomerId;
+    }
+    public function setStripeCustomerId(?string $stripeCustomerId): static
+    {
+        $this->stripeCustomerId = $stripeCustomerId;
+        return $this;
+    }
 
-    public function getLatitude(): ?string { return $this->latitude; }
-    public function setLatitude(?string $latitude): static { $this->latitude = $latitude; return $this; }
+    public function getLatitude(): ?string
+    {
+        return $this->latitude;
+    }
+    public function setLatitude(?string $latitude): static
+    {
+        $this->latitude = $latitude;
+        return $this;
+    }
 
-    public function getLongitude(): ?string { return $this->longitude; }
-    public function setLongitude(?string $longitude): static { $this->longitude = $longitude; return $this; }
+    public function getLongitude(): ?string
+    {
+        return $this->longitude;
+    }
+    public function setLongitude(?string $longitude): static
+    {
+        $this->longitude = $longitude;
+        return $this;
+    }
 
-    public function getAddress(): ?string { return $this->address; }
-    public function setAddress(?string $address): static { $this->address = $address; return $this; }
+    public function getAddress(): ?string
+    {
+        return $this->address;
+    }
+    public function setAddress(?string $address): static
+    {
+        $this->address = $address;
+        return $this;
+    }
 
-    public function getCity(): ?string { return $this->city; }
-    public function setCity(?string $city): static { $this->city = $city; return $this; }
+    public function getCity(): ?string
+    {
+        return $this->city;
+    }
+    public function setCity(?string $city): static
+    {
+        $this->city = $city;
+        return $this;
+    }
 
-    public function getPincode(): ?string { return $this->pincode; }
-    public function setPincode(?string $pincode): static { $this->pincode = $pincode; return $this; }
+    public function getPincode(): ?string
+    {
+        return $this->pincode;
+    }
+    public function setPincode(?string $pincode): static
+    {
+        $this->pincode = $pincode;
+        return $this;
+    }
 
-    public function getDot(): ?\DateTime { return $this->dot; }
-    public function setDot(?\DateTime $dot): static { $this->dot = $dot; return $this; }
+    public function getDot(): ?\DateTime
+    {
+        return $this->dot;
+    }
+    public function setDot(?\DateTime $dot): static
+    {
+        $this->dot = $dot;
+        return $this;
+    }
 
-    public function getGender(): ?string { return $this->gender; }
-    public function setGender(?string $gender): static { $this->gender = $gender; return $this; }
+    public function getGender(): ?string
+    {
+        return $this->gender;
+    }
+    public function setGender(?string $gender): static
+    {
+        $this->gender = $gender;
+        return $this;
+    }
 
-    public function getOtpCode(): ?string { return $this->otpCode; }
-    public function setOtpCode(?string $otpCode): static { $this->otpCode = $otpCode; return $this; }
+    public function getOtpCode(): ?string
+    {
+        return $this->otpCode;
+    }
+    public function setOtpCode(?string $otpCode): static
+    {
+        $this->otpCode = $otpCode;
+        return $this;
+    }
 
-    public function isActive(): bool { return $this->isActive; }
-    public function setIsActive(bool $isActive): static { $this->isActive = $isActive; return $this; }
+    public function getOtpAttempts(): int
+    {
+        return $this->otpAttempts;
+    }
+    public function setOtpAttempts(int $otpAttempts): static
+    {
+        $this->otpAttempts = $otpAttempts;
+        return $this;
+    }
+    public function incrementOtpAttempts(): static
+    {
+        $this->otpAttempts++;
+        return $this;
+    }
+    public function resetOtpAttempts(): static
+    {
+        $this->otpAttempts = 0;
+        return $this;
+    }
+
+    public function getOtpExpiresAt(): ?\DateTimeImmutable
+    {
+        return $this->otpExpiresAt;
+    }
+    public function setOtpExpiresAt(?\DateTimeImmutable $otpExpiresAt): static
+    {
+        $this->otpExpiresAt = $otpExpiresAt;
+        return $this;
+    }
+    public function isOtpExpired(): bool
+    {
+        return $this->otpExpiresAt === null || $this->otpExpiresAt < new \DateTimeImmutable();
+    }
+
+    public function isActive(): bool
+    {
+        return $this->isActive;
+    }
+    public function setIsActive(bool $isActive): static
+    {
+        $this->isActive = $isActive;
+        return $this;
+    }
 
     public function getReputationPoints(): int
     {
@@ -193,11 +370,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         $this->reputationPoints = $reputationPoints;
         // Auto rank up
-        if ($this->reputationPoints >= 5000) { $this->tier = 'Aurora Elite'; }
-        elseif ($this->reputationPoints >= 2500) { $this->tier = 'Platinum'; }
-        elseif ($this->reputationPoints >= 1000) { $this->tier = 'Gold'; }
-        elseif ($this->reputationPoints >= 500) { $this->tier = 'Silver'; }
-        else { $this->tier = 'Bronze'; }
+        if ($this->reputationPoints >= 5000) {
+            $this->tier = 'Aurora Elite';
+        } elseif ($this->reputationPoints >= 2500) {
+            $this->tier = 'Platinum';
+        } elseif ($this->reputationPoints >= 1000) {
+            $this->tier = 'Gold';
+        } elseif ($this->reputationPoints >= 500) {
+            $this->tier = 'Silver';
+        } else {
+            $this->tier = 'Bronze';
+        }
 
         return $this;
     }

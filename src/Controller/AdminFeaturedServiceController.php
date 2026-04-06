@@ -28,6 +28,11 @@ class AdminFeaturedServiceController extends AbstractController
     #[Route('/add', name: 'app_admin_featured_services_add', methods: ['POST'])]
     public function add(Request $request, EntityManagerInterface $em): Response
     {
+        if (!$this->isCsrfTokenValid('add_featured', $request->request->get('_token'))) {
+            $this->addFlash('danger', 'Invalid CSRF token. Please try again.');
+            return $this->redirectToRoute('app_admin_featured_services');
+        }
+
         $serviceId = $request->request->get('service_id');
         $section = $request->request->get('section', 'trending');
         $displayOrder = (int)$request->request->get('display_order', 1);
@@ -63,8 +68,13 @@ class AdminFeaturedServiceController extends AbstractController
     }
 
     #[Route('/{id}/toggle', name: 'app_admin_featured_services_toggle', methods: ['POST'])]
-    public function toggle(FeaturedService $featured, EntityManagerInterface $em): Response
+    public function toggle(FeaturedService $featured, Request $request, EntityManagerInterface $em): Response
     {
+        if (!$this->isCsrfTokenValid('toggle' . $featured->getId(), $request->request->get('_token'))) {
+            $this->addFlash('danger', 'Invalid CSRF token. Please try again.');
+            return $this->redirectToRoute('app_admin_featured_services');
+        }
+
         $featured->setIsActive(!$featured->isActive());
         $em->flush();
         $this->addFlash('success', 'Featured service status updated.');

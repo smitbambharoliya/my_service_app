@@ -26,22 +26,26 @@ final class AdminController extends AbstractController
         // Dummy revenue calculation for demo purposes (e.g. 500 per booking)
         $revenue = $bookingsCount * 500;
 
-        // Get top providers (for demo, just take first 5 providers)
-        $allUsers = $em->getRepository(User::class)->findAll();
-        $providers = array_filter($allUsers, function($u) {
-            return in_array('ROLE_PROVIDER', $u->getRoles());
-        });
-        usort($providers, function($a, $b) {
-            return count($b->getServices()) <=> count($a->getServices());
-        });
-        $topProviders = array_slice($providers, 0, 5);
+        // Get top providers using DQL to avoid N+1 queries
+        $topProviders = $em->createQuery("          SELECT u, COUNT(s.id) as service_count
+            FROM App\\Entity\\User u
+            LEFT JOIN u.services s
+            WHERE 'ROLE_PROVIDER' MEMBER OF u.roles
+            GROUP BY u.id
+            ORDER BY service_count DESC
+        ")
+            ->setMaxResults(5)
+            ->getResult();
+
+        // Extract users from result
+        $topProvidersList = array_column($topProviders, 0);
 
         return $this->render('admin/dashboard.html.twig', [
             'users_count' => $usersCount,
             'services_count' => $servicesCount,
             'bookings_count' => $bookingsCount,
             'revenue' => $revenue,
-            'top_providers' => $topProviders,
+            'top_providers' => $topProvidersList,
         ]);
     }
 
@@ -49,7 +53,7 @@ final class AdminController extends AbstractController
     public function manageUsers(EntityManagerInterface $em): Response
     {
         $users = $em->getRepository(User::class)->findAll();
-        
+
         return $this->render('admin/users.html.twig', [
             'users' => $users,
         ]);
@@ -58,7 +62,7 @@ final class AdminController extends AbstractController
     #[Route('/users/{id}/promote', name: 'app_admin_user_promote', methods: ['POST'])]
     public function promoteUser(User $user, EntityManagerInterface $em, Request $request): Response
     {
-        if ($this->isCsrfTokenValid('promote'.$user->getId(), $request->request->get('_token'))) {
+        if ($this->isCsrfTokenValid('promote' . $user->getId(), $request->request->get('_token'))) {
             $roles = $user->getRoles();
             if (!in_array('ROLE_ADMIN', $roles)) {
                 $roles[] = 'ROLE_ADMIN';
@@ -76,13 +80,13 @@ final class AdminController extends AbstractController
     #[Route('/users/{id}/delete', name: 'app_admin_user_delete', methods: ['POST'])]
     public function deleteUser(User $user, EntityManagerInterface $em, Request $request): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$user->getId(), $request->request->get('_token'))) {
+        if ($this->isCsrfTokenValid('delete' . $user->getId(), $request->request->get('_token'))) {
             // Cannot delete yourself
             if ($user === $this->getUser()) {
                 $this->addFlash('danger', 'You cannot delete your own admin account.');
                 return $this->redirectToRoute('app_admin_users');
             }
-            
+
             // Remove associated bookings and services to prevent constraint violations
             foreach ($user->getBookings() as $booking) {
                 $em->remove($booking);
@@ -106,18 +110,23 @@ final class AdminController extends AbstractController
     public function manageServices(EntityManagerInterface $em): Response
     {
         $services = $em->getRepository(Service::class)->findAll();
-        
+
         return $this->render('admin/services.html.twig', [
             'services' => $services,
         ]);
     }
 
     #[Route('/services/{id}/toggle-premium', name: 'app_admin_service_toggle_premium', methods: ['POST'])]
-    public function togglePremiumService(Service $service, EntityManagerInterface $em): Response
+    public function togglePremiumService(Service $service, EntityManagerInterface $em, Request $request): Response
     {
+        if (!$this->isCsrfTokenValid('toggle_premium' . $service->getId(), $request->request->get('_token'))) {
+            $this->addFlash('danger', 'Invalid CSRF token. Please try again.');
+            return $this->redirectToRoute('app_admin_services');
+        }
+
         $service->setIsPremium(!$service->isPremium());
         $em->flush();
-        
+
         $status = $service->isPremium() ? 'Premium' : 'Standard';
         $this->addFlash('success', "Service '{$service->getTitle()}' is now {$status}.");
 
@@ -127,12 +136,12 @@ final class AdminController extends AbstractController
     #[Route('/services/{id}/delete', name: 'app_admin_service_delete', methods: ['POST'])]
     public function deleteService(Service $service, EntityManagerInterface $em, Request $request): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$service->getId(), $request->request->get('_token'))) {
+        if ($this->isCsrfTokenValid('delete' . $service->getId(), $request->request->get('_token'))) {
             // Remove associated bookings first
             foreach ($service->getBookings() as $booking) {
                 $em->remove($booking);
             }
-            
+
             $em->remove($service);
             $em->flush();
             $this->addFlash('success', 'Service completely removed.');
@@ -145,7 +154,7 @@ final class AdminController extends AbstractController
     public function manageBookings(EntityManagerInterface $em): Response
     {
         $bookings = $em->getRepository(Booking::class)->findAll();
-        
+
         return $this->render('admin/bookings.html.twig', [
             'bookings' => $bookings,
         ]);
@@ -154,7 +163,7 @@ final class AdminController extends AbstractController
     #[Route('/bookings/{id}/delete', name: 'app_admin_booking_delete', methods: ['POST'])]
     public function deleteBooking(Booking $booking, EntityManagerInterface $em, Request $request): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$booking->getId(), $request->request->get('_token'))) {
+        if ($this->isCsrfTokenValid('delete' . $booking->getId(), $request->request->get('_token'))) {
             $em->remove($booking);
             $em->flush();
             $this->addFlash('success', 'Booking removed successfully.');
@@ -166,7 +175,7 @@ final class AdminController extends AbstractController
     #[Route('/bookings/{id}/status', name: 'app_admin_booking_status', methods: ['POST'])]
     public function updateBookingStatus(Booking $booking, EntityManagerInterface $em, Request $request): Response
     {
-        if ($this->isCsrfTokenValid('status'.$booking->getId(), $request->request->get('_token'))) {
+        if ($this->isCsrfTokenValid('status' . $booking->getId(), $request->request->get('_token'))) {
             $newStatus = $request->request->get('status');
             $allowed = ['pending', 'confirmed', 'completed'];
             if (in_array($newStatus, $allowed)) {
@@ -213,7 +222,7 @@ final class AdminController extends AbstractController
     {
         // Find providers - in a real app would use a custom repository method
         $allUsers = $em->getRepository(User::class)->findAll();
-        $providers = array_filter($allUsers, function($user) {
+        $providers = array_filter($allUsers, function ($user) {
             return in_array('ROLE_PROVIDER', $user->getRoles());
         });
 
