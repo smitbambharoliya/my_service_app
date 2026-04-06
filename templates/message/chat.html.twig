@@ -1,0 +1,160 @@
+{% extends 'dashboard_base.html.twig' %}
+
+{% block page_title %}Chat with {{ contact.email|split('@')[0] }}{% endblock %}
+
+{% block stylesheets %}
+<style>
+/* ── MIDNIGHT AURORA - REAL-TIME CHAT ── */
+.chat-wrapper { max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; height: calc(100vh - 120px); background: var(--bg-primary); border-radius: var(--r-lg); border: 1px solid var(--border-light); overflow: hidden; }
+
+.chat-header {
+    background: var(--bg-secondary); border-bottom: 1px solid var(--border-light);
+    padding: 20px 24px; display: flex; align-items: center; justify-content: space-between; z-index: 10;
+}
+.chat-contact { display: flex; align-items: center; gap: 16px; }
+.c-avatar-small { width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, var(--aurora-cyan), var(--aurora-purple)); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 800; }
+.c-name { color: var(--text-primary); font-size: 1.1rem; font-weight: 700; margin-bottom: 2px; }
+.c-status { color: var(--aurora-cyan); font-size: 0.75rem; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+.c-status i { font-size: 0.6rem; animation: pulse 2s infinite; }
+@keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+
+.chat-body { flex: 1; min-height: 0; padding: 32px; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; background: rgba(0,0,0,0.2); }
+.msg-bubble { max-width: 75%; padding: 16px 20px; border-radius: 20px; font-size: 0.95rem; line-height: 1.5; position: relative; }
+.msg-sent { background: linear-gradient(135deg, var(--aurora-purple), rgba(139, 92, 246, 0.7)); color: #fff; align-self: flex-end; border-bottom-right-radius: 4px; box-shadow: var(--glow-purple); }
+.msg-rcvd { background: var(--bg-tertiary); color: var(--text-primary); align-self: flex-start; border-bottom-left-radius: 4px; border: 1px solid var(--border-light); }
+.msg-time { font-size: 0.7rem; opacity: 0.7; margin-top: 8px; text-align: right; }
+
+.chat-footer {
+    background: var(--bg-secondary); border-top: 1px solid var(--border-light);
+    padding: 24px;
+}
+.chat-form { display: flex; gap: 12px; }
+.chat-input { flex: 1; background: rgba(255,255,255,0.03); border: 1px solid var(--border-light); border-radius: var(--r-pill); padding: 16px 24px; color: #fff; outline: none; transition: all var(--dur-base); }
+.chat-input:focus { border-color: var(--aurora-cyan); box-shadow: var(--glow-cyan); background: rgba(255,255,255,0.06); }
+.send-btn { background: var(--aurora-cyan); color: #000; border: none; width: 56px; height: 56px; border-radius: 50%; font-size: 1.2rem; cursor: pointer; transition: all 0.2s; box-shadow: var(--glow-cyan); display: flex; align-items: center; justify-content: center; }
+.send-btn:hover { background: #fff; transform: scale(1.05); }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="chat-wrapper fade-up">
+    
+    <div class="chat-header">
+        <div class="chat-contact">
+            <a href="{{ path('app_message_inbox') }}" class="btn btn-sm btn-ghost me-2 py-2 px-3"><i class="fas fa-arrow-left"></i></a>
+            <div class="c-avatar-small">{{ contact.email|slice(0,1)|upper }}</div>
+            <div>
+                <div class="c-name">{{ contact.email|split('@')[0]|capitalize }}</div>
+                <div class="c-status"><i class="fas fa-circle"></i> Connected via SmartMatch</div>
+            </div>
+        </div>
+        <div class="badge-aurora">End-to-end Encrypted</div>
+    </div>
+
+    <div class="chat-body" id="chatContainer">
+        <div class="text-center text-muted mb-4 font-inter" style="font-size:0.8rem;">
+            Conversation directly with {{ contact.email }} started. Messages are actively monitored for safety.
+        </div>
+        
+        {# Messages loaded here via Twig initially, then updated via AJAX #}
+        {% for msg in conversation %}
+            {% if msg.sender.id == app.user.id %}
+                <div class="msg-bubble msg-sent">
+                    {{ msg.content|nl2br }}
+                    <div class="msg-time">{{ msg.createdAt|date('H:i') }} <i class="fas fa-check-double ms-1 {{ msg.isRead ? 'text-white' : 'opacity-50' }}"></i></div>
+                </div>
+            {% else %}
+                <div class="msg-bubble msg-rcvd">
+                    {{ msg.content|nl2br }}
+                    <div class="msg-time">{{ msg.createdAt|date('H:i') }}</div>
+                </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+
+    <div class="chat-footer">
+        <form class="chat-form" id="msgForm">
+            <input type="text" id="msgInput" class="chat-input" placeholder="Type a message..." autocomplete="off">
+            <button type="submit" class="send-btn" id="sendBtn" title="Send (Enter)"><i class="fas fa-paper-plane"></i></button>
+        </form>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const chatContainer = document.getElementById('chatContainer');
+    const msgForm = document.getElementById('msgForm');
+    const msgInput = document.getElementById('msgInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const contactId = '{{ contact.id }}';
+    const currentUserId = '{{ app.user.id }}';
+
+    // Auto-scroll to bottom on load
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+
+    // Smart AJAX Polling for real-time messages
+    let pollingInterval = null;
+
+    function pollMessages() {
+        fetch(`{{ path('api_message_poll', {'id': contact.id}) }}`)
+            .then(res => res.json())
+            .then(data => {
+                // To keep it simple, if new length is > current DOM count, append the new ones
+                const currentCount = chatContainer.querySelectorAll('.msg-bubble').length;
+                if(data.messages.length > currentCount) {
+                    const newMessages = data.messages.slice(currentCount);
+                    newMessages.forEach(msg => {
+                        const div = document.createElement('div');
+                        div.className = `msg-bubble ${msg.senderId == currentUserId ? 'msg-sent' : 'msg-rcvd'}`;
+                        const checkIcon = msg.senderId == currentUserId ? `<i class="fas fa-check-double ms-1 ${msg.isRead ? 'text-white':'opacity-50'}"></i>` : '';
+                        div.innerHTML = `
+                            ${msg.content.replace(/\n/g, '<br>')}
+                            <div class="msg-time">${msg.time} ${checkIcon}</div>
+                        `;
+                        chatContainer.appendChild(div);
+                    });
+                    chatContainer.scrollTop = chatContainer.scrollHeight;
+                }
+            })
+            .catch(err => console.error("Poll Error:", err));
+    }
+
+    // Start polling every 3 seconds
+    pollingInterval = setInterval(pollMessages, 3000);
+
+    // Stop polling when away
+    document.addEventListener("visibilitychange", () => {
+        if (document.hidden) clearInterval(pollingInterval);
+        else pollingInterval = setInterval(pollMessages, 3000);
+    });
+
+    // Handle Send
+    msgForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const content = msgInput.value.trim();
+        if(!content) return;
+
+        // Optimistically add to UI immediately to feel fast
+        const optDiv = document.createElement('div');
+        optDiv.className = 'msg-bubble msg-sent';
+        const rawTime = new Date().toLocaleTimeString('en-US', {hour12: false, hour: "numeric", minute: "numeric"});
+        optDiv.innerHTML = `${content.replace(/\n/g, '<br>')} <div class="msg-time">${rawTime} <i class="fas fa-clock ms-1 opacity-50"></i></div>`;
+        chatContainer.appendChild(optDiv);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+        
+        msgInput.value = '';
+        msgInput.focus();
+
+        // Send via API
+        fetch(`{{ path('api_message_send', {'id': contact.id}) }}`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ content: content })
+        }).then(() => pollMessages()); // Force poll to sync state
+    });
+});
+</script>
+{% endblock %}

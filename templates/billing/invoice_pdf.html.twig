@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&family=Inter:wght@400;600&display=swap');
+        
+        :root {
+            --brand: #7C3AED;
+            --text-dark: #07080F;
+            --text-muted: #64748B;
+            --bg-light: #F8FAFC;
+            --border: #E2E8F0;
+        }
+
+        body { 
+            font-family: 'Inter', sans-serif; 
+            color: var(--text-dark); 
+            line-height: 1.5; 
+            margin: 0; 
+            padding: 40px; 
+            background: #FFF;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            border-bottom: 2px solid var(--brand);
+            padding-bottom: 30px;
+            margin-bottom: 40px;
+        }
+
+        .brand {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-weight: 800;
+            font-size: 28px;
+            color: var(--text-dark);
+            letter-spacing: -1px;
+        }
+        .brand span { color: var(--brand); }
+
+        .invoice-title {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-weight: 800;
+            font-size: 32px;
+            text-transform: uppercase;
+            margin: 0;
+            color: var(--text-dark);
+            text-align: right;
+        }
+
+        .meta-grid {
+            width: 100%;
+            margin-bottom: 60px;
+        }
+        .meta-col { width: 50%; vertical-align: top; }
+
+        .label {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            margin-bottom: 5px;
+        }
+
+        .value { font-weight: 600; font-size: 14px; }
+
+        table { width: 100%; border-collapse: collapse; margin-bottom: 60px; }
+        th { 
+            text-align: left; 
+            padding: 15px; 
+            background: var(--bg-light); 
+            font-size: 11px; 
+            text-transform: uppercase; 
+            color: var(--text-muted); 
+            border-bottom: 1px solid var(--border);
+        }
+        td { padding: 15px; border-bottom: 1px solid var(--border); font-size: 13px; }
+
+        .total-section {
+            width: 300px;
+            margin-left: auto;
+            border-top: 2px solid var(--text-dark);
+            padding-top: 20px;
+        }
+        .total-row { display: flex; justify-content: space-between; margin-bottom: 10px; }
+        .total-label { font-weight: 700; font-size: 12px; text-transform: uppercase; }
+        .total-value { font-weight: 800; font-size: 20px; color: var(--brand); }
+
+        .status-stamp {
+            position: absolute;
+            top: 200px;
+            right: 40px;
+            border: 4px solid #10B981;
+            color: #10B981;
+            padding: 10px 20px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-weight: 800;
+            font-size: 24px;
+            text-transform: uppercase;
+            transform: rotate(-15deg);
+            opacity: 0.3;
+            border-radius: 8px;
+        }
+
+        .footer {
+            margin-top: 100px;
+            text-align: center;
+            font-size: 11px;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border);
+            padding-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    {% if billing.paymentStatus == 'paid' %}
+        <div class="status-stamp">SETTLED</div>
+    {% endif %}
+
+    <div class="header">
+        <div class="brand">ServiceHub<span>.</span></div>
+        <h1 class="invoice-title">Official Bill</h1>
+    </div>
+
+    <table class="meta-grid">
+        <tr>
+            <td class="meta-col" style="border: 0;">
+                <div class="label">Billed To</div>
+                <div class="value">{{ billing.user.fullName|default(billing.user.email) }}</div>
+                <div class="value" style="font-weight: 400; color: var(--text-muted);">{{ billing.user.email }}</div>
+            </td>
+            <td class="meta-col" style="border: 0; text-align: right;">
+                <div class="label">Reference ID</div>
+                <div class="value">{{ billing.transactionId }}</div>
+                <div class="label" style="margin-top: 15px;">Date Generated</div>
+                <div class="value">{{ billing.createdAt|date('d M, Y / H:i') }}</div>
+            </td>
+        </tr>
+    </table>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Service Description</th>
+                <th style="text-align: right; width: 150px;">Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if billing.items %}
+                {% for item in billing.items %}
+                    <tr>
+                        <td>{{ item.name }}</td>
+                        <td style="text-align: right;">₹{{ item.amount|number_format(2) }}</td>
+                    </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td>{{ billing.serviceName }}</td>
+                    <td style="text-align: right;">₹{{ billing.amount|number_format(2) }}</td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+
+    <div class="total-section">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div class="total-label">Total Capital</div>
+            <div class="total-value">₹{{ billing.amount|number_format(2) }}</div>
+        </div>
+    </div>
+
+    <div class="footer">
+        This is a digitally generated protocol document from the ServiceHub ecosystem.<br>
+        Verified Secure Transaction | {{ 'now'|date('Y') }} ServiceHub. All Rights Reserved.
+    </div>
+
+</body>
+</html>

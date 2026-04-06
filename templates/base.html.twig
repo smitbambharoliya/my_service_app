@@ -1,78 +1,176 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
     <head>
         <meta charset="UTF-8">
-        <title>{% block title %}Welcome!{% endblock %}</title>
-        <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text><text y=%221.3em%22 x=%220.2em%22 font-size=%2276%22 fill=%22%23fff%22>sf</text></svg>">
-        {% block stylesheets %}
-        {% endblock %}
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>{% block title %}ServiceHub — Obsidian X{% endblock %}</title>
+        <meta name="description" content="Premium Concierge Service Marketplace.">
+        
+        {# ── Fonts (Plus Jakarta Sans & Inter) ── #}
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
 
+        {# ── Icons ── #}
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
+        {# ── Bootstrap (Internal Grid Only) ── #}
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
-        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+        
+        {# ── Custom App Styles ── #}
+        <link rel="stylesheet" href="{{ asset('styles/app.css') }}">
+        
+        {% block stylesheets %}{% endblock %}
 
-        {% block javascripts %}
-            {% block importmap %}{{ importmap('app') }}{% endblock %}
-        {% endblock %}
+        <style>
+            /* ── Global Navbar (Obsidian X) ── */
+            .site-navbar {
+                background: rgba(7, 8, 15, 0.7);
+                backdrop-filter: blur(16px);
+                border-bottom: 1px solid var(--border-subtle);
+                padding: 16px 0;
+                position: sticky;
+                top: 0;
+                z-index: 1000;
+                transition: all var(--duration-base);
+            }
+            .site-navbar.scrolled {
+                padding: 12px 0;
+                background: rgba(7, 8, 15, 0.9);
+                border-bottom-color: var(--border-brand);
+            }
+            .nav-brand {
+                font-family: 'Plus Jakarta Sans', sans-serif;
+                font-size: 1.5rem;
+                font-weight: 800;
+                color: var(--text-primary) !important;
+                display: flex; align-items: center; gap: 10px;
+                letter-spacing: -0.03em;
+            }
+            .brand-dot { color: var(--brand-1); }
+            
+            .nav-link-x {
+                color: var(--text-body);
+                font-weight: 600;
+                font-size: 0.95rem;
+                padding: 8px 16px;
+                border-radius: var(--r-md);
+                transition: all var(--duration-base);
+            }
+            .nav-link-x:hover, .nav-link-x.active {
+                color: var(--text-primary);
+                background: rgba(255,255,255,0.05);
+            }
+
+            /* ── Dropdown ── */
+            .dropdown-menu-x {
+                background: var(--bg-elevated);
+                border: 1px solid var(--border-default);
+                border-radius: var(--r-md);
+                box-shadow: var(--shadow-lg);
+                padding: 8px;
+                margin-top: 12px !important;
+            }
+            .dropdown-item-x {
+                color: var(--text-body);
+                padding: 10px 14px;
+                border-radius: var(--r-sm);
+                font-weight: 500;
+                display: flex; align-items: center; gap: 10px;
+            }
+            .dropdown-item-x:hover {
+                background: var(--bg-hover);
+                color: var(--text-primary);
+            }
+        </style>
     </head>
     <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm py-3">
-    <div class="container">
-        <a class="navbar-brand fw-bold fs-3" href="{{ path('app_service_list') }}">
-            <span class="text-primary">Service</span>Hub
-        </a>
 
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
+    {# ── NAVBAR ── #}
+    {% if app.request.get('_route') not in ['app_login', 'app_register', 'app_verify_otp'] %}
+    <nav class="site-navbar" id="mainNavbar">
+        <div class="container d-flex align-items-center justify-content-between">
+            
+            <a class="nav-brand" href="{{ path('app_home') }}">
+                ServiceHub<span class="brand-dot">.</span>
+            </a>
 
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav me-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ path('app_service_list') }}">Find Services</a>
-                </li>
+            <ul class="nav d-none d-lg-flex align-items-center gap-2">
+                <li><a href="{{ path('app_home') }}" class="nav-link-x {{ app.request.get('_route') == 'app_home' ? 'active' : '' }}">Home</a></li>
+                <li><a href="{{ path('app_service_list') }}" class="nav-link-x {{ app.request.get('_route') == 'app_service_list' ? 'active' : '' }}">Services</a></li>
             </ul>
 
-            <ul class="navbar-nav ms-auto align-items-center">
+            <div class="d-flex align-items-center gap-3">
                 {% if app.user %}
-                    {# Common for both roles #}
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle btn btn-outline-primary text-white px-4 rounded-pill me-2" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-user-circle me-1"></i> My Account
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2">
-                            {# Provider specific links #}
-                            {% if is_granted('ROLE_PROVIDER') %}
-                                <li><a class="dropdown-item py-2" href="{{ path('app_provider_dashboard') }}"><i class="fas fa-columns me-2 text-primary"></i>Provider Dashboard</a></li>
-                                <li><a class="dropdown-item py-2" href="{{ path('app_service_new') }}"><i class="fas fa-plus-circle me-2 text-success"></i>Add New Service</a></li>
-                                <li><a class="dropdown-item py-2" href="{{ path('app_billing_history') }}"><i class="fas fa-file-invoice-dollar me-2 text-info"></i>Billing History</a></li>
+                    <div class="dropdown">
+                        <button class="d-flex align-items-center gap-2 bg-transparent border-0" data-bs-toggle="dropdown">
+                            <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg, var(--brand-1), var(--brand-2));display:flex;align-items:center;justify-content:center;font-weight:800;color:#FFF;">
+                                {{ app.user.email|slice(0,1)|upper }}
+                            </div>
+                            <i class="fas fa-chevron-down text-muted" style="font-size:0.7em;"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end dropdown-menu-x">
+                            <li><h6 class="dropdown-header text-xs text-muted mb-2">Account Control</h6></li>
+                            {% if is_granted('ROLE_ADMIN') %}
+                                <li><a class="dropdown-item-x" href="{{ path('app_admin_dashboard') }}"><i class="fas fa-shield-halved"></i> Admin Panel</a></li>
+                            {% elseif is_granted('ROLE_PROVIDER') %}
+                                <li><a class="dropdown-item-x" href="{{ path('app_provider_dashboard') }}"><i class="fas fa-chart-pie"></i> Provider Portal</a></li>
+                            {% else %}
+                                <li><a class="dropdown-item-x" href="{{ path('app_customer_dashboard') }}"><i class="fas fa-calendar-alt"></i> My Bookings</a></li>
                             {% endif %}
-
-                            {# Customer specific links #}
-                            {% if is_granted('ROLE_USER') and not is_granted('ROLE_PROVIDER') %}
-                                <li><a class="dropdown-item py-2" href="{{ path('app_customer_dashboard') }}"><i class="fas fa-calendar-check me-2 text-primary"></i>My Bookings</a></li>
-                            {% endif %}
-
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item py-2 text-danger" href="{{ path('app_logout') }}"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                            <li><hr class="dropdown-divider border-subtle"></li>
+                            <li><a class="dropdown-item-x text-danger" href="{{ path('app_logout') }}"><i class="fas fa-power-off"></i> Logout</a></li>
                         </ul>
-                    </li>
+                    </div>
                 {% else %}
-                    {# Guest users #}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ path('app_login') }}">Login</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="btn btn-primary rounded-pill px-4 ms-lg-2" href="{{ path('app_register') }}">Join Us</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="btn btn-outline-light rounded-pill px-4 ms-lg-2" href="{{ path('app_profile') }}">🙍🏻‍♂️</a>
+                    <a href="{{ path('app_register') }}" class="btn-ghost d-none d-md-flex">Join Hub</a>
+                    <a href="{{ path('app_login') }}" class="btn-violet">Get Started</a>
                 {% endif %}
-            </ul>
+            </div>
         </div>
+    </nav>
+    {% endif %}
+
+    {# ── FLASH MESSAGES ── #}
+    <div class="container mt-4">
+        {% for label, messages in app.flashes %}
+            {% for message in messages %}
+                <div class="glass-card mb-3 p-3 d-flex align-items-center gap-3" style="border-left: 4px solid var(--accent-{{ label == 'success' ? 'green' : (label == 'danger' ? 'red' : 'amber') }});">
+                    <i class="fas {{ label == 'success' ? 'fa-check-circle text-success' : (label == 'danger' ? 'fa-triangle-exclamation text-danger' : 'fa-circle-info text-warning') }} fs-5"></i>
+                    <div class="fw-medium text-primary">{{ message }}</div>
+                    <button type="button" class="btn-close btn-close-white ms-auto" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endfor %}
     </div>
-</nav>
+
+    <main>
         {% block body %}{% endblock %}
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Navbar scroll effect
+        window.addEventListener('scroll', () => {
+            const nav = document.getElementById('mainNavbar');
+            if(nav) {
+                if(window.scrollY > 50) nav.classList.add('scrolled');
+                else nav.classList.remove('scrolled');
+            }
+        });
+
+        // Intersection Observer for fade-up animations
+        document.addEventListener('DOMContentLoaded', () => {
+            const obs = new IntersectionObserver((entries) => {
+                entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+            }, { threshold: 0.1 });
+            document.querySelectorAll('.fade-up').forEach(el => obs.observe(el));
+        });
+    </script>
+    
+    {% block javascripts %}
+        {% block importmap %}{{ importmap('app') }}{% endblock %}
+    {% endblock %}
     </body>
 </html>

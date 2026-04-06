@@ -1,58 +1,247 @@
-{% extends 'base.html.twig' %}
+{% extends 'dashboard_base.html.twig' %}
+{% import 'partials/_components.html.twig' as ui %}
 
-{% block title %}My Bookings{% endblock %}
+{% block page_title %}Operational Intelligence / Customer{% endblock %}
 
 {% block body %}
-<div class="container py-5">
-    <div class="row mb-4">
-        <div class="col-md-8">
-            <h1 class="fw-bold"><i class="fas fa-calendar-check text-primary me-2"></i>My Bookings</h1>
-            <p class="text-muted">Track the status of services you have requested.</p>
-        </div>
+
+{# ── KPI LAYER ── #}
+<div class="row g-4 mb-5 fade-up">
+    {# Active Operations #}
+    <div class="col-xl-3 col-md-6">
+        {{ ui.kpi_card('Active Operations', bookings|filter(b => b.status in ['Confirmed', 'Pending', 'on-the-way'])|length, 'fa-radar', 'brand') }}
     </div>
 
-    <div class="row">
-        {% for booking in bookings %}
-            <div class="col-md-6 mb-4">
-                <div class="card border-0 shadow-sm rounded-4 overflow-hidden card-hover">
-                    <div class="card-body p-4">
-                        <div class="d-flex justify-content-between align-items-start mb-3">
+    {# Capital Deployed #}
+    {% set totalSpent = 0 %}
+    {% for b in bookings|filter(b => b.status == 'Completed') %}
+        {% set totalSpent = totalSpent + (b.totalAmount|default(b.service.price)) %}
+    {% endfor %}
+    <div class="col-xl-3 col-md-6">
+        {{ ui.kpi_card('Capital Deployed', '₹' ~ totalSpent|number_format(0), 'fa-wallet', 'amber') }}
+    </div>
+
+    {# Success Rate #}
+    {% set completedCount = bookings|filter(b => b.status == 'Completed')|length %}
+    {% set totalCount = bookings|length %}
+    {% set successRate = totalCount > 0 ? (completedCount / totalCount * 100)|round : 0 %}
+    <div class="col-xl-3 col-md-6">
+        {{ ui.kpi_card('Efficiency Rating', successRate ~ '%', 'fa-chart-pie', 'cyan') }}
+    </div>
+
+    {# Tier Status #}
+    <div class="col-xl-3 col-md-6">
+        <div class="glass-card p-4 d-flex align-items-center justify-content-between hover-lift">
+            <div>
+                <div class="text-xs text-muted mb-2">Member Status</div>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="badge-pill badge-confirmed px-3" style="font-size:0.7rem">AURORA ELITE</span>
+                </div>
+            </div>
+            <div class="fs-1 opacity-25 text-amber">
+                <i class="fas fa-crown"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-5 mb-5">
+    {# ── ANALYTICS: SPENDING FLOW ── #}
+    <div class="col-xl-7 fade-up">
+        {% embed 'partials/_components.html.twig' with {'title': 'Spending Velocity', 'subtitle': 'Capital expenditure over time (Last 6 Months)'} %}
+            {% block body %}
+                <div style="height: 300px;">
+                    <canvas id="spendingChart"></canvas>
+                </div>
+            {% endblock %}
+        {% endembed %}
+    </div>
+
+    {# ── QUICK ACTIONS ── #}
+    <div class="col-xl-5 fade-up" style="transition-delay: 100ms;">
+        {% embed 'partials/_components.html.twig' with {'title': 'Discovery', 'subtitle': 'Quick access to ecosystem services'} %}
+            {% block body %}
+                <div class="d-grid gap-3">
+                    <a href="{{ path('app_service_list') }}" class="glass-card p-3 d-flex align-items-center justify-content-between hover-glow border-subtle">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="p-2 rounded-3 bg-brand-alpha text-brand-1"><i class="fas fa-search"></i></div>
                             <div>
-                                <h4 class="fw-bold mb-1">{{ booking.service.title }}</h4>
-                                <span class="badge bg-light text-primary border">{{ booking.service.category }}</span>
+                                <div class="fw-800 text-sm">Deployment Hub</div>
+                                <div class="text-xs text-muted">Browse all service categories</div>
                             </div>
-                            <span class="badge rounded-pill px-3 py-2 
-                                {{ booking.status == 'pending' ? 'bg-warning-soft text-warning' : 
-                                   booking.status == 'confirmed' ? 'bg-primary-soft text-primary' : 'bg-success-soft text-success' }}">
-                                {{ booking.status|upper }}
-                            </span>
                         </div>
-
-                        <div class="text-muted mb-3">
-                            <i class="fas fa-user-tie me-2"></i><strong>Provider:</strong> {{ booking.service.provider.email }}<br>
-                            <i class="fas fa-clock me-2"></i><strong>Booked on:</strong> {{ booking.bookingDate|date('d M, Y') }}
+                        <i class="fas fa-chevron-right text-muted opacity-50"></i>
+                    </a>
+                    <a href="{{ path('app_billing_index') }}" class="glass-card p-3 d-flex align-items-center justify-content-between hover-glow border-subtle">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="p-2 rounded-3 bg-cyan-alpha text-cyan"><i class="fas fa-receipt"></i></div>
+                            <div>
+                                <div class="fw-800 text-sm">Audit & Finance</div>
+                                <div class="text-xs text-muted">Review invoices and transaction logs</div>
+                            </div>
                         </div>
+                        <i class="fas fa-chevron-right text-muted opacity-50"></i>
+                    </a>
+                </div>
+                <div class="mt-4 p-4 rounded-4 border-brand-alpha" style="background: linear-gradient(135deg, rgba(124, 58, 237, 0.1), transparent);">
+                    <div class="fw-bold text-brand-1 mb-2">Pro Tip</div>
+                    <p class="text-xs text-muted mb-0">Use the Search Orb on the home page for AI-assisted service discovery.</p>
+                </div>
+            {% endblock %}
+        {% endembed %}
+    </div>
+</div>
 
-                        <div class="d-flex justify-content-between align-items-center mt-4">
-                            <span class="h5 fw-bold text-dark mb-0">₹{{ booking.service.price }}</span>
-                            <button class="btn btn-outline-danger btn-sm rounded-pill px-3">Cancel Request</button>
+{# ── LOGS: RECENT OPERATIONS ── #}
+<div class="fade-up" style="transition-delay: 200ms;">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <h2 class="text-2xl text-white">Recent Operations</h2>
+        <span class="text-xs text-muted fw-bold">{{ bookings|length }} RECORDS FILTERED</span>
+    </div>
+
+    <div class="row g-4">
+        {% for booking in bookings|slice(0, 4) %}
+            <div class="col-xl-6">
+                <div class="glass-card p-4 border-subtle hover-lift h-100">
+                    <div class="d-flex justify-content-between align-items-start mb-4">
+                        <div class="d-flex gap-3 align-items-center">
+                            <div class="p-3 rounded-4 bg-surface-2 border-subtle">
+                                <i class="fas fa-{{ booking.service.category == 'Plumbing' ? 'faucet' : (booking.service.category == 'Electrical' ? 'bolt' : 'tools') }} text-brand-1 fs-4"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-lg fw-800 text-white mb-1">{{ booking.service.title }}</h3>
+                                <div class="d-flex gap-2">
+                                    {{ ui.pill_badge(booking.service.category, 'pending') }}
+                                    {{ ui.pill_badge(booking.type|upper, 'confirmed') }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-end">
+                            {{ ui.pill_badge(booking.status|upper, booking.status|lower) }}
+                            <div class="text-xs text-muted mt-2 fw-bold">{{ booking.scheduledTime|date('d M / H:i') }}</div>
+                        </div>
+                    </div>
+
+                    <div class="glass-card bg-surface-2 border-0 p-3 mb-4 d-flex align-items-center justify-content-between">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="mini-avatar" style="width:32px;height:32px;background:var(--brand-1);color:#fff;font-weight:900;font-size:0.6rem;">{{ (booking.provider.fullName|default(booking.provider.email))|slice(0,1)|upper }}</div>
+                            <div>
+                                <div class="text-xs text-muted">Operational Lead</div>
+                                <div class="text-sm fw-bold">{{ booking.provider.fullName|default(booking.provider.email|split('@')[0]) }}</div>
+                            </div>
+                        </div>
+                        {% if booking.status == 'on-the-way' %}
+                            <a href="#" class="btn-ghost-cyan py-1 text-xs"><i class="fas fa-location-dot me-1"></i> Track Live</a>
+                        {% endif %}
+                    </div>
+
+                    {% if booking.type == 'visit' and booking.estimation %}
+                        <div class="p-3 mb-4 rounded-4 border-brand-alpha" style="background: rgba(124, 58, 237, 0.05);">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="text-xs text-muted fw-bold">FINAL PROTOCOL ESTIMATE</span>
+                                {{ ui.pill_badge(booking.estimation.status|upper, booking.estimation.status) }}
+                            </div>
+                            <div class="h4 text-white fw-900 mb-2">₹{{ booking.estimation.amount|number_format }}</div>
+                            <p class="text-xs text-muted mb-3">"{{ booking.estimation.description }}"</p>
+                            
+                            {% if booking.estimation.status == 'pending' %}
+                                <div class="d-flex gap-2">
+                                    <form action="{{ path('app_booking_estimation_reply', {'id': booking.id, 'reply': 'accept'}) }}" method="post" class="w-50">
+                                        <button type="submit" class="btn-violet w-100 text-xs py-2">Accept Protocol</button>
+                                    </form>
+                                    <form action="{{ path('app_booking_estimation_reply', {'id': booking.id, 'reply': 'reject'}) }}" method="post" class="w-50">
+                                        <button type="submit" class="btn-ghost text-xs py-2 w-100 border-subtle">Reject</button>
+                                    </form>
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+
+                    <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top border-subtle">
+                        <div>
+                            <div class="text-xs text-muted fw-bold">TOTAL CAPITAL</div>
+                            <div class="h4 text-white fw-900 mb-0">₹{{ (booking.estimation ? booking.estimation.amount : booking.service.price)|number_format }}</div>
+                        </div>
+                        <div class="d-flex gap-2">
+                            {% if booking.status == 'Completed' %}
+                                <a href="{{ path('app_billing_index') }}" class="btn-violet py-2 px-4 shadow-sm text-xs">Review Bill</a>
+                            {% elseif booking.status == 'Pending' %}
+                                <form action="{{ path('app_booking_cancel', {'id': booking.id}) }}" method="post" onsubmit="return confirm('Cancel protocol?');">
+                                    <button class="btn-ghost text-xs py-2 px-3 border-subtle text-danger">Cancel</button>
+                                </form>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
             </div>
         {% else %}
-            <div class="col-12 text-center py-5">
-                <h3 class="text-muted">Tame haji koi service book nathi kari.</h3>
-                <a href="{{ path('app_service_list') }}" class="btn btn-primary mt-3 rounded-pill px-4">Browse Services</a>
+            <div class="col-12 py-5 text-center">
+                <i class="fas fa-inbox text-muted h1 mb-4 opacity-10"></i>
+                <h3 class="text-muted">No operational records found.</h3>
+                <a href="{{ path('app_service_list') }}" class="btn-violet mt-4">Initiate First Booking</a>
             </div>
         {% endfor %}
     </div>
 </div>
 
-<style>
-    .bg-primary-soft { background-color: rgba(13, 110, 253, 0.1); }
-    .bg-warning-soft { background-color: rgba(255, 193, 7, 0.1); }
-    .bg-success-soft { background-color: rgba(25, 135, 84, 0.1); }
-    .card-hover:hover { transform: translateY(-5px); transition: 0.3s; }
-</style>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const ctx = document.getElementById('spendingChart').getContext('2d');
+        
+        // Prepare data from Twig
+        {% set months = [] %}
+        {% set amounts = [] %}
+        {% for i in 5..0 %}
+            {% set targetDate = "now"|date_modify("-" ~ i ~ " months")|date("M") %}
+            {% set monthTotal = 0 %}
+            {% for b in bookings|filter(b => b.status == 'Completed' and b.scheduledTime|date("M") == targetDate) %}
+                {% set monthTotal = monthTotal + (b.totalAmount|default(b.service.price)) %}
+            {% endfor %}
+            {% set months = months|merge([targetDate]) %}
+            {% set amounts = amounts|merge([monthTotal]) %}
+        {% endfor %}
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: {{ months|json_encode|raw }},
+                datasets: [{
+                    label: 'Deployment Flow (₹)',
+                    data: {{ amounts|json_encode|raw }},
+                    borderColor: '#7C3AED',
+                    backgroundColor: 'rgba(124, 58, 237, 0.1)',
+                    borderWidth: 3,
+                    tension: 0.4,
+                    fill: true,
+                    pointBackgroundColor: '#7C3AED',
+                    pointBorderColor: '#fff',
+                    pointRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: 'rgba(255,255,255,0.05)' },
+                        ticks: { color: '#666', font: { size: 10 } }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: '#666', font: { size: 10 } }
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}
+
 {% endblock %}

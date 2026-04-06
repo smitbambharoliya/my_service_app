@@ -49,6 +49,24 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: Billing::class, mappedBy: 'user')]
     private Collection $billings;
 
+    #[ORM\OneToMany(targetEntity: Review::class, mappedBy: 'customer')]
+    private Collection $reviewsGiven;
+
+    #[ORM\OneToMany(targetEntity: Review::class, mappedBy: 'provider')]
+    private Collection $reviewsReceived;
+
+    #[ORM\Column(options: ["default" => false])]
+    private bool $isPremium = false;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $stripeCustomerId = null;
+
+    #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 7, nullable: true)]
+    private ?string $latitude = null;
+
+    #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 7, nullable: true)]
+    private ?string $longitude = null;
+
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $address = null;
 
@@ -64,11 +82,25 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 10, nullable: true)]
     private ?string $gender = null;
 
+    #[ORM\Column(length: 6, nullable: true)]
+    private ?string $otpCode = null;
+
+    #[ORM\Column(options: ["default" => true])]
+    private bool $isActive = true;
+
+    #[ORM\Column(options: ["default" => 0])]
+    private int $reputationPoints = 0;
+
+    #[ORM\Column(length: 50, options: ["default" => "Bronze"])]
+    private string $tier = 'Bronze';
+
     public function __construct()
     {
         $this->services = new ArrayCollection();
         $this->bookings = new ArrayCollection();
         $this->billings = new ArrayCollection();
+        $this->reviewsGiven = new ArrayCollection();
+        $this->reviewsReceived = new ArrayCollection();
     }
 
     public function getId(): ?int { return $this->id; }
@@ -112,6 +144,21 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getBookings(): Collection { return $this->bookings; }
     public function getBillings(): Collection { return $this->billings; }
 
+    public function getReviewsGiven(): Collection { return $this->reviewsGiven; }
+    public function getReviewsReceived(): Collection { return $this->reviewsReceived; }
+
+    public function isPremium(): bool { return $this->isPremium; }
+    public function setIsPremium(bool $isPremium): static { $this->isPremium = $isPremium; return $this; }
+
+    public function getStripeCustomerId(): ?string { return $this->stripeCustomerId; }
+    public function setStripeCustomerId(?string $stripeCustomerId): static { $this->stripeCustomerId = $stripeCustomerId; return $this; }
+
+    public function getLatitude(): ?string { return $this->latitude; }
+    public function setLatitude(?string $latitude): static { $this->latitude = $latitude; return $this; }
+
+    public function getLongitude(): ?string { return $this->longitude; }
+    public function setLongitude(?string $longitude): static { $this->longitude = $longitude; return $this; }
+
     public function getAddress(): ?string { return $this->address; }
     public function setAddress(?string $address): static { $this->address = $address; return $this; }
 
@@ -126,4 +173,50 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function getGender(): ?string { return $this->gender; }
     public function setGender(?string $gender): static { $this->gender = $gender; return $this; }
+
+    public function getOtpCode(): ?string { return $this->otpCode; }
+    public function setOtpCode(?string $otpCode): static { $this->otpCode = $otpCode; return $this; }
+
+    public function isActive(): bool { return $this->isActive; }
+    public function setIsActive(bool $isActive): static { $this->isActive = $isActive; return $this; }
+
+    public function getReputationPoints(): int
+    {
+        return $this->reputationPoints;
+    }
+
+    public function setReputationPoints(int $reputationPoints): static
+    {
+        $this->reputationPoints = $reputationPoints;
+        // Auto rank up
+        if ($this->reputationPoints >= 5000) { $this->tier = 'Aurora Elite'; }
+        elseif ($this->reputationPoints >= 2500) { $this->tier = 'Platinum'; }
+        elseif ($this->reputationPoints >= 1000) { $this->tier = 'Gold'; }
+        elseif ($this->reputationPoints >= 500) { $this->tier = 'Silver'; }
+        else { $this->tier = 'Bronze'; }
+
+        return $this;
+    }
+
+    public function getTier(): string
+    {
+        return $this->tier;
+    }
+
+    public function setTier(string $tier): static
+    {
+        $this->tier = $tier;
+        return $this;
+    }
+
+    public function getTierColor(): string
+    {
+        return match ($this->tier) {
+            'Aurora Elite' => 'var(--aurora-cyan)',
+            'Platinum'     => 'var(--aurora-purple)',
+            'Gold'         => 'var(--aurora-amber)',
+            'Silver'       => '#c0c0c0',
+            default        => '#cd7f32', // Bronze
+        };
+    }
 }

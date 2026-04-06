@@ -1,0 +1,256 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Verify Your Account - ServiceHub{% endblock %}
+
+{% block body %}
+<div class="otp-page">
+    <div class="otp-container">
+        <!-- Lock Icon -->
+        <div class="otp-icon">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="5" y="11" width="14" height="10" rx="2" fill="currentColor" opacity="0.15"/>
+                <path d="M8 11V7a4 4 0 0 1 8 0v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <circle cx="12" cy="16" r="1.5" fill="currentColor"/>
+            </svg>
+        </div>
+
+        <h1 class="otp-title">Verify Your Account</h1>
+
+        {% if app.session.get('login_unverified_flash') %}
+            {% do app.session.remove('login_unverified_flash') %}
+            <div class="otp-alert otp-alert-warning">
+                <svg viewBox="0 0 24 24" fill="none"><path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Your email is not verified yet. Please enter the OTP to activate your account.
+            </div>
+        {% endif %}
+
+        {% for message in app.flashes('success') %}
+            <div class="otp-alert otp-alert-success">
+                <svg viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                {{ message|raw }}
+            </div>
+        {% endfor %}
+
+        {% for message in app.flashes('error') %}
+            <div class="otp-alert otp-alert-error">
+                <svg viewBox="0 0 24 24" fill="none"><path d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                {{ message }}
+            </div>
+        {% endfor %}
+
+        {% for message in app.flashes('warning') %}
+            <div class="otp-alert otp-alert-warning">
+                <svg viewBox="0 0 24 24" fill="none"><path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                {{ message|raw }}
+            </div>
+        {% endfor %}
+
+        <p class="otp-subtitle">
+            We've sent a 6-digit verification code to<br>
+            <strong class="otp-email">{{ email }}</strong>
+        </p>
+
+        <form method="post" class="otp-form">
+            <label class="otp-label">Verification Code</label>
+            <input 
+                type="text" 
+                name="otp" 
+                id="otp" 
+                class="otp-input" 
+                placeholder="000000" 
+                maxlength="6" 
+                pattern="\d{6}" 
+                required 
+                autofocus
+                autocomplete="one-time-code"
+                inputmode="numeric"
+            >
+            <button type="submit" class="otp-btn">
+                <svg viewBox="0 0 24 24" fill="none" style="width:20px;height:20px;"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                Verify Account
+            </button>
+        </form>
+
+        <div class="otp-footer">
+            <p>Didn't receive the code?</p>
+            <a href="{{ path('app_resend_otp') }}" class="otp-resend">
+                <svg viewBox="0 0 24 24" fill="none" style="width:16px;height:16px;"><path d="M1 4v6h6M23 20v-6h-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M20.49 9A9 9 0 005.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 013.51 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Resend New Code
+            </a>
+            <a href="{{ path('app_login') }}" class="otp-back">← Back to Login</a>
+        </div>
+    </div>
+</div>
+
+<style>
+    body { background: linear-gradient(135deg, #0f0c29, #302b63, #24243e); min-height: 100vh; }
+    
+    .otp-page {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+    }
+
+    .otp-container {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 24px;
+        padding: 48px 40px;
+        width: 100%;
+        max-width: 440px;
+        text-align: center;
+        box-shadow: 0 25px 60px rgba(0,0,0,0.4);
+    }
+
+    .otp-icon {
+        width: 72px;
+        height: 72px;
+        background: linear-gradient(135deg, #6366f1, #8b5cf6);
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 24px;
+        color: white;
+        box-shadow: 0 8px 24px rgba(99, 102, 241, 0.4);
+    }
+
+    .otp-icon svg { width: 36px; height: 36px; color: white; }
+
+    .otp-title {
+        color: #f1f5f9;
+        font-size: 26px;
+        font-weight: 700;
+        margin: 0 0 8px;
+    }
+
+    .otp-subtitle {
+        color: #94a3b8;
+        font-size: 14px;
+        line-height: 1.7;
+        margin: 0 0 28px;
+    }
+
+    .otp-email {
+        color: #a5b4fc;
+        font-weight: 600;
+    }
+
+    .otp-alert {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 14px 16px;
+        border-radius: 12px;
+        font-size: 13px;
+        margin-bottom: 20px;
+        text-align: left;
+    }
+
+    .otp-alert svg { width: 18px; height: 18px; flex-shrink: 0; margin-top: 1px; }
+
+    .otp-alert-success { background: rgba(34, 197, 94, 0.12); border: 1px solid rgba(34, 197, 94, 0.3); color: #86efac; }
+    .otp-alert-success svg { color: #4ade80; }
+    .otp-alert-error { background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.3); color: #fca5a5; }
+    .otp-alert-error svg { color: #f87171; }
+    .otp-alert-warning { background: rgba(234, 179, 8, 0.12); border: 1px solid rgba(234, 179, 8, 0.3); color: #fde68a; }
+    .otp-alert-warning svg { color: #facc15; }
+
+    .otp-form { margin-bottom: 24px; }
+
+    .otp-label {
+        display: block;
+        color: #94a3b8;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        margin-bottom: 12px;
+    }
+
+    .otp-input {
+        width: 100%;
+        background: rgba(255,255,255,0.06);
+        border: 2px solid rgba(255,255,255,0.1);
+        border-radius: 14px;
+        color: #f1f5f9;
+        font-size: 32px;
+        font-weight: 700;
+        letter-spacing: 12px;
+        text-align: center;
+        padding: 18px;
+        outline: none;
+        transition: all 0.3s ease;
+        box-sizing: border-box;
+        font-family: 'Courier New', monospace;
+    }
+
+    .otp-input::placeholder { color: rgba(255,255,255,0.2); letter-spacing: 8px; }
+    .otp-input:focus {
+        border-color: #6366f1;
+        background: rgba(99, 102, 241, 0.08);
+        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
+    }
+
+    .otp-btn {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        background: linear-gradient(135deg, #6366f1, #8b5cf6);
+        color: white;
+        border: none;
+        border-radius: 14px;
+        padding: 16px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        margin-top: 16px;
+        transition: all 0.3s ease;
+        box-shadow: 0 8px 24px rgba(99, 102, 241, 0.35);
+    }
+
+    .otp-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 32px rgba(99, 102, 241, 0.5);
+    }
+
+    .otp-footer {
+        border-top: 1px solid rgba(255,255,255,0.08);
+        padding-top: 24px;
+    }
+
+    .otp-footer p { color: #64748b; font-size: 13px; margin: 0 0 10px; }
+
+    .otp-resend {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: #818cf8;
+        font-size: 14px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: color 0.2s;
+        margin-bottom: 12px;
+    }
+
+    .otp-resend:hover { color: #a5b4fc; }
+
+    .otp-back {
+        display: block;
+        color: #475569;
+        font-size: 13px;
+        text-decoration: none;
+        margin-top: 8px;
+        transition: color 0.2s;
+    }
+
+    .otp-back:hover { color: #94a3b8; }
+</style>
+{% endblock %}
+

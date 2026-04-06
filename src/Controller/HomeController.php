@@ -8,11 +8,36 @@ use Symfony\Component\Routing\Attribute\Route;
 
 final class HomeController extends AbstractController
 {
+    #[Route('/', name: 'app_root')]
     #[Route('/home', name: 'app_home')]
-    public function index(): Response
+    public function index(
+        \App\Repository\FeaturedServiceRepository $fRepo,
+        \App\Repository\ServiceRepository $sRepo
+    ): Response
     {
+        // Role-based redirect if logged in
+        if ($this->isGranted('ROLE_ADMIN')) {
+            return $this->redirectToRoute('app_admin_dashboard');
+        }
+
+        if ($this->isGranted('ROLE_PROVIDER')) {
+            return $this->redirectToRoute('app_provider_dashboard');
+        }
+
+        $activeFeatures = $fRepo->findActiveFeaturedServices();
+        $sections = ['hero' => [], 'trending' => [], 'premium' => [], 'seasonal' => []];
+        
+        foreach ($activeFeatures as $f) {
+            $sections[$f->getSection()][] = $f->getService();
+        }
+
+        if (empty($sections['trending'])) {
+            $sections['trending'] = $sRepo->findBy([], ['id' => 'DESC'], 6);
+        }
+
+        // Guests and Normal Users see the public marketing page
         return $this->render('home/index.html.twig', [
-            'controller_name' => 'HomeController',
+            'sections' => $sections,
         ]);
     }
 }

@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\DependencyInjection\Attribute\Target;
 
 #[ORM\Entity(repositoryClass: ServiceRepository::class)]
 class Service
@@ -31,7 +32,11 @@ class Service
     #[ORM\Column]
     private ?bool $isPremium = null;
 
-    #[ORM\ManyToOne(inversedBy: 'services')]
+    #[ORM\Column(options: ["default" => true])]
+    private bool $isActive = true;
+
+    #[ORM\ManyToOne(inversedBy: 'services', targetEntity: User::class)]
+    
     private ?User $provider = null;
 
     /**
@@ -106,6 +111,18 @@ class Service
     public function setIsPremium(bool $isPremium): static
     {
         $this->isPremium = $isPremium;
+
+        return $this;
+    }
+
+    public function isActive(): bool
+    {
+        return $this->isActive;
+    }
+
+    public function setIsActive(bool $isActive): static
+    {
+        $this->isActive = $isActive;
 
         return $this;
     }

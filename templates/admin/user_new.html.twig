@@ -1,0 +1,50 @@
+{% extends 'admin/admin_base.html.twig' %}
+
+{% block title %}Create New User - Admin Panel{% endblock %}
+
+{% block body %}
+<div class="admin-card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:30px;">
+        <h2 style="margin:0;font-size:1.5rem;font-weight:700;">Create New User</h2>
+        <a href="{{ path('app_admin_users') }}" class="btn-admin btn-admin-outline" style="font-size:0.85rem;">
+            <i class="fas fa-arrow-left me-1"></i> Back to Users
+        </a>
+    </div>
+
+    <form method="post" style="max-width: 600px;">
+        <div style="margin-bottom:20px;">
+            <label style="display:block;margin-bottom:8px;font-size:0.85rem;color:var(--admin-text-muted);">Full Name</label>
+            <input type="text" name="fullName" required style="width:100%;background:var(--admin-bg);border:1px solid var(--admin-border);border-radius:8px;padding:12px;color:var(--admin-text);outline:none;">
+        </div>
+
+        <div style="margin-bottom:20px;">
+            <label style="display:block;margin-bottom:8px;font-size:0.85rem;color:var(--admin-text-muted);">Email Address</label>
+            <input type="email" name="email" required style="width:100%;background:var(--admin-bg);border:1px solid var(--admin-border);border-radius:8px;padding:12px;color:var(--admin-text);outline:none;">
+        </div>
+
+        <div style="margin-bottom:20px;">
+            <label style="display:block;margin-bottom:8px;font-size:0.85rem;color:var(--admin-text-muted);">Phone Number</label>
+            <input type="text" name="mobile" required style="width:100%;background:var(--admin-bg);border:1px solid var(--admin-border);border-radius:8px;padding:12px;color:var(--admin-text);outline:none;">
+        </div>
+
+        <div style="margin-bottom:20px;">
+            <label style="display:block;margin-bottom:8px;font-size:0.85rem;color:var(--admin-text-muted);">Role</label>
+            <select name="role" required style="width:100%;background:var(--admin-bg);border:1px solid var(--admin-border);border-radius:8px;padding:12px;color:var(--admin-text);outline:none;">
+                <option value="ROLE_USER">Customer</option>
+                <option value="ROLE_PROVIDER">Service Provider</option>
+                <option value="ROLE_ADMIN">Administrator</option>
+            </select>
+        </div>
+
+        <div style="margin-bottom:30px;">
+            <label style="display:block;margin-bottom:8px;font-size:0.85rem;color:var(--admin-text-muted);">Temporary Password</label>
+            <input type="password" name="password" required style="width:100%;background:var(--admin-bg);border:1px solid var(--admin-border);border-radius:8px;padding:12px;color:var(--admin-text);outline:none;">
+            <small style="color:var(--admin-text-muted);font-size:0.75rem;">User can change this after first login.</small>
+        </div>
+
+        <button type="submit" class="btn-admin btn-admin-red" style="width:100%;padding:14px;font-weight:600;">
+            Create Account <i class="fas fa-user-plus ms-1"></i>
+        </button>
+    </form>
+</div>
+{% endblock %}

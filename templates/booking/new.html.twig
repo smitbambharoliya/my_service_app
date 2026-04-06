@@ -1,0 +1,168 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Book {{ service.title }}{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-7">
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+                <div class="card-header p-4" style="background:linear-gradient(135deg,#1e40af,#2563eb,#3b82f6);">
+                    <h2 class="mb-1 fw-bold text-white"><i class="fas fa-calendar-check me-2"></i>Book a Service</h2>
+                    <p class="mb-0 text-white opacity-75">Complete the form below to confirm your booking</p>
+                </div>
+                <div class="card-body p-4 p-md-5">
+
+                    {# Service Summary Card #}
+                    <div class="rounded-4 mb-4 p-3" style="background:#f8fafc;border:1px solid #e2e8f0;">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="text-muted small text-uppercase fw-semibold" style="letter-spacing:1px;font-size:0.7rem;">{{ service.category }}</div>
+                                <h5 class="fw-bold mb-0 mt-1" style="color:#0f172a;">{{ service.title }}</h5>
+                                {% if service.isPremium %}
+                                    <span class="badge bg-warning text-dark mt-1"><i class="fas fa-star me-1"></i>Premium</span>
+                                {% endif %}
+                            </div>
+                            <div class="text-end">
+                                <div class="fw-bold" style="font-size:1.4rem;color:#16a34a;">₹{{ service.price }}</div>
+                                <div class="text-muted small">Base Price</div>
+                            </div>
+                        </div>
+                        <p class="text-muted small mt-2 mb-0" style="border-top:1px solid #e2e8f0;padding-top:10px;">{{ service.description|slice(0, 130) }}...</p>
+                    </div>
+
+                    {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+
+                        {# Booking Mode Selection #}
+                        <div class="mb-4">
+                            <label class="form-label fw-bold mb-2" style="color:#0f172a;">
+                                <i class="fas fa-tag me-1" style="color:#2563eb;"></i> Booking Mode
+                            </label>
+                            <div class="row g-3">
+                                <div class="col-6">
+                                    <label class="booking-mode-card w-100" for="{{ form.bookingType.children['0'].vars.id ?? 'booking_bookingType_0' }}" style="cursor:pointer;">
+                                        <div class="mode-card p-3 rounded-3 text-center border-2" style="border:2px solid #e2e8f0;transition:all 0.2s;background:#fff;">
+                                            <i class="fas fa-laptop fa-2x mb-2" style="color:#2563eb;"></i>
+                                            <div class="fw-bold" style="color:#0f172a;font-size:0.9rem;">Book Online</div>
+                                            <div class="text-muted" style="font-size:0.75rem;">Remote service, confirmed instantly</div>
+                                        </div>
+                                    </label>
+                                </div>
+                                <div class="col-6">
+                                    <label class="booking-mode-card w-100" for="{{ form.bookingType.children['1'].vars.id ?? 'booking_bookingType_1' }}" style="cursor:pointer;">
+                                        <div class="mode-card p-3 rounded-3 text-center border-2" style="border:2px solid #e2e8f0;transition:all 0.2s;background:#fff;">
+                                            <i class="fas fa-home fa-2x mb-2" style="color:#7c3aed;"></i>
+                                            <div class="fw-bold" style="color:#0f172a;font-size:0.9rem;">Visit (In-Person)</div>
+                                            <div class="text-muted" style="font-size:0.75rem;">Provider visits your location</div>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+
+                            {# Hidden actual radio buttons #}
+                            <div class="d-none">
+                                {{ form_widget(form.bookingType) }}
+                            </div>
+
+                            {# Visit info banner #}
+                            <div id="visit-info" class="mt-2 rounded-3 p-2" style="background:#f5f3ff;border:1px solid #ddd6fe;display:none;">
+                                <div class="d-flex align-items-start gap-2">
+                                    <i class="fas fa-info-circle mt-1" style="color:#7c3aed;flex-shrink:0;"></i>
+                                    <span style="font-size:0.8rem;color:#5b21b6;">The provider will visit your location and send you an estimated cost. You can accept or reject it from your dashboard.</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {# Date & Time #}
+                        <div class="mb-4">
+                            <label class="form-label fw-bold" style="color:#0f172a;">
+                                <i class="fas fa-calendar-alt me-1" style="color:#2563eb;"></i> Preferred Date & Time
+                            </label>
+                            {{ form_widget(form.bookingDate, {'attr': {'class': 'form-control rounded-3', 'style': 'background:#f8fafc;border:1px solid #e2e8f0;'}}) }}
+                            <div class="text-danger small mt-1">{{ form_errors(form.bookingDate) }}</div>
+                        </div>
+
+                        {# Notes #}
+                        <div class="mb-4">
+                            <label class="form-label fw-bold" style="color:#0f172a;">
+                                <i class="fas fa-sticky-note me-1" style="color:#2563eb;"></i> Additional Notes
+                            </label>
+                            {{ form_widget(form.notes, {'attr': {'class': 'form-control rounded-3', 'style': 'background:#f8fafc;border:1px solid #e2e8f0;', 'placeholder': 'Your address, special requirements...'}}) }}
+                            <div class="text-danger small mt-1">{{ form_errors(form.notes) }}</div>
+                        </div>
+
+                        <div class="d-grid gap-2 mt-4">
+                            <button type="submit" class="btn btn-lg rounded-3 fw-bold shadow-sm text-white" style="background:linear-gradient(135deg,#1e40af,#2563eb);border:none;padding:14px;">
+                                <i class="fas fa-check-circle me-2"></i>Confirm Booking
+                            </button>
+                            <a href="{{ path('app_service_list') }}" class="btn btn-outline-secondary rounded-3">
+                                <i class="fas fa-arrow-left me-1"></i>Back to Services
+                            </a>
+                        </div>
+
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+body { background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); min-height: 100vh; }
+
+.mode-card:hover {
+    border-color: #2563eb !important;
+    box-shadow: 0 4px 12px rgba(37,99,235,0.15);
+    transform: translateY(-2px);
+}
+.mode-card.selected-online {
+    border-color: #2563eb !important;
+    background: #eff6ff !important;
+    box-shadow: 0 4px 14px rgba(37,99,235,0.2);
+}
+.mode-card.selected-visit {
+    border-color: #7c3aed !important;
+    background: #f5f3ff !important;
+    box-shadow: 0 4px 14px rgba(124,58,237,0.2);
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const radios = document.querySelectorAll('input[name$="[bookingType]"]');
+    const cards = document.querySelectorAll('.booking-mode-card .mode-card');
+    const visitInfo = document.getElementById('visit-info');
+
+    function updateSelection() {
+        radios.forEach((radio, i) => {
+            cards[i].classList.remove('selected-online', 'selected-visit');
+            if (radio.checked) {
+                if (radio.value === 'online') {
+                    cards[i].classList.add('selected-online');
+                    visitInfo.style.display = 'none';
+                } else {
+                    cards[i].classList.add('selected-visit');
+                    visitInfo.style.display = 'block';
+                }
+            }
+        });
+    }
+
+    // Make clicking the visual cards also toggle the radio
+    cards.forEach((card, i) => {
+        card.addEventListener('click', function () {
+            radios[i].checked = true;
+            updateSelection();
+        });
+    });
+
+    radios.forEach(radio => radio.addEventListener('change', updateSelection));
+
+    // Set default selection
+    if (radios.length > 0) {
+        radios[0].checked = true;
+        updateSelection();
+    }
+});
+</script>
+{% endblock %}

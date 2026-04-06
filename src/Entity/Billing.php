@@ -29,6 +29,21 @@ class Billing
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $category = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $serviceName = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $description = null;
+
+    #[ORM\Column(type: Types::JSON, nullable: true)]
+    private ?array $items = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $stripeSessionId = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -90,6 +105,66 @@ class Billing
     public function setCreatedAt(\DateTimeImmutable $createdAt): static
     {
         $this->createdAt = $createdAt;
+
+        return $this;
+    }
+
+    public function getCategory(): ?string
+    {
+        return $this->category;
+    }
+
+    public function setCategory(?string $category): static
+    {
+        $this->category = $category;
+
+        return $this;
+    }
+
+    public function getServiceName(): ?string
+    {
+        return $this->serviceName;
+    }
+
+    public function setServiceName(?string $serviceName): static
+    {
+        $this->serviceName = $serviceName;
+
+        return $this;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(?string $description): static
+    {
+        $this->description = $description;
+
+        return $this;
+    }
+
+    public function getItems(): ?array
+    {
+        return $this->items;
+    }
+
+    public function setItems(?array $items): static
+    {
+        $this->items = $items;
+
+        return $this;
+    }
+
+    public function getStripeSessionId(): ?string
+    {
+        return $this->stripeSessionId;
+    }
+
+    public function setStripeSessionId(?string $stripeSessionId): static
+    {
+        $this->stripeSessionId = $stripeSessionId;
 
         return $this;
     }

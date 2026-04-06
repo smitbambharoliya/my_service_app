@@ -1,0 +1,229 @@
+{% extends 'dashboard_base.html.twig' %}
+
+{% block page_title %}Homepage Manager (CMS){% endblock %}
+
+{% block stylesheets %}
+<style>
+/* Aurora Internal Dashboard Styles for CMS */
+.cms-grid {
+    display: grid;
+    grid-template-columns: 1fr 350px;
+    gap: 32px;
+}
+@media (max-width: 1200px) {
+    .cms-grid { grid-template-columns: 1fr; }
+}
+
+.cms-section {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-light);
+    border-radius: var(--r-lg);
+    padding: 24px;
+    margin-bottom: 24px;
+}
+.cms-section-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 20px; border-bottom: 1px solid var(--border-light);
+    padding-bottom: 16px;
+}
+.cms-section-title {
+    font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 1.2rem;
+    color: var(--text-primary); text-transform: uppercase; letter-spacing: 0.05em;
+    display: flex; align-items: center; gap: 8px;
+}
+.cms-section-title i { color: var(--aurora-cyan); }
+
+/* Draggable Items Preview */
+.f-item {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border-hover);
+    border-radius: var(--r-md);
+    padding: 16px; margin-bottom: 12px;
+    display: flex; align-items: center; justify-content: space-between;
+    transition: all var(--dur-base);
+}
+.f-item:hover { background: rgba(255,255,255,0.06); border-color: var(--aurora-cyan); }
+.f-item.inactive { opacity: 0.5; border-color: rgba(255,0,0,0.3); }
+
+/* Search Sidebar */
+.search-sidebar {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-light);
+    border-radius: var(--r-lg);
+    padding: 24px;
+    position: sticky; top: 100px;
+}
+#searchResults { max-height: 400px; overflow-y: auto; margin-top: 16px; gap: 8px; display: flex; flex-direction: column; }
+.search-result-card {
+    background: var(--bg-tertiary); border: 1px solid var(--border-hover);
+    padding: 12px; border-radius: var(--r-sm); cursor: pointer;
+    transition: all 0.2s;
+}
+.search-result-card:hover { border-color: var(--aurora-purple); background: rgba(139, 92, 246, 0.1); }
+.search-result-card.selected { border-color: var(--aurora-pink); background: rgba(236, 72, 153, 0.1); }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="cms-grid fade-up">
+    
+    {# ── LEFT: CURRENT HOMEPAGE LAYOUT ── #}
+    <div class="cms-layout-builder">
+        
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="heading-section m-0" style="font-size:1.5rem;">Live Layout</h2>
+            <a href="{{ path('app_home') }}" target="_blank" class="btn-ghost" style="padding:8px 16px;font-size:0.8rem;"><i class="fas fa-external-link-alt me-2"></i> Preview</a>
+        </div>
+
+        {# Group features by section via logic #}
+        {% set sections = ['hero', 'trending', 'premium', 'seasonal'] %}
+        {% set icons = {'hero':'fa-star', 'trending':'fa-fire', 'premium':'fa-crown', 'seasonal':'fa-snowflake'} %}
+
+        {% for sec in sections %}
+            <div class="cms-section">
+                <div class="cms-section-header">
+                    <div class="cms-section-title"><i class="fas {{ icons[sec] }}"></i> {{ sec|upper }} SECTION</div>
+                    <span class="badge-aurora">{{ features|filter(f => f.section == sec)|length }} Services</span>
+                </div>
+                
+                <div class="f-list">
+                    {% for f in features|filter(f => f.section == sec) %}
+                        <div class="f-item {{ not f.isActive ? 'inactive' : '' }}">
+                            <div class="d-flex align-items-center gap-3">
+                                <span class="text-muted"><i class="fas fa-grip-vertical"></i></span>
+                                <div style="width:40px;height:40px;border-radius:8px;background:var(--border-light);display:flex;align-items:center;justify-content:center;color:var(--text-muted);"><i class="fas fa-image"></i></div>
+                                <div>
+                                    <h4 class="m-0 fs-6 text-white">{{ f.service.title }}</h4>
+                                    <div class="text-muted" style="font-size:0.75rem;">{{ f.service.provider.email }} • ₹{{ f.service.price }}</div>
+                                </div>
+                            </div>
+                            
+                            <div class="d-flex align-items-center gap-2">
+                                {% if f.startDate %}
+                                    <div class="badge-cyan" style="font-size:0.65rem;"><i class="fas fa-clock"></i> Scheduled</div>
+                                {% endif %}
+                                
+                                <form action="{{ path('app_admin_featured_services_toggle', {'id': f.id}) }}" method="post" class="m-0">
+                                    <button type="submit" class="btn btn-sm btn-{{ f.isActive ? 'success' : 'secondary' }}" title="{{ f.isActive ? 'Deactivate' : 'Activate' }}">
+                                        <i class="fas fa-power-off"></i>
+                                    </button>
+                                </form>
+                                <form action="{{ path('app_admin_featured_services_delete', {'id': f.id}) }}" method="post" class="m-0" onsubmit="return confirm('Remove this service from homepage?');">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ f.id) }}">
+                                    <button type="submit" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
+                                </form>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4 text-muted" style="border:1px dashed var(--border-hover);border-radius:var(--r-md);">
+                            <i class="fas fa-plus-circle mb-2 fs-4 opacity-50"></i><br>
+                            No services featured in {{ sec }} section
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endfor %}
+
+    </div>
+
+    {# ── RIGHT: ADD NEW FEATURED SERVICE ── #}
+    <div class="search-sidebar">
+        <h3 class="font-montserrat text-white fs-5 mb-3 text-uppercase"><i class="fas fa-search text-aurora-pink me-2"></i> Add to Homepage</h3>
+        
+        <input type="text" id="searchInput" class="form-control border-3 mb-3" placeholder="Search service name...">
+        <div id="searchResults" class="mb-4"></div>
+
+        <form action="{{ path('app_admin_featured_services_add') }}" method="post" id="addFeatureForm">
+            <input type="hidden" name="service_id" id="selectedServiceId" required>
+            
+            <div class="mb-3">
+                <label class="form-label">Target Section</label>
+                <select name="section" class="form-select border-2">
+                    <option value="hero">Hero Banner (Top)</option>
+                    <option value="trending" selected>Trending Now Grid</option>
+                    <option value="premium">Premium Picks Row</option>
+                    <option value="seasonal">Seasonal Offers</option>
+                </select>
+            </div>
+            
+            <div class="mb-3">
+                <label class="form-label">Display Order (1 = First)</label>
+                <input type="number" name="display_order" class="form-control border-2" value="1" min="1" max="10">
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label text-aurora-cyan"><i class="fas fa-calendar-alt me-1"></i> Quick Schedule (Optional)</label>
+                <div class="row g-2">
+                    <div class="col-6"><input type="date" name="start_date" class="form-control border-2" placeholder="Start"></div>
+                    <div class="col-6"><input type="date" name="end_date" class="form-control border-2" placeholder="End"></div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-primary-brand w-100" id="submitBtn" disabled>
+                <i class="fas fa-th-umbtack me-2"></i> Add to Homepage
+            </button>
+        </form>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const searchInput = document.getElementById('searchInput');
+    const resultsContainer = document.getElementById('searchResults');
+    const addForm = document.getElementById('addFeatureForm');
+    const selectedInput = document.getElementById('selectedServiceId');
+    const submitBtn = document.getElementById('submitBtn');
+
+    let debounceTimer;
+
+    searchInput.addEventListener('input', (e) => {
+        clearTimeout(debounceTimer);
+        const q = e.target.value.trim();
+        
+        if (q.length < 2) {
+            resultsContainer.innerHTML = '<div class="text-muted p-2" style="font-size:0.8rem;">Type at least 2 characters...</div>';
+            return;
+        }
+
+        resultsContainer.innerHTML = '<div class="text-aurora-cyan p-2"><i class="fas fa-circle-notch fa-spin me-2"></i> Searching...</div>';
+
+        debounceTimer = setTimeout(() => {
+            fetch(`{{ path('api_admin_search_services') }}?q=${encodeURIComponent(q)}`)
+                .then(res => res.json())
+                .then(data => {
+                    resultsContainer.innerHTML = '';
+                    if (data.length === 0) {
+                        resultsContainer.innerHTML = '<div class="text-danger p-2" style="font-size:0.85rem;"><i class="fas fa-times me-1"></i> No matching services found.</div>';
+                        return;
+                    }
+
+                    data.forEach(service => {
+                        const div = document.createElement('div');
+                        div.className = 'search-result-card';
+                        div.innerHTML = `
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <div class="fw-bold text-white mb-1" style="font-size:0.9rem;">${service.title}</div>
+                                    <div class="text-muted" style="font-size:0.75rem;">${service.category}</div>
+                                </div>
+                                <div class="badge-aurora" style="font-size:0.6rem;">₹${service.price}</div>
+                            </div>
+                        `;
+                        div.addEventListener('click', () => {
+                            // Deselect others
+                            document.querySelectorAll('.search-result-card').forEach(el => el.classList.remove('selected'));
+                            div.classList.add('selected');
+                            selectedInput.value = service.id;
+                            submitBtn.disabled = false;
+                        });
+                        resultsContainer.appendChild(div);
+                    });
+                });
+        }, 500);
+    });
+});
+</script>
+{% endblock %}

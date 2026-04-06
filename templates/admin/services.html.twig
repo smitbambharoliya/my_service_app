@@ -1,0 +1,88 @@
+{% extends 'admin/admin_base.html.twig' %}
+
+{% block title %}Manage Services - Admin{% endblock %}
+{% block page_title %}Manage Services{% endblock %}
+{% block breadcrumb %}<li class="breadcrumb-item active">Services</li>{% endblock %}
+
+{% block body %}
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+        <h4 style="color:var(--admin-text);font-weight:700;margin:0;">All Platform Services</h4>
+        <p style="color:var(--admin-text-muted);font-size:0.85rem;margin:4px 0 0;">Total: <strong style="color:var(--admin-text);">{{ services|length }}</strong> services listed</p>
+    </div>
+</div>
+
+<div class="admin-card">
+    <div class="table-responsive">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Service</th>
+                    <th>Provider</th>
+                    <th>Category</th>
+                    <th>Price</th>
+                    <th>Status</th>
+                    <th style="text-align:right;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for service in services %}
+                <tr>
+                    <td style="color:var(--admin-text-muted);font-size:0.8rem;">{{ service.id }}</td>
+                    <td>
+                        <div style="font-weight:600;color:var(--admin-text);font-size:0.875rem;">{{ service.title }}</div>
+                        {% if service.isPremium %}<span class="badge-admin badge-admin-yellow" style="font-size:0.6rem;padding:1px 6px;">PREMIUM</span>{% endif %}
+                    </td>
+                    <td>
+                        <div style="font-size:0.8rem;color:var(--admin-text);">{{ service.provider.fullName|default('N/A') }}</div>
+                        <div style="font-size:0.7rem;color:var(--admin-text-muted);">{{ service.provider.email }}</div>
+                    </td>
+                    <td>
+                        <span class="badge-admin badge-admin-blue" style="font-size:0.7rem;">{{ service.category }}</span>
+                    </td>
+                    <td style="font-weight:700;color:var(--admin-accent);">₹{{ service.price }}</td>
+                    <td>
+                        {% if service.isActive %}
+                            <span class="badge-admin badge-admin-green" style="font-size:0.7rem;"><i class="fas fa-eye me-1"></i>Visible</span>
+                        {% else %}
+                            <span class="badge-admin badge-admin-red" style="font-size:0.7rem;background:rgba(239,68,68,0.1) !important;"><i class="fas fa-eye-slash me-1"></i>Hidden</span>
+                        {% endif %}
+                    </td>
+                    <td style="text-align:right;">
+                        <div style="display:flex;justify-content:flex-end;gap:8px;">
+                            <form action="{{ path('app_admin_service_toggle_status', {id: service.id}) }}" method="POST" style="display:inline;">
+                                <button type="submit" class="btn-admin {{ service.isActive ? 'btn-admin-outline' : 'btn-admin-green' }}" title="{{ service.isActive ? 'Hide Service' : 'Show Service' }}" style="padding:6px 10px;font-size:0.75rem;">
+                                    <i class="fas {{ service.isActive ? 'fa-eye-slash text-danger' : 'fa-eye' }}"></i>
+                                </button>
+                            </form>
+
+                            <form action="{{ path('app_admin_service_toggle_premium', {id: service.id}) }}" method="POST" style="display:inline;">
+                                <button type="submit" class="btn-admin {{ service.isPremium ? 'btn-admin-outline' : 'btn-admin-yellow' }}" title="Toggle Premium" style="padding:6px 10px;font-size:0.75rem;">
+                                    <i class="fas fa-star {{ service.isPremium ? 'text-warning' : '' }}"></i>
+                                </button>
+                            </form>
+                            
+                            <form action="{{ path('app_admin_service_delete', {id: service.id}) }}" method="POST" style="display:inline;" onsubmit="return confirm('Delete this service permanently?');">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ service.id) }}">
+                                <button type="submit" class="btn-admin btn-admin-outline" title="Delete" style="padding:6px 10px;font-size:0.75rem;">
+                                    <i class="fas fa-trash-alt text-danger"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="7">
+                        <div class="empty-state">
+                            <i class="fas fa-cogs"></i>
+                            <p>No services have been created yet.</p>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

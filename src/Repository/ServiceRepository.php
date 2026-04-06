@@ -16,28 +16,33 @@ class ServiceRepository extends ServiceEntityRepository
         parent::__construct($registry, Service::class);
     }
 
-//    /**
-//     * @return Service[] Returns an array of Service objects
-//     */
-//    public function findByExampleField($value): array
-//    {
-//        return $this->createQueryBuilder('s')
-//            ->andWhere('s.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->orderBy('s.id', 'ASC')
-//            ->setMaxResults(10)
-//            ->getQuery()
-//            ->getResult()
-//        ;
-//    }
+    public function smartMatchSearch(?string $query, ?string $category, ?string $priceRange): array
+    {
+        $qb = $this->createQueryBuilder('s')
+            ->where('s.isActive = true');
 
-//    public function findOneBySomeField($value): ?Service
-//    {
-//        return $this->createQueryBuilder('s')
-//            ->andWhere('s.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->getQuery()
-//            ->getOneOrNullResult()
-//        ;
-//    }
+        if ($query) {
+            $qb->andWhere('s.title LIKE :query OR s.description LIKE :query OR s.category LIKE :query')
+               ->setParameter('query', '%' . $query . '%');
+        }
+
+        if ($category && $category !== 'All Services') {
+            $qb->andWhere('s.category = :cat')
+               ->setParameter('cat', $category);
+        }
+
+        if ($priceRange) {
+            if ($priceRange === 'Under ₹1,000') {
+                $qb->andWhere('s.price < 1000');
+            } elseif ($priceRange === '₹1,000 - ₹5,000') {
+                $qb->andWhere('s.price >= 1000 AND s.price <= 5000');
+            } elseif ($priceRange === '₹5,000+') {
+                $qb->andWhere('s.price > 5000');
+            }
+        }
+
+        return $qb->orderBy('s.id', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
 }

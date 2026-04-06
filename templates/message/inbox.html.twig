@@ -1,0 +1,72 @@
+{% extends 'dashboard_base.html.twig' %}
+
+{% block page_title %}Inbox{% endblock %}
+
+{% block stylesheets %}
+<style>
+/* ── MIDNIGHT AURORA - INBOX ── */
+.inbox-wrapper { max-width: 900px; margin: 0 auto; padding: 24px 0; }
+.contact-list {
+    background: var(--bg-secondary); border: 1px solid var(--border-light);
+    border-radius: var(--r-lg); overflow: hidden;
+}
+.contact-item {
+    padding: 24px; border-bottom: 1px solid var(--border-light);
+    display: flex; align-items: center; gap: 20px; transition: all 0.2s;
+    text-decoration: none;
+}
+.contact-item:last-child { border: none; }
+.contact-item:hover { background: rgba(255,255,255,0.03); }
+
+.c-avatar {
+    width: 56px; height: 56px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--aurora-purple), var(--aurora-cyan));
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 1.2rem; font-weight: 800; font-family: 'Plus Jakarta Sans', sans-serif;
+}
+.c-info { flex: 1; min-width: 0; }
+.c-name { color: var(--text-primary); font-size: 1.1rem; font-weight: 700; margin-bottom: 4px; }
+.c-msg { color: var(--text-secondary); font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 90%; }
+.c-unread { color: var(--text-primary); font-weight: 600; }
+
+.c-meta { text-align: right; }
+.c-time { color: var(--text-muted); font-size: 0.75rem; margin-bottom: 8px; }
+.unread-badge {
+    background: var(--aurora-pink); color: #fff; border-radius: 99px;
+    padding: 4px 10px; font-size: 0.75rem; font-weight: 800;
+    box-shadow: 0 0 10px rgba(236, 72, 153, 0.5);
+}
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="inbox-wrapper fade-up">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="font-montserrat text-white m-0 fs-3">💬 Your Inbox</h2>
+    </div>
+
+    <div class="contact-list">
+        {% for contact in contacts %}
+            <a href="{{ path('app_message_chat', {'id': contact.contact_id}) }}" class="contact-item">
+                <div class="c-avatar">{{ contact.contact_email|slice(0,1)|upper }}</div>
+                <div class="c-info">
+                    <div class="c-name">{{ contact.contact_email|split('@')[0]|capitalize }}</div>
+                    <div class="c-msg {{ contact.unread_count > 0 ? 'c-unread' : '' }}">{{ contact.last_message }}</div>
+                </div>
+                <div class="c-meta">
+                    <div class="c-time">{{ contact.last_message_date|date('M d, H:i') }}</div>
+                    {% if contact.unread_count > 0 %}
+                        <div class="unread-badge">{{ contact.unread_count }} New</div>
+                    {% endif %}
+                </div>
+            </a>
+        {% else %}
+            <div class="p-5 text-center text-secondary">
+                <i class="fas fa-inbox fs-1 mb-3 opacity-50"></i>
+                <h5>No messages yet!</h5>
+                <p class="font-inter" style="font-size:0.85rem;">When customers or pros contact you, it'll show up here.</p>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

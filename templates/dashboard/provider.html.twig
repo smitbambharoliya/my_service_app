@@ -1,90 +1,197 @@
-{% extends 'provider_base.html.twig' %}
+{% extends 'dashboard_base.html.twig' %}
+{% import 'partials/_components.html.twig' as ui %}
 
-{% block title %}Provider Dashboard{% endblock %}
+{% block page_title %}Operational Intelligence / Provider{% endblock %}
 
 {% block body %}
-<div class="container py-5">
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="p-5 mb-4 bg-dark text-white rounded-4 shadow-lg position-relative overflow-hidden">
-                <div class="position-relative z-1">
-                    <h1 class="display-5 fw-bold">Hello, {{ app.user.email }}!</h1>
-                    <p class="col-md-8 fs-4 text-light-50">Manage your services, track bookings, and grow your business.</p>
-                    {% if is_granted('ROLE_PROVIDER') and not app.user.services|first.isPremium|default(false) %}
-                        <a href="{{ path('app_premium_upgrade') }}" class="btn btn-warning btn-lg px-4 rounded-pill fw-bold">
-                            <i class="fas fa-crown me-2"></i>Upgrade to Premium
-                        </a>
-                    {% endif %}
-                </div>
-                <div class="position-absolute end-0 top-0 bg-primary opacity-25 rounded-circle" style="width: 300px; height: 300px; transform: translate(30%, -30%);"></div>
+
+{# ── WELCOME & REPUTATION ── #}
+<div class="row g-4 mb-5 fade-up">
+    <div class="col-xl-8">
+        <div class="glass-card p-5 h-100 d-flex flex-column justify-content-center" style="background: linear-gradient(135deg, rgba(124, 58, 237, 0.1), transparent); border: 1px solid var(--brand-alpha);">
+            <div class="text-xs text-brand-1 fw-900 mb-2">OPERATIONAL STATUS: ACTIVE</div>
+            <h1 class="text-4xl text-white fw-900 mb-3">Welcome Back,<br>{{ app.user.fullName|default(app.user.email|split('@')[0]) }}</h1>
+            <p class="text-sm text-muted mb-4 pb-2" style="max-width:450px;">Your service node is currently synchronized with the ServiceHub network. Review your incoming protocols below.</p>
+            <div class="d-flex gap-3">
+                <a href="{{ path('app_service_new') }}" class="btn-violet px-4 py-3 text-xs"><i class="fas fa-plus-circle me-2"></i> Deploy New Service</a>
+                <a href="{{ path('app_provider_my_services') }}" class="btn-ghost border-subtle px-4 py-3 text-xs">Manage Catalog</a>
             </div>
         </div>
     </div>
-
-    <div class="row g-4 mb-5">
-        <div class="col-md-4">
-            <div class="card border-0 shadow-sm rounded-4 p-4 text-center">
-                <div class="h1 fw-bold text-primary mb-1">{{ bookings|length }}</div>
-                <div class="text-muted text-uppercase small fw-bold">Total Bookings</div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card border-0 shadow-sm rounded-4 p-4 text-center">
-                <div class="h1 fw-bold text-success mb-1">₹{{ bookings|length * 500 }}</div> {# Dummy Calculation #}
-                <div class="text-muted text-uppercase small fw-bold">Estimated Revenue</div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card border-0 shadow-sm rounded-4 p-4 text-center">
-                <div class="h1 fw-bold text-warning mb-1">
-                    <i class="fas fa-star"></i>
+    <div class="col-xl-4 text-center">
+        <div class="glass-card p-5 h-100 d-flex flex-column align-items-center justify-content-center border-subtle">
+            <div class="text-xs text-muted fw-900 mb-4 text-uppercase">Reputation Score</div>
+            <div class="position-relative mb-4">
+                <svg width="120" height="120" viewBox="0 0 120 120">
+                    <circle cx="60" cy="60" r="54" fill="none" stroke="rgba(124, 58, 237, 0.1)" stroke-width="8" />
+                    <circle cx="60" cy="60" r="54" fill="none" stroke="var(--brand-1)" stroke-width="8" stroke-dasharray="339.29" stroke-dashoffset="{{ 339.29 * (1 - (app.user.reputationPoints|default(0) / 1000)) }}" stroke-linecap="round" transform="rotate(-90 60 60)" />
+                </svg>
+                <div class="position-absolute top-50 start-50 translate-middle text-center">
+                    <div class="h2 text-white fw-900 mb-0">{{ app.user.reputationPoints|default(0) }}</div>
+                    <div class="text-xxs text-muted">PTS</div>
                 </div>
-                <div class="text-muted text-uppercase small fw-bold">Pro Status</div>
             </div>
+            <div class="badge-pill badge-confirmed px-4 py-2" style="font-size:0.65rem">AURORA ELITE</div>
         </div>
     </div>
+</div>
 
-    <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
-        <div class="card-header bg-white py-4 px-4 border-0 d-flex justify-content-between align-items-center">
-            <h4 class="mb-0 fw-bold"><i class="fas fa-list me-2"></i>Incoming Service Requests</h4>
-            <span class="badge bg-primary-soft text-primary rounded-pill px-3">Real-time Updates</span>
-        </div>
+{# ── KPI LAYER ── #}
+<div class="row g-4 mb-5 fade-up" style="transition-delay: 100ms;">
+    <div class="col-xl-4 col-md-6">
+        {{ ui.kpi_card('Active Protocols', bookings|filter(b => b.status in ['Pending', 'Confirmed'])|length, 'fa-network-wired', 'brand') }}
+    </div>
+    
+    {% set totalRev = 0 %}
+    {% for b in bookings|filter(b => b.status == 'Completed') %}
+        {% set priceToUse = b.type == 'visit' and b.estimation and b.estimation.status == 'accepted' ? b.estimation.amount : b.service.price %}
+        {% set totalRev = totalRev + priceToUse %}
+    {% endfor %}
+    <div class="col-xl-4 col-md-6">
+        {{ ui.kpi_card('Net Revenue', '₹' ~ totalRev|number_format(0), 'fa-coins', 'amber') }}
+    </div>
+    
+    <div class="col-xl-4 col-md-12">
+        {{ ui.kpi_card('Sent Estimates', bookings|filter(b => b.type == 'visit' and b.estimation)|length, 'fa-file-invoice', 'cyan') }}
+    </div>
+</div>
+
+<div class="row g-5 mb-5">
+    {# ── ANALYTICS: EARNINGS VELOCITY ── #}
+    <div class="col-xl-8 fade-up" style="transition-delay: 200ms;">
+        {% embed 'partials/_components.html.twig' with {'title': 'Earnings Velocity', 'subtitle': 'Capital generation over time (Last 6 Months)'} %}
+            {% block body %}
+                <div style="height: 350px;">
+                    <canvas id="earningsChart"></canvas>
+                </div>
+            {% endblock %}
+        {% endembed %}
+    </div>
+
+    {# ── SERVICE STATUS ── #}
+    <div class="col-xl-4 fade-up" style="transition-delay: 300ms;">
+        {% embed 'partials/_components.html.twig' with {'title': 'Quick Actions', 'subtitle': 'Node management tools'} %}
+            {% block body %}
+                <div class="d-grid gap-3">
+                    <div class="p-4 rounded-4 border-subtle bg-surface-2">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="text-xs text-muted fw-bold">NODE STATUS</span>
+                            <span class="text-xs text-green fw-bold d-flex align-items-center"><span class="pulsing-dot bg-green me-2"></span> DISCOVERABLE</span>
+                        </div>
+                        <div class="text-sm text-balance">Your services are visible to 1,240 potential nodes in this cluster.</div>
+                    </div>
+                    <a href="{{ path('app_billing_history') }}" class="glass-card p-3 d-flex align-items-center justify-content-between hover-glow border-subtle">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="p-2 rounded-3 bg-amber-alpha text-amber"><i class="fas fa-hand-holding-dollar"></i></div>
+                            <div>
+                                <div class="fw-800 text-sm">Finance Hub</div>
+                                <div class="text-xs text-muted">Withdraw earnings</div>
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-right text-muted opacity-50"></i>
+                    </a>
+                </div>
+            {% endblock %}
+        {% endembed %}
+    </div>
+</div>
+
+{# ── INCOMING REQUESTS ── #}
+<div class="fade-up" style="transition-delay: 400ms;">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <h2 class="text-2xl text-white">Incoming Protocols</h2>
+        <div class="badge-pill bg-surface-2 border-subtle px-4 py-2 text-xs text-muted fw-bold">AUTO-REFRESH: ON</div>
+    </div>
+
+    <div class="glass-card overflow-hidden border-subtle mb-5">
         <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead class="bg-light">
-                    <tr>
-                        <th class="ps-4">Service Name</th>
-                        <th>Customer</th>
-                        <th>Date</th>
-                        <th>Status</th>
-                        <th class="text-end pe-4">Action</th>
+            <table class="table table-dark table-hover mb-0 align-middle" style="--bs-table-bg:transparent; border-color: var(--border-subtle);">
+                <thead>
+                    <tr class="text-xs text-muted fw-900 border-subtle">
+                        <th class="ps-4 py-3">NODE / CUSTOMER</th>
+                        <th class="py-3">SERVICE PROTOCOL</th>
+                        <th class="py-3">DEVICES</th>
+                        <th class="py-3">STATUS</th>
+                        <th class="pe-4 py-3 text-end">ACTIONS</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody class="border-0">
                     {% for booking in bookings %}
-                    <tr>
-                        <td class="ps-4">
-                            <div class="fw-bold">{{ booking.service.title }}</div>
-                            <small class="text-muted">{{ booking.service.category }}</small>
-                        </td>
-                        <td>{{ booking.customer.email }}</td>
-                        <td>{{ booking.bookingDate|date('d M, Y') }}</td>
-                        <td>
-                            <span class="badge rounded-pill px-3 
-                                {{ booking.status == 'pending' ? 'bg-warning-soft text-warning' : 'bg-success-soft text-success' }}">
-                                {{ booking.status|upper }}
-                            </span>
-                        </td>
-                        <td class="text-end pe-4">
-                            <button class="btn btn-sm btn-outline-dark rounded-pill">View Details</button>
-                        </td>
-                    </tr>
+                        <tr class="border-subtle">
+                            <td class="ps-4 py-4">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="mini-avatar" style="width:40px;height:40px;background:var(--brand-1);color:#fff;font-weight:900;font-size:0.7rem;">{{ booking.user.email|slice(0,1)|upper }}</div>
+                                    <div>
+                                        <div class="text-sm fw-800 text-white">{{ booking.user.fullName|default(booking.user.email|split('@')[0]) }}</div>
+                                        <div class="text-xxs text-muted fw-bold">{{ booking.user.email }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="py-4">
+                                <div class="text-sm fw-800 text-white text-uppercase letter-spacing-1">{{ booking.service.title }}</div>
+                                <div class="text-xxs text-muted fw-bold"><i class="fas fa-tag me-1"></i> {{ booking.service.category }}</div>
+                            </td>
+                            <td class="py-4">
+                                {{ ui.pill_badge(booking.type|upper, 'confirmed') }}
+                            </td>
+                            <td class="py-4">
+                                {{ ui.pill_badge(booking.status|upper, booking.status|lower) }}
+                            </td>
+                            <td class="pe-4 py-4 text-end">
+                                <div class="d-flex align-items-center justify-content-end gap-2">
+                                    {% if booking.status == 'Confirmed' %}
+                                        <form action="{{ path('app_provider_dispatch_booking', {'id': booking.id}) }}" method="post">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('dispatch' ~ booking.id) }}">
+                                            <button type="submit" class="btn-violet text-xxs py-2 px-4 shadow-sm">DISPATCH NODE</button>
+                                        </form>
+                                    {% elseif booking.status == 'on-the-way' %}
+                                        <div class="d-flex align-items-center gap-2">
+                                            <span class="text-xs text-cyan fw-bold"><i class="fas fa-truck-fast me-1 pulsate"></i> IN TRANSIT</span>
+                                            <form action="{{ path('app_provider_complete_booking', {'id': booking.id}) }}" method="post">
+                                                <input type="hidden" name="_token" value="{{ csrf_token('complete' ~ booking.id) }}">
+                                                <button type="submit" class="btn-violet text-xxs py-2 px-3">FINISH</button>
+                                            </form>
+                                        </div>
+                                    {% elseif booking.status == 'Pending' %}
+                                        {# ... Existing Pending Logic ... #}
+                                        {% if booking.type == 'online' %}
+                                            <form action="{{ path('app_provider_complete_booking', {'id': booking.id}) }}" method="post">
+                                                <input type="hidden" name="_token" value="{{ csrf_token('complete' ~ booking.id) }}">
+                                                <button type="submit" class="btn-violet text-xxs py-2 px-4 shadow-sm">FINALIZE</button>
+                                            </form>
+                                        {% elseif booking.type == 'visit' %}
+                                            {% if not booking.estimatedCost %}
+                                                <form action="{{ path('app_provider_send_estimate', {'id': booking.id}) }}" method="post" class="d-flex gap-2">
+                                                    <input type="hidden" name="_token" value="{{ csrf_token('estimate' ~ booking.id) }}">
+                                                    <input type="number" name="estimatedCost" class="glass-input text-xxs py-2 px-3 border-subtle" placeholder="₹ Est." required style="width:100px;">
+                                                    <button type="submit" class="btn-violet text-xxs py-2 px-3"><i class="fas fa-paper-plane"></i></button>
+                                                </form>
+                                            {% else %}
+                                                {% if booking.estimationStatus == 'sent' %}
+                                                    <div class="text-xs text-amber fw-bold"><i class="fas fa-hourglass-half me-1"></i> ₹{{ booking.estimatedCost }} SENT</div>
+                                                {% elseif booking.estimationStatus == 'accepted' %}
+                                                    <div class="d-flex gap-2 align-items-center">
+                                                        <form action="{{ path('app_provider_dispatch_booking', {'id': booking.id}) }}" method="post">
+                                                            <input type="hidden" name="_token" value="{{ csrf_token('dispatch' ~ booking.id) }}">
+                                                            <button type="submit" class="btn-violet text-xxs py-2 px-4 shadow-sm">DISPATCH</button>
+                                                        </form>
+                                                    </div>
+                                                {% endif %}
+                                            {% endif %}
+                                        {% endif %}
+                                    {% else %}
+                                        <span class="text-xxs text-muted fw-bold"><i class="fas fa-check-double me-1 opacity-50"></i> ARCHIVED</span>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
                     {% else %}
-                    <tr>
-                        <td colspan="5" class="text-center py-5">
-                            <p class="text-muted mb-0">Haji koi bookings nathi malya. Potani service share karo!</p>
-                        </td>
-                    </tr>
+                        <tr>
+                            <td colspan="5" class="text-center py-5">
+                                <i class="fas fa-terminal h1 mb-4 opacity-10"></i>
+                                <h4 class="text-muted">No protocols detected in the current sector.</h4>
+                            </td>
+                        </tr>
                     {% endfor %}
                 </tbody>
             </table>
@@ -92,11 +199,74 @@
     </div>
 </div>
 
+{% endblock %}
+
+{% block javascripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const ctx = document.getElementById('earningsChart').getContext('2d');
+        
+        // Prepare data from Twig
+        {% set months = [] %}
+        {% set amounts = [] %}
+        {% for i in 5..0 %}
+            {% set targetDate = "now"|date_modify("-" ~ i ~ " months")|date("M") %}
+            {% set monthTotal = 0 %}
+            {% for b in bookings|filter(b => b.status == 'Completed' and b.scheduledTime|date("M") == targetDate) %}
+                {% set priceToUse = b.type == 'visit' and b.estimation and b.estimation.status == 'accepted' ? b.estimation.amount : b.service.price %}
+                {% set monthTotal = monthTotal + priceToUse %}
+            {% endfor %}
+            {% set months = months|merge([targetDate]) %}
+            {% set amounts = amounts|merge([monthTotal]) %}
+        {% endfor %}
+
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: {{ months|json_encode|raw }},
+                datasets: [{
+                    label: 'Yield (₹)',
+                    data: {{ amounts|json_encode|raw }},
+                    backgroundColor: 'rgba(124, 58, 237, 0.4)',
+                    borderColor: '#7C3AED',
+                    borderWidth: 2,
+                    borderRadius: 8,
+                    hoverBackgroundColor: '#7C3AED'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: 'rgba(255,255,255,0.05)' },
+                        ticks: { color: '#666', font: { size: 10 } }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: '#666', font: { size: 10 } }
+                    }
+                }
+            }
+        });
+    });
+</script>
 <style>
-    .bg-primary-soft { background-color: rgba(13, 110, 253, 0.1); }
-    .bg-warning-soft { background-color: rgba(255, 193, 7, 0.1); }
-    .bg-success-soft { background-color: rgba(25, 135, 84, 0.1); }
-    .card { transition: all 0.3s ease; }
-    .card:hover { transform: translateY(-5px); }
+    .pulsing-dot {
+        width: 8px; height: 8px; border-radius: 50%;
+        box-shadow: 0 0 10px var(--accent-green);
+        animation: pulse-green 2s infinite;
+    }
+    @keyframes pulse-green {
+        0% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.4; transform: scale(1.5); }
+        100% { opacity: 1; transform: scale(1); }
+    }
 </style>
+{% endblock %}
+
 {% endblock %}

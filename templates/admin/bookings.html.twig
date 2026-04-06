@@ -1,0 +1,96 @@
+{% extends 'admin/admin_base.html.twig' %}
+
+{% block title %}Manage Bookings - Admin{% endblock %}
+{% block page_title %}Manage Bookings{% endblock %}
+{% block breadcrumb %}<li class="breadcrumb-item active">Bookings</li>{% endblock %}
+
+{% block body %}
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+        <h4 style="color:var(--admin-text);font-weight:700;margin:0;">All Bookings</h4>
+        <p style="color:var(--admin-text-muted);font-size:0.85rem;margin:4px 0 0;">Total: <strong style="color:var(--admin-text);">{{ bookings|length }}</strong> bookings on platform</p>
+    </div>
+</div>
+
+<div class="admin-card">
+    <div class="table-responsive">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Booking ID</th>
+                    <th>Service</th>
+                    <th>Customer</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th style="text-align:right;padding-right:24px;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for booking in bookings %}
+                <tr>
+                    <td style="color:var(--admin-text-muted);font-size:0.8rem;">#{{ booking.id }}</td>
+                    <td>
+                        <div style="font-weight:600;color:var(--admin-text);font-size:0.875rem;">{{ booking.service.title }}</div>
+                        <div style="font-size:0.78rem;color:var(--admin-text-muted);">₹{{ booking.service.price }}</div>
+                    </td>
+                    <td>
+                        <div style="display:flex;align-items:center;gap:10px;">
+                            <div class="user-avatar" style="background:linear-gradient(135deg,#22c55e,#15803d);">{{ booking.customer.email|slice(0,1)|upper }}</div>
+                            <div style="font-size:0.82rem;color:var(--admin-text);">{{ booking.customer.email }}</div>
+                        </div>
+                    </td>
+                    <td style="color:var(--admin-text-muted);font-size:0.82rem;">{{ booking.bookingDate|date('d M, Y') }}</td>
+                    <td>
+                        {% if booking.status == 'pending' %}
+                            <span class="badge-admin badge-admin-yellow"><i class="fas fa-clock me-1"></i>Pending</span>
+                        {% elseif booking.status == 'confirmed' %}
+                            <span class="badge-admin badge-admin-blue"><i class="fas fa-check me-1"></i>Confirmed</span>
+                        {% else %}
+                            <span class="badge-admin badge-admin-green"><i class="fas fa-check-double me-1"></i>Completed</span>
+                        {% endif %}
+                    </td>
+                    <td style="text-align:right;padding-right:20px;">
+                        <div style="display:flex;align-items:center;justify-content:flex-end;gap:6px;flex-wrap:wrap;">
+                            {# Status Update #}
+                            {% if booking.status == 'pending' %}
+                                <form action="{{ path('app_admin_booking_status', {'id': booking.id}) }}" method="post">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('status' ~ booking.id) }}">
+                                    <input type="hidden" name="status" value="confirmed">
+                                    <button class="btn-admin btn-admin-blue" title="Confirm Booking">
+                                        <i class="fas fa-check"></i> Confirm
+                                    </button>
+                                </form>
+                            {% elseif booking.status == 'confirmed' %}
+                                <form action="{{ path('app_admin_booking_status', {'id': booking.id}) }}" method="post">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('status' ~ booking.id) }}">
+                                    <input type="hidden" name="status" value="completed">
+                                    <button class="btn-admin btn-admin-green" title="Mark as Completed">
+                                        <i class="fas fa-check-double"></i> Complete
+                                    </button>
+                                </form>
+                            {% endif %}
+                            {# Delete #}
+                            <form action="{{ path('app_admin_booking_delete', {'id': booking.id}) }}" method="post" onsubmit="return confirm('Remove this booking from the platform?');">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ booking.id) }}">
+                                <button class="btn-admin btn-admin-red" title="Delete">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6">
+                        <div class="empty-state">
+                            <i class="fas fa-calendar-alt"></i>
+                            <p>No bookings found on the platform yet.</p>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

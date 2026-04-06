@@ -1,0 +1,112 @@
+{% extends 'admin/admin_base.html.twig' %}
+
+{% block title %}Manage Users - Admin{% endblock %}
+{% block page_title %}Manage Users{% endblock %}
+{% block breadcrumb %}<li class="breadcrumb-item active">Users</li>{% endblock %}
+
+{% block body %}
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+        <h4 style="color:var(--admin-text);font-weight:700;margin:0;">All Registered Users</h4>
+        <p style="color:var(--admin-text-muted);font-size:0.85rem;margin:4px 0 0;">Total: <strong style="color:var(--admin-text);">{{ users|length }}</strong> accounts</p>
+    </div>
+</div>
+
+<div class="admin-card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+        <h2 style="margin:0;font-size:1.5rem;font-weight:700;">User Management</h2>
+        <a href="{{ path('app_admin_user_new') }}" class="btn-admin btn-admin-red" style="font-size:0.85rem;padding:8px 16px;">
+            <i class="fas fa-user-plus me-1"></i> Create New User
+        </a>
+    </div>
+
+    <div style="overflow-x:auto;">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th style="width:60px;">ID</th>
+                    <th>User</th>
+                    <th>Role</th>
+                    <th>Status</th>
+                    <th>Account</th>
+                    <th style="text-align:right;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td style="color:var(--admin-text-muted);font-size:0.8rem;">{{ user.id }}</td>
+                    <td>
+                        <div style="display:flex;align-items:center;gap:10px;">
+                            <div class="user-avatar" style="background:linear-gradient(135deg,#6366f1,#4f46e5);">{{ user.email|slice(0,1)|upper }}</div>
+                            <div>
+                                <div style="font-size:0.82rem;color:var(--admin-text);">{{ user.fullName|default('Unknown') }}</div>
+                                <div style="font-size:0.75rem;color:var(--admin-text-muted);">{{ user.email }}</div>
+                                {% if user.isVerified %}
+                                    <span class="badge-admin badge-admin-green" style="font-size:0.6rem;padding:1px 6px;margin-top:3px;"><i class="fas fa-check-circle me-1"></i>Verified</span>
+                                {% else %}
+                                    <span class="badge-admin badge-admin-gray" style="font-size:0.6rem;padding:1px 6px;margin-top:3px;"><i class="fas fa-times-circle me-1"></i>Unverified</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        {% if 'ROLE_ADMIN' in user.roles %}
+                            <span class="badge-admin badge-admin-red" style="font-size:0.7rem;"><i class="fas fa-crown me-1"></i>Admin</span>
+                        {% elseif 'ROLE_PROVIDER' in user.roles %}
+                            <span class="badge-admin badge-admin-blue" style="font-size:0.7rem;"><i class="fas fa-user-tie me-1"></i>Provider</span>
+                        {% else %}
+                            <span class="badge-admin badge-admin-gray" style="font-size:0.7rem;"><i class="fas fa-user me-1"></i>Customer</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if user.isActive %}
+                            <span class="badge-admin badge-admin-green" style="font-size:0.7rem;"><i class="fas fa-check me-1"></i>Active</span>
+                        {% else %}
+                            <span class="badge-admin badge-admin-red" style="font-size:0.7rem;background:rgba(239,68,68,0.1) !important;"><i class="fas fa-ban me-1"></i>Suspended</span>
+                        {% endif %}
+                    </td>
+                    <td style="color:var(--admin-text-muted);font-size:0.75rem;">
+                        <i class="fas fa-calendar-alt me-1"></i>{{ user.dot ? user.dot|date('M d, Y') : '—' }}
+                    </td>
+                    <td style="text-align:right;">
+                        <div style="display:flex;justify-content:flex-end;gap:8px;">
+                            <form action="{{ path('app_admin_user_toggle_status', {id: user.id}) }}" method="POST" style="display:inline;" onsubmit="return confirm('Change status for this user?');">
+                                <button type="submit" class="btn-admin {{ user.isActive ? 'btn-admin-outline' : 'btn-admin-green' }}" title="{{ user.isActive ? 'Suspend' : 'Activate' }}" style="padding:6px 10px;font-size:0.75rem;">
+                                    <i class="fas {{ user.isActive ? 'fa-user-slash text-danger' : 'fa-user-check' }}"></i>
+                                </button>
+                            </form>
+
+                            {% if 'ROLE_ADMIN' not in user.roles %}
+                                <form action="{{ path('app_admin_user_promote', {id: user.id}) }}" method="POST" style="display:inline;">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('promote' ~ user.id) }}">
+                                    <button type="submit" class="btn-admin btn-admin-blue" title="Promote to Admin" style="padding:6px 10px;font-size:0.75rem;">
+                                        <i class="fas fa-level-up-alt"></i>
+                                    </button>
+                                </form>
+                            {% endif %}
+                            
+                            <form action="{{ path('app_admin_user_delete', {id: user.id}) }}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure? This will remove all associated data.');">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ user.id) }}">
+                                <button type="submit" class="btn-admin btn-admin-outline" title="Delete User" style="padding:6px 10px;font-size:0.75rem;">
+                                    <i class="fas fa-trash-alt text-danger"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5">
+                        <div class="empty-state">
+                            <i class="fas fa-users"></i>
+                            <p>No users registered yet.</p>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

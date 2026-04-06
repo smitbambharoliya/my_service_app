@@ -1,0 +1,134 @@
+{% extends 'dashboard_base.html.twig' %}
+
+{% block title %}Create Custom Bill - ServiceHub{% endblock %}
+{% block page_title %}Create Custom Bill{% endblock %}
+
+{% block body %}
+<div class="container-fluid max-w-4xl">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="fw-bold text-dark mb-2">Create Custom Bill</h2>
+            <p class="text-muted">Generate a manual bill for any customer who has previously booked your services.</p>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+        <div class="card-body p-4 p-md-5">
+            <form action="{{ path('app_provider_billing_new') }}" method="post">
+                <input type="hidden" name="_token" value="{{ csrf_token('create_bill') }}">
+
+                <div class="mb-4">
+                    <label for="customer" class="form-label fw-bold text-dark">Select Customer *</label>
+                    <select name="customer_id" id="customer" class="form-select form-select-lg bg-light border-0 px-4 rounded-3" required>
+                        <option value="">-- Choose a customer --</option>
+                        {% for customer in customers %}
+                            <option value="{{ customer.id }}">{{ customer.fullName|default(customer.email) }} ({{ customer.email }})</option>
+                        {% else %}
+                            <option value="" disabled>No customers have booked your services yet.</option>
+                        {% endfor %}
+                    </select>
+                    <div class="form-text mt-2"><i class="fas fa-info-circle me-1"></i>Only customers who have booked at least one of your services are listed here.</div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label fw-bold text-dark">Category *</label>
+                    <input type="text" name="category" class="form-control form-control-lg bg-light border-0 rounded-3" placeholder="e.g. Plumbing or Electrical" required>
+                </div>
+
+                <div class="mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <label class="form-label fw-bold text-dark mb-0">Service Line Items *</label>
+                        <button type="button" class="btn btn-sm btn-outline-primary fw-bold rounded-pill px-3" onclick="addLineItem()">
+                            <i class="fas fa-plus me-1"></i> Add Another Item
+                        </button>
+                    </div>
+                    
+                    <div id="line-items-container">
+                        <div class="row g-2 mb-3 line-item">
+                            <div class="col-md-8">
+                                <input type="text" name="item_name[]" class="form-control form-control-lg bg-light border-0 rounded-3 item-name" placeholder="Service Details (e.g. Fixed Pipe)" required>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="input-group input-group-lg">
+                                    <span class="input-group-text bg-light border-0 text-muted"><i class="fas fa-rupee-sign"></i></span>
+                                    <input type="number" name="item_amount[]" class="form-control bg-light border-0 item-amount" placeholder="Amount" min="1" step="0.01" required oninput="updateTotal()">
+                                </div>
+                            </div>
+                            <div class="col-md-1 d-flex">
+                                <button type="button" class="btn btn-light text-danger border-0 w-100 rounded-3 delete-btn" onclick="removeLineItem(this)" disabled>
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-end align-items-center mt-3 pt-3 border-top">
+                        <span class="text-muted fw-bold me-3">Total Amount:</span>
+                        <h3 class="mb-0 fw-bold text-primary">₹<span id="total-amount-display">0.00</span></h3>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label for="description" class="form-label fw-bold text-dark">Additional Details / Notes (Optional)</label>
+                    <textarea name="description" id="description" class="form-control form-control-lg bg-light border-0 rounded-3" rows="3" placeholder="Explain what this bill covers..."></textarea>
+                </div>
+
+                <div class="d-flex justify-content-end gap-3 mt-4 pt-4 border-top">
+                    <a href="{{ path('app_provider_dashboard') }}" class="btn btn-light px-4 py-2 fw-bold text-muted rounded-pill">Cancel</a>
+                    <button type="submit" class="btn btn-primary px-5 py-2 fw-bold rounded-pill text-white shadow-sm" {% if customers is empty %}disabled{% endif %}>
+                        <i class="fas fa-file-invoice-dollar me-2"></i> Generate Bill
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .form-control:focus, .form-select:focus {
+        box-shadow: 0 0 0 0.25rem rgba(37, 99, 235, 0.1);
+        border-color: #2563eb;
+        background-color: #fff !important;
+    }
+</style>
+
+<script>
+    function addLineItem() {
+        const container = document.getElementById('line-items-container');
+        const firstItem = container.querySelector('.line-item');
+        const newItem = firstItem.cloneNode(true);
+        
+        newItem.querySelector('.item-name').value = '';
+        newItem.querySelector('.item-amount').value = '';
+        
+        container.appendChild(newItem);
+        updateItemButtons();
+    }
+    
+    function removeLineItem(btn) {
+        const container = document.getElementById('line-items-container');
+        if (container.querySelectorAll('.line-item').length > 1) {
+            btn.closest('.line-item').remove();
+            updateTotal();
+            updateItemButtons();
+        }
+    }
+    
+    function updateItemButtons() {
+        const items = document.querySelectorAll('.line-item');
+        items.forEach((item, index) => {
+            const btn = item.querySelector('.delete-btn');
+            btn.disabled = items.length === 1;
+        });
+    }
+    
+    function updateTotal() {
+        let total = 0;
+        document.querySelectorAll('.item-amount').forEach(input => {
+            const val = parseFloat(input.value);
+            if (!isNaN(val)) total += val;
+        });
+        document.getElementById('total-amount-display').textContent = total.toFixed(2);
+    }
+</script>
+{% endblock %}

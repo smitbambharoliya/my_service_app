@@ -1,20 +1,262 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello ServiceController!{% endblock %}
+{% block title %}Service Explorer - ServiceHub{% endblock %}
+
+{% block stylesheets %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<style>
+/* ── MIDNIGHT AURORA - EXPLORER LAYOUT ── */
+body { background: var(--bg-primary); }
+
+.explorer-header {
+    background: var(--bg-secondary); border-bottom: 1px solid var(--border-light);
+    padding: 32px 0; position: sticky; top: 0px; z-index: 100;
+}
+
+.explorer-layout { display: flex; align-items: flex-start; gap: 32px; padding: 40px 0; }
+
+/* ── SIDEBAR FILTERS ── */
+.sidebar-filters {
+    width: 280px; flex-shrink: 0;
+    position: sticky; top: 180px;
+    background: rgba(255,255,255,0.02); border: 1px solid var(--border-light);
+    border-radius: var(--r-md); padding: 24px;
+    height: calc(100vh - 200px); overflow-y: auto;
+}
+.filter-group { border-bottom: 1px dashed var(--border-light); padding-bottom: 20px; margin-bottom: 20px; }
+.filter-group:last-child { border: none; padding: 0; margin: 0; }
+.filter-title { font-family: 'Montserrat', sans-serif; font-size: 0.9rem; text-transform: uppercase; color: var(--text-primary); margin-bottom: 16px; font-weight: 800; }
+
+.custom-cb { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; cursor: pointer; color: var(--text-secondary); font-size: 0.9rem; transition: color 0.2s; }
+.custom-cb:hover { color: #fff; }
+.custom-cb input { appearance: none; width: 18px; height: 18px; border: 2px solid var(--border-hover); border-radius: 4px; background: transparent; cursor: pointer; transition: all 0.2s; position: relative; }
+.custom-cb input:checked { background: var(--aurora-cyan); border-color: var(--aurora-cyan); }
+.custom-cb input:checked::after {
+    content: '\f00c'; font-family: 'Font Awesome 6 Free'; font-weight: 900; color: #000;
+    font-size: 0.6rem; position: absolute; top:50%; left:50%; transform: translate(-50%, -50%);
+}
+
+/* ── MAIN CONTENT ── */
+.explorer-main { flex: 1; min-width: 0; }
+.view-toggle { display: flex; background: var(--bg-secondary); border: 1px solid var(--border-light); border-radius: var(--r-pill); padding: 4px; }
+.vt-btn { background: transparent; border: none; color: var(--text-secondary); padding: 8px 16px; border-radius: var(--r-pill); font-size: 0.85rem; font-weight: 700; transition: all 0.2s; }
+.vt-btn.active { background: rgba(255,255,255,0.1); color: #fff; }
+
+/* Grid View */
+.service-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 24px; }
+.result-card {
+    background: var(--bg-tertiary); border: 1px solid var(--border-light);
+    border-radius: var(--r-lg); overflow: hidden;
+    transition: all var(--dur-base); display: flex; flex-direction: column;
+}
+.result-card:hover { border-color: var(--aurora-cyan); transform: translateY(-4px); box-shadow: 0 12px 30px rgba(0,0,0,0.5); }
+.rc-img { width: 100%; height: 200px; background: var(--bg-secondary); position: relative; overflow: hidden; }
+.rc-img::after { content:''; position:absolute; inset:0; background: linear-gradient(to top, var(--bg-tertiary) 0%, transparent 100%); }
+.rc-img i { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 4rem; color: rgba(255,255,255,0.05); }
+.rc-badge { position: absolute; top: 16px; left: 16px; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); color: #fff; padding: 4px 12px; border-radius: var(--r-pill); font-size: 0.75rem; font-weight: 700; z-index: 10; border: 1px solid rgba(255,255,255,0.1); }
+.rc-body { padding: 24px; flex: 1; display: flex; flex-direction: column; }
+.rc-title { font-size: 1.2rem; margin-bottom: 8px; font-weight: 800; color: #fff; }
+.rc-meta { color: var(--text-secondary); font-size: 0.85rem; display: flex; gap: 16px; margin-bottom: 16px; }
+
+/* Map View */
+#mapContainer { width: 100%; height: 600px; border-radius: var(--r-lg); border: 1px solid var(--border-light); display: none; z-index: 10; }
+.leaflet-popup-content-wrapper { background: var(--bg-tertiary)!important; color: #fff!important; border: 1px solid var(--border-light); border-radius: 12px!important; box-shadow: 0 10px 30px rgba(0,0,0,0.5)!important; }
+.leaflet-popup-tip { background: var(--bg-tertiary)!important; }
+
+@media (max-width: 992px) {
+    .explorer-layout { flex-direction: column; }
+    .sidebar-filters { width: 100%; height: auto; position: static; }
+}
+</style>
+{% endblock %}
 
 {% block body %}
-<style>
-    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
-</style>
-
-<div class="example-wrapper">
-    <h1>Hello {{ controller_name }}! ✅</h1>
-
-    This friendly message is coming from:
-    <ul>
-        <li>Your controller at <code>D:/xampp/my_service_app/src/Controller/ServiceController.php</code></li>
-        <li>Your template at <code>D:/xampp/my_service_app/templates/service/index.html.twig</code></li>
-    </ul>
+<div class="explorer-header">
+    <div class="container d-flex align-items-center justify-content-between flex-wrap gap-3">
+        <div>
+            <h1 class="font-montserrat text-white fs-3 mb-1 text-uppercase">Service Explorer</h1>
+            <div class="text-aurora-cyan font-inter" style="font-size:0.9rem;font-weight:600;">{{ services|length }} verified experts available</div>
+        </div>
+        
+        <div class="d-flex align-items-center gap-3">
+            <div class="view-toggle">
+                <button class="vt-btn active" onclick="toggleView('grid')"><i class="fas fa-grid-2 me-2"></i> Grid</button>
+                <button class="vt-btn" onclick="toggleView('map')"><i class="fas fa-map-marked-alt me-2"></i> Map View</button>
+            </div>
+        </div>
+    </div>
 </div>
+
+<div class="container explorer-layout fade-up">
+    
+    {# ── LEFT: FILTERS ── #}
+    <aside class="sidebar-filters">
+        <form action="{{ path('app_service_list') }}" method="GET" id="filterForm">
+            {% if active_query %}
+                <input type="hidden" name="q" value="{{ active_query }}">
+            {% endif %}
+
+            <div class="filter-group">
+                <div class="filter-title">Category</div>
+                {% set cats = ['All Services', 'Plumbing', 'Electrical', 'Cleaning', 'Appliance Repair', 'Carpentry', 'Painting'] %}
+                {% for cat in cats %}
+                    <label class="custom-cb">
+                        <input type="radio" name="category" value="{{ cat }}" onchange="this.form.submit()" 
+                            {{ (active_category == cat) or (active_category is empty and cat == 'All Services') ? 'checked' : '' }}> 
+                        {{ cat }}
+                    </label>
+                {% endfor %}
+            </div>
+
+            <div class="filter-group">
+                <div class="filter-title">Price Range</div>
+                {% set prices = ['Under ₹1,000', '₹1,000 - ₹5,000', '₹5,000+'] %}
+                {% for price in prices %}
+                    <label class="custom-cb">
+                        <input type="radio" name="price" value="{{ price }}" onchange="this.form.submit()"
+                            {{ active_price == price ? 'checked' : '' }}> 
+                        {{ price }}
+                    </label>
+                {% endfor %}
+            </div>
+            
+            <a href="{{ path('app_service_list') }}" class="btn-ghost text-center w-100 mt-3 d-block py-2" style="font-size:0.85rem;text-decoration:none;">Clear Filters</a>
+        </form>
+    </aside>
+
+    {# ── RIGHT: RESULTS ── #}
+    <main class="explorer-main">
+        
+        {# Active Filters Bar #}
+        <div class="d-flex align-items-center gap-2 mb-4 flex-wrap" id="activeFiltersContainer">
+            <div class="badge-aurora text-lowercase" style="background:transparent;border:1px solid var(--border-light);color:var(--text-secondary);"><i class="fas fa-filter"></i> Filters applied:</div>
+            <span class="badge-aurora">All Categories <i class="fas fa-times ms-1" style="cursor:pointer;opacity:0.5;"></i></span>
+        </div>
+
+        {# Grid View Container #}
+        <div id="gridContainer" class="service-grid">
+            {% for svc in services %}
+                {% set tierClass = '' %}
+                {% if svc.provider.tier == 'Gold' %}{% set tierClass = 'tier-glow-gold' %}
+                {% elseif svc.provider.tier == 'Platinum' %}{% set tierClass = 'tier-glow-platinum' %}
+                {% elseif svc.provider.tier == 'Aurora Elite' %}{% set tierClass = 'tier-glow-elite' %}{% endif %}
+
+                <div class="result-card {{ tierClass }} fade-up delay-{{ loop.index0 * 50 }}">
+                    <div class="rc-img">
+                        {# Dynamic Image Mapping #}
+                        {% set catImg = 'default.png' %}
+                        {% if svc.category == 'Plumbing' %}{% set catImg = 'plumbing.png' %}
+                        {% elseif svc.category == 'Electrical' %}{% set catImg = 'electrical.png' %}
+                        {% elseif svc.category == 'Cleaning' %}{% set catImg = 'cleaning.png' %}
+                        {% elseif svc.category == 'Painting' %}{% set catImg = 'painting.png' %}
+                        {% elseif svc.category == 'Carpentry' %}{% set catImg = 'carpentry.png' %}
+                        {% elseif svc.category == 'Appliance Repair' %}{% set catImg = 'appliance_repair.png' %}
+                        {% endif %}
+                        
+                        <img src="{{ asset('images/categories/' ~ catImg) }}" alt="{{ svc.category }}" class="w-100 h-100 object-fit-cover" style="opacity: 0.8; filter: brightness(0.7) contrast(1.1);">
+
+                        <div class="rc-badge card-header-flex">
+                            <span>{{ svc.category }}</span>
+                            {% if svc.provider.tier != 'Bronze' %}
+                                <span class="badge-tier" style="background: {{ svc.provider.tierColor }}; margin-left: 10px;">
+                                    <i class="fas fa-crown"></i> {{ svc.provider.tier }}
+                                </span>
+                            {% endif %}
+                        </div>
+                        <i class="fas fa-tools"></i>
+                    </div>
+                    <div class="rc-body">
+                        <h3 class="rc-title">{{ svc.title }}</h3>
+                        <div class="rc-meta">
+                            <span><i class="fas fa-star text-aurora-amber me-1"></i> 4.9 (120)</span>
+                            <span><i class="fas fa-map-marker-alt text-aurora-pink me-1"></i> 2.4 km</span>
+                        </div>
+                        <p class="text-secondary font-inter mb-4 line-clamp-2" style="font-size:0.85rem;line-height:1.5;">{{ svc.description }}</p>
+                        
+                        <div class="d-flex justify-content-between align-items-center mt-auto border-top pt-4" style="border-color:var(--border-light)!important;">
+                            <div>
+                                <div class="text-uppercase text-secondary" style="font-size:0.65rem;letter-spacing:0.1em;margin-bottom:2px;">Starting from</div>
+                                <div class="font-montserrat fw-900 text-white fs-4">₹{{ svc.price|number_format(0) }}</div>
+                            </div>
+                            <a href="{{ path('app_service_show', {'id': svc.id}) }}" class="btn-primary-brand" style="padding:10px 20px;font-size:0.8rem;">View Details</a>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="col-12 py-5 text-center w-100">
+                    <div class="glass-card d-inline-block p-5 text-center border-aurora-pink">
+                        <i class="fas fa-satellite-dish fs-1 text-aurora-pink mb-3"></i>
+                        <h4 class="text-white">No services found</h4>
+                        <p class="text-secondary">Try adjusting your filters or search radius.</p>
+                        <button class="btn-ghost mt-2">Clear all filters</button>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        {# Map View Container (Leaflet element) #}
+        <div id="mapContainer"></div>
+
+    </main>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+    let map = null;
+
+    function initMap() {
+        if(map) return;
+        // Mock default center (e.g., central location)
+        map = L.map('mapContainer').setView([19.0760, 72.8777], 12);
+        
+        // CartoDB Dark Matter tile layer for the Midnight Aurora look
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+            subdomains: 'abcd',
+            maxZoom: 20
+        }).addTo(map);
+
+        // Define a custom glowing icon
+        const neonIcon = L.divIcon({
+            className: 'custom-leaflet-icon',
+            html: `<div style="width:24px;height:24px;background:var(--aurora-cyan);border-radius:50%;box-shadow:0 0 15px var(--aurora-cyan);border:3px solid #000;"></div>`,
+            iconSize: [24, 24],
+            iconAnchor: [12, 12]
+        });
+
+        // Generate mock points based on the loaded services
+        {% for svc in services %}
+            // Add slight random offset to scatter markers around the central lat/lng
+            var lat = 19.0760 + (Math.random() - 0.5) * 0.1;
+            var lng = 72.8777 + (Math.random() - 0.5) * 0.1;
+            
+            L.marker([lat, lng], {icon: neonIcon}).addTo(map)
+                .bindPopup(`
+                    <strong style="display:block;margin-bottom:5px;font-family:'Montserrat',sans-serif;color:var(--aurora-cyan);">${"{{ svc.title|escape('js') }}"}</strong>
+                    <div style="font-size:12px;color:#ccc;margin-bottom:10px;">{{ svc.category }} • ₹{{ svc.price }}</div>
+                    <a href="{{ path('app_service_show', {'id': svc.id}) }}" class="btn-primary-brand" style="display:block;text-align:center;padding:5px 10px;font-size:12px;color:#fff!important;text-decoration:none;">Book Now</a>
+                `);
+        {% endfor %}
+    }
+
+    function toggleView(view) {
+        document.querySelectorAll('.vt-btn').forEach(b => b.classList.remove('active'));
+        const grid = document.getElementById('gridContainer');
+        const mapDiv = document.getElementById('mapContainer');
+        
+        if(view === 'map') {
+            event.currentTarget.classList.add('active');
+            grid.style.display = 'none';
+            mapDiv.style.display = 'block';
+            initMap();
+            setTimeout(() => { map.invalidateSize(); }, 100);
+        } else {
+            event.currentTarget.classList.add('active');
+            grid.style.display = 'grid';
+            mapDiv.style.display = 'none';
+        }
+    }
+</script>
 {% endblock %}

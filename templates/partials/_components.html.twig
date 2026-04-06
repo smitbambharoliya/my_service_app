@@ -1,0 +1,41 @@
+{# ── Obsidian X Macro System ── #}
+
+{% macro glass_card(title = '', subtitle = '', class = '') %}
+<div class="glass-card {{ class }}">
+    {% if title or subtitle %}
+        <div class="card-header border-0 pb-0">
+            {% if title %}<h3 class="text-xl mb-1">{{ title }}</h3>{% endif %}
+            {% if subtitle %}<p class="text-xs text-muted mb-0">{{ subtitle }}</p>{% endif %}
+        </div>
+    {% endif %}
+    <div class="p-4">
+        {{ caller() }}
+    </div>
+</div>
+{% endmacro %}
+
+{% macro glow_button(label, icon = '', type = 'violet', class = '', href = '#') %}
+<a href="{{ href }}" class="btn-{{ type }} {{ class }}">
+    {% if icon %}<i class="{{ icon }}"></i>{% endif %}
+    <span>{{ label }}</span>
+</a>
+{% endmacro %}
+
+{% macro pill_badge(label, status = 'confirmed', icon = '') %}
+<span class="badge-pill badge-{{ status }}">
+    {% if icon %}<i class="{{ icon }}"></i>{% endif %}
+    {{ label }}
+</span>
+{% endmacro %}
+
+{% macro kpi_card(label, value, icon, color = 'brand') %}
+<div class="glass-card p-4 d-flex align-items-center justify-content-between hover-lift">
+    <div>
+        <div class="text-xs text-muted mb-2">{{ label }}</div>
+        <div class="text-2xl fw-800 text-primary">{{ value }}</div>
+    </div>
+    <div class="fs-1 opacity-25 text-{{ color == 'brand' ? 'brand-1' : 'accent-' ~ color }}">
+        <i class="{{ icon }}"></i>
+    </div>
+</div>
+{% endmacro %}

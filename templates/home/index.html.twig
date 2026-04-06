@@ -1,120 +1,297 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Welcome to ServiceHub - Your Local Service Expert{% endblock %}
+{% block title %}ServiceHub — Discovery Hub{% endblock %}
+
+{% block stylesheets %}
+<style>
+    /* ── OBSIDIAN X: DISCOVERY HUB ── */
+
+    /* 1. Immersive Hero */
+    .hero-wrapper {
+        position: relative;
+        padding: 160px 0 120px;
+        background: var(--bg-base);
+        overflow: hidden;
+        min-height: 95vh;
+        display: flex;
+        align-items: center;
+    }
+    
+    .hero-glow {
+        position: absolute;
+        width: 800px; height: 800px;
+        background: radial-gradient(circle, var(--brand-glow) 0%, transparent 70%);
+        top: -200px; left: -200px;
+        opacity: 0.4;
+        z-index: 1;
+        pointer-events: none;
+    }
+
+    .hero-content { position: relative; z-index: 10; }
+
+    .search-orb {
+        max-width: 700px;
+        margin: 48px auto 0;
+        background: rgba(255,255,255,0.03);
+        backdrop-filter: blur(24px);
+        border: 1px solid var(--border-brand);
+        border-radius: var(--r-pill);
+        padding: 8px 8px 8px 28px;
+        display: flex;
+        align-items: center;
+        box-shadow: var(--shadow-lg), var(--glow-brand);
+        transition: all 0.4s var(--ease-out);
+    }
+    .search-orb:focus-within {
+        transform: scale(1.02);
+        border-color: var(--brand-1);
+        box-shadow: 0 0 50px rgba(124, 58, 237, 0.3);
+    }
+    .search-orb input {
+        flex: 1;
+        background: transparent;
+        border: none;
+        color: var(--text-primary);
+        font-size: 1.2rem;
+        font-weight: 500;
+        outline: none;
+    }
+    .search-orb input::placeholder { color: var(--text-muted); opacity: 0.5; }
+
+    /* 2. Category Galaxy */
+    .cat-galaxy { padding: 120px 0; }
+    .cat-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 24px;
+    }
+    .cat-node {
+        background: rgba(255,255,255,0.02);
+        border: 1px solid var(--border-default);
+        border-radius: var(--r-xl);
+        padding: 40px 32px;
+        text-align: center;
+        text-decoration: none !important;
+        transition: all 0.4s var(--ease-spring);
+        overflow: hidden;
+        position: relative;
+    }
+    .cat-node::before {
+        content: ''; position: absolute; inset: 0;
+        background: linear-gradient(135deg, var(--brand-1) 0%, transparent 100%);
+        opacity: 0; transition: opacity 0.4s; z-index: 1;
+    }
+    .cat-node:hover {
+        transform: translateY(-8px);
+        border-color: var(--brand-1);
+        box-shadow: var(--shadow-glass), var(--glow-brand);
+    }
+    .cat-node:hover::before { opacity: 0.05; }
+    
+    .cat-icon-container {
+        width: 80px; height: 80px;
+        background: rgba(0,0,0,0.4);
+        border-radius: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 24px;
+        font-size: 2rem;
+        color: var(--brand-1);
+        position: relative;
+        z-index: 2;
+        box-shadow: inset 0 0 20px rgba(124, 58, 237, 0.2);
+    }
+    .cat-node h3 { color: var(--text-primary); font-size: 1.25rem; font-weight: 800; margin-bottom: 8px; position: relative; z-index: 2; }
+    .cat-node p { color: var(--text-muted); font-size: 0.85rem; margin: 0; position: relative; z-index: 2; }
+
+    /* 3. Ticker scroller */
+    .ticker-wrap { background: rgba(0,0,0,0.5); border-top: 1px solid var(--border-subtle); border-bottom: 1px solid var(--border-subtle); py-4; overflow: hidden; }
+    .ticker { display: flex; animation: ticker 60s linear infinite; }
+    @keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+    .ticker-item { margin-right: 60px; white-space: nowrap; font-weight: 800; font-size: 0.9rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.2em; display: flex; align-items: center; gap: 12px; }
+    .ticker-item i { color: var(--brand-1); }
+
+    /* 4. Showcase Card */
+    .showcase-hero {
+        background: linear-gradient(135deg, #1A103D 0%, #07080F 100%);
+        border: 1px solid var(--border-brand);
+        border-radius: 40px;
+        padding: 80px;
+        display: flex;
+        gap: 60px;
+        align-items: center;
+        margin-top: 100px;
+        position: relative;
+        overflow: hidden;
+    }
+    .showcase-hero::after {
+        content: ''; position: absolute;
+        width: 500px; height: 500px;
+        background: radial-gradient(circle, var(--accent-amber) 0%, transparent 70%);
+        bottom: -250px; left: -250px;
+        opacity: 0.1;
+    }
+
+    @media (max-width: 992px) {
+        .showcase-hero { flex-direction: column; padding: 40px; text-align: center; }
+        .hero-stats { grid-template-columns: 1fr 1fr; }
+    }
+</style>
+{% endblock %}
 
 {% block body %}
-{# 1. Hero Section #}
-<div class="bg-primary text-white py-5 mb-5 position-relative overflow-hidden" style="min-height: 500px; display: flex; align-items: center;">
-    <div class="container position-relative z-1">
-        <div class="row align-items-center">
-            <div class="col-lg-6">
-                <h1 class="display-3 fw-bold mb-4">Find Professional Services for Your Home</h1>
-                <p class="lead mb-5 opacity-75">Connect with trusted Plumbers, Electricians, Carpenters, and more. Quality service, just a click away.</p>
-                <div class="d-grid gap-2 d-md-flex justify-content-md-start">
-                    <a href="{{ path('app_service_list') }}" class="btn btn-warning btn-lg px-4 me-md-2 rounded-pill fw-bold shadow">
-                        <i class="fas fa-search me-2"></i>Find a Service
-                    </a>
-                </div>
-            </div>
-            <div class="col-lg-6 d-none d-lg-block text-center">
-                <img src="https://cdn-icons-png.flaticon.com/512/3063/3063822.png" alt="Service Illustration" class="img-fluid floating-animation" style="max-height: 400px;">
-            </div>
+
+{# ── 1. IMMERSIVE HERO ── #}
+<section class="hero-wrapper">
+    <div class="hero-glow"></div>
+    <div class="container hero-content text-center">
+        <div class="fade-up">
+            <span class="badge-pill badge-confirmed mb-4 px-4 py-2" style="font-size:0.7rem">
+                <i class="fas fa-sparkles text-amber me-2"></i> POWERED BY OBSIDIAN X ENGINE
+            </span>
+            <h1 class="text-hero text-white mb-4 lh-1">High Fidelity<br>Home Services.</h1>
+            <p class="text-xl text-muted mx-auto mb-5" style="max-width:700px;">
+                The elite ecosystem connecting premium service professionals with discerning customers. Experience 2-minute matching and real-time logistics.
+            </p>
+        </div>
+
+        <form action="{{ path('app_service_list') }}" method="GET" class="search-orb fade-up" style="transition-delay: 200ms;">
+            <i class="fas fa-search text-brand-1 fs-4"></i>
+            <input type="text" name="q" placeholder="Search for experts (e.g. 'Electrical Engineering')">
+            <button type="submit" class="btn-violet px-5 py-3">Find Expert</button>
+        </form>
+
+        <div class="mt-5 d-flex flex-wrap justify-content-center gap-4 fade-up" style="transition-delay: 400ms;">
+            <div class="glass-card px-4 py-2 text-sm fw-bold border-brand-subtle"><i class="fas fa-shield-halved text-cyan me-2"></i> Guaranteed Pros</div>
+            <div class="glass-card px-4 py-2 text-sm fw-bold border-brand-subtle"><i class="fas fa-bolt text-amber me-2"></i> Instant Booking</div>
+            <div class="glass-card px-4 py-2 text-sm fw-bold border-brand-subtle"><i class="fas fa-wallet text-brand-1 me-2"></i> Transparent Rates</div>
         </div>
     </div>
-</div>
+</section>
 
-{# 2. Popular Categories Section #}
-<div class="container mb-5">
-    <div class="text-center mb-5">
-        <h2 class="fw-bold">Popular Categories</h2>
-        <p class="text-muted">Click on a category to book instantly</p>
-    </div>
-    <div class="row g-4">
-        {% set categories = [
-            {'name': 'Plumbing', 'icon': 'fa-faucet', 'color': 'text-primary', 'anim': 'cat-plumbing', 'desc': 'Leaking pipes & taps'},
-            {'name': 'Electrician', 'icon': 'fa-bolt', 'color': 'text-warning', 'anim': 'cat-electric', 'desc': 'Wiring & Appliances'},
-            {'name': 'Carpentry', 'icon': 'fa-hammer', 'color': 'text-danger', 'anim': 'cat-carpenter', 'desc': 'Furniture & Woodwork'},
-            {'name': 'Cleaning', 'icon': 'fa-broom', 'color': 'text-info', 'anim': 'cat-cleaning', 'desc': 'Home & Office Deep Clean'},
-            {'name': 'Domestic Support', 'icon': 'fa-house-user', 'color': 'text-success', 'anim': 'cat-generic', 'desc': 'Daily household help'},
-            {'name': 'Painting', 'icon': 'fa-paint-roller', 'color': 'text-secondary', 'anim': 'cat-generic', 'desc': 'Wall & Exterior painting'},
-            {'name': 'Gardening', 'icon': 'fa-seedling', 'color': 'text-success', 'anim': 'cat-generic', 'desc': 'Lawn & Garden care'},
-            {'name': 'Appliance Repair', 'icon': 'fa-tv', 'color': 'text-primary', 'anim': 'cat-generic', 'desc': 'TV, Fridge & AC repair'}
-        ] %}
-        
-        {% for cat in categories %}
-            <div class="col-6 col-md-3">
-                <a href="{{ path('app_book_by_category', {'categoryName': cat.name}) }}" class="text-decoration-none">
-                    <div class="card border-0 shadow-sm text-center p-4 h-100 category-card {{ cat.anim }}">
-                        <div class="h1 mb-3 {{ cat.color }}">
-                            <i class="fas {{ cat.icon }}"></i>
-                        </div>
-                        <h5 class="fw-bold mb-1 text-dark">{{ cat.name }}</h5>
-                        <small class="text-muted d-block mb-2">{{ cat.desc }}</small>
-                        <p class="small text-primary fw-bold mb-0 mt-auto">Book Now <i class="fas fa-arrow-right ms-1"></i></p>
-                    </div>
-                </a>
-            </div>
+{# ── 2. TICKER STREAM ── #}
+<div class="ticker-wrap">
+    <div class="ticker">
+        {% for i in 1..2 %}
+        <div class="ticker-item"><i class="fas fa-circle-dot"></i> 12,482 Active Experts</div>
+        <div class="ticker-item"><i class="fas fa-circle-dot"></i> Mumbai: Electrician arriving in 12m</div>
+        <div class="ticker-item"><i class="fas fa-circle-dot"></i> 99.9% Success Rate</div>
+        <div class="ticker-item"><i class="fas fa-circle-dot"></i> New York: Plumber booked 2m ago</div>
+        <div class="ticker-item"><i class="fas fa-circle-dot"></i> Elite Tier Activated</div>
+        <div class="ticker-item"><i class="fas fa-circle-dot"></i> Real-time GPS Tracking Enabled</div>
         {% endfor %}
     </div>
 </div>
 
-{# 3. How It Works Section (AA TAME KAHETU HATU TE) #}
-<div class="bg-light py-5">
+{# ── 3. CATEGORY GALAXY ── #}
+<section class="cat-galaxy">
     <div class="container">
-        <div class="text-center mb-5">
-            <h2 class="fw-bold font-heading">How It Works</h2>
-            <p class="text-muted">Simple 3-step process to get your job done</p>
+        <div class="text-center mb-5 fade-up">
+            <h2 class="text-4xl text-white mb-2">Service Protocols</h2>
+            <p class="text-muted">Select a specialized category to begin discovery.</p>
         </div>
-        <div class="row text-center g-4">
-            <div class="col-md-4">
-                <div class="p-4 bg-white rounded-4 shadow-sm h-100">
-                    <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px; font-size: 24px; font-weight: bold;">1</div>
-                    <h4 class="fw-bold">Search</h4>
-                    <p class="text-muted mb-0">Choose from our wide range of professional services and verified experts.</p>
+        
+        <div class="cat-grid">
+            {% set cats = [
+                {'name': 'Structural', 'desc': 'Plumbing & Hardware', 'icon': 'fa-faucet-drip'},
+                {'name': 'Electrical', 'desc': 'Power & Circuitry', 'icon': 'fa-bolt-lightning'},
+                {'name': 'Sanitization', 'desc': 'Deep Cleaning & Hygiene', 'icon': 'fa-sparkles'},
+                {'name': 'Climate', 'desc': 'HVAC & Air Management', 'icon': 'fa-snowflake'},
+                {'name': 'Carpentry', 'desc': 'Woodwork & Assembly', 'icon': 'fa-hammer'},
+                {'name': 'Aesthetics', 'desc': 'Painting & Design', 'icon': 'fa-palette'}
+            ] %}
+            
+            {% for cat in cats %}
+            <a href="{{ path('app_service_list', {'category': cat.name}) }}" class="cat-node fade-up" style="transition-delay: {{ loop.index0 * 50 }}ms;">
+                <div class="cat-icon-container">
+                    <i class="fas {{ cat.icon }}"></i>
+                </div>
+                <h3>{{ cat.name }}</h3>
+                <p>{{ cat.desc }}</p>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+{# ── 4. CMS SHOWCASE ── #}
+<section class="py-5">
+    <div class="container">
+        
+        {# 4A. HERO SERVICE #}
+        {% if sections.hero|default([])|length > 0 %}
+            {% set s = sections.hero[0] %}
+            <div class="showcase-hero fade-up">
+                <div class="flex-grow-1">
+                    <span class="badge-pill badge-completed mb-4"><i class="fas fa-crown text-amber me-2"></i> Featured Protocol</span>
+                    <h2 class="text-5xl text-white mb-4">{{ s.title }}</h2>
+                    <p class="text-lg text-muted mb-5">{{ s.description|slice(0, 150) }}...</p>
+                    
+                    <div class="d-flex align-items-center gap-5 mb-5">
+                        <div class="text-center"><div class="text-2xl fw-800 text-white">₹{{ s.price|number_format }}</div><div class="text-xs text-muted">FIXED RATE</div></div>
+                        <div class="text-center"><div class="text-2xl fw-800 text-brand-1">4.9/5</div><div class="text-xs text-muted">RATING</div></div>
+                        <div class="text-center"><div class="text-2xl fw-800 text-cyan">30m</div><div class="text-xs text-muted">AVG ARRIVAL</div></div>
+                    </div>
+                    
+                    <a href="{{ path('app_service_show', {'id': s.id}) }}" class="btn-violet px-5 py-3">Initialize Booking <i class="fas fa-arrow-right ms-2"></i></a>
+                </div>
+                <div class="d-none d-lg-block" style="flex: 0 0 400px;">
+                    <div class="glass-card p-2" style="transform: rotate(5deg); border-radius: 32px;">
+                        <img src="https://images.unsplash.com/photo-1581578731548-c64695cc6952?q=80&w=800&auto=format&fit=crop" class="img-fluid" style="border-radius: 24px;" alt="Service">
+                    </div>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="p-4 bg-white rounded-4 shadow-sm h-100 border-primary border-top border-4">
-                    <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px; font-size: 24px; font-weight: bold;">2</div>
-                    <h4 class="fw-bold">Book</h4>
-                    <p class="text-muted mb-0">Select a provider and book a time that suits your schedule perfectly.</p>
-                </div>
+        {% endif %}
+
+        {# 4B. TRENDING GRID #}
+        <div class="mt-5 pt-5">
+            <div class="d-flex justify-content-between align-items-center mb-5 fade-up">
+                <h3 class="text-3xl text-white">Trending Proximity</h3>
+                <a href="{{ path('app_service_list') }}" class="text-brand-1 fw-bold text-sm">View All Services <i class="fas fa-chevron-right ms-2"></i></a>
             </div>
-            <div class="col-md-4">
-                <div class="p-4 bg-white rounded-4 shadow-sm h-100">
-                    <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px; font-size: 24px; font-weight: bold;">3</div>
-                    <h4 class="fw-bold">Relax</h4>
-                    <p class="text-muted mb-0">The expert arrives at your doorstep and completes the task with quality.</p>
-                </div>
+            
+            <div class="row g-4">
+                {% for ts in sections.trending|default([])|slice(0, 3) %}
+                    <div class="col-lg-4 col-md-6 fade-up" style="transition-delay: {{ loop.index0 * 100 }}ms;">
+                        <div class="glass-card h-100 p-4 border-subtle hover-glow">
+                            <div class="d-flex justify-content-between mb-4">
+                                <span class="badge-pill badge-pending">{{ ts.category }}</span>
+                                <div class="text-amber"><i class="fas fa-star me-1"></i> 4.9</div>
+                            </div>
+                            <h4 class="text-xl text-white mb-4 pe-5">{{ ts.title }}</h4>
+                            <div class="d-flex align-items-center gap-3 mb-4">
+                                <div style="width:32px;height:32px;border-radius:10px;background:var(--brand-1);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:0.7rem;">
+                                    {{ ts.provider.fullName|slice(0,1)|upper }}
+                                </div>
+                                <span class="text-sm text-muted">{{ ts.provider.fullName }}</span>
+                            </div>
+                            <div class="pt-4 border-top border-subtle d-flex justify-content-between align-items-center">
+                                <div class="text-xl fw-800 text-white">₹{{ ts.price|number_format }}</div>
+                                <a href="{{ path('app_service_show', {'id': ts.id}) }}" class="btn-ghost text-brand-1">View Details</a>
+                            </div>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="col-12 py-5 text-center glass-card border-subtle">
+                        <i class="fas fa-ghost text-muted h1 mb-4 opacity-25"></i>
+                        <p class="text-muted">System initialization required. Add services in CMS.</p>
+                    </div>
+                {% endfor %}
             </div>
         </div>
     </div>
-</div>
+</section>
 
-{# Styles & Animations #}
-<style>
-    .category-card {
-        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        border-radius: 20px;
-        display: flex;
-        flex-direction: column;
-    }
-    .category-card:hover {
-        transform: translateY(-12px);
-        background-color: #f8f9fa;
-        box-shadow: 0 15px 30px rgba(0,0,0,0.1) !important;
-    }
-    .cat-plumbing:hover i { animation: drip 1s infinite; color: #00d2ff !important; }
-    .cat-electric:hover i { animation: spark 0.2s infinite; color: #ffc107 !important; }
-    .cat-carpenter:hover i { animation: hammer 0.5s infinite; color: #8B4513 !important; }
-    .cat-cleaning:hover i { animation: sweep 1s infinite; color: #20c997 !important; }
+{# ── 5. FINAL CTA ── #}
+<section class="py-5" style="border-top:1px solid var(--border-subtle)">
+    <div class="container text-center py-5 fade-up">
+        <h2 class="text-hero text-white mb-4">Ready to upgrade your standard?</h2>
+        <p class="text-muted mb-5 mx-auto" style="max-width:500px;">Join 50k+ users who experience home services in high definition.</p>
+        <div class="d-flex justify-content-center gap-3">
+            <a href="{{ path('app_register') }}" class="btn-violet px-5 py-3">Get Started Now</a>
+        </div>
+    </div>
+</section>
 
-    @keyframes drip { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(15px); opacity: 0; } }
-    @keyframes spark { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(1.2); } }
-    @keyframes hammer { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(-35deg); } }
-    @keyframes sweep { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(-10px) rotate(-10deg); } }
-    
-    .floating-animation { animation: float 4s ease-in-out infinite; }
-    @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-20px); } }
-</style>
 {% endblock %}

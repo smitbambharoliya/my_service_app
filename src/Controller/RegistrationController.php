@@ -4,27 +4,24 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Form\RegistrationFormType;
-use App\Security\EmailVerifier;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Mime\Address;
+use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mime\Email;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Contracts\Translation\TranslatorInterface;
-use SymfonyCasts\Bundle\VerifyEmail\Exception\VerifyEmailExceptionInterface;
 
 class RegistrationController extends AbstractController
 {
-    public function __construct(private EmailVerifier $emailVerifier)
-    {
-    }
-
     #[Route('/register', name: 'app_register')]
-    public function register(Request $request, UserPasswordHasherInterface $userPasswordHasher, EntityManagerInterface $entityManager): Response
-    {
+    public function register(
+        Request $request,
+        UserPasswordHasherInterface $userPasswordHasher,
+        EntityManagerInterface $entityManager,
+        MailerInterface $mailer
+    ): Response {
         $user = new User();
         $form = $this->createForm(RegistrationFormType::class, $user);
         $form->handleRequest($request);
@@ -33,56 +30,46 @@ class RegistrationController extends AbstractController
             /** @var string $plainPassword */
             $plainPassword = $form->get('plainPassword')->getData();
 
-            // encode the plain password
+            // Encode the plain password
             $user->setPassword($userPasswordHasher->hashPassword($user, $plainPassword));
+
+            // Generate 6-digit OTP
+            $otp = str_pad((string)random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+            $user->setOtpCode($otp);
+            $user->setIsVerified(false);
 
             $entityManager->persist($user);
             $entityManager->flush();
 
+            // Store email in session to identify user during OTP verification
+            $request->getSession()->set('verify_email', $user->getEmail());
 
-            if (in_array('ROLE_PROVIDER', $user->getRoles())) {    
-            $this->addFlash('success', 'Welcome! Please complete your profile as a Provider');
-            return $this->redirectToRoute('app_provider_profile');
+            // Send OTP via Email
+            $emailSent = false;
+            try {
+                $emailMsg = (new Email())
+                    ->from('smitbambharoliya76@gmail.com')
+                    ->to($user->getEmail())
+                    ->subject('Your ServiceHub Verification Code')
+                    ->html($this->renderView('registration/otp_email.html.twig', [
+                        'otp' => $otp,
+                        'name' => $user->getFullName(),
+                    ]));
+
+                $mailer->send($emailMsg);
+                $emailSent = true;
+                $this->addFlash('success', 'Registration successful! OTP sent to ' . $user->getEmail() . '. Please check your inbox (and spam folder).');
+            } catch (\Exception $e) {
+                // Dev mode: show exact error + OTP fallback
+                $this->addFlash('error', '⚠️ Email Error: ' . $e->getMessage());
+                $this->addFlash('warning', '🔑 Dev Fallback OTP: <strong style="font-size:1.5rem;letter-spacing:4px;">' . $otp . '</strong><br><small>Use this code to verify your account</small>');
             }
 
-            // generate a signed url and email it to the user
-            $this->emailVerifier->sendEmailConfirmation('app_verify_email', $user,
-                (new TemplatedEmail())
-                    ->from(new Address('smitbambharoliy76@gmail.com', 'servicemailbot'))
-                    ->to((string) $user->getEmail())
-                    ->subject('Please Confirm your Email')
-                    ->htmlTemplate('registration/confirmation_email.html.twig')
-            );
-
-            // do anything else you need here, like send an email
-
-            return $this->redirectToRoute('app_customer_dashboard');
+            return $this->redirectToRoute('app_verify_otp');
         }
 
         return $this->render('registration/register.html.twig', [
             'registrationForm' => $form,
         ]);
-    }
-
-    #[Route('/verify/email', name: 'app_verify_email')]
-    public function verifyUserEmail(Request $request, TranslatorInterface $translator): Response
-    {
-        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
-
-        // validate email confirmation link, sets User::isVerified=true and persists
-        try {
-            /** @var User $user */
-            $user = $this->getUser();
-            $this->emailVerifier->handleEmailConfirmation($request, $user);
-        } catch (VerifyEmailExceptionInterface $exception) {
-            $this->addFlash('verify_email_error', $translator->trans($exception->getReason(), [], 'VerifyEmailBundle'));
-
-            return $this->redirectToRoute('app_register');
-        }
-
-        // @TODO Change the redirect on success and handle or remove the flash message in your templates
-        $this->addFlash('success', 'Your email address has been verified.');
-
-        return $this->redirectToRoute('app_home');
     }
 }

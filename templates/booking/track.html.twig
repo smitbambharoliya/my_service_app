@@ -1,0 +1,183 @@
+{% extends 'dashboard_base.html.twig' %}
+
+{% block page_title %}High-Fidelity Tracking / Operational ID: #{{ booking.id|slice(0,8) }}{% endblock %}
+
+{% block body %}
+
+<div class="row g-4">
+    <div class="col-xl-8 fade-up">
+        <div class="glass-card overflow-hidden h-100 border-subtle" style="min-height: 500px; position: relative;">
+            <div id="map" style="height: 100%; width: 100%; background: #07080F;"></div>
+            
+            <div class="position-absolute top-0 start-0 m-4 z-index-1000">
+                <div class="glass-card p-3 border-subtle bg-surface-2" style="backdrop-filter: blur(24px);">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="pulsing-dot bg-cyan"></div>
+                        <div class="text-xs text-white fw-bold">REAL-TIME TELEMETRY ACTIVE</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="position-absolute bottom-0 start-0 m-4 z-index-1000 w-100 pe-5">
+                <div class="glass-card p-4 border-subtle bg-surface-2" style="backdrop-filter: blur(24px); max-width: 400px;">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="text-xs text-muted fw-900">ESTIMATED ARRIVAL</span>
+                        <span class="text-xs text-cyan fw-900" id="eta-display">8 MINUTES</span>
+                    </div>
+                    <div class="progress bg-dark-2 mb-3" style="height: 4px;">
+                        <div id="tracking-progress" class="progress-bar bg-cyan" style="width: 45%; transition: width 1s linear;"></div>
+                    </div>
+                    <div class="text-xxs text-muted fw-bold">CURRENT SECTOR: {{ booking.service.category|upper }} DEPLOYMENT</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-4">
+        <div class="d-grid gap-4 h-100">
+            {# Provider Profile #}
+            <div class="glass-card p-4 border-subtle fade-up" style="transition-delay: 100ms;">
+                <div class="text-xs text-muted fw-900 mb-4">OPERATIONAL LEAD</div>
+                <div class="d-flex align-items-center gap-3 mb-4">
+                    <div class="sb-user-avatar" style="width: 64px; height: 64px; font-size: 1.5rem;">
+                        {{ booking.service.provider.email|slice(0,1)|upper }}
+                    </div>
+                    <div>
+                        <h4 class="text-white fw-900 mb-1">{{ booking.service.provider.fullName|default(booking.service.provider.email|split('@')[0]) }}</h4>
+                        <div class="badge-pill badge-confirmed px-2 py-1" style="font-size: 0.6rem">AURORA ELITE</div>
+                    </div>
+                </div>
+                <div class="glass-card bg-surface-2 border-0 p-3 d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="text-xxs text-muted">Vehicle</div>
+                        <div class="text-xs text-white fw-bold">Service Node v2.4</div>
+                    </div>
+                    <div class="text-end">
+                        <div class="text-xxs text-muted">Verification</div>
+                        <div class="text-xs text-green fw-bold">SECURE</div>
+                    </div>
+                </div>
+            </div>
+
+            {# Protocol Details #}
+            <div class="glass-card p-4 border-subtle fade-up" style="transition-delay: 200ms;">
+                <div class="text-xs text-muted fw-900 mb-4">PROTOCOL LOGS</div>
+                <div class="timeline-simple">
+                    <div class="d-flex gap-3 mb-3">
+                        <div class="text-green mt-1"><i class="fas fa-circle-check"></i></div>
+                        <div>
+                            <div class="text-xs text-white fw-bold">Request Finalized</div>
+                            <div class="text-xxs text-muted">{{ booking.bookingDate|date('H:i') }}</div>
+                        </div>
+                    </div>
+                    <div class="d-flex gap-3 mb-3">
+                        <div class="text-cyan mt-1"><i class="fas fa-truck-fast"></i></div>
+                        <div>
+                            <div class="text-xs text-white fw-bold">Node Dispatched</div>
+                            <div class="text-xxs text-muted">T-minus 12 mins</div>
+                        </div>
+                    </div>
+                    <div class="d-flex gap-3 opacity-50">
+                        <div class="text-muted mt-1"><i class="fas fa-location-crosshairs"></i></div>
+                        <div>
+                            <div class="text-xs text-muted fw-bold">Sector Neutralization</div>
+                            <div class="text-xxs text-muted">Pending Arrival</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {# Action #}
+            <div class="glass-card p-4 border-subtle fade-up" style="transition-delay: 300ms;">
+                <a href="tel:1234567890" class="btn-violet w-100 py-3 text-xs mb-3">
+                    <i class="fas fa-phone me-2"></i> CONTACT LEAD
+                </a>
+                <a href="{{ path('app_message_index') }}" class="btn-ghost border-subtle w-100 py-3 text-xs">
+                    <i class="fas fa-comment-dots me-2"></i> SECURE COMMS
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block stylesheets %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+    #map .leaflet-container { background: #07080F; }
+    .timeline-simple { border-left: 2px solid var(--border-subtle); padding-left: 20px; margin-left: 5px; }
+    .pulsing-dot {
+        width: 10px; height: 10px; border-radius: 50%;
+        animation: pulse-cyan 1.5s infinite;
+    }
+    @keyframes pulse-cyan {
+        0% { box-shadow: 0 0 0 0 rgba(0, 212, 255, 0.7); }
+        70% { box-shadow: 0 0 0 10px rgba(0, 212, 255, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(0, 212, 255, 0); }
+    }
+
+    /* Leaflet Overrides */
+    .leaflet-tile-pane { filter: invert(1) hue-rotate(180deg) brightness(0.6) contrast(1.2); }
+    .provider-marker { border: 2px solid var(--brand-1); background: #fff; border-radius: 50%; }
+</style>
+{% endblock %}
+
+{% block javascripts %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const start = [{{ start_lat }}, {{ start_lng }}];
+        const dest = [{{ dest_lat }}, {{ dest_lng }}];
+        
+        const map = L.map('map', {
+            zoomControl: false,
+            attributionControl: false
+        }).setView(start, 15);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+        const providerIcon = L.divIcon({
+            className: 'custom-div-icon',
+            html: '<div class="glass-card" style="width:40px;height:40px;background:var(--brand-1);border:3px solid #fff;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:var(--glow-brand);"><i class="fas fa-truck-fast text-white"></i></div>',
+            iconSize: [40, 40],
+            iconAnchor: [20, 20]
+        });
+
+        const destIcon = L.divIcon({
+            className: 'custom-div-icon',
+            html: '<div class="glass-card" style="width:40px;height:40px;background:var(--accent-cyan);border:3px solid #fff;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:var(--glow-cyan);"><i class="fas fa-house-user text-white"></i></div>',
+            iconSize: [40, 40],
+            iconAnchor: [20, 20]
+        });
+
+        const marker = L.marker(start, { icon: providerIcon }).addTo(map);
+        L.marker(dest, { icon: destIcon }).addTo(map);
+
+        // Simulation: Move the marker
+        let progress = 0;
+        const interval = setInterval(() => {
+            progress += 0.005;
+            if (progress >= 1) {
+                clearInterval(interval);
+                document.getElementById('eta-display').innerText = 'ARRIVED';
+                document.getElementById('tracking-progress').style.width = '100%';
+                return;
+            }
+
+            const currentPos = [
+                start[0] + (dest[0] - start[0]) * progress,
+                start[1] + (dest[1] - start[1]) * progress
+            ];
+
+            marker.setLatLng(currentPos);
+            map.panTo(currentPos);
+
+            // Update UI
+            const eta = Math.ceil(12 * (1 - progress));
+            document.getElementById('eta-display').innerText = eta + ' MINUTES';
+            document.getElementById('tracking-progress').style.width = (progress * 100) + '%';
+        }, 1000);
+    });
+</script>
+{% endblock %}
