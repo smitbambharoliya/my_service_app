@@ -1,0 +1,160 @@
+{% extends 'admin/admin_base.html.twig' %}
+
+{% block title %}Audit Logs - Admin{% endblock %}
+{% block page_title %}Admin Audit Logs{% endblock %}
+{% block breadcrumb %}
+    <li class="breadcrumb-item active">Audit Logs</li>
+{% endblock %}
+
+{% block body %}
+<div class="aurora-card">
+    <div class="card-header-custom">
+        <span class="title"><i class="fas fa-history me-2" style="color: var(--aurora-violet);"></i>System Audit Trail</span>
+        <div class="d-flex gap-2">
+            <span class="badge-aurora badge-aurora-violet">{{ logs|length }} Entries</span>
+            <a href="{{ path('app_admin_audit_logs') }}" class="btn-aurora btn-aurora-blue">
+                <i class="fas fa-sync-alt"></i> Refresh
+            </a>
+        </div>
+    </div>
+    <div class="table-responsive">
+        <table class="aurora-table">
+            <thead>
+                <tr>
+                    <th>Timestamp</th>
+                    <th>Admin</th>
+                    <th>Action</th>
+                    <th>Entity Type</th>
+                    <th>Entity ID</th>
+                    <th>Details</th>
+                    <th>IP Address</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in logs %}
+                    <tr>
+                        <td>
+                            <span style="font-family: monospace; font-size: 0.85rem; color: var(--aurora-text-secondary);">
+                                {{ log.timestamp }}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="user-avatar" style="width: 32px; height: 32px; font-size: 0.8rem;">
+                                    {{ log.admin_email|slice(0,1)|upper }}
+                                </div>
+                                <div>
+                                    <div style="font-weight: 600; font-size: 0.85rem;">{{ log.admin_email }}</div>
+                                    <small style="color: var(--aurora-text-muted);">ID: {{ log.admin_id|default('N/A') }}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            {% set actionColors = {
+                                'DASHBOARD_VIEW': 'blue',
+                                'CATEGORIES_VIEW': 'blue',
+                                'USER_COMMAND_HUB_VIEW': 'blue',
+                                'CATEGORY_CREATE': 'emerald',
+                                'CATEGORY_EDIT': 'amber',
+                                'CATEGORY_TOGGLE': 'amber',
+                                'CATEGORY_DELETE': 'pink',
+                                'USER_VERIFY': 'emerald',
+                                'USER_PROMOTE_PROVIDER': 'violet',
+                                'USER_DEMOTE_PROVIDER': 'amber',
+                                'USER_PROMOTE_ADMIN': 'violet',
+                                'USER_PASSWORD_RESET': 'amber',
+                                'USER_TOGGLE_STATUS': 'amber',
+                                'USER_DELETE': 'pink'
+                            } %}
+                            <span class="badge-aurora badge-aurora-{{ actionColors[log.action]|default('gray') }}">
+                                {{ log.action }}
+                            </span>
+                        </td>
+                        <td>
+                            <span style="font-weight: 600; color: var(--aurora-text-secondary);">{{ log.entity_type|default('-') }}</span>
+                        </td>
+                        <td>
+                            {% if log.entity_id %}
+                                <code style="background: var(--aurora-bg); padding: 4px 8px; border-radius: 6px; font-size: 0.8rem;">{{ log.entity_id }}</code>
+                            {% else %}
+                                <span style="color: var(--aurora-text-muted);">-</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if log.details %}
+                                <div style="max-width: 300px;">
+                                    {% for key, value in log.details %}
+                                        <small class="d-block" style="color: var(--aurora-text-secondary);">
+                                            <strong>{{ key }}:</strong> {{ value }}
+                                        </small>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <span style="color: var(--aurora-text-muted);">-</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <code style="background: var(--aurora-bg); padding: 4px 8px; border-radius: 6px; font-size: 0.8rem; color: var(--aurora-text-muted);">
+                                {{ log.ip_address }}
+                            </code>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="7">
+                            <div class="empty-state">
+                                <i class="fas fa-history"></i>
+                                <p>No audit logs found.</p>
+                                <small style="color: var(--aurora-text-muted);">Logs are written to var/logs/admin_actions.log</small>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="mt-4">
+    <div class="aurora-card p-4">
+        <h6 style="font-weight: 700; color: var(--aurora-text); margin-bottom: 16px;">
+            <i class="fas fa-info-circle me-2" style="color: var(--aurora-blue);"></i>About Audit Logging
+        </h6>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="d-flex align-items-start gap-3">
+                    <div style="width: 40px; height: 40px; border-radius: 10px; background: var(--aurora-emerald-light); display: flex; align-items: center; justify-content: center; color: var(--aurora-emerald);">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <div>
+                        <h6 style="font-weight: 700; font-size: 0.9rem;">Security</h6>
+                        <p style="font-size: 0.85rem; color: var(--aurora-text-secondary);">All admin actions are logged for security review and compliance.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="d-flex align-items-start gap-3">
+                    <div style="width: 40px; height: 40px; border-radius: 10px; background: var(--aurora-blue-light); display: flex; align-items: center; justify-content: center; color: var(--aurora-blue);">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                    <div>
+                        <h6 style="font-weight: 700; font-size: 0.9rem;">Log Location</h6>
+                        <p style="font-size: 0.85rem; color: var(--aurora-text-secondary);">Logs are stored in <code>var/logs/admin_actions.log</code></p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="d-flex align-items-start gap-3">
+                    <div style="width: 40px; height: 40px; border-radius: 10px; background: var(--aurora-violet-light); display: flex; align-items: center; justify-content: center; color: var(--aurora-violet);">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div>
+                        <h6 style="font-weight: 700; font-size: 0.9rem;">Retention</h6>
+                        <p style="font-size: 0.85rem; color: var(--aurora-text-secondary);">Last 500 entries are displayed. Archive older logs periodically.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

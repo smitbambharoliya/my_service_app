@@ -5,7 +5,12 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta name="theme-color" content="#0a0e16">
         <title>{% block title %}ServiceHub — Digital Luxury Heritage{% endblock %}</title>
-        <meta name="description" content="Premium Concierge & Service Marketplace. Redefining Digital Luxury.">
+        <meta name="description" content="ServiceHub: Premium Concierge & Elite Service Marketplace. Bridging the gap between complex engineering and effortless luxury.">
+        <meta property="og:title" content="ServiceHub — Digital Luxury Heritage">
+        <meta property="og:description" content="Experience the next evolution of prestige maintenance and bespoke service delivery.">
+        <meta property="og:type" content="website">
+        <meta property="og:url" content="{{ app.request.uri }}">
+        <meta name="robots" content="index, follow">
         
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,52 +19,58 @@
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
         
-        <link rel="stylesheet" href="{{ asset('styles/app.css') }}">
+        <link rel="stylesheet" href="{{ asset('styles/app.css') }}?v={{ random() }}">
         
         {% block stylesheets %}{% endblock %}
 
         <style>
             .luxury-navbar {
-                background: rgba(10, 14, 22, 0.4);
+                background: rgba(255, 255, 255, 0.98) !important;
                 backdrop-filter: blur(20px);
                 -webkit-backdrop-filter: blur(20px);
-                border-bottom: 1px solid var(--glass-border);
+                border-bottom: 2px solid rgba(14, 165, 233, 0.2);
                 padding: 1.25rem 0;
                 position: sticky;
                 top: 0;
                 z-index: 1000;
                 transition: all 0.4s var(--ease-luxury);
+                box-shadow: var(--shadow-soft);
             }
             .luxury-navbar.scrolled {
                 padding: 0.85rem 0;
-                background: rgba(10, 14, 22, 0.95);
-                border-bottom-color: rgba(16, 185, 129, 0.3);
+                background: rgba(255, 255, 255, 0.98);
+                border-bottom-color: var(--accent-teal);
             }
             .nav-brand-luxury {
                 font-family: 'Playfair Display', serif;
                 font-size: 1.6rem;
-                font-weight: 700;
-                color: var(--text-pure) !important;
-                display: flex; align-items: center; gap: 10px;
+                font-weight: 800;
+                color: #0f172a !important;
+                display: flex; align-items: center; gap: 4px;
                 text-decoration: none;
             }
-            .gold-dot { color: var(--accent-gold); }
+            .gold-dot { color: #f59e0b; }
             
             .nav-link-luxury {
-                color: var(--text-silver);
-                font-weight: 600;
-                font-size: 0.75rem;
+                color: #64748b;
+                font-weight: 800;
+                font-size: 0.8rem;
                 text-transform: uppercase;
-                letter-spacing: 0.12em;
-                padding: 8px 16px;
-                transition: all 0.3s var(--ease-luxury);
+                letter-spacing: 0.1em;
+                padding: 8px 20px;
+                border-radius: 8px;
+                transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
                 text-decoration: none;
-                opacity: 0.8;
+                border: 1px solid transparent;
             }
-            .nav-link-luxury:hover, .nav-link-luxury.active {
-                color: var(--accent-teal);
-                opacity: 1;
-                transform: translateY(-1px);
+            .nav-link-luxury:hover {
+                color: #0ea5e9;
+                background: rgba(14, 165, 233, 0.05);
+            }
+            .nav-link-luxury.active {
+                color: #ffffff !important;
+                background-color: #0ea5e9 !important;
+                box-shadow: 0 4px 15px rgba(14, 165, 233, 0.3);
             }
 
             .nav-notification {
@@ -86,7 +97,7 @@
                 display: flex; align-items: center; justify-content: center;
                 font-weight: 800; color: #0a0e16;
                 box-shadow: 0 4px 15px var(--accent-teal-glow);
-                border: 1px solid rgba(255,255,255,0.1);
+                border: 1px solid rgba(0,0,0,0.1);
             }
         </style>
     </head>
@@ -101,14 +112,22 @@
             </a>
 
             <ul class="nav d-none d-lg-flex align-items-center gap-2">
-                <li><a href="{{ path('app_home') }}" class="nav-link-luxury {{ app.request.get('_route') == 'app_home' ? 'active' : '' }}">Registry</a></li>
-                <li><a href="{{ path('app_service_list') }}" class="nav-link-luxury {{ app.request.get('_route') == 'app_service_list' ? 'active' : '' }}">Curation</a></li>
+                <li><a href="{{ path('app_home') }}" class="nav-link-luxury {{ app.request.get('_route') == 'app_home' ? 'active' : '' }}">Home</a></li>
+                <li><a href="{{ path('app_service_list') }}" class="nav-link-luxury {{ app.request.get('_route') == 'app_service_list' ? 'active' : '' }}">Registry</a></li>
+                {% if app.user and is_granted('ROLE_PROVIDER') %}
+                    <li><a href="{{ path('app_provider_my_services') }}" class="nav-link-luxury {{ app.request.get('_route') == 'app_provider_my_services' ? 'active' : '' }}">Curation</a></li>
+                {% elseif app.user %}
+                    <li><a href="{{ path('app_booking_my_bookings') }}" class="nav-link-luxury {{ app.request.get('_route') == 'app_booking_my_bookings' ? 'active' : '' }}">Curation</a></li>
+                {% else %}
+                    <li><a href="{{ path('app_login') }}" class="nav-link-luxury">Curation</a></li>
+                {% endif %}
+                
                 {% if app.user %}
-                    {% if is_granted('ROLE_PROVIDER') %}
-                        <li><a href="{{ path('app_provider_dashboard') }}" class="nav-link-luxury {{ app.request.get('_route') == 'app_provider_dashboard' ? 'active' : '' }}">Atelier</a></li>
-                    {% else %}
-                        <li><a href="{{ path('app_customer_dashboard') }}" class="nav-link-luxury {{ app.request.get('_route') == 'app_customer_dashboard' ? 'active' : '' }}">Manifest</a></li>
-                    {% endif %}
+                    <li><a href="{{ path('app_customer_dashboard') }}" class="nav-link-luxury {{ app.request.get('_route') == 'app_customer_dashboard' ? 'active' : '' }}">Manifest</a></li>
+                {% endif %}
+                
+                {% if is_granted('ROLE_ADMIN') %}
+                    <li><a href="{{ path('app_admin_dashboard') }}" class="nav-link-luxury {{ 'admin' in app.request.getPathInfo() ? 'active' : '' }}">Dashboard</a></li>
                 {% endif %}
             </ul>
 
@@ -123,14 +142,14 @@
                         <button class="bg-transparent border-0 p-0 d-flex align-items-center gap-3" data-bs-toggle="dropdown">
                             <div class="user-orb">{{ app.user.fullName|slice(0,1)|upper }}</div>
                             <div class="text-start d-none d-md-block">
-                                <div class="text-xxs text-muted fw-800" style="letter-spacing:0.15em;">{{ app.user.tier|upper }}</div>
-                                <div class="text-pure fw-bold" style="font-size:0.8rem;">{{ app.user.fullName|split(' ')[0] }}</div>
+                                <div class="text-xxs fw-800" style="letter-spacing:0.15em; color: #64748b;">{{ app.user.tier|upper }}</div>
+                                <div class="fw-bold" style="font-size:0.8rem; color: #0f172a;">{{ app.user.fullName|split(' ')[0] }}</div>
                             </div>
                         </button>
-                        <ul class="dropdown-menu dropdown-menu-end glass-card p-2 mt-3" style="min-width:220px; background: rgba(10,14,22,0.98); border-color: var(--glass-border);">
-                            <li><a class="dropdown-item p-3 rounded-3 text-silver border-0" href="{{ path('app_profile') }}"><i class="fa-regular fa-user me-3 text-teal"></i> Heritage Profile</a></li>
-                            <li><hr class="dropdown-divider opacity-10"></li>
-                            <li><a class="dropdown-item p-3 rounded-3 text-silver border-0" href="{{ path('app_logout') }}"><i class="fa-solid fa-arrow-right-from-bracket me-3 text-gold"></i> Relinquish Session</a></li>
+                        <ul class="dropdown-menu dropdown-menu-end p-2 mt-3 shadow" style="min-width:220px; background: rgba(255,255,255,0.98); border: 1px solid rgba(15, 23, 42, 0.1); border-radius: 12px;">
+                            <li><a class="dropdown-item p-3 rounded-3 border-0" style="color: #334155; font-weight: 600;" href="{{ path('app_profile') }}"><i class="fa-regular fa-user me-3" style="color: #0ea5e9;"></i> Heritage Profile</a></li>
+                            <li><hr class="dropdown-divider" style="border-color: rgba(15, 23, 42, 0.1);"></li>
+                            <li><a class="dropdown-item p-3 rounded-3 border-0" style="color: #ef4444; font-weight: 600;" href="{{ path('app_logout') }}"><i class="fa-solid fa-arrow-right-from-bracket me-3" style="color: #ef4444;"></i> Relinquish Session</a></li>
                         </ul>
                     </div>
                 {% else %}

@@ -6,11 +6,22 @@
 <style>
     html { scroll-behavior: smooth; }
     body {
-        background: var(--bg-deep, #121826);
+        background: #040812;
         overflow-x: hidden;
         overflow-y: auto;
         min-height: 100vh;
     }
+
+    /* Dark Theme Typography Overrides */
+    :root {
+        --text-pure: #ffffff;
+        --text-silver: #94a3b8;
+        --text-dim: #64748b;
+    }
+    h1, h2, h3, h4, h5, h6, .luxury-serif, .text-pure { color: #ffffff !important; }
+    .text-silver { color: var(--text-silver) !important; }
+    .text-dim { color: var(--text-dim) !important; }
+    .text-gold { color: #38bdf8 !important; }
 
     .portal-wrapper {
         min-height: 100vh;
@@ -25,7 +36,7 @@
     .portal-bg-accent {
         position: absolute;
         width: 1200px; height: 1200px;
-        background: radial-gradient(circle, rgba(124, 58, 237, 0.05) 0%, transparent 70%);
+        background: radial-gradient(circle, rgba(59, 130, 246, 0.04) 0%, transparent 70%);
         bottom: -400px; left: -400px;
         z-index: 1;
         pointer-events: none;
@@ -36,19 +47,18 @@
         max-width: 1250px;
         display: grid;
         grid-template-columns: 1fr 1.3fr;
-        background: rgba(26, 34, 51, 0.5);
-        backdrop-filter: blur(40px);
-        border: 1px solid var(--gold-border);
+        background: #0f172a;
+        border: 1px solid rgba(255,255,255,0.05);
         border-radius: var(--r-xl);
         overflow: hidden;
         position: relative;
         z-index: 10;
-        box-shadow: 0 50px 100px rgba(0,0,0,0.8), 0 0 40px var(--gold-glow);
+        box-shadow: 0 20px 50px rgba(0,0,0,0.5), 0 0 40px rgba(59, 130, 246, 0.15);
     }
 
     /* Left Panel: The Heritage Story */
     .portal-visual {
-        background: linear-gradient(rgba(7, 8, 15, 0.8), rgba(7, 8, 15, 0.8)), url('https://images.unsplash.com/photo-1581578731548-c64695cc6952?q=80&w=1200&auto=format&fit=crop');
+        background: linear-gradient(rgba(15, 23, 42, 0.95), rgba(15, 23, 42, 0.8)), url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1200&auto=format&fit=crop');
         background-size: cover;
         background-position: center;
         padding: 60px;
@@ -65,21 +75,21 @@
     }
     .step-node {
         width: 40px; height: 40px;
-        border: 1px solid var(--accent-gold);
+        border: 1px solid #3b82f6;
         border-radius: 50%;
         display: flex; align-items: center; justify-content: center;
-        color: var(--accent-gold);
+        color: #3b82f6;
         font-weight: 800; font-size: 0.8rem;
         flex-shrink: 0;
-        background: rgba(212, 175, 55, 0.1);
+        background: rgba(59, 130, 246, 0.1);
     }
-    .heritage-step h4 { font-family: 'Playfair Display', serif; color: var(--text-pure); margin-bottom: 8px; font-size: 1.2rem; }
-    .heritage-step p { color: var(--text-dim); font-size: 0.85rem; margin: 0; line-height: 1.5; }
+    .heritage-step h4 { font-family: 'Playfair Display', serif; color: #ffffff; margin-bottom: 8px; font-size: 1.2rem; }
+    .heritage-step p { color: #94a3b8; font-size: 0.85rem; margin: 0; line-height: 1.5; }
 
     /* Right Panel: The Matrix Form */
     .portal-form-side {
         padding: 60px;
-        background: rgba(15, 23, 42, 0.25);
+        background: #0f172a;
     }
 
     .input-label {
@@ -94,20 +104,21 @@
 
     .auth-input {
         width: 100%;
-        background: var(--bg-elevated) !important;
-        border: 1px solid var(--glass-border);
+        background: rgba(0,0,0,0.2) !important;
+        border: 1px solid rgba(255,255,255,0.1);
         border-radius: var(--r-md);
         padding: 14px 20px;
-        color: var(--text-pure) !important;
+        color: #ffffff !important;
         font-size: 0.85rem;
         transition: all 0.4s var(--ease-luxury);
         margin-bottom: 20px;
+        font-family: 'Plus Jakarta Sans', sans-serif;
     }
     .auth-input:focus {
-        background: var(--bg-surface) !important;
-        border-color: var(--accent-gold);
+        background: rgba(0,0,0,0.4) !important;
+        border-color: #38bdf8;
         outline: none;
-        box-shadow: 0 0 15px var(--gold-glow);
+        box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
     }
 
     /* Elegant Role Selector */
@@ -120,22 +131,22 @@
     .role-option { cursor: pointer; position: relative; }
     .role-option input { display: none; }
     .role-ui {
-        background: rgba(255,255,255,0.02);
-        border: 1px solid var(--glass-border);
+        background: rgba(0,0,0,0.2);
+        border: 1px solid rgba(255,255,255,0.1);
         padding: 20px;
         border-radius: var(--r-md);
         text-align: center;
         transition: all 0.4s var(--ease-luxury);
     }
-    .role-option:hover .role-ui { border-color: var(--gold-border); transform: translateY(-5px); }
+    .role-option:hover .role-ui { border-color: #38bdf8; transform: translateY(-5px); box-shadow: 0 10px 20px rgba(56, 189, 248, 0.15); }
     .role-option input:checked + .role-ui {
-        background: rgba(212, 175, 55, 0.08);
-        border-color: var(--accent-gold);
-        box-shadow: 0 0 20px var(--gold-glow);
+        background: rgba(56, 189, 248, 0.1);
+        border-color: #38bdf8;
+        box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
     }
-    .role-ui i { display: block; font-size: 1.5rem; color: var(--text-dim); margin-bottom: 10px; transition: color 0.4s; }
-    .role-option input:checked + .role-ui i { color: var(--accent-gold); }
-    .role-ui .title { display: block; font-weight: 800; font-size: 0.7rem; color: var(--text-pure); letter-spacing: 0.1em; }
+    .role-ui i { display: block; font-size: 1.5rem; color: #64748b; margin-bottom: 10px; transition: color 0.4s; }
+    .role-option input:checked + .role-ui i { color: #38bdf8; }
+    .role-ui .title { display: block; font-weight: 800; font-size: 0.7rem; color: #ffffff; letter-spacing: 0.1em; }
 
     @media (max-width: 992px) {
         .portal-card { grid-template-columns: 1fr; max-width: 500px; }
@@ -153,8 +164,8 @@
         {# ── LEFT PANEL ── #}
         <div class="portal-visual">
             <div class="mb-5">
-                <span class="text-gold text-xs fw-800 letter-spacing-2 mb-3 d-block">HERITAGE ONBOARDING</span>
-                <h2 class="luxury-serif text-pure mb-5" style="font-size: 2.5rem;">Initialize Your<br>Service Legacy.</h2>
+                <span class="text-gold text-xs fw-800 letter-spacing-2 mb-3 d-block" style="text-shadow: 0 0 10px rgba(56, 189, 248, 0.5);">HERITAGE ONBOARDING</span>
+                <h2 class="luxury-serif text-pure mb-5" style="font-size: 2.5rem; text-shadow: 0 4px 15px rgba(255, 255, 255, 0.3);">Initialize Your<br>Service Legacy.</h2>
             </div>
             
             <div class="heritage-step">
@@ -277,13 +288,13 @@
                 </div>
 
                 <div class="mb-5 d-flex align-items-center gap-3">
-                    {{ form_widget(registrationForm.agreeTerms, {'attr': {'class': 'form-check-input bg-transparent border-glass'}}) }}
-                    <label class="text-xxs text-dim fw-bold cursor-pointer">I AGREE TO THE <a href="#" class="text-gold">HERITAGE BYLAWS</a></label>
+                    {{ form_widget(registrationForm.agreeTerms, {'attr': {'class': 'form-check-input bg-transparent', 'style': 'border-color: #cbd5e1;'}}) }}
+                    <label class="text-xxs text-dim fw-bold cursor-pointer">I AGREE TO THE <a href="#" class="text-gold text-decoration-none">HERITAGE BYLAWS</a></label>
                 </div>
 
                 {{ form_rest(registrationForm) }}
 
-                <button type="submit" class="btn-luxury w-100 py-3 mb-0 justify-content-center">
+                <button type="submit" class="btn-aurora-gradient w-100 py-3 mb-0 justify-content-center" style="font-size: 0.8rem; border-radius: 50px;">
                     INITIALIZE LEGACY <i class="fas fa-rocket ms-2"></i>
                 </button>
             {{ form_end(registrationForm) }}

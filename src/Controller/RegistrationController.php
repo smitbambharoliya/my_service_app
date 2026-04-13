@@ -66,9 +66,13 @@ class RegistrationController extends AbstractController
                 $emailSent = true;
                 $this->addFlash('success', 'Registration successful! OTP sent to ' . $user->getEmail() . '. Please check your inbox (and spam folder).');
             } catch (\Exception $e) {
-                // Dev mode: show exact error + OTP fallback
-                $this->addFlash('error', '⚠️ Email Error: ' . $e->getMessage());
-                $this->addFlash('warning', '🔑 Dev Fallback OTP: <strong style="font-size:1.5rem;letter-spacing:4px;">' . $otp . '</strong><br><small>Use this code to verify your account</small>');
+                // Determine environment directly if desired or just wrap based on $_ENV['APP_ENV']
+                if (($_ENV['APP_ENV'] ?? 'prod') === 'dev') {
+                    $this->addFlash('error', '⚠️ Email Error: ' . $e->getMessage());
+                    $this->addFlash('warning', '🔑 Dev Fallback OTP: <strong style="font-size:1.5rem;letter-spacing:4px;">' . $otp . '</strong><br><small>Use this code to verify your account</small>');
+                } else {
+                    $this->addFlash('error', 'There was a problem sending the verification email. Please try again.');
+                }
             }
 
             return $this->redirectToRoute('app_verify_otp');

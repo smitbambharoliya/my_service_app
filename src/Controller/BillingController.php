@@ -198,11 +198,13 @@ class BillingController extends AbstractController
     #[Route('/billing/success/{id}', name: 'app_payment_success')]
     public function paymentSuccess(Billing $billing, EntityManagerInterface $em): Response
     {
-        $billing->setPaymentStatus('paid');
-        $billing->setTransactionId('STR-' . strtoupper(substr(bin2hex(random_bytes(4)), 0, 8)));
-        $em->flush();
-
-        $this->addFlash('success', 'Protocol successfully settled. Payment confirmed via Stripe secure gateway.');
+        // Now depends on webhook. If still unpaid, show processing.
+        if ($billing->getPaymentStatus() !== 'paid') {
+            $this->addFlash('info', 'Your payment is processing. Once verified by our gateway, your invoice will be generated.');
+        } else {
+            $this->addFlash('success', 'Protocol successfully settled. Payment confirmed via Stripe secure gateway.');
+        }
+        
         return $this->redirectToRoute('app_billing_index');
     }
 
@@ -211,6 +213,39 @@ class BillingController extends AbstractController
     {
         $this->addFlash('warning', 'Payment protocol interrupted. Transaction was not completed.');
         return $this->redirectToRoute('app_billing_index');
+    }
+
+    #[Route('/webhook/stripe', name: 'app_stripe_webhook', methods: ['POST'])]
+    public function stripeWebhook(Request $request, EntityManagerInterface $em): Response
+    {
+        $payload = @file_get_contents('php://input');
+        $sig_header = $request->headers->get('stripe-signature');
+        $endpoint_secret = $_ENV['STRIPE_WEBHOOK_SECRET'] ?? ''; // Set this in .env.local
+
+        try {
+            if ($endpoint_secret) {
+                $event = \Stripe\Webhook::constructEvent(
+                    $payload, $sig_header, $endpoint_secret
+                );
+            } else {
+                $event = json_decode($payload);
+            }
+        } catch(\UnexpectedValueException|\Stripe\Exception\SignatureVerificationException $e) {
+            return new Response('Invalid payload or signature', 400);
+        }
+
+        if ($event->type === 'checkout.session.completed') {
+            $session = $event->data->object;
+            $billing = $em->getRepository(Billing::class)->findOneBy(['stripeSessionId' => $session->id]);
+
+            if ($billing && $billing->getPaymentStatus() !== 'paid') {
+                $billing->setPaymentStatus('paid');
+                $billing->setTransactionId('STR-' . strtoupper(substr(bin2hex(random_bytes(4)), 0, 8)));
+                $em->flush();
+            }
+        }
+
+        return new Response('Webhook Handled', 200);
     }
 
     #[Route('/billing/download/{id}', name: 'app_billing_download')]

@@ -63,18 +63,18 @@
 
                 <div class="dropdown">
                     <button class="bg-transparent border-0 p-0 d-flex align-items-center gap-3" data-bs-toggle="dropdown" style="cursor: pointer;">
-                        <div style="width: 38px; height: 38px; border-radius: 12px; background: linear-gradient(135deg, var(--accent-teal), var(--accent-violet)); display: flex; align-items: center; justify-content: center; font-weight: 800; color: #07080f; box-shadow: 0 4px 15px var(--accent-teal-glow); border: 1px solid rgba(255,255,255,0.1);">
+                        <div style="width: 38px; height: 38px; border-radius: 12px; background: linear-gradient(135deg, #0ea5e9, #8b5cf6); display: flex; align-items: center; justify-content: center; font-weight: 800; color: #ffffff; box-shadow: 0 4px 15px rgba(14, 165, 233, 0.4); border: 1px solid rgba(255,255,255,0.5);">
                             {{ app.user.fullName|slice(0,1)|upper }}
                         </div>
                         <div class="text-start d-none d-md-block">
-                            <div style="font-size: 0.65rem; letter-spacing: 0.15em; color: var(--text-muted); font-weight: 800;">{{ app.user.tier|upper }}</div>
-                            <div style="color: var(--text-pure); font-weight: bold; font-size: 0.8rem;">{{ app.user.fullName|split(' ')[0] }}</div>
+                            <div style="font-size: 0.65rem; letter-spacing: 0.15em; color: #64748b; font-weight: 800;">{{ app.user.tier|upper }}</div>
+                            <div style="color: #0f172a; font-weight: bold; font-size: 0.8rem;">{{ app.user.fullName|split(' ')[0] }}</div>
                         </div>
                     </button>
-                    <ul class="dropdown-menu dropdown-menu-end glass-card p-2 mt-3" style="min-width: 220px; background: rgba(10,14,22,0.98); border-color: var(--glass-border);">
-                        <li><a class="dropdown-item p-3 rounded-3 text-silver border-0" href="{{ path('app_profile') }}" style="color: var(--text-silver) !important;"><i class="lucide" style="width: 18px; height: 18px; margin-right: 12px;"></i> Heritage Profile</a></li>
-                        <li><hr class="dropdown-divider opacity-10"></li>
-                        <li><a class="dropdown-item p-3 rounded-3 text-silver border-0" href="{{ path('app_logout') }}" style="color: var(--text-silver) !important;"><i class="lucide" style="width: 18px; height: 18px; margin-right: 12px;"></i> Relinquish Session</a></li>
+                    <ul class="dropdown-menu dropdown-menu-end p-2 mt-3 shadow-lg" style="min-width: 220px; background: #ffffff; border: 1px solid rgba(15, 23, 42, 0.08); border-radius: 12px;">
+                        <li><a class="dropdown-item p-3 rounded-3 border-0" href="{{ path('app_profile') }}" style="color: #334155 !important; font-weight: 600;"><i class="lucide" style="width: 18px; height: 18px; margin-right: 12px;"></i> Heritage Profile</a></li>
+                        <li><hr class="dropdown-divider" style="border-color: rgba(15, 23, 42, 0.08);"></li>
+                        <li><a class="dropdown-item p-3 rounded-3 border-0" href="{{ path('app_logout') }}" style="color: #ef4444 !important; font-weight: 600;"><i class="lucide" style="width: 18px; height: 18px; margin-right: 12px;"></i> Relinquish Session</a></li>
                     </ul>
                 </div>
             {% else %}
@@ -89,7 +89,7 @@
         {% for label, messages in app.flashes %}
             {% for message in messages %}
                 <div class="glass-card p-3 mb-4 d-flex align-items-center gap-3 border-0 animate-fade-in" style="background: rgba(16, 185, 129, 0.05); margin-top: 30px;">
-                    <svg class="lucide" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: {% if label == 'success' %}var(--accent-teal){% elif label == 'error' %}var(--accent-red){% else %}var(--text-silver){% endif %};"></svg>
+                    <svg class="lucide" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: {% if label == 'success' %}var(--accent-teal){% elseif label == 'error' %}var(--accent-red){% else %}var(--text-silver){% endif %};"></svg>
                     <div style="color: var(--text-silver); font-weight: 500; font-size: 0.9rem;">{{ message }}</div>
                 </div>
             {% endfor %}

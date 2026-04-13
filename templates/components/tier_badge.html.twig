@@ -1,0 +1,24 @@
+{# templates/components/tier_badge.html.twig #}
+{# 
+  Props:
+  tier (string) => 'bronze' | 'silver' | 'gold' | 'platinum' | 'aurora elite'
+#}
+{% set current_tier = tier|lower %}
+{% set badge_class = 'tier-bronze' %}
+{% set icon = 'fa-medal' %}
+
+{% if current_tier == 'silver' %}
+    {% set badge_class = 'tier-silver' %}
+{% elseif current_tier == 'gold' %}
+    {% set badge_class = 'tier-gold' %}
+{% elseif current_tier == 'platinum' %}
+    {% set badge_class = 'tier-platinum' %}
+    {% set icon = 'fa-gem' %}
+{% elseif current_tier == 'aurora elite' %}
+    {% set badge_class = 'tier-aurora' %}
+    {% set icon = 'fa-crown' %}
+{% endif %}
+
+<span class="tier-badge {{ badge_class }}">
+    <i class="fa-solid {{ icon }}"></i> {{ tier|upper }}
+</span>

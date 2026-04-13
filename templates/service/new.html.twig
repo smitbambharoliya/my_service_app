@@ -41,6 +41,15 @@
                             <label class="form-check-label fw-bold text-warning">Apply for Premium Listing?</label>
                         </div>
 
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Service Image</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-image"></i></span>
+                                {{ form_widget(form.imageFile, {'attr': {'class': 'form-control', 'accept': 'image/*(2)'}}) }}
+                            </div>
+                            <div class="form-text text-muted small">Upload a high-quality JPG or PNG image (max 5MB)</div>
+                        </div>
+
                         <div class="d-grid gap-2 mt-4">
                             <button type="submit" class="btn btn-primary btn-lg">Publish Service</button>
                             <a href="{{ path('app_service_list') }}" class="btn btn-outline-secondary">Back to List</a>

@@ -1,0 +1,21 @@
+{# templates/components/card.html.twig #}
+{# 
+  Props:
+  title (string|null)
+  content (block)
+  style (string) => 'glass' | 'aurora'
+#}
+{% set c_style = style|default('glass') %}
+{% set base_class = c_style == 'glass' ? 'glass-card' : 'aurora-card' %}
+
+<div class="{{ base_class }} {{ class|default('') }}">
+    {% if title is defined and title %}
+        <div class="card-header-custom border-bottom border-secondary pb-3 mb-3">
+            <h3 class="title m-0 p-0 text-white">{{ title }}</h3>
+        </div>
+    {% endif %}
+    
+    <div class="card-body">
+        {% block content %}{% endblock %}
+    </div>
+</div>

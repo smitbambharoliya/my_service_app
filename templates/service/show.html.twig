@@ -11,7 +11,7 @@
                 <ol class="breadcrumb text-xs fw-800 text-uppercase letter-spacing-1">
                     <li class="breadcrumb-item"><a href="{{ path('app_home') }}" class="text-dim text-decoration-none">Home</a></li>
                     <li class="breadcrumb-item"><a href="{{ path('app_service_list') }}" class="text-dim text-decoration-none">Services</a></li>
-                    <li class="breadcrumb-item active text-gold" aria-current="page">{{ service.category|upper }}</li>
+                    <li class="breadcrumb-item active text-gold" aria-current="page">{{ service.category.name|upper }}</li>
                 </ol>
             </nav>
             
@@ -89,12 +89,12 @@
                     </div>
 
                     <div class="glass-card text-center">
-                        <div class="sb-user-orb mx-auto mb-3" style="width: 60px; height: 60px;">
+                        <div class="user-orb mx-auto mb-3" style="width: 60px; height: 60px; font-size:1.3rem;">
                             {{ service.provider.fullName|slice(0,1)|upper }}
                         </div>
                         <div class="text-pure fw-bold mb-1">{{ service.provider.fullName }}</div>
                         <div class="text-xs text-dim text-uppercase letter-spacing-1 mb-4">{{ service.provider.tier }} ARTISAN</div>
-                        <a href="#" class="btn-outline w-100" style="font-size: 0.75rem;">VIEW PORTFOLIO</a>
+                        <a href="#" class="btn-outline-luxury w-100" style="font-size: 0.75rem;">VIEW PORTFOLIO</a>
                     </div>
                 </div>
             </div>

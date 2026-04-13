@@ -340,7 +340,7 @@
                             <strong>Amount:</strong> ₹{{ (booking.estimatedCost|default(booking.service.price))|number_format(0) }}
                         </div>
                         <div class="protocol-footer">
-                            <span>ID: #{{ booking.id|substring(0, 8) }}</span>
+                            <span>ID: #{{ booking.id|slice(0, 8) }}</span>
                             <div class="action-buttons">
                                 <a href="{{ path('app_service_show', {id: booking.service.id}) }}" class="action-btn">View Service</a>
                                 {% if booking.status|lower == 'completed' %}

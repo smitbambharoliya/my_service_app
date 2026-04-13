@@ -15,14 +15,7 @@ final class HomeController extends AbstractController
         \App\Repository\ServiceRepository $sRepo
     ): Response
     {
-        // Role-based redirect if logged in
-        if ($this->isGranted('ROLE_ADMIN')) {
-            return $this->redirectToRoute('app_admin_dashboard');
-        }
-
-        if ($this->isGranted('ROLE_PROVIDER')) {
-            return $this->redirectToRoute('app_provider_dashboard');
-        }
+        // Allow all users, including Admin and Provider, to view the Home Page
 
         $activeFeatures = $fRepo->findActiveFeaturedServices();
         $sections = ['hero' => [], 'trending' => [], 'premium' => [], 'seasonal' => []];

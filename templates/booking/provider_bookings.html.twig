@@ -1,0 +1,162 @@
+{% extends 'dashboard_base.html.twig' %}
+
+{% block title %}Protocol Ledger — ServiceHub Atelier{% endblock %}
+{% block page_title %}All Bookings{% endblock %}
+
+{% block body %}
+<div class="animate-fade-in">
+
+    {# ── PAGE HEADER ── #}
+    <div class="d-flex justify-content-between align-items-end mb-5">
+        <div>
+            <div class="text-xxs text-dim fw-800 letter-spacing-2 mb-2">COMPLETE PROTOCOL LEDGER</div>
+            <h2 class="luxury-serif text-pure mb-0">Client Session Archive</h2>
+        </div>
+        <div class="d-flex gap-2 align-items-center">
+            <div class="text-xxs text-dim fw-800">
+                TOTAL: <span class="text-pure">{{ bookings|length }}</span>
+            </div>
+        </div>
+    </div>
+
+    {# ── QUICK STATS ── #}
+    <div class="row g-3 mb-5">
+        <div class="col-md-3">
+            <div class="glass-card p-4 text-center">
+                <div class="text-xxs text-dim fw-800 mb-2">PENDING</div>
+                <div class="h3 text-admin fw-800 mb-0">{{ bookings|filter(b => b.status|lower == 'pending')|length }}</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="glass-card p-4 text-center">
+                <div class="text-xxs text-dim fw-800 mb-2">ON THE WAY</div>
+                <div class="h3 text-teal fw-800 mb-0">{{ bookings|filter(b => b.status|lower == 'on-the-way')|length }}</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="glass-card p-4 text-center">
+                <div class="text-xxs text-dim fw-800 mb-2">COMPLETED</div>
+                <div class="h3 text-teal fw-800 mb-0">{{ bookings|filter(b => b.status|lower == 'completed')|length }}</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="glass-card p-4 text-center">
+                <div class="text-xxs text-dim fw-800 mb-2">TOTAL YIELD</div>
+                {% set yield = 0 %}
+                {% for b in bookings|filter(b => b.status|lower == 'completed') %}
+                    {% set yield = yield + (b.estimatedCost ?? b.service.price) %}
+                {% endfor %}
+                <div class="h3 text-gold fw-800 mb-0">₹{{ yield|number_format(0) }}</div>
+            </div>
+        </div>
+    </div>
+
+    {# ── STATUS FILTER TABS ── #}
+    <div class="d-flex gap-2 mb-4 flex-wrap">
+        {% set filterStatus = app.request.query.get('status', '') %}
+        <a href="{{ path('app_booking_provider_bookings') }}" class="badge-status {{ filterStatus == '' ? 'status-active' : '' }}" style="{{ filterStatus != '' ? 'opacity:0.5;' : '' }} text-decoration:none;">ALL</a>
+        {% for s in ['pending','confirmed','on-the-way','completed','cancelled'] %}
+            <a href="{{ path('app_booking_provider_bookings', {'status': s}) }}" class="badge-status {{ filterStatus == s ? 'status-active' : '' }}" style="{{ filterStatus != s ? 'opacity:0.5;' : '' }} text-decoration:none;">{{ s|replace({'-': ' '})|upper }}</a>
+        {% endfor %}
+    </div>
+
+    {# ── BOOKINGS TABLE ── #}
+    <div class="glass-card p-0 overflow-hidden">
+        <div class="table-responsive">
+            <table class="table mb-0" style="--bs-table-bg: transparent; --bs-table-color: var(--text-silver);">
+                <thead>
+                    <tr class="text-xxs text-dim fw-800">
+                        <th class="ps-4 py-4" style="border-bottom: 1px solid var(--glass-border);">CLIENT</th>
+                        <th class="py-4" style="border-bottom: 1px solid var(--glass-border);">SERVICE</th>
+                        <th class="py-4" style="border-bottom: 1px solid var(--glass-border);">DATE</th>
+                        <th class="py-4" style="border-bottom: 1px solid var(--glass-border);">AMOUNT</th>
+                        <th class="py-4" style="border-bottom: 1px solid var(--glass-border);">STATUS</th>
+                        <th class="pe-4 py-4 text-end" style="border-bottom: 1px solid var(--glass-border);">ACTIONS</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% set filteredBookings = filterStatus ? bookings|filter(b => b.status|lower == filterStatus) : bookings %}
+
+                    {% for booking in filteredBookings %}
+                        <tr style="border-top: 1px solid var(--glass-border);">
+                            <td class="ps-4 py-4">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="user-orb" style="width:36px; height:36px; font-size:0.8rem;">
+                                        {{ booking.customer.fullName|slice(0,1)|upper }}
+                                    </div>
+                                    <div>
+                                        <div class="text-pure fw-bold" style="font-size:0.85rem;">{{ booking.customer.fullName }}</div>
+                                        <div class="text-xxs text-dim">{{ booking.customer.tier|upper }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="py-4">
+                                <div class="text-pure fw-bold text-xxs mb-1">{{ booking.service.title|upper }}</div>
+                                <div class="text-xxs text-dim">{{ booking.bookingType|upper }}</div>
+                            </td>
+                            <td class="py-4">
+                                <div class="text-silver text-xxs">{{ booking.bookingDate|date('d M Y') }}</div>
+                                <div class="text-dim" style="font-size:0.6rem;">{{ booking.bookingDate|date('H:i') }}</div>
+                            </td>
+                            <td class="py-4">
+                                <div class="text-gold fw-800" style="font-size:0.9rem;">
+                                    ₹{{ (booking.estimatedCost ?? booking.service.price)|number_format }}
+                                </div>
+                            </td>
+                            <td class="py-4">
+                                {% if booking.status|lower == 'completed' %}
+                                    <span class="badge-status status-active">DONE</span>
+                                {% elseif booking.status|lower == 'on-the-way' %}
+                                    <span class="badge-status status-pending">TRANSIT</span>
+                                {% elseif booking.status|lower == 'cancelled' %}
+                                    <span class="badge-status status-alert">CANCELLED</span>
+                                {% elseif booking.status|lower == 'pending' %}
+                                    <span class="badge-status status-pending">PENDING</span>
+                                {% else %}
+                                    <span class="badge-status status-active">{{ booking.status|upper }}</span>
+                                {% endif %}
+                            </td>
+                            <td class="pe-4 py-4 text-end">
+                                <div class="d-flex justify-content-end gap-2 flex-wrap">
+                                    <a href="{{ path('app_booking_detail', {id: booking.id}) }}" class="btn-outline-luxury py-1 px-3" style="font-size:0.6rem;">VIEW</a>
+
+                                    {% if booking.status|lower in ['confirmed', 'accepted'] %}
+                                        <form action="{{ path('app_provider_dispatch_booking', {id: booking.id}) }}" method="POST">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('dispatch' ~ booking.id) }}">
+                                            <button type="submit" class="btn-luxury px-3 py-1" style="font-size:0.6rem;">DISPATCH</button>
+                                        </form>
+                                    {% endif %}
+
+                                    {% if booking.status|lower == 'on-the-way' %}
+                                        <form action="{{ path('app_provider_complete_booking', {id: booking.id}) }}" method="POST">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('complete' ~ booking.id) }}">
+                                            <button type="submit" class="btn-luxury px-3 py-1" style="font-size:0.6rem;">CONCLUDE</button>
+                                        </form>
+                                    {% endif %}
+
+                                    {% if booking.bookingType == 'visit' and not booking.estimatedCost %}
+                                        <form action="{{ path('app_booking_estimate', {id: booking.id}) }}" method="POST" class="d-flex gap-2">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('booking_estimate_' ~ booking.id) }}">
+                                            <input type="number" name="estimated_cost" class="luxury-input py-1 px-2" style="width:80px; font-size:0.65rem;" placeholder="₹ Est." required min="1" step="0.01">
+                                            <button type="submit" class="btn-outline-luxury py-1 px-2" style="font-size:0.6rem;">PROPOSE</button>
+                                        </form>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="6" class="text-center py-5">
+                                <div class="opacity-30">
+                                    <i class="fas fa-inbox fs-1 text-dim mb-4 d-block"></i>
+                                    <p class="text-dim fw-800 text-xxs">NO BOOKINGS FOUND</p>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

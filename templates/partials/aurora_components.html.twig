@@ -1,0 +1,328 @@
+{#
+ # Aurora Glassy Light Theme Components
+ # Use these macros for consistent styling across all non-admin templates
+ #}
+
+{# ── BUTTONS ── #}
+{% macro button(text, href = '#', variant = 'primary', icon = '', size = 'md', type = 'link', extra_class = '') %}
+    {% set size_classes = {
+        'sm': 'py-2 px-4 text-xs',
+        'md': 'py-3 px-6 text-sm',
+        'lg': 'py-4 px-8 text-base'
+    } %}
+    {% set variant_classes = {
+        'primary': 'btn-aurora-gradient text-white border-0',
+        'secondary': 'btn-aurora-violet',
+        'success': 'btn-aurora-emerald',
+        'danger': 'btn-aurora-pink',
+        'warning': 'btn-aurora-amber',
+        'outline': 'btn-aurora-outline'
+    } %}
+
+    {% if type == 'link' %}
+        <a href="{{ href }}" class="btn-aurora {{ variant_classes[variant] }} {{ size_classes[size] }} {{ extra_class }}">
+            {% if icon %}<i class="fas fa-{{ icon }} me-2"></i>{% endif %}
+            {{ text }}
+        </a>
+    {% else %}
+        <button type="{{ type }}" class="btn-aurora {{ variant_classes[variant] }} {{ size_classes[size] }} {{ extra_class }}">
+            {% if icon %}<i class="fas fa-{{ icon }} me-2"></i>{% endif %}
+            {{ text }}
+        </button>
+    {% endif %}
+{% endmacro %}
+
+{# ── CARDS ── #}
+{% macro card(title = '', content = '', footer = '', icon = '', gradient = false) %}
+<div class="aurora-card {{ gradient ? 'aurora-card-gradient' : '' }}">
+    {% if title or icon %}
+        <div class="card-header-custom">
+            <div class="d-flex align-items-center gap-3">
+                {% if icon %}
+                    <div class="card-icon-{{ icon|split('-')[0] }}">
+                        <i class="fas fa-{{ icon }}"></i>
+                    </div>
+                {% endif %}
+                {% if title %}
+                    <span class="title">{{ title }}</span>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+    <div class="card-body-aurora">
+        {{ content|raw }}
+    </div>
+    {% if footer %}
+        <div class="card-footer-aurora">
+            {{ footer|raw }}
+        </div>
+    {% endif %}
+</div>
+{% endmacro %}
+
+{# ── STAT CARDS ── #}
+{% macro stat_card(value, label, icon = '', color = 'violet', trend = '', trend_up = true) %}
+<div class="stat-card-aurora">
+    <div class="stat-icon-aurora {{ color }}">
+        <i class="fas fa-{{ icon }}"></i>
+    </div>
+    <div class="stat-value-aurora">{{ value }}</div>
+    <div class="stat-label-aurora">{{ label }}</div>
+    {% if trend %}
+        <div class="stat-trend-aurora {{ trend_up ? 'trend-up' : 'trend-down' }}">
+            <i class="fas fa-arrow-{{ trend_up ? 'up' : 'down' }}"></i>
+            {{ trend }}
+        </div>
+    {% endif %}
+</div>
+{% endmacro %}
+
+{# ── BADGES ── #}
+{% macro badge(text, type = 'violet', icon = '') %}
+<span class="badge-aurora badge-aurora-{{ type }}">
+    {% if icon %}<i class="fas fa-{{ icon }} me-1"></i>{% endif %}
+    {{ text }}
+</span>
+{% endmacro %}
+
+{# ── ALERTS ── #}
+{% macro alert(message, type = 'info', dismissible = true, icon = '') %}
+{% set icons = {
+    'success': 'check-circle',
+    'error': 'exclamation-circle',
+    'warning': 'exclamation-triangle',
+    'info': 'info-circle'
+} %}
+<div class="alert-aurora alert-aurora-{{ type }}">
+    <i class="fas fa-{{ icon|default(icons[type]) }}"></i>
+    <span>{{ message|raw }}</span>
+    {% if dismissible %}
+        <button type="button" class="alert-close" onclick="this.parentElement.remove()">
+            <i class="fas fa-times"></i>
+        </button>
+    {% endif %}
+</div>
+{% endmacro %}
+
+{# ── FORM ELEMENTS ── #}
+{% macro input(name, label = '', value = '', type = 'text', placeholder = '', required = false, icon = '') %}
+<div class="form-group-aurora">
+    {% if label %}
+        <label class="form-label-aurora" for="{{ name }}">
+            {{ label }}
+            {% if required %}<span class="text-danger">*</span>{% endif %}
+        </label>
+    {% endif %}
+    <div class="input-wrapper-aurora">
+        {% if icon %}
+            <i class="fas fa-{{ icon }} input-icon-aurora"></i>
+        {% endif %}
+        <input type="{{ type }}"
+               name="{{ name }}"
+               id="{{ name }}"
+               value="{{ value }}"
+               placeholder="{{ placeholder }}"
+               {% if required %}required{% endif %}
+               class="form-control-aurora {{ icon ? 'has-icon' : '' }}">
+    </div>
+</div>
+{% endmacro %}
+
+{% macro textarea(name, label = '', value = '', placeholder = '', rows = 4, required = false) %}
+<div class="form-group-aurora">
+    {% if label %}
+        <label class="form-label-aurora" for="{{ name }}">
+            {{ label }}
+            {% if required %}<span class="text-danger">*</span>{% endif %}
+        </label>
+    {% endif %}
+    <textarea name="{{ name }}"
+              id="{{ name }}"
+              rows="{{ rows }}"
+              placeholder="{{ placeholder }}"
+              {% if required %}required{% endif %}
+              class="form-control-aurora">{{ value }}</textarea>
+</div>
+{% endmacro %}
+
+{% macro select(name, label = '', options = [], value = '', required = false, icon = '') %}
+<div class="form-group-aurora">
+    {% if label %}
+        <label class="form-label-aurora" for="{{ name }}">
+            {{ label }}
+            {% if required %}<span class="text-danger">*</span>{% endif %}
+        </label>
+    {% endif %}
+    <div class="input-wrapper-aurora">
+        {% if icon %}
+            <i class="fas fa-{{ icon }} input-icon-aurora"></i>
+        {% endif %}
+        <select name="{{ name }}"
+                id="{{ name }}"
+                {% if required %}required{% endif %}
+                class="form-control-aurora {{ icon ? 'has-icon' : '' }}">
+            {% for opt_value, opt_label in options %}
+                <option value="{{ opt_value }}" {{ value == opt_value ? 'selected' : '' }}>{{ opt_label }}</option>
+            {% endfor %}
+        </select>
+    </div>
+</div>
+{% endmacro %}
+
+{# ── USER AVATAR ── #}
+{% macro avatar(user, size = 'md', show_status = false, status = 'online') %}
+{% set size_px = {'sm': 36, 'md': 48, 'lg': 64, 'xl': 90}[size] %}
+<div class="avatar-aurora avatar-{{ size }} {{ show_status ? 'status-' ~ status : '' }}"
+     style="width: {{ size_px }}px; height: {{ size_px }}px; font-size: {{ size_px // 2 }}px;">
+    {{ user.fullName|slice(0,1)|upper }}
+</div>
+{% endmacro %}
+
+{# ── EMPTY STATE ── #}
+{% macro empty_state(icon, title, message, action_text = '', action_href = '') %}
+<div class="empty-state-aurora">
+    <div class="empty-state-icon">
+        <i class="fas fa-{{ icon }}"></i>
+    </div>
+    <h3 class="empty-state-title">{{ title }}</h3>
+    <p class="empty-state-message">{{ message }}</p>
+    {% if action_text and action_href %}
+        {{ _self.button(action_text, action_href, 'primary', 'plus') }}
+    {% endif %}
+</div>
+{% endmacro %}
+
+{# ── BREADCRUMB ── #}
+{% macro breadcrumb(items) %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb-aurora">
+        {% for item in items %}
+            <li class="breadcrumb-item {{ loop.last ? 'active' : '' }}">
+                {% if not loop.last %}
+                    <a href="{{ item.href|default('#') }}">{{ item.label }}</a>
+                {% else %}
+                    {{ item.label }}
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ol>
+</nav>
+{% endmacro %}
+
+{# ── SECTION HEADER ── #}
+{% macro section_header(title, subtitle = '', action_text = '', action_href = '', action_icon = '') %}
+<div class="section-header-aurora mb-4">
+    <div>
+        {% if subtitle %}
+            <span class="section-subtitle">{{ subtitle }}</span>
+        {% endif %}
+        <h2 class="section-title">{{ title }}</h2>
+    </div>
+    {% if action_text %}
+        {{ _self.button(action_text, action_href, 'primary', action_icon, 'sm') }}
+    {% endif %}
+</div>
+{% endmacro %}
+
+{# ── DATA TABLE ── #}
+{% macro table(headers, rows, empty_message = 'No data available') %}
+{% if rows|length > 0 %}
+<div class="table-responsive">
+    <table class="aurora-table">
+        <thead>
+            <tr>
+                {% for header in headers %}
+                    <th>{{ header }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in rows %}
+                <tr>
+                    {% for cell in row %}
+                        <td>{{ cell|raw }}</td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+    {{ _self.empty_state('inbox', 'No Records Found', empty_message) }}
+{% endif %}
+{% endmacro %}
+
+{# ── NAVIGATION SIDEBAR (For Customer/Provider Dashboards) ── #}
+{% macro sidebar_nav(items, user, active_route = '') %}
+<nav id="sidebar-aurora">
+    <div class="sidebar-brand">
+        <div class="brand-logo">ServiceHub</div>
+        <span class="brand-badge"><i class="fas fa-sparkles me-1"></i> Premium</span>
+    </div>
+
+    <div class="user-profile-sidebar">
+        {{ _self.avatar(user, 'md') }}
+        <div class="user-info">
+            <div class="user-name">{{ user.fullName|split(' ')[0] }}</div>
+            <div class="user-tier">{{ user.tier }}</div>
+        </div>
+    </div>
+
+    <div class="sidebar-nav-menu">
+        {% for section, nav_items in items %}
+            <div class="nav-section">{{ section }}</div>
+            {% for item in nav_items %}
+                <a href="{{ item.href }}" class="nav-item {{ active_route == item.route ? 'active' : '' }}">
+                    <i class="fas fa-{{ item.icon }}"></i>
+                    <span>{{ item.label }}</span>
+                    {% if item.badge|default(false) %}
+                        <span class="nav-badge">{{ item.badge }}</span>
+                    {% endif %}
+                </a>
+            {% endfor %}
+        {% endfor %}
+    </div>
+
+    <div class="sidebar-footer">
+        <a href="{{ path('app_logout') }}" class="nav-item text-danger">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Logout</span>
+        </a>
+    </div>
+</nav>
+{% endmacro %}
+
+{# ── AI DISCOVERY ORB ── #}
+{% macro ai_discovery_orb(placeholder = 'Describe your needs...', suggestions = []) %}
+<div class="ai-orb-container">
+    <div class="ai-orb-pulse"></div>
+    <div class="ai-orb">
+        <i class="fas fa-wand-magic-sparkles"></i>
+    </div>
+    <div class="ai-search-wrapper">
+        <input type="text"
+               class="ai-search-input"
+               placeholder="{{ placeholder }}"
+               id="ai-discovery-input">
+        <button class="ai-search-btn">
+            <i class="fas fa-arrow-right"></i>
+        </button>
+    </div>
+    {% if suggestions %}
+        <div class="ai-suggestions">
+            {% for suggestion in suggestions %}
+                <span class="ai-suggestion-chip">{{ suggestion }}</span>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
+{% endmacro %}
+
+{# ── MESH GRADIENT BACKGROUND ── #}
+{% macro mesh_gradient_background() %}
+<div class="aurora-bg">
+    <div class="aurora-blob aurora-blob-1"></div>
+    <div class="aurora-blob aurora-blob-2"></div>
+    <div class="aurora-blob aurora-blob-3"></div>
+</div>
+{% endmacro %}

@@ -18,6 +18,7 @@ class BookingType extends AbstractType
             ->add('bookingDate', DateTimeType::class, [
                 'widget' => 'single_text',
                 'label' => 'Preferred Date & Time',
+                'input' => 'datetime_immutable',
             ])
             ->add('bookingType', ChoiceType::class, [
                 'choices' => [

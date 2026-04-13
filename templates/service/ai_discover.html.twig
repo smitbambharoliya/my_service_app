@@ -1,0 +1,353 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}AI Sommelier — Discover Your Perfect Service{% endblock %}
+
+{% block body %}
+<div class="animate-fade-in" style="padding-top: 100px; min-height: 100vh;">
+    <div class="container">
+
+        {# ── HEADER ── #}
+        <div class="text-center mb-5">
+            <span class="text-gold text-xxs fw-800 letter-spacing-3 mb-2 d-block">AI SOMMELIER</span>
+            <h1 class="luxury-display mb-3" style="font-size: 3rem;">Discover Your Perfect Experience</h1>
+            <p class="text-dim" style="max-width: 600px; margin: 0 auto;">
+                Let our AI concierge guide you to the ideal service. Tell us about your mood and requirements,
+                and we'll curate a personalized selection just for you.
+            </p>
+        </div>
+
+        {# ── AI DISCOVERY CONTAINER ── #}
+        <div class="ai-sommelier-container mb-5">
+            <div class="position-relative" style="z-index: 1;">
+
+                {# Step 1: Mood Selection #}
+                <div id="step-mood" class="discovery-step">
+                    <h3 class="luxury-serif text-pure text-center mb-2" style="font-size: 1.5rem;">How are you feeling today?</h3>
+                    <p class="text-dim text-center mb-5">Select the mood that best describes your current state</p>
+
+                    <div class="mood-selector mb-5">
+                        <div class="mood-option" data-mood="relaxed">
+                            <i class="fas fa-spa"></i>
+                            <div class="text-pure fw-bold">Relaxed</div>
+                            <div class="text-dim text-xs">Unwind & rejuvenate</div>
+                        </div>
+                        <div class="mood-option" data-mood="productive">
+                            <i class="fas fa-bolt"></i>
+                            <div class="text-pure fw-bold">Productive</div>
+                            <div class="text-dim text-xs">Get things done</div>
+                        </div>
+                        <div class="mood-option" data-mood="celebratory">
+                            <i class="fas fa-glass-cheers"></i>
+                            <div class="text-pure fw-bold">Celebratory</div>
+                            <div class="text-dim text-xs">Special occasion</div>
+                        </div>
+                        <div class="mood-option" data-mood="stressed">
+                            <i class="fas fa-compress-arrows-alt"></i>
+                            <div class="text-pure fw-bold">Stressed</div>
+                            <div class="text-dim text-xs">Need relief</div>
+                        </div>
+                        <div class="mood-option" data-mood="adventurous">
+                            <i class="fas fa-mountain"></i>
+                            <div class="text-pure fw-bold">Adventurous</div>
+                            <div class="text-dim text-xs">Try something new</div>
+                        </div>
+                    </div>
+                </div>
+
+                {# Step 2: Requirements #}
+                <div id="step-requirements" class="discovery-step d-none">
+                    <h3 class="luxury-serif text-pure text-center mb-2" style="font-size: 1.5rem;">What do you need?</h3>
+                    <p class="text-dim text-center mb-5">Select your primary requirement</p>
+
+                    <div class="mood-selector mb-5">
+                        <div class="mood-option" data-requirement="home">
+                            <i class="fas fa-home"></i>
+                            <div class="text-pure fw-bold">Home Services</div>
+                            <div class="text-dim text-xs">Repairs & maintenance</div>
+                        </div>
+                        <div class="mood-option" data-requirement="beauty">
+                            <i class="fas fa-magic"></i>
+                            <div class="text-pure fw-bold">Beauty & Wellness</div>
+                            <div class="text-dim text-xs">Pamper yourself</div>
+                        </div>
+                        <div class="mood-option" data-requirement="automotive">
+                            <i class="fas fa-car"></i>
+                            <div class="text-pure fw-bold">Automotive</div>
+                            <div class="text-dim text-xs">Vehicle care</div>
+                        </div>
+                        <div class="mood-option" data-requirement="tech">
+                            <i class="fas fa-laptop-code"></i>
+                            <div class="text-pure fw-bold">Tech Support</div>
+                            <div class="text-dim text-xs">Digital solutions</div>
+                        </div>
+                        <div class="mood-option" data-requirement="health">
+                            <i class="fas fa-heartbeat"></i>
+                            <div class="text-pure fw-bold">Health & Fitness</div>
+                            <div class="text-dim text-xs">Wellness journey</div>
+                        </div>
+                    </div>
+
+                    <div class="text-center">
+                        <button class="btn-outline-luxury" onclick="showStep('mood')">
+                            <i class="fas fa-arrow-left me-2"></i> Back
+                        </button>
+                    </div>
+                </div>
+
+                {# Step 3: Budget & Timing #}
+                <div id="step-budget" class="discovery-step d-none">
+                    <h3 class="luxury-serif text-pure text-center mb-2" style="font-size: 1.5rem;">Your Preferences</h3>
+                    <p class="text-dim text-center mb-5">Help us refine your recommendations</p>
+
+                    <div class="row g-4 mb-5">
+                        <div class="col-md-6">
+                            <div class="glass-card">
+                                <label class="text-dim text-xs fw-800 letter-spacing-2 mb-3 d-block">BUDGET RANGE</label>
+                                <div class="d-flex gap-2 flex-wrap">
+                                    <button class="budget-option btn-outline-luxury py-2 px-3" style="font-size: 0.7rem;" data-budget="economy">Economy</button>
+                                    <button class="budget-option btn-outline-luxury py-2 px-3" style="font-size: 0.7rem;" data-budget="standard">Standard</button>
+                                    <button class="budget-option btn-outline-luxury py-2 px-3 active" style="font-size: 0.7rem;" data-budget="premium">Premium</button>
+                                    <button class="budget-option btn-outline-luxury py-2 px-3" style="font-size: 0.7rem;" data-budget="luxury">Luxury</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="glass-card">
+                                <label class="text-dim text-xs fw-800 letter-spacing-2 mb-3 d-block">TIMING</label>
+                                <div class="d-flex gap-2 flex-wrap">
+                                    <button class="timing-option btn-outline-luxury py-2 px-3" style="font-size: 0.7rem;" data-timing="today">Today</button>
+                                    <button class="timing-option btn-outline-luxury py-2 px-3 active" style="font-size: 0.7rem;" data-timing="week">This Week</button>
+                                    <button class="timing-option btn-outline-luxury py-2 px-3" style="font-size: 0.7rem;" data-timing="month">This Month</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-center">
+                        <button class="btn-outline-luxury me-2" onclick="showStep('requirements')">
+                            <i class="fas fa-arrow-left me-2"></i> Back
+                        </button>
+                        <button class="btn-luxury" onclick="discoverServices()">
+                            <i class="fas fa-wand-magic-sparkles me-2"></i> Discover Services
+                        </button>
+                    </div>
+                </div>
+
+                {# Step 4: Results #}
+                <div id="step-results" class="discovery-step d-none">
+                    <div class="text-center mb-5">
+                        <div class="mb-3">
+                            <i class="fas fa-sparkles text-gold" style="font-size: 2rem;"></i>
+                        </div>
+                        <h3 class="luxury-serif text-pure mb-2" style="font-size: 1.5rem;">Curated For You</h3>
+                        <p class="text-dim">Based on your mood and preferences, we've selected these premium services</p>
+                    </div>
+
+                    <div id="recommendations-container" class="row g-4">
+                        {# Recommendations will be loaded here #}
+                    </div>
+
+                    <div class="text-center mt-5">
+                        <button class="btn-outline-luxury me-2" onclick="showStep('budget')">
+                            <i class="fas fa-arrow-left me-2"></i> Refine
+                        </button>
+                        <a href="{{ path('app_service_list') }}" class="btn-luxury">
+                            <i class="fas fa-th-large me-2"></i> Browse All Services
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        {# ── FEATURED SECTION ── #}
+        <div class="row g-4 mb-5">
+            <div class="col-md-4">
+                <div class="glass-card text-center h-100">
+                    <div style="width: 60px; height: 60px; border-radius: 16px; background: linear-gradient(135deg, var(--accent-gold), var(--accent-gold-dark)); display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem;">
+                        <i class="fas fa-brain text-deep" style="font-size: 1.5rem;"></i>
+                    </div>
+                    <h4 class="luxury-serif text-pure mb-2">AI-Powered</h4>
+                    <p class="text-dim text-sm">Our intelligent system learns your preferences to deliver increasingly personalized recommendations.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="glass-card text-center h-100">
+                    <div style="width: 60px; height: 60px; border-radius: 16px; background: linear-gradient(135deg, var(--accent-purple), var(--accent-purple-dark)); display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem;">
+                        <i class="fas fa-gem text-pure" style="font-size: 1.5rem;"></i>
+                    </div>
+                    <h4 class="luxury-serif text-pure mb-2">Curated Quality</h4>
+                    <p class="text-dim text-sm">Every service is vetted and rated to ensure you receive only the finest experiences.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="glass-card text-center h-100">
+                    <div style="width: 60px; height: 60px; border-radius: 16px; background: linear-gradient(135deg, var(--accent-cyan), var(--accent-cyan)); display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem;">
+                        <i class="fas fa-bolt text-deep" style="font-size: 1.5rem;"></i>
+                    </div>
+                    <h4 class="luxury-serif text-pure mb-2">Instant Booking</h4>
+                    <p class="text-dim text-sm">Seamless scheduling with real-time availability and instant confirmation.</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<style>
+.discovery-step {
+    animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.mood-option {
+    flex: 1;
+    min-width: 140px;
+    max-width: 180px;
+}
+
+.mood-option i {
+    font-size: 1.75rem;
+    margin-bottom: 0.75rem;
+    background: linear-gradient(135deg, var(--accent-gold), var(--accent-purple));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.budget-option.active,
+.timing-option.active {
+    background: var(--accent-gold) !important;
+    color: var(--bg-deep) !important;
+    border-color: var(--accent-gold) !important;
+}
+
+.recommendation-card {
+    transition: all 0.4s var(--ease-luxury);
+}
+
+.recommendation-card:hover {
+    transform: translateY(-8px);
+    border-color: var(--accent-gold);
+    box-shadow: 0 20px 40px rgba(212, 175, 55, 0.15);
+}
+</style>
+
+<script>
+let selectedMood = '';
+let selectedRequirement = '';
+let selectedBudget = 'premium';
+let selectedTiming = 'week';
+
+// Mood selection
+document.querySelectorAll('.mood-option[data-mood]').forEach(option => {
+    option.addEventListener('click', function() {
+        selectedMood = this.dataset.mood;
+        document.querySelectorAll('.mood-option[data-mood]').forEach(o => o.classList.remove('selected'));
+        this.classList.add('selected');
+        setTimeout(() => showStep('requirements'), 300);
+    });
+});
+
+// Requirement selection
+document.querySelectorAll('.mood-option[data-requirement]').forEach(option => {
+    option.addEventListener('click', function() {
+        selectedRequirement = this.dataset.requirement;
+        document.querySelectorAll('.mood-option[data-requirement]').forEach(o => o.classList.remove('selected'));
+        this.classList.add('selected');
+        setTimeout(() => showStep('budget'), 300);
+    });
+});
+
+// Budget selection
+document.querySelectorAll('.budget-option').forEach(btn => {
+    btn.addEventListener('click', function() {
+        selectedBudget = this.dataset.budget;
+        document.querySelectorAll('.budget-option').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+    });
+});
+
+// Timing selection
+document.querySelectorAll('.timing-option').forEach(btn => {
+    btn.addEventListener('click', function() {
+        selectedTiming = this.dataset.timing;
+        document.querySelectorAll('.timing-option').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+    });
+});
+
+function showStep(stepName) {
+    document.querySelectorAll('.discovery-step').forEach(step => {
+        step.classList.add('d-none');
+    });
+    document.getElementById('step-' + stepName).classList.remove('d-none');
+}
+
+function discoverServices() {
+    const container = document.getElementById('recommendations-container');
+
+    // Sample recommendations based on selections
+    const recommendations = [
+        {
+            title: 'Premium Home Deep Clean',
+            category: 'Home Services',
+            price: '₹2,499',
+            rating: 4.9,
+            image: 'fas fa-broom',
+            match: '98% Match'
+        },
+        {
+            title: 'Luxury Spa Experience',
+            category: 'Beauty & Wellness',
+            price: '₹4,999',
+            rating: 4.8,
+            image: 'fas fa-spa',
+            match: '95% Match'
+        },
+        {
+            title: 'Executive Car Detailing',
+            category: 'Automotive',
+            price: '₹3,499',
+            rating: 4.9,
+            image: 'fas fa-car',
+            match: '92% Match'
+        }
+    ];
+
+    let html = '';
+    recommendations.forEach((rec, index) => {
+        html += `
+            <div class="col-md-4">
+                <div class="glass-card recommendation-card h-100 p-0 overflow-hidden" style="border-radius: 20px;">
+                    <div class="p-4 text-center" style="background: linear-gradient(135deg, rgba(212,175,55,0.1), rgba(124,58,237,0.05));">
+                        <span class="badge-status status-confirmed mb-2">${rec.match}</span>
+                        <div style="width: 80px; height: 80px; border-radius: 20px; background: linear-gradient(135deg, var(--accent-gold), var(--accent-purple)); display: flex; align-items: center; justify-content: center; margin: 0 auto;">
+                            <i class="${rec.image} text-pure" style="font-size: 2rem;"></i>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <div class="text-dim text-xs fw-800 letter-spacing-2 mb-1">${rec.category.toUpperCase()}</div>
+                        <h4 class="luxury-serif text-pure mb-2" style="font-size: 1.1rem;">${rec.title}</h4>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="text-gold fw-bold">${rec.price}</span>
+                            <span class="text-dim text-xs"><i class="fas fa-star text-gold me-1"></i>${rec.rating}</span>
+                        </div>
+                        <a href="{{ path('app_service_list') }}" class="btn-luxury w-100" style="font-size: 0.7rem;">
+                            Book Now
+                        </a>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+
+    container.innerHTML = html;
+    showStep('results');
+}
+</script>
+{% endblock %}

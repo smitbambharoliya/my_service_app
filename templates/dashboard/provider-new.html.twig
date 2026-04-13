@@ -372,14 +372,14 @@
                             <strong>Your Earnings:</strong> <span style="color: var(--accent-gold); font-weight: 600;">₹{{ ((booking.estimatedCost|default(booking.service.price)) * 0.8)|number_format(0) }}</span>
                         </div>
                         <div class="booking-footer">
-                            <span>Request ID: #{{ booking.id|substring(0, 8) }}</span>
+                            <span>Request ID: #{{ booking.id|slice(0, 8) }}</span>
                             <div class="action-buttons">
                                 {% if booking.status|lower == 'pending' %}
                                     <form method="POST" style="display: inline;">
                                         <button type="submit" class="action-btn accept">Accept Booking</button>
                                     </form>
                                     <button class="action-btn">Decline</button>
-                                {% elif booking.status|lower == 'confirmed' %}
+                                {% elseif booking.status|lower == 'confirmed' %}
                                     <a href="{{ path('app_booking_update', {id: booking.id}) }}" class="action-btn accept">Mark Complete</a>
                                 {% else %}
                                     <a href="{{ path('app_booking_show', {id: booking.id}) }}" class="action-btn">View Details</a>

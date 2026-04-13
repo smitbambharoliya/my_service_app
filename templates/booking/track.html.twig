@@ -1,5 +1,9 @@
 {% extends 'base.html.twig' %}
 
+{% block stylesheets %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+{% endblock %}
+
 {% block title %}Telemetry — {{ booking.service.title }}{% endblock %}
 
 {% block body %}
@@ -115,10 +119,47 @@
     .hud-stat .label { font-size: 0.6rem; font-weight: 800; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.15em; }
     .hud-stat .value { font-size: 0.95rem; font-weight: 700; color: var(--text-silver); }
 
+    /* Booking Timeline (Horizontal Progress) */
+    .booking-timeline { margin: 20px 0 30px; }
+    .timeline-track-h {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    .timeline-track-h::before {
+        content: '';
+        position: absolute;
+        top: 50%; left: 0; right: 0;
+        height: 2px;
+        background: var(--glass-border);
+        transform: translateY(-50%);
+        z-index: 0;
+    }
+    .timeline-steps { display: flex; justify-content: space-between; position: relative; z-index: 1; width: 100%; }
+    .step { display: flex; flex-direction: column; align-items: center; flex: 1; }
+    .step-node {
+        width: 30px; height: 30px; border-radius: 50%;
+        border: 2px solid var(--glass-border);
+        background: var(--bg-deep);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 0.7rem; color: var(--text-dim);
+        margin-bottom: 8px; transition: all 0.4s;
+        position: relative; z-index: 2;
+    }
+    .step.active .step-node {
+        border-color: var(--accent-teal);
+        background: rgba(16,185,129,0.15);
+        color: var(--accent-teal);
+        box-shadow: 0 0 15px var(--accent-teal-glow);
+    }
+    .step-label { font-size: 0.58rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-dim); text-align: center; }
+    .step.active .step-label { color: var(--accent-teal); }
+
     /* Map Pulsing Animation */
     @keyframes map-pulse {
-        0% { transform: scale(1); box-shadow: 0 0 10px var(--accent-teal-glow); }
-        50% { transform: scale(1.4); box-shadow: 0 0 30px var(--accent-teal-glow); }
+        0%   { transform: scale(1); box-shadow: 0 0 10px var(--accent-teal-glow); }
+        50%  { transform: scale(1.4); box-shadow: 0 0 30px var(--accent-teal-glow); }
         100% { transform: scale(1); box-shadow: 0 0 10px var(--accent-teal-glow); }
     }
     .custom-teal-pulse {
@@ -128,6 +169,7 @@
         border: 3px solid #FFF;
         animation: map-pulse 2s infinite ease-in-out;
     }
+    .leaflet-container { background: var(--bg-deep); }
 </style>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>

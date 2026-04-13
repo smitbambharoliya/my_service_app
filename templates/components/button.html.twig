@@ -1,0 +1,24 @@
+{# templates/components/button.html.twig #}
+{# 
+  Props:
+  text (string)
+  url (string|null)
+  type (string) => 'submit' | 'button'
+  style (string) => 'luxury' | 'outline' | 'aurora'
+  icon (string|null) => FontAwesome class
+#}
+{% set c_type = type|default('button') %}
+{% set c_style = style|default('luxury') %}
+{% set base_class = c_style == 'luxury' ? 'btn-luxury' : (c_style == 'outline' ? 'btn-outline-luxury' : 'btn-aurora btn-aurora-gradient') %}
+
+{% if url is defined and url %}
+    <a href="{{ url }}" class="{{ base_class }} {{ class|default('') }}">
+        {% if icon is defined and icon %}<i class="fa-solid {{ icon }}"></i>{% endif %}
+        {{ text }}
+    </a>
+{% else %}
+    <button type="{{ c_type }}" class="{{ base_class }} {{ class|default('') }}">
+        {% if icon is defined and icon %}<i class="fa-solid {{ icon }}"></i>{% endif %}
+        {{ text }}
+    </button>
+{% endif %}

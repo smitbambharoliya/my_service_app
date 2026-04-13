@@ -4,20 +4,15 @@
 
 {% block stylesheets %}
 <style>
-    /* ── LIGHT HERITAGE DESIGN SYSTEM ── */
-    :root {
-        --light-bg: #FCFDFF;
-        --light-surface: #FFFFFF;
-        --light-border: rgba(15, 23, 42, 0.08);
-        --light-text-main: #0F172A;
-        --light-text-dim: #64748B;
-        --accent-glow: rgba(16, 185, 129, 0.12);
-    }
-
+    /* ── OBSIDIAN X HERITAGE DESIGN SYSTEM ── */
     .hero-luxury {
         position: relative;
         padding: 220px 0 160px;
-        background: var(--light-bg);
+        background-color: #040812;
+        background-image: linear-gradient(to bottom, rgba(4, 8, 18, 0.4) 0%, rgba(4, 8, 18, 0.8) 80%, rgba(4, 8, 18, 1) 100%), url('https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=2560&auto=format&fit=crop');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
         min-height: 100vh;
         display: flex;
         align-items: center;
@@ -27,126 +22,111 @@
     .hero-bg-bloom {
         position: absolute;
         width: 1400px; height: 1400px;
-        background: radial-gradient(circle, rgba(16, 185, 129, 0.08) 0%, transparent 70%);
-        top: -500px; right: -500px;
+        background: radial-gradient(circle, rgba(14, 165, 233, 0.15) 0%, transparent 70%);
+        top: -400px; right: -300px;
         z-index: 1; pointer-events: none;
     }
 
     .hero-bg-bloom-alt {
         position: absolute;
-        width: 900px; height: 900px;
-        background: radial-gradient(circle, rgba(56, 189, 248, 0.05) 0%, transparent 70%);
+        width: 1200px; height: 1200px;
+        background: radial-gradient(circle, rgba(139, 92, 246, 0.12) 0%, rgba(236, 72, 153, 0.08) 40%, transparent 70%);
         bottom: -300px; left: -300px;
         z-index: 1; pointer-events: none;
     }
 
     .hero-content { position: relative; z-index: 10; }
 
-    /* AI Sommelier Interface - Light Glass */
-    .sommelier-interface {
-        max-width: 850px;
-        margin: 70px auto 0;
-        background: rgba(255, 255, 255, 0.7);
-        backdrop-filter: blur(30px);
-        -webkit-backdrop-filter: blur(30px);
-        border: 1px solid var(--light-border);
-        border-radius: 40px;
-        padding: 60px;
-        text-align: left;
-        box-shadow: 0 40px 120px rgba(15, 23, 42, 0.06), 0 0 40px rgba(16, 185, 129, 0.03);
+    /* Cinematic Text Effects */
+    .hero-title {
+        font-family: 'Playfair Display', serif;
+        font-size: clamp(3.5rem, 9vw, 5.5rem); 
+        line-height: 1.0; 
+        font-weight: 900;
+        color: #f8fafc !important;
+        text-shadow: 0 4px 20px rgba(14, 165, 233, 0.5), 0 0 10px rgba(139, 92, 246, 0.4);
     }
 
-    .discovery-step { display: none; }
-    .discovery-step.active { display: block; animation: fadeInUp 1s var(--ease-luxury); }
-
-    .mood-option {
-        background: var(--light-surface);
-        border: 1px solid var(--light-border);
-        padding: 30px;
-        border-radius: 24px;
+    /* Tilt Card Concept */
+    .premium-tilt-card {
+        background: #0f172a;
+        border: 1px solid rgba(255,255,255,0.05);
+        border-radius: var(--radius-lg);
+        padding: 40px;
+        transition: transform 0.1s cubic-bezier(0.23, 1, 0.32, 1), box-shadow 0.1s;
+        transform-style: preserve-3d;
         cursor: pointer;
-        transition: all 0.5s var(--ease-luxury);
-        text-align: center;
         height: 100%;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.02);
-    }
-    .mood-option:hover {
-        border-color: var(--accent-teal);
-        background: var(--accent-glow);
-        transform: translateY(-10px);
-        box-shadow: 0 20px 40px rgba(16, 185, 129, 0.1);
-    }
-
-    .mood-option i { transition: transform 0.5s var(--ease-luxury); }
-    .mood-option:hover i { transform: scale(1.2) rotate(5deg); }
-
-    /* Exhibits Gallery - Light Mode */
-    .archive-section { 
-        padding: 160px 0; 
-        background: #F8FAFC; 
-        border-top: 1px solid var(--light-border); 
+        display: flex; flex-direction: column; justify-content: space-between;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.4), 0 0 20px rgba(14, 165, 233, 0.1);
     }
     
-    .heritage-exhibit {
-        background: var(--light-surface);
-        border-radius: 32px;
-        overflow: hidden;
-        border: 1px solid var(--light-border);
-        transition: all 0.6s var(--ease-luxury);
-        height: 100%;
-        box-shadow: 0 10px 20px rgba(0,0,0,0.02);
+    .premium-tilt-card:hover {
+        box-shadow: 0 20px 50px rgba(139, 92, 246, 0.4), 0 0 40px rgba(14, 165, 233, 0.4);
+        border-color: rgba(139, 92, 246, 0.6);
     }
-    .heritage-exhibit:hover {
-        border-color: var(--accent-teal);
-        transform: translateY(-15px);
-        box-shadow: 0 50px 100px rgba(15, 23, 42, 0.08);
+
+    .tilt-inner { transform: translateZ(30px); }
+
+    .tilt-icon {
+        width: 64px; height: 64px;
+        background: rgba(20, 184, 166, 0.1);
+        border-radius: var(--radius-md);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.8rem; color: var(--color-accent-teal);
+        margin-bottom: 24px;
     }
-    .heritage-view {
-        height: 300px;
-        background-size: cover;
-        background-position: center;
+
+    /* Scroll Reveals */
+    .reveal { opacity: 0; transform: translateY(40px); transition: all 1s cubic-bezier(0.23, 1, 0.32, 1); }
+    .reveal.active { opacity: 1; transform: translateY(0); }
+
+    /* Archive Section */
+    .archive-section { 
+        padding: 160px 0; 
+        background: #020617; 
         position: relative;
     }
-    .heritage-view::after {
-        content: ''; position: absolute; inset: 0;
-        background: linear-gradient(to bottom, transparent 30%, rgba(255, 255, 255, 0.9) 100%);
+    .archive-section::before {
+        content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(15, 23, 42, 0.1), transparent);
     }
 
-    /* Override luxury inputs for light mode */
-    .luxury-input {
-        background: rgba(15, 23, 42, 0.03) !important;
-        border: 1px solid var(--light-border) !important;
-        color: var(--light-text-main) !important;
+    /* Dark Theme Typography Overrides */
+    :root {
+        --text-pure: #ffffff;
+        --text-silver: #94a3b8;
+        --text-dim: #64748b;
     }
-    .luxury-input:focus {
-        background: var(--light-surface) !important;
-        border-color: var(--accent-teal) !important;
-        box-shadow: 0 0 20px rgba(16, 185, 129, 0.1) !important;
-    }
+    h1, h2, h3, h4, h5, h6, .luxury-serif, .text-pure { color: #ffffff !important; }
+    .text-silver { color: var(--text-silver) !important; }
+    .text-dim { color: var(--text-dim) !important; }
+    .premium-dark-card h4, .premium-dark-card .text-pure { color: #ffffff !important; }
 
-    .luxury-serif { color: var(--light-text-main) !important; }
-    .text-silver { color: var(--light-text-dim) !important; }
-    .text-pure { color: var(--light-text-main) !important; }
-
-    /* Navbar Override for Home (Light) */
-    .luxury-navbar {
-        background: rgba(255, 255, 255, 0.5) !important;
-        border-bottom-color: var(--light-border) !important;
+    /* Vibrant Light Theme Button Overrides */
+    .btn-luxury {
+        background: linear-gradient(135deg, #0ea5e9 0%, #8b5cf6 100%) !important;
+        color: #ffffff !important;
+        box-shadow: 0 10px 25px rgba(14, 165, 233, 0.3) !important;
+        border: none !important;
     }
-    .luxury-navbar.scrolled {
-        background: rgba(255, 255, 255, 0.98) !important;
+    .btn-luxury:hover {
+        box-shadow: 0 15px 35px rgba(139, 92, 246, 0.4) !important;
+        transform: translateY(-2px) scale(1.02);
+        color: #ffffff !important;
+        filter: brightness(1.1);
     }
-    .nav-brand-luxury, .nav-link-luxury {
-        color: var(--light-text-main) !important;
+    .btn-outline-luxury {
+        background: rgba(14, 165, 233, 0.05) !important;
+        border: 1px solid rgba(14, 165, 233, 0.3) !important;
+        color: #0ea5e9 !important;
+        box-shadow: none !important;
     }
-    .user-orb {
-        color: #FFF !important;
-        box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2) !important;
-    }
-
-    @keyframes fadeInUp {
-        from { opacity: 0; transform: translateY(50px); }
-        to { opacity: 1; transform: translateY(0); }
+    .btn-outline-luxury:hover {
+        background: #0ea5e9 !important;
+        color: #ffffff !important;
+        box-shadow: 0 10px 20px rgba(14, 165, 233, 0.2) !important;
+        border-color: #0ea5e9 !important;
     }
 </style>
 {% endblock %}
@@ -154,154 +134,118 @@
 {% block body %}
 
 <main>
-    {# ── 1. LIGHT LUXURY HERO ── #}
+    {# ── 1. CINEMATIC HERO ── #}
     <section class="hero-luxury">
         <div class="hero-bg-bloom"></div>
         <div class="hero-bg-bloom-alt"></div>
         
         <div class="container hero-content text-center">
-            <div class="fade-up">
-                <span class="text-teal text-xxs fw-800 letter-spacing-5 mb-4 d-block">PREMIUM CURATION • ESTD 2024</span>
-                <h1 class="luxury-serif mb-4" style="font-size: clamp(3.5rem, 9vw, 5.5rem); line-height: 1.0; font-weight: 900;">
-                    Your Digital <span class="text-teal" style="background: linear-gradient(90deg, #10b981, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Heritage</span><br>Concierge.
+            <div class="reveal active">
+                <span class="text-teal text-xxs fw-900 letter-spacing-5 mb-4 d-block" style="color: #38bdf8 !important; text-shadow: 0 0 10px rgba(14, 165, 233, 0.5);">PREMIUM CURATION • ESTD 2024</span>
+                <h1 class="hero-title mb-4">
+                    Your Digital <br>
+                    <span style="background: linear-gradient(90deg, #38bdf8, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0px 2px 10px rgba(167, 139, 250, 0.5));">Heritage</span><br>
+                    Concierge.
                 </h1>
-                <p class="text-silver mx-auto mb-5" style="max-width:700px; font-size: 1.3rem; line-height: 1.7; font-weight: 300;">
+                <p class="mx-auto mb-5" style="max-width:700px; font-size: 1.35rem; line-height: 1.7; font-weight: 500; color: #94a3b8; text-shadow: 0 2px 10px rgba(0,0,0,0.8);">
                     Experience the next evolution of prestige maintenance. <br class="d-none d-md-block"> We bridge the gap between complex engineering and effortless luxury.
                 </p>
-                <div class="d-flex justify-content-center gap-3">
-                    <a href="#sommelier" class="btn-luxury py-3 px-5 shadow-lg">START DISCOVERY</a>
-                    <a href="{{ path('app_service_list') }}" class="btn-outline-luxury py-3 px-5" style="border-color: rgba(15,23,42,0.1) !important; color: var(--light-text-main) !important;">EXPLORE ARCHIVE</a>
+                <div class="d-flex justify-content-center flex-wrap gap-3">
+                    {% include 'components/button.html.twig' with {'text': 'REGISTRY', 'url': path('app_service_list'), 'style': 'luxury', 'class': 'py-3 px-5 shadow-lg'} %}
+                    {% set curationUrl = app.user ? (is_granted('ROLE_PROVIDER') ? path('app_provider_my_services') : path('app_booking_my_bookings')) : path('app_login') %}
+                    {% include 'components/button.html.twig' with {'text': 'CURATION', 'url': curationUrl, 'style': 'outline', 'class': 'py-3 px-5'} %}
+                    {% include 'components/button.html.twig' with {'text': 'MANIFEST', 'url': path('app_customer_dashboard'), 'style': 'outline', 'class': 'py-3 px-5'} %}
                 </div>
             </div>
+        </div>
+    </section>
 
-            {# AI SOMMELIER INTERFACE (Light Edition) #}
-            <div class="sommelier-interface fade-up" id="sommelier" style="animation-delay: 0.5s;">
-                <div id="sommelier-content">
-                    <!-- Step 1: Intent Selection -->
-                    <div class="discovery-step active" id="step-1">
-                        <div class="d-flex justify-content-between align-items-center mb-5 border-bottom border-light pb-4">
-                            <div>
-                                <h3 class="luxury-serif mb-1" style="font-size: 1.8rem;">Sommelier Protocol</h3>
-                                <div class="text-xxs text-dim fw-800 letter-spacing-2">IDENTIFY YOUR CURRENT PERSPECTIVE</div>
-                            </div>
-                            <div class="badge-status status-active px-3 py-1" style="font-size: 0.6rem; letter-spacing: 1px;">STAGE 01 / 02</div>
-                        </div>
-                        
-                        <div class="row g-4">
-                            <div class="col-md-4">
-                                <div class="mood-option" onclick="nextStep('Emergent', 'Immediate restoration sequence required.')">
-                                    <div class="mb-4" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; background: rgba(239, 68, 68, 0.08); border-radius: 12px; margin: 0 auto;">
-                                        <i class="fas fa-bolt-lightning" style="color: #ef4444; font-size: 1.5rem;"></i>
-                                    </div>
-                                    <div class="fw-900 text-pure text-xxs letter-spacing-2 mb-2">EMERGENT</div>
-                                    <div class="text-xxs text-dim">Urgent structural or power failures.</div>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="mood-option" onclick="nextStep('Fine', 'Bespoke enhancement & artisan care.')">
-                                    <div class="mb-4" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; background: rgba(59, 130, 246, 0.08); border-radius: 12px; margin: 0 auto;">
-                                        <i class="fas fa-gem" style="color: #3b82f6; font-size: 1.5rem;"></i>
-                                    </div>
-                                    <div class="fw-900 text-pure text-xxs letter-spacing-2 mb-2">CURATED</div>
-                                    <div class="text-xxs text-dim">Specialized aesthetic upgrades.</div>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="mood-option" onclick="nextStep('Steady', 'Seamless routine preservation.')">
-                                    <div class="mb-4" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; background: rgba(16, 185, 129, 0.08); border-radius: 12px; margin: 0 auto;">
-                                        <i class="fas fa-shield-check" style="color: #10b981; font-size: 1.5rem;"></i>
-                                    </div>
-                                    <div class="fw-900 text-pure text-xxs letter-spacing-2 mb-2">ROUTINE</div>
-                                    <div class="text-xxs text-dim">Hygiene & preventive maintenance.</div>
-                                </div>
-                            </div>
+    {# ── 2. PREMIUM CATEGORY SECTORS (Tilt Cards) ── #}
+    <section class="py-5" id="sommelier" style="background: #040812;">
+        <div class="container py-5">
+            <div class="text-center mb-5 reveal">
+                <h2 class="luxury-serif text-pure mb-2" style="font-size: 2.5rem;">Curation Sectors</h2>
+                <p class="text-dim text-sm letter-spacing-2 text-uppercase fw-bold">Select an intervention protocol</p>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-lg-4 col-md-6 reveal">
+                    <div class="premium-tilt-card" data-tilt>
+                        <div class="tilt-inner">
+                            <div class="tilt-icon"><i class="fas fa-bolt-lightning text-red"></i></div>
+                            <h3 class="luxury-serif text-pure h4 mb-3">Structural & Power</h3>
+                            <p class="text-dim text-sm mb-4">Immediate emergent protocols for critical systems failure and power photonics.</p>
+                            <a href="{{ path('app_service_list') }}" class="text-teal text-xs fw-bold letter-spacing-2 text-decoration-none">INITIALIZE SCAN <i class="fas fa-arrow-right ms-2"></i></a>
                         </div>
                     </div>
-
-                    <!-- Step 2: Parameter Refinement -->
-                    <div class="discovery-step" id="step-2">
-                        <div class="d-flex justify-content-between align-items-center mb-5 border-bottom border-light pb-4">
-                            <div class="d-flex align-items-center gap-4">
-                                <button class="rounded-circle border-0 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; background: rgba(15, 23, 42, 0.05);" onclick="prevStep()"><i class="fas fa-chevron-left text-dim"></i></button>
-                                <div>
-                                    <h3 class="luxury-serif mb-1" style="font-size: 1.8rem;">Refine Parameters</h3>
-                                    <div class="text-xxs text-teal fw-900 letter-spacing-2" id="intent-display">PHASE 02 / 02</div>
-                                </div>
-                            </div>
+                </div>
+                <div class="col-lg-4 col-md-6 reveal">
+                    <div class="premium-tilt-card" data-tilt>
+                        <div class="tilt-inner">
+                            <div class="tilt-icon" style="color: var(--color-accent-gold); background: rgba(212, 175, 55, 0.1);"><i class="fas fa-gem"></i></div>
+                            <h3 class="luxury-serif text-pure h4 mb-3">Bespoke Artisan</h3>
+                            <p class="text-dim text-sm mb-4">Curated aesthetic upgrades and high-end fabrication for elite environments.</p>
+                            <a href="{{ path('app_service_list') }}" class="text-gold text-xs fw-bold letter-spacing-2 text-decoration-none">INITIALIZE SCAN <i class="fas fa-arrow-right ms-2"></i></a>
                         </div>
-                        
-                        <form action="{{ path('app_service_list') }}" method="GET">
-                            <input type="hidden" name="mood" id="mood-input">
-                            <div class="row g-4">
-                                <div class="col-md-6">
-                                    <label class="text-xxs text-dim fw-900 letter-spacing-2 mb-3 d-block uppercase">Technical Sector</label>
-                                    <select name="category" class="luxury-input py-3 w-100 rounded-3">
-                                        <option value="">SCANNING ALL SECTORS...</option>
-                                        <option value="Structural">Hydraulics & Drainage</option>
-                                        <option value="Electrical">Power & Photonics</option>
-                                        <option value="Sanitization">Molecular Hygiene</option>
-                                        <option value="Climate">HVAC Control</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="text-xxs text-dim fw-900 letter-spacing-2 mb-3 d-block uppercase">Search Signature</label>
-                                    <input type="text" name="q" class="luxury-input py-3 w-100 rounded-3" placeholder="Define symptoms or needs...">
-                                </div>
-                                <div class="col-12 mt-5 text-end">
-                                    <button type="submit" class="btn-luxury px-5 py-4 w-100 rounded-4" style="background: var(--light-text-main) !important; color: #FFF !important; font-size: 0.9rem; letter-spacing: 2px;">
-                                        INITIATE ARCHIVE SCAN <i class="fas fa-search ms-3 opacity-50"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </form>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 reveal">
+                    <div class="premium-tilt-card" data-tilt>
+                        <div class="tilt-inner">
+                            <div class="tilt-icon" style="color: #3b82f6; background: rgba(59, 130, 246, 0.1);"><i class="fas fa-shield-halved"></i></div>
+                            <h3 class="luxury-serif text-pure h4 mb-3">Molecular Preserves</h3>
+                            <p class="text-dim text-sm mb-4">Preventive hygiene, HVAC atmospheric control, and routine preservation.</p>
+                            <a href="{{ path('app_service_list') }}" class="text-pure text-xs fw-bold letter-spacing-2 text-decoration-none">INITIALIZE SCAN <i class="fas fa-arrow-right ms-2"></i></a>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    {# ── 2. LIGHT EXHIBITS GALLERY ── #}
+    {# ── 3. ARCHIVE EXHIBITS GALLERY ── #}
     <section class="archive-section">
         <div class="container">
-            <div class="d-flex justify-content-between align-items-end mb-5">
+            <div class="d-flex justify-content-between align-items-end mb-5 reveal">
                 <div>
                     <span class="text-teal text-xxs fw-900 letter-spacing-4 mb-3 d-block">THE COLLECTION</span>
-                    <h2 class="luxury-serif mb-0" style="font-size: 3.2rem;">Executive Artifacts</h2>
+                    <h2 class="luxury-serif mb-0 text-pure" style="font-size: 3.2rem;">Executive Artifacts</h2>
                 </div>
-                <a href="{{ path('app_service_list') }}" class="btn-outline-luxury py-3 px-5 rounded-pill" style="font-size: 0.75rem; border-color: rgba(15,23,42,0.1) !important; color: var(--light-text-main) !important;">VIEW FULL MANIFEST</a>
+                {% include 'components/button.html.twig' with {'text': 'VIEW FULL MANIFEST', 'url': path('app_service_list'), 'style': 'outline', 'class': 'rounded-pill text-xs'} %}
             </div>
 
             <div class="row g-5">
                 {% if sections.trending is defined and sections.trending|length > 0 %}
                     {% for s in sections.trending|slice(0, 3) %}
-                        <div class="col-lg-4">
-                            <div class="heritage-exhibit">
-                                <div class="heritage-view" style="background-image: url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=800&auto=format&fit=crop');">
-                                    <div class="position-absolute bottom-0 start-0 p-4 w-100 d-flex justify-content-between align-items-center">
-                                        <span class="badge-status status-active" style="background: rgba(255,255,255,0.9); color: var(--accent-teal);">{{ s.category|upper }}</span>
-                                        <div class="text-xxs text-dim fw-900" style="text-shadow: 0 0 10px #FFF;">ID-{{ s.id|format('%04d') }}</div>
-                                    </div>
-                                </div>
-                                <div class="p-5">
-                                    <h4 class="luxury-serif mb-3" style="font-size: 1.6rem; font-weight: 800;">{{ s.title }}</h4>
-                                    <p class="text-silver opacity-80 mb-5" style="height: 50px; overflow: hidden; line-height: 1.8; font-size: 0.85rem;">{{ s.description|slice(0, 110) }}...</p>
-                                    
-                                    <div class="d-flex justify-content-between align-items-center pt-4" style="border-top: 1px solid var(--light-border);">
-                                        <div>
-                                            <div class="h4 mb-0 fw-900" style="color: var(--light-text-main);">₹{{ s.price|number_format }}</div>
-                                            <div class="text-xxs text-dim fw-800 mt-1 uppercase">Starting Premium</div>
+                        <div class="col-lg-4 reveal">
+                            {% include 'components/card.html.twig' with {'class': 'p-0 border-0', 'style': 'glass'} %}
+                                {% block content %}
+                                    <div style="height: 240px; background-image: url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=800&auto=format&fit=crop'); background-size: cover; background-position: center; position: relative; border-radius: var(--radius-lg) var(--radius-lg) 0 0;">
+                                        <div class="position-absolute bottom-0 start-0 p-4 w-100 d-flex justify-content-between align-items-center" style="background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);">
+                                            <span class="badge bg-primary text-white border-0 py-1 px-2 rounded-1 fw-bold text-xxs" style="letter-spacing: 1px;">{{ s.category.name|default('Artifact')|upper }}</span>
+                                            <div class="text-xxs text-white fw-900" style="opacity: 0.9; letter-spacing: 1px;">ID-{{ s.id|format('%04d') }}</div>
                                         </div>
-                                        <a href="{{ path('app_service_show', {'id': s.id}) }}" class="btn-luxury py-2 px-4 shadow-sm" style="font-size: 0.7rem; background: var(--accent-teal) !important;">CONFIGURE</a>
                                     </div>
-                                </div>
-                            </div>
+                                    <div class="p-4 premium-dark-card" style="background: #0f172a; border: 1px solid rgba(255,255,255,0.05); border-top: none; border-radius: 0 0 var(--radius-lg) var(--radius-lg); box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+                                        <h4 class="luxury-serif mb-2 text-pure" style="font-size: 1.4rem;">{{ s.title }}</h4>
+                                        <p class="text-dim mb-4" style="font-size: 0.85rem; height: 42px; overflow: hidden;">{{ s.description|slice(0, 90) }}...</p>
+                                        
+                                        <div class="d-flex justify-content-between align-items-center pt-3 border-top" style="border-color: rgba(15, 23, 42, 0.05) !important;">
+                                            <div>
+                                                <div class="h5 mb-0 fw-bold text-pure">₹{{ s.price|number_format }}</div>
+                                            </div>
+                                            {% include 'components/button.html.twig' with {'text': 'CONFIGURE', 'url': path('app_service_show', {'id': s.id}), 'style': 'luxury', 'class': 'py-2 px-4 shadow-sm text-xxs'} %}
+                                        </div>
+                                    </div>
+                                {% endblock %}
+                            
                         </div>
                     {% endfor %}
                 {% else %}
-                    <div class="col-12 text-center py-5">
-                        <div class="glass-card py-5 border-dashed" style="background: var(--light-surface);">
+                    <div class="col-12 text-center py-5 reveal">
+                        <div class="glass-card py-5 border-dashed">
                             <p class="text-dim mb-0">Artifact archives are currently rotating. Please stand by for the next cycle.</p>
-                            <a href="{{ path('app_service_list') }}" class="btn-luxury mt-5 px-5">MANUAL RECOVERY</a>
+                            {% include 'components/button.html.twig' with {'text': 'MANUAL RECOVERY', 'url': path('app_service_list'), 'style': 'luxury', 'class': 'mt-5 px-5'} %}
                         </div>
                     </div>
                 {% endif %}
@@ -309,25 +253,25 @@
         </div>
     </section>
 
-    {# ── 3. ARCHIVE FOOTER (Light) ── #}
-    <footer class="py-5" style="background: #F8FAFC; border-top: 1px solid var(--light-border);">
-        <div class="container py-5">
+    {# ── 4. ARCHIVE FOOTER ── #}
+    <footer class="py-5" style="background: #020617; border-top: 1px solid rgba(255,255,255,0.05);">
+        <div class="container py-5 reveal">
             <div class="row g-5">
                 <div class="col-lg-4">
                     <a class="luxury-serif fw-900 fs-2 text-decoration-none text-pure" href="#">Service<span class="text-teal">Hub</span></a>
-                    <p class="text-silver mt-4 opacity-70" style="max-width: 300px;">The world's first Digital Heritage Concierge. Maintaining excellence for the discerning elite.</p>
+                    <p class="text-dim mt-4" style="max-width: 300px;">The world's first Digital Heritage Concierge. Maintaining excellence for the discerning elite.</p>
                 </div>
                 <div class="col-lg-2">
-                    <div class="text-xxs text-dim fw-900 mb-4 letter-spacing-2">MANIFEST</div>
+                    <div class="text-xxs text-silver fw-900 mb-4 letter-spacing-2">MANIFEST</div>
                     <ul class="list-unstyled">
-                        <li><a href="#" class="text-xs text-silver text-decoration-none hover-teal">Registry</a></li>
-                        <li class="mt-2"><a href="#" class="text-xs text-silver text-decoration-none hover-teal">Atelier</a></li>
-                        <li class="mt-2"><a href="#" class="text-xs text-silver text-decoration-none hover-teal">Curation</a></li>
+                        <li><a href="#" class="text-xs text-dim text-decoration-none hover-teal">Registry</a></li>
+                        <li class="mt-2"><a href="#" class="text-xs text-dim text-decoration-none hover-teal">Atelier</a></li>
+                        <li class="mt-2"><a href="#" class="text-xs text-dim text-decoration-none hover-teal">Curation</a></li>
                     </ul>
                 </div>
                 <div class="col-lg-6 text-lg-end">
-                    <div class="text-xxs text-dim fw-900 mb-4 letter-spacing-2">GLOBAL PRESTIGE</div>
-                    <div class="d-flex justify-content-lg-end gap-3 opacity-30">
+                    <div class="text-xxs text-silver fw-900 mb-4 letter-spacing-2">GLOBAL PRESTIGE</div>
+                    <div class="d-flex justify-content-lg-end gap-3 text-dim opacity-50">
                         <i class="fab fa-cc-visa fs-3"></i>
                         <i class="fab fa-cc-mastercard fs-3"></i>
                         <i class="fab fa-cc-stripe fs-3"></i>
@@ -335,28 +279,41 @@
                     </div>
                 </div>
             </div>
-            <div class="mt-5 pt-5 border-top border-light d-flex justify-content-between align-items-center">
+            <div class="mt-5 pt-5 border-top d-flex justify-content-between align-items-center" style="border-color: rgba(15, 23, 42, 0.05) !important;">
                 <div class="text-xxs text-dim fw-800">© 2024 SERVICEHUB ARCHIVE. ALL RIGHTS RESERVED.</div>
                 <div class="text-xxs text-dim fw-800">SECURED BY HERITAGE ENCRYPTION</div>
             </div>
         </div>
     </footer>
 </main>
+{% endblock %}
 
+{% block javascripts %}
+{{ parent() }}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.1/vanilla-tilt.min.js"></script>
 <script>
-    function nextStep(mood, description) {
-        document.getElementById('mood-input').value = mood;
-        document.getElementById('intent-display').innerText = description;
-        document.getElementById('step-1').classList.remove('active');
-        const next = document.getElementById('step-2');
-        next.classList.add('active');
-        next.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
+    document.addEventListener("DOMContentLoaded", () => {
+        // Initialize 3D Tilt Effect
+        VanillaTilt.init(document.querySelectorAll(".premium-tilt-card"), {
+            max: 10,
+            speed: 400,
+            glare: true,
+            "max-glare": 0.15,
+            perspective: 1000,
+            scale: 1.02
+        });
 
-    function prevStep() {
-        document.getElementById('step-2').classList.remove('active');
-        document.getElementById('step-1').classList.add('active');
-    }
+        // Initialize Scroll Reveals (Progressive Enhancement)
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if(entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                    revealObserver.unobserve(entry.target); // Reveal only once
+                }
+            });
+        }, { threshold: 0.1, rootMargin: "0px 0px -50px 0px" });
+
+        document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+    });
 </script>
-
 {% endblock %}

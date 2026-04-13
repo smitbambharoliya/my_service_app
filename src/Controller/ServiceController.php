@@ -22,12 +22,16 @@ final class ServiceController extends AbstractController
         $query = $request->query->get('q');
         $category = $request->query->get('category');
         $priceRange = $request->query->get('price');
+        $tier = $request->query->get('tier');
+        $isPremium = $request->query->get('premium');
+
+        $categories = $em->getRepository(\App\Entity\Category::class)->findAll();
 
         $repo = $em->getRepository(Service::class);
         
         // If filters are active, use smartMatchSearch, else just get all active
-        if ($query || $category || $priceRange) {
-            $services = $repo->smartMatchSearch($query, $category, $priceRange);
+        if ($query || $category || $priceRange || $tier || $isPremium !== null) {
+            $services = $repo->smartMatchSearch($query, $category, $priceRange, $tier, $isPremium);
         } else {
             $services = $repo->findBy(['isActive' => true], ['id' => 'DESC']);
         }
@@ -37,6 +41,9 @@ final class ServiceController extends AbstractController
             'active_query' => $query,
             'active_category' => $category,
             'active_price' => $priceRange,
+            'active_tier' => $tier,
+            'active_premium' => $isPremium,
+            'all_categories' => $categories,
         ]);
     }
 
@@ -49,7 +56,7 @@ final class ServiceController extends AbstractController
     }
 
     #[Route('/service/new', name: 'app_service_new')]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    public function new(Request $request, EntityManagerInterface $entityManager, \Symfony\Component\String\Slugger\SluggerInterface $slugger): Response
     {
         $this->denyAccessUnlessGranted('ROLE_PROVIDER');
 
@@ -67,6 +74,25 @@ final class ServiceController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            /** @var \Symfony\Component\HttpFoundation\File\UploadedFile $imageFile */
+            $imageFile = $form->get('imageFile')->getData();
+
+            if ($imageFile) {
+                $originalFilename = pathinfo($imageFile->getClientOriginalName(), PATHINFO_FILENAME);
+                $safeFilename = $slugger->slug($originalFilename);
+                $newFilename = $safeFilename.'-'.uniqid().'.'.$imageFile->guessExtension();
+
+                try {
+                    $imageFile->move(
+                        $this->getParameter('kernel.project_dir').'/public/uploads/services',
+                        $newFilename
+                    );
+                    $service->setImage($newFilename);
+                } catch (\Symfony\Component\HttpFoundation\File\Exception\FileException $e) {
+                    $this->addFlash('error', 'Image upload failed. Please try again.');
+                }
+            }
+
             $service->setProvider($this->getUser());
             $entityManager->persist($service);
             $entityManager->flush();
@@ -97,8 +123,29 @@ final class ServiceController extends AbstractController
             ->getQuery()
             ->getResult();
 
+        // Calculate Monthly Yield (Last 6 Months)
+        $chartLabels = [];
+        $chartData = [];
+        
+        for ($i = 5; $i >= 0; $i--) {
+            $monthStart = (new \DateTimeImmutable("first day of -$i month"))->setTime(0,0,0);
+            $monthEnd = (new \DateTimeImmutable("last day of -$i month"))->setTime(23,59,59);
+            
+            $chartLabels[] = $monthStart->format('M');
+            
+            $yield = 0;
+            foreach ($bookings as $b) {
+                if ($b->getStatus() === 'completed' && $b->getBookingDate() >= $monthStart && $b->getBookingDate() <= $monthEnd) {
+                    $yield += (float) ($b->getEstimatedCost() ?: $b->getService()->getPrice());
+                }
+            }
+            $chartData[] = $yield;
+        }
+
         return $this->render('dashboard/provider.html.twig', [
             'bookings' => $bookings,
+            'chartLabels' => json_encode($chartLabels),
+            'chartData' => json_encode($chartData),
         ]);
     }
 
@@ -185,7 +232,7 @@ final class ServiceController extends AbstractController
                 $billing->setPaymentStatus('estimate');
                 $billing->setTransactionId('EST-' . strtoupper(substr(uniqid(), -6)));
                 $billing->setCreatedAt(new \DateTimeImmutable());
-                $billing->setCategory($booking->getService()->getCategory());
+                $billing->setCategory($booking->getService()->getCategory()->getName());
                 $billing->setServiceName($booking->getService()->getTitle());
                 $billing->setDescription('Estimated cost provided by the professional for the visit.');
                 $entityManager->persist($billing);
@@ -229,7 +276,7 @@ final class ServiceController extends AbstractController
                 $billing->setPaymentStatus('unpaid');
                 $billing->setTransactionId('BILL-' . strtoupper(substr(uniqid(), -6)));
                 $billing->setCreatedAt(new \DateTimeImmutable());
-                $billing->setCategory($booking->getService()->getCategory());
+                $billing->setCategory($booking->getService()->getCategory()->getName());
                 $billing->setServiceName($booking->getService()->getTitle());
                 $billing->setDescription('Final bill for completed service request.');
                 

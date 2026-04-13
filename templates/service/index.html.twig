@@ -1,262 +1,576 @@
-{% extends 'base.html.twig' %}
+{% extends 'base-new.html.twig' %}
 
-{% block title %}Collection — ServiceHub Digital Heritage{% endblock %}
+{% block title %}Collection — ServiceHub{% endblock %}
 
 {% block stylesheets %}
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <style>
-    body { background: var(--bg-deep); }
+    body { background: #f3f4f6; color: #0f172a; font-family: 'Plus Jakarta Sans', sans-serif; }
 
-    .collection-header {
-        padding: 140px 0 80px;
-        background: radial-gradient(circle at top right, rgba(212, 175, 55, 0.05), transparent 60%),
-                    radial-gradient(circle at bottom left, rgba(16, 185, 129, 0.03), transparent 60%);
-        border-bottom: 1px solid var(--glass-border);
+    /* ── LAYOUT ── */
+    .ultimate-container {
+        display: flex;
+        max-width: 1600px;
+        margin: 0 auto;
+        padding: 2rem;
+        gap: 3rem;
     }
 
-    .explorer-layout {
-        display: grid;
-        grid-template-columns: 320px 1fr;
-        gap: 60px;
-        padding: 80px 0;
+    /* ── SIDEBAR ── */
+    .ultimate-sidebar {
+        width: 320px;
+        flex-shrink: 0;
+        height: fit-content;
+        position: sticky;
+        top: 100px;
+        background: #ffffff;
+        padding: 2rem;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
     }
 
-    /* Sidebar */
-    .sidebar-atelier { position: sticky; top: 120px; height: fit-content; }
-    .filter-group { margin-bottom: 45px; }
-    .filter-label { font-size: 0.6rem; font-weight: 800; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.25em; margin-bottom: 25px; display: block; }
+    .filter-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
 
-    /* Cards & Breeze Preview */
-    .exhibit-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 40px; }
-    
-    .exhibit-card {
-        background: rgba(255,255,255,0.02);
-        border: 1px solid var(--glass-border);
-        border-radius: 24px;
+    .filter-header h4 {
+        font-weight: 700;
+        font-size: 1.1rem;
+        margin: 0;
+    }
+
+    .reset-btn {
+        background: none;
+        border: none;
+        color: #94a3b8;
+        font-size: 0.8rem;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+    .filter-group {
+        margin-bottom: 2rem;
+    }
+
+    .filter-label {
+        font-size: 0.7rem;
+        font-weight: 800;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-bottom: 1rem;
+        display: block;
+    }
+
+    .toggle-group {
+        display: flex;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
         overflow: hidden;
-        transition: all 0.6s var(--ease-luxury);
-        position: relative;
     }
 
-    .exhibit-image-box {
-        height: 240px;
-        position: relative;
-        overflow: hidden;
+    .toggle-btn {
+        flex: 1;
+        background: transparent;
+        border: none;
+        padding: 10px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: #64748b;
+        cursor: pointer;
+        transition: all 0.2s;
     }
-    .exhibit-image {
-        width: 100%; height: 100%;
-        object-fit: cover;
-        transition: transform 1.2s var(--ease-luxury);
-    }
-    .exhibit-card:hover .exhibit-image { transform: scale(1.1); }
 
-    /* Breeze Preview Overlay */
-    .breeze-preview {
+    .toggle-btn.active {
+        background: #1e293b;
+        color: white;
+    }
+
+    .toggle-btn:not(:last-child) {
+        border-right: 1px solid #e2e8f0;
+    }
+
+    .ultimate-checkbox {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 12px;
+        cursor: pointer;
+    }
+
+    .ultimate-checkbox input {
+        width: 18px;
+        height: 18px;
+        border-radius: 6px;
+        border: 2px solid #cbd5e1;
+        appearance: none;
+        -webkit-appearance: none;
+        cursor: pointer;
+        position: relative;
+        background: transparent;
+        transition: all 0.2s;
+    }
+
+    .ultimate-checkbox input:checked {
+        background: #1e293b;
+        border-color: #1e293b;
+    }
+
+    .ultimate-checkbox input:checked::after {
+        content: '✓';
+        color: white;
+        font-size: 12px;
         position: absolute;
-        inset: 0;
-        background: rgba(10, 14, 22, 0.85);
-        backdrop-filter: blur(10px);
-        opacity: 0;
-        visibility: hidden;
-        transition: all 0.4s var(--ease-luxury);
+        top: 50%; left: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+    .ultimate-checkbox span {
+        font-size: 0.95rem;
+        color: #334155;
+        font-weight: 500;
+    }
+
+    /* ── MAIN CONTENT ── */
+    .ultimate-main {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .ultimate-topbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+
+    .ultimate-topbar h2 {
+        font-size: 1.6rem;
+        font-weight: 700;
+        margin: 0;
+    }
+
+    .sort-actions {
+        display: flex;
+        gap: 1.5rem;
+        align-items: center;
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #475569;
+    }
+
+    .sort-actions span { cursor: pointer; display: flex; align-items: center; gap: 8px;}
+
+    /* ── GRID ── */
+    .ultimate-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 2rem;
+    }
+
+    /* ── CARDS ── */
+    .ultimate-card {
+        background: #ffffff;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+        padding: 1.5rem;
+        transition: transform 0.2s, box-shadow 0.2s;
+        cursor: pointer;
         display: flex;
         flex-direction: column;
-        justify-content: center;
-        padding: 40px;
-        z-index: 20;
+        border: 1px solid rgba(15, 23, 42, 0.05);
     }
-    .exhibit-card:hover .breeze-preview { opacity: 1; visibility: visible; }
 
-    .breeze-stat { border-left: 2px solid var(--accent-gold); padding-left: 15px; margin-bottom: 20px; }
-    .breeze-stat .label { font-size: 0.6rem; font-weight: 800; color: var(--text-dim); text-transform: uppercase; }
-    .breeze-stat .value { font-family: 'Playfair Display', serif; color: var(--text-pure); font-size: 1.1rem; }
+    .ultimate-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+        border-color: rgba(14, 165, 233, 0.3);
+    }
 
-    /* Map View */
-    #mapContainer { width: 100%; height: 750px; border-radius: 30px; border: 1px solid var(--glass-border); overflow: hidden; display: none; }
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
 
-    @media (max-width: 1100px) {
-        .explorer-layout { grid-template-columns: 1fr; }
-        .sidebar-atelier { position: static; margin-bottom: 60px; }
+    .meta-left {
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: #1e293b;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .meta-left i { color: #94a3b8; }
+    .meta-left .fa-star { color: #eab308; }
+    .meta-left .time { color: #94a3b8; font-weight: 500; }
+    .meta-left .reviews { color: #94a3b8; font-weight: 500; }
+
+    .meta-right i {
+        font-size: 1.2rem;
+        color: #94a3b8;
+        transition: color 0.2s;
+    }
+
+    .meta-right i:hover { color: #ef4444; }
+
+    .card-image-box {
+        width: 100%;
+        height: 180px;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .card-image-box img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
+
+    .card-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        padding-top: 1.5rem;
+        border-top: 1px solid #f1f5f9;
+        margin-top: auto;
+    }
+
+    .info-block h4 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin: 0 0 4px 0;
+        color: #0f172a;
+    }
+
+    .info-block p {
+        font-size: 0.85rem;
+        color: #94a3b8;
+        margin: 0;
+        font-weight: 500;
+    }
+
+    .price-block { text-align: right; }
+    
+    .price-block strong {
+        font-size: 1.2rem;
+        font-weight: 800;
+        color: #0f172a;
+    }
+
+    .price-block span {
+        font-size: 0.8rem;
+        color: #94a3b8;
+        font-weight: 500;
+    }
+
+    /* ── MAP TOGGLE & LIVE MAP ── */
+    #mapContainer {
+        position: fixed; inset: 0; z-index: 45; width: 100%; height: 100vh;
+        display: none;
+    }
+    #mapContainer.active { display: block; }
+    
+    .map-close-btn {
+        position: absolute; top: 30px; left: 30px; z-index: 50;
+        width: 50px; height: 50px; border-radius: 12px; background: rgba(0, 0, 0, 0.6);
+        color: white; font-size: 1.5rem; cursor: pointer; border: none;
+    }
+
+    @media (max-width: 1024px) {
+        .ultimate-container { flex-direction: column; }
+        .ultimate-sidebar { width: 100%; position: static; }
     }
 </style>
 {% endblock %}
 
 {% block body %}
-<section class="collection-header">
-    <div class="container fade-up">
-        <div class="d-flex justify-content-between align-items-end flex-wrap gap-5">
-            <div class="max-w-600">
-                <span class="text-gold text-xxs fw-800 letter-spacing-3 mb-3 d-block">PROCURREMENT PORTFOLIO</span>
-                <h1 class="luxury-serif text-pure mb-4" style="font-size: clamp(2.5rem, 5vw, 4rem);">The Archive</h1>
-                <p class="text-silver text-lg opacity-70">{{ services|length }} bespoke technical protocols currently available for reservation.</p>
+<div class="ultimate-container">
+    {# ── SIDEBAR ── #}
+    <aside class="ultimate-sidebar">
+        <form action="{{ path('app_service_list') }}" method="GET" id="filterForm">
+            <div class="filter-header">
+                <h4>Filter by</h4>
+                <a href="{{ path('app_service_list') }}" class="reset-btn" style="text-decoration:none; display:inline-block;">Reset all &times;</a>
             </div>
             
-            <div class="luxury-toggle">
-                <div class="toggle-node active" id="btn-grid" onclick="toggleView('grid')">GALLERY</div>
-                <div class="toggle-node" id="btn-map" onclick="toggleView('map')">CARTOGRAPHY</div>
+            <div class="filter-group" style="margin-top: 1rem;">
+                <label class="filter-label">CATEGORY</label>
+                <label class="ultimate-checkbox">
+                    <input type="radio" name="category" value="" onchange="this.form.submit()" {{ active_category is empty ? 'checked' : '' }}>
+                    <span>All Services</span>
+                </label>
+                {% for cat in all_categories %}
+                <label class="ultimate-checkbox">
+                    <input type="radio" name="category" value="{{ cat.id }}" onchange="this.form.submit()" {{ active_category == cat.id ? 'checked' : '' }}>
+                    <span>{{ cat.name }}</span>
+                </label>
+                {% endfor %}
             </div>
-        </div>
-    </div>
-</section>
 
-<div class="container explorer-layout fade-up">
-    {# ── SIDEBAR ── #}
-    <aside class="sidebar-atelier">
-        <div class="glass-card p-5" style="border-radius: 30px;">
-            <form action="{{ path('app_service_list') }}" method="GET" id="filterForm">
-                <div class="filter-group">
-                    <label class="filter-label">Sector Category</label>
-                    {% set cats = ['All Services', 'Structural', 'Electrical', 'Sanitization', 'Climate', 'Carpentry', 'Aesthetics'] %}
-                    <div class="d-grid gap-3">
-                        {% for cat in cats %}
-                            <label class="d-flex align-items-center gap-3 cursor-pointer group">
-                                <input type="radio" name="category" value="{{ cat }}" onchange="this.form.submit()" 
-                                    class="d-none" {{ (active_category == cat) or (active_category is empty and cat == 'All Services') ? 'checked' : '' }}>
-                                <div class="p-1 rounded-circle border transition-all {{ (active_category == cat) or (active_category is empty and cat == 'All Services') ? 'border-gold' : 'border-glass' }}" style="width:18px; height:18px; display:flex; align-items:center; justify-content:center;">
-                                    <div class="rounded-circle {{ (active_category == cat) or (active_category is empty and cat == 'All Services') ? 'bg-gold' : '' }}" style="width:8px; height:8px;"></div>
-                                </div>
-                                <span class="text-xs transition-all {{ (active_category == cat) or (active_category is empty and cat == 'All Services') ? 'text-pure fw-bold' : 'text-dim group-hover:text-silver' }}">{{ cat|upper }}</span>
-                            </label>
-                        {% endfor %}
-                    </div>
-                </div>
+            <div class="filter-group" style="margin-top: 2.5rem;">
+                <label class="filter-label">PRICE RANGE</label>
+                <label class="ultimate-checkbox">
+                    <input type="radio" name="price" value="" onchange="this.form.submit()" {{ active_price is empty ? 'checked' : '' }}>
+                    <span>Full Range</span>
+                </label>
+                <label class="ultimate-checkbox">
+                    <input type="radio" name="price" value="Under ₹1,000" onchange="this.form.submit()" {{ active_price == 'Under ₹1,000' ? 'checked' : '' }}>
+                    <span>Under ₹1k</span>
+                </label>
+                <label class="ultimate-checkbox">
+                    <input type="radio" name="price" value="₹1,000 - ₹5,000" onchange="this.form.submit()" {{ active_price == '₹1,000 - ₹5,000' ? 'checked' : '' }}>
+                    <span>₹1k - ₹5k</span>
+                </label>
+                <label class="ultimate-checkbox">
+                    <input type="radio" name="price" value="₹5,000+" onchange="this.form.submit()" {{ active_price == '₹5,000+' ? 'checked' : '' }}>
+                    <span>Premium (₹5k+)</span>
+                </label>
+            </div>
 
-                <div class="filter-group">
-                    <label class="filter-label">Capital Threshold</label>
-                    <select name="price" class="luxury-input py-3" onchange="this.form.submit()" style="font-size: 0.75rem;">
-                        <option value="">Full Range</option>
-                        <option value="Under ₹1,000" {{ active_price == 'Under ₹1,000' ? 'selected' : '' }}>Entry (< ₹1k)</option>
-                        <option value="₹1,000 - ₹5,000" {{ active_price == '₹1,000 - ₹5,000' ? 'selected' : '' }}>Executive (₹1k - 5k)</option>
-                        <option value="₹5,000+" {{ active_price == '₹5,000+' ? 'selected' : '' }}>Imperial (₹5k+)</option>
-                    </select>
-                </div>
+            <div class="filter-group" style="margin-top: 2.5rem;">
+                <label class="filter-label">PROVIDER TIER</label>
+                <label class="ultimate-checkbox">
+                    <input type="radio" name="tier" value="" onchange="this.form.submit()" {{ active_tier is empty ? 'checked' : '' }}>
+                    <span>All Tiers</span>
+                </label>
+                <label class="ultimate-checkbox">
+                    <input type="radio" name="tier" value="Bronze" onchange="this.form.submit()" {{ active_tier == 'Bronze' ? 'checked' : '' }}>
+                    <span>Bronze Artisans</span>
+                </label>
+                <label class="ultimate-checkbox">
+                    <input type="radio" name="tier" value="Silver" onchange="this.form.submit()" {{ active_tier == 'Silver' ? 'checked' : '' }}>
+                    <span>Silver Experts</span>
+                </label>
+                <label class="ultimate-checkbox">
+                    <input type="radio" name="tier" value="Gold" onchange="this.form.submit()" {{ active_tier == 'Gold' ? 'checked' : '' }}>
+                    <span>Gold Masters</span>
+                </label>
+                <label class="ultimate-checkbox">
+                    <input type="radio" name="tier" value="Platinum" onchange="this.form.submit()" {{ active_tier == 'Platinum' ? 'checked' : '' }}>
+                    <span>Platinum Elite</span>
+                </label>
+            </div>
 
-                <a href="{{ path('app_service_list') }}" class="btn-outline-luxury w-100 text-center py-3" style="font-size:0.65rem;">PURGE FILTERS</a>
-            </form>
-        </div>
+            <div class="filter-group" style="margin-top: 2.5rem;">
+                <label class="filter-label">SERVICE CLASS</label>
+                <label class="ultimate-checkbox">
+                    <input type="radio" name="premium" value="" onchange="this.form.submit()" {{ active_premium is empty ? 'checked' : '' }}>
+                    <span>All Classes</span>
+                </label>
+                <label class="ultimate-checkbox">
+                    <input type="radio" name="premium" value="0" onchange="this.form.submit()" {{ active_premium == '0' ? 'checked' : '' }}>
+                    <span>Standard Only</span>
+                </label>
+                <label class="ultimate-checkbox">
+                    <input type="radio" name="premium" value="1" onchange="this.form.submit()" {{ active_premium == '1' ? 'checked' : '' }}>
+                    <span>Premium Only</span>
+                </label>
+            </div>
+        </form>
     </aside>
 
-    {# ── MAIN COLLECTION ── #}
-    <main>
-        <div id="gridContainer" class="exhibit-grid">
-            {% for svc in services %}
-                <div class="exhibit-card" style="animation-delay: {{ loop.index0 * 0.1 }}s;">
-                    <div class="exhibit-image-box">
-                        <img src="https://images.unsplash.com/photo-1581578731548-c64695cc6952?q=80&w=600&auto=format&fit=crop" class="exhibit-image" alt="Exhibit">
-                        <div class="exhibit-tier p-3">
-                            <div class="tier-badge tier-gold">{{ svc.provider.tier|upper }}</div>
-                        </div>
+    {# ── MAIN ── #}
+    <main class="ultimate-main">
+        <div class="ultimate-topbar">
+            <h2>{{ services|length }} services to rent</h2>
+            <div class="sort-actions">
+                <span>Closest to me <i class="fas fa-chevron-down" style="font-size:0.8rem; margin-left:4px;"></i></span>
+                <span onclick="toggleMap()" style="color: #64748b;"><i class="fas fa-map" style="color: #0f172a;"></i> Show map <i class="fas fa-columns" style="color: #0f172a;"></i></span>
+            </div>
+        </div>
 
-                        {# Breeze Preview #}
-                        <div class="breeze-preview">
-                            <div class="text-gold text-xxs fw-800 letter-spacing-2 mb-4">BREEZE PREVIEW</div>
-                            <div class="breeze-stat">
-                                <div class="label">Reliability</div>
-                                <div class="value">98.4% Success Rate</div>
-                            </div>
-                            <div class="breeze-stat">
-                                <div class="label">Response Time</div>
-                                <div class="value">Avg. 45 Minutes</div>
-                            </div>
-                            <div class="breeze-stat">
-                                <div class="label">Historical Log</div>
-                                <div class="value">124 Missions Logged</div>
-                            </div>
-                            <a href="{{ path('app_service_show', {'id': svc.id}) }}" class="btn-luxury py-2 text-xxs mt-2">SECURE FULL MANIFEST</a>
+        <div class="ultimate-grid">
+            {% if services is defined and services|length > 0 %}
+                {% for service in services %}
+                <div class="ultimate-card" onclick="openBookingModal('{{ service.id }}', '{{ service.title|escape('html_attr') }}', {{ service.price }})">
+                    <div class="card-header">
+                        <div class="meta-left">
+                            <i class="fas fa-walking"></i> {{ random(50, 400) }}m <span class="time">({{ random(2, 10) }} min)</span>
+                            <span style="margin: 0 4px; color: #e2e8f0;">|</span>
+                            <i class="fas fa-star"></i> 4.{{ random(5, 9) }} <span class="reviews">({{ random(40, 200) }})</span>
+                        </div>
+                        <div class="meta-right">
+                            <i class="far fa-heart"></i>
                         </div>
                     </div>
                     
-                    <div class="p-4 pt-5">
-                        <div class="d-flex justify-content-between align-items-start mb-4">
-                            <div>
-                                <h3 class="luxury-serif text-pure mb-2" style="font-size: 1.5rem;">{{ svc.title }}</h3>
-                                <span class="badge-status {{ loop.index is odd ? 'status-active' : 'status-pending' }}">{{ svc.category|upper }}</span>
-                            </div>
-                            <div class="text-end">
-                                <div class="text-pure h4 mb-0 fw-800">₹{{ svc.price|number_format }}</div>
-                                <div class="text-xxs text-dim fw-bold">BASE RESERVE</div>
-                            </div>
+                    <div class="card-image-box">
+                        {% if service.image %}
+                            <img src="{{ asset('uploads/services/' ~ service.image) }}" style="border-radius: 8px;" alt="{{ service.title }}">
+                        {% else %}
+                            <img src="https://images.unsplash.com/photo-1581578731548-c64695cc6952?q=80&w=600&auto=format&fit=crop" style="border-radius: 8px;" alt="{{ service.title }}">
+                        {% endif %}
+                    </div>
+                    
+                    <div class="card-footer">
+                        <div class="info-block">
+                            <h4>{{ service.title }}</h4>
+                            <p>{{ service.category ? service.category.name : 'Premium Service' }}</p>
                         </div>
-                        
-                        <div class="d-flex align-items-center justify-content-between pt-4" style="border-top: 1px solid var(--glass-border);">
-                            <div class="d-flex align-items-center gap-3">
-                                <div class="user-orb" style="width:32px; height:32px; font-size:0.7rem;">
-                                    {{ svc.provider.fullName|slice(0,1)|upper }}
-                                </div>
-                                <div>
-                                    <div class="text-xxs text-dim fw-800 mb-0">ARTISAN</div>
-                                    <div class="text-xs text-pure fw-bold mt-n1">{{ svc.provider.fullName }}</div>
-                                </div>
-                            </div>
-                            <a href="{{ path('app_service_show', {'id': svc.id}) }}" class="btn-outline py-2 px-3" style="font-size: 0.6rem;">EXAMINE</a>
+                        <div class="price-block">
+                            <strong>₹{{ service.price|number_format(2) }}</strong> <span>/ hour</span>
                         </div>
                     </div>
                 </div>
+                {% endfor %}
             {% else %}
-                <div class="col-12 py-5 text-center">
-                    <div class="glass-card py-5 border-dashed">
-                        <i class="fas fa-search-minus text-dim mb-4" style="font-size: 3.5rem; opacity: 0.3;"></i>
-                        <h4 class="luxury-serif text-silver">Archive Records Void</h4>
-                        <p class="text-dim">Our curators are currently cataloging new protocols. Adjust your sensors.</p>
-                        <a href="{{ path('app_service_list') }}" class="btn-luxury mt-4">RESET SENSORS</a>
-                    </div>
+                <div style="grid-column: 1/-1; text-align: center; padding: 4rem;">
+                    <i class="fas fa-search" style="font-size: 3rem; color: #cbd5e1; margin-bottom: 1rem;"></i>
+                    <p style="color: #64748b; font-weight: 500;">No services found matching your criteria.</p>
                 </div>
-            {% endfor %}
+            {% endif %}
         </div>
-
-        <div id="mapContainer"></div>
     </main>
 </div>
-{% endblock %}
 
-{% block javascripts %}
+{# ── LEAFLET MAP CONTAINER ── #}
+<div id="mapContainer">
+    <button class="map-close-btn" onclick="toggleMap()">
+        <i class="fas fa-times"></i>
+    </button>
+</div>
+
+{# ── BOOKING MODAL (PRESERVED LOGIC) ── #}
+<div id="bookingModal" style="opacity: 0; visibility: hidden; transition: all 0.3s; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 100; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(5px);">
+    <div style="background: white; border-radius: 20px; padding: 2rem; width: 100%; max-width: 500px; box-shadow: 0 20px 40px rgba(0,0,0,0.2);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+            <h2 style="margin: 0; font-size: 1.5rem; font-weight: 700;">Complete Your Booking</h2>
+            <button onclick="closeBookingModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #94a3b8;">&times;</button>
+        </div>
+
+        <div id="bookingSteps">
+            {# Step 1: Confirm Service #}
+            <div class="booking-step" id="step1">
+                <div id="serviceInfo" style="margin-bottom: 2rem; padding: 1.5rem; background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0;"></div>
+                <button onclick="nextStep()" style="width: 100%; padding: 12px; background: #0f172a; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">Continue</button>
+            </div>
+
+            {# Step 2: Select Date & Time #}
+            <div class="booking-step" id="step2" style="display: none;">
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; color: #475569; font-weight: 600;">Preferred Date</label>
+                    <input type="date" id="bookingDate" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #cbd5e1; outline: none;">
+                </div>
+                <div style="margin-bottom: 2rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; color: #475569; font-weight: 600;">Preferred Time</label>
+                    <input type="time" id="bookingTime" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #cbd5e1; outline: none;">
+                </div>
+                <div style="display: flex; gap: 1rem;">
+                    <button onclick="prevStep()" style="flex: 1; padding: 12px; background: white; border: 1px solid #cbd5e1; color: #475569; border-radius: 8px; font-weight: 600; cursor: pointer;">Back</button>
+                    <button onclick="nextStep()" style="flex: 1; padding: 12px; background: #0f172a; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">Continue</button>
+                </div>
+            </div>
+
+            {# Step 3: Special Requests #}
+            <div class="booking-step" id="step3" style="display: none;">
+                <div style="margin-bottom: 2rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; color: #475569; font-weight: 600;">Additional Notes</label>
+                    <textarea id="bookingNotes" rows="4" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #cbd5e1; outline: none;" placeholder="Any specific preferences or special requests..."></textarea>
+                </div>
+                <div style="display: flex; gap: 1rem;">
+                    <button onclick="prevStep()" style="flex: 1; padding: 12px; background: white; border: 1px solid #cbd5e1; color: #475569; border-radius: 8px; font-weight: 600; cursor: pointer;">Back</button>
+                    <button onclick="submitBooking()" style="flex: 1; padding: 12px; background: #10b981; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">Complete Booking</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
+    let currentStep = 1;
+    let selectedService = { id: null, name: null, price: null };
     let map = null;
 
-    function initMap() {
-        if(map) return;
-        map = L.map('mapContainer', { zoomControl: false, attributionControl: false }).setView([21.1702, 72.8311], 13);
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom: 20 }).addTo(map);
-
-        const goldIcon = L.divIcon({
-            className: 'custom-div-icon',
-            html: `<div style="background: var(--accent-teal); width: 14px; height: 14px; border-radius: 50%; border: 3px solid #FFF; box-shadow: 0 0 15px var(--accent-teal-glow);"></div>`,
-            iconSize: [14, 14]
-        });
-
-        {% for svc in services %}
-            var lat = 21.1702 + (Math.random() - 0.5) * 0.08;
-            var lng = 72.8311 + (Math.random() - 0.5) * 0.08;
-            L.marker([lat, lng], {icon: goldIcon}).addTo(map)
-                .bindPopup(`
-                    <div class="glass-card p-3" style="background:#0a0e16; min-width:200px; border:1px solid var(--glass-border);">
-                        <div class="text-gold text-xxs fw-800 mb-1">{{ svc.category|upper }}</div>
-                        <div class="text-pure fw-bold mb-3">{{ svc.title|escape('js') }}</div>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div class="h6 text-pure mb-0">₹{{ svc.price }}</div>
-                            <a href="{{ path('app_service_show', {'id': svc.id}) }}" class="text-teal text-xxs fw-800 text-decoration-none">EXAMINE PROTOCOL</a>
-                        </div>
-                    </div>
-                `, { closeButton: false });
-        {% endfor %}
+    function openBookingModal(serviceId, serviceName, price = 0) {
+        selectedService = { id: serviceId, name: serviceName, price: price };
+        document.getElementById('serviceInfo').innerHTML = `
+            <p style="margin: 0 0 8px 0; color: #64748b; font-size: 0.9rem;">SELECTED SERVICE</p>
+            <h3 style="margin: 0 0 12px 0; color: #0f172a;">${serviceName}</h3>
+            <div style="display: flex; justify-content: space-between; border-top: 1px solid #e2e8f0; padding-top: 12px;">
+                <span style="color: #475569; font-weight: 600;">Estimated Cost</span>
+                <strong style="color: #0f172a; font-size: 1.1rem;">₹${price}</strong>
+            </div>
+        `;
+        const modal = document.getElementById('bookingModal');
+        modal.style.opacity = '1';
+        modal.style.visibility = 'visible';
+        currentStep = 1;
+        showStep(1);
     }
 
-    function toggleView(view) {
-        document.getElementById('btn-grid').classList.toggle('active', view === 'grid');
-        document.getElementById('btn-map').classList.toggle('active', view === 'map');
-        const grid = document.getElementById('gridContainer');
-        const mapDiv = document.getElementById('mapContainer');
-        if(view === 'map') {
-            grid.style.display = 'none';
-            mapDiv.style.display = 'block';
-            initMap();
-            setTimeout(() => { map.invalidateSize(); }, 200);
-        } else {
-            grid.style.display = 'grid';
-            mapDiv.style.display = 'none';
+    function closeBookingModal() {
+        const modal = document.getElementById('bookingModal');
+        modal.style.opacity = '0';
+        modal.style.visibility = 'hidden';
+    }
+
+    function showStep(step) {
+        document.querySelectorAll('.booking-step').forEach(s => s.style.display = 'none');
+        document.getElementById('step' + step).style.display = 'block';
+    }
+
+    function nextStep() {
+        if (currentStep < 3) {
+            currentStep++;
+            showStep(currentStep);
         }
+    }
+
+    function prevStep() {
+        if (currentStep > 1) {
+            currentStep--;
+            showStep(currentStep);
+        }
+    }
+
+    function submitBooking() {
+        alert('Booking initiated! Proceeding to tracking/checkout...');
+        closeBookingModal();
+        window.location.href = "{{ path('app_customer_dashboard') }}";
+    }
+
+    function toggleMap() {
+        const mapContainer = document.getElementById('mapContainer');
+        mapContainer.classList.toggle('active');
+
+        if (mapContainer.classList.contains('active') && !map) {
+            initMap();
+        }
+    }
+
+    function initMap() {
+        map = L.map('mapContainer').setView([28.6139, 77.2090], 13);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+            attribution: '© OpenStreetMap contributors',
+            maxZoom: 19
+        }).addTo(map);
+
+        const providers = [
+            { lat: 28.6139, lng: 77.2090, name: 'Premium Service' },
+            { lat: 28.5355, lng: 77.3910, name: 'Elite Provider' }
+        ];
+
+        providers.forEach(provider => {
+            L.circleMarker([provider.lat, provider.lng], {
+                radius: 12,
+                fillColor: '#0ea5e9',
+                color: '#ffffff',
+                weight: 2,
+                opacity: 1,
+                fillOpacity: 0.8
+            }).addTo(map).bindPopup(`<strong>${provider.name}</strong>`);
+        });
     }
 </script>
 {% endblock %}
-

@@ -26,8 +26,9 @@ class Service
     #[ORM\Column]
     private ?float $price = null;
 
-    #[ORM\Column(length: 255)]
-    private ?string $category = null;
+    #[ORM\ManyToOne(targetEntity: Category::class, inversedBy: 'services')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Category $category = null;
 
     #[ORM\Column]
     private ?bool $isPremium = null;
@@ -36,8 +37,10 @@ class Service
     private bool $isActive = true;
 
     #[ORM\ManyToOne(inversedBy: 'services', targetEntity: User::class)]
-    
     private ?User $provider = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $image = null;
 
     /**
      * @var Collection<int, Booking>
@@ -91,12 +94,12 @@ class Service
         return $this;
     }
 
-    public function getCategory(): ?string
+    public function getCategory(): ?Category
     {
         return $this->category;
     }
 
-    public function setCategory(string $category): static
+    public function setCategory(?Category $category): static
     {
         $this->category = $category;
 
@@ -135,6 +138,18 @@ class Service
     public function setProvider(?User $provider): static
     {
         $this->provider = $provider;
+
+        return $this;
+    }
+
+    public function getImage(): ?string
+    {
+        return $this->image;
+    }
+
+    public function setImage(?string $image): static
+    {
+        $this->image = $image;
 
         return $this;
     }

@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>{% block title %}Atelier — ServiceHub Luxury Dashboard{% endblock %}</title>
+        <title>{% block title %}Atelier — ServiceHub Dashboard{% endblock %}</title>
         
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -19,112 +19,174 @@
             :root {
                 --sb-w: 280px;
                 --tb-h: 70px;
+                --theme-bg: #f8fafc;
+                --theme-surface: #ffffff;
+                --theme-border: #e2e8f0;
+                --theme-text: #1e293b;
+                --theme-muted: #64748b;
+                --theme-primary: #3b82f6;
+                --theme-primary-soft: #eff6ff;
+
+                /* Override Dark Theme Tokens for Glass Cards */
+                --bg-glass: #ffffff;
+                --glass-border: #e2e8f0;
+                --shadow-elevated: 0 10px 30px rgba(0, 0, 0, 0.03), 0 0 0 1px rgba(0, 0, 0, 0.02);
+            }
+
+            h1, h2, h3, h4, h5, h6, .luxury-serif, .text-pure { color: #1e293b !important; }
+            .text-silver { color: #475569 !important; }
+            .text-dim { color: var(--theme-muted) !important; }
+            
+            .btn-luxury {
+                background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+                color: #ffffff !important;
+                border: none;
+                border-radius: 8px;
+                font-weight: 700;
+                letter-spacing: 1px;
+                text-transform: uppercase;
+                transition: all 0.3s ease;
+                box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+            }
+            .btn-luxury:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 25px rgba(139, 92, 246, 0.4);
+                color: #ffffff;
+            }
+            .btn-outline-luxury {
+                background: transparent;
+                color: #3b82f6 !important;
+                border: 1px solid rgba(59, 130, 246, 0.5);
+                border-radius: 8px;
+                font-weight: 700;
+                letter-spacing: 1px;
+                text-transform: uppercase;
+                transition: all 0.3s ease;
+            }
+            .btn-outline-luxury:hover {
+                border-color: #8b5cf6;
+                color: #8b5cf6 !important;
+                background: rgba(139, 92, 246, 0.05);
             }
 
             body {
-                background: var(--bg-deep);
-                color: var(--text-silver);
+                background: var(--theme-bg);
+                color: var(--theme-text);
                 display: flex;
                 min-height: 100vh;
                 overflow-x: hidden;
+                font-family: 'Plus Jakarta Sans', sans-serif;
             }
 
-            /* ── SIDEBAR (Editorial) ── */
+            /* ── SIDEBAR (Light Mode) ── */
             #sidebar {
                 width: var(--sb-w);
-                background: rgba(18, 24, 38, 0.4);
-                backdrop-filter: blur(30px);
-                -webkit-backdrop-filter: blur(30px);
-                border-right: 1px solid var(--glass-border);
+                background: var(--theme-surface);
+                border-right: 1px solid var(--theme-border);
                 display: flex;
                 flex-direction: column;
                 position: fixed; top: 0; left: 0; bottom: 0;
                 z-index: 1000;
-                transition: transform 0.6s var(--ease-luxury);
+                transition: transform 0.4s ease;
+                box-shadow: 2px 0 10px rgba(0,0,0,0.02);
             }
 
             .sb-brand {
                 height: var(--tb-h);
                 display: flex; align-items: center; padding: 0 30px;
-                font-family: 'Playfair Display', serif;
-                font-weight: 700; font-size: 1.4rem; color: var(--text-pure);
-                border-bottom: 1px solid var(--glass-border);
+                font-family: 'Plus Jakarta Sans', sans-serif;
+                font-weight: 800; font-size: 1.4rem; color: var(--theme-text);
+                border-bottom: 1px solid var(--theme-border);
+                letter-spacing: -0.5px;
             }
-            .sb-brand span { color: var(--accent-primary); }
+            .sb-brand span { color: var(--theme-primary); }
 
             .sb-user-card {
                 padding: 30px;
-                border-bottom: 1px solid var(--glass-border);
+                background: var(--theme-bg);
+                border-bottom: 1px solid var(--theme-border);
             }
+            
             .sb-user-orb {
                 width: 60px; height: 60px;
                 border-radius: 16px;
-                background: linear-gradient(135deg, var(--accent-primary), #b91c1c);
+                background: linear-gradient(135deg, #dbeafe, #eff6ff);
                 margin-bottom: 20px;
                 display: flex; align-items: center; justify-content: center;
-                font-family: 'Playfair Display', serif;
-                font-weight: 700; color: #0a0e16; font-size: 1.8rem;
-                box-shadow: 0 10px 25px var(--accent-primary-glow);
-                border: 1px solid rgba(255,255,255,0.1);
+                font-family: 'Plus Jakarta Sans', sans-serif;
+                font-weight: 800; color: var(--theme-primary); font-size: 1.8rem;
+                border: 1px solid #bfdbfe;
+                box-shadow: 0 4px 10px rgba(59, 130, 246, 0.1);
             }
-            .sb-user-info .name { color: var(--text-pure); font-weight: 700; font-size: 1rem; margin-bottom: 2px; }
+            .sb-user-info .name { color: var(--theme-text); font-weight: 800; font-size: 1.05rem; margin-bottom: 2px; }
             .sb-user-info .tier-label { 
-                font-size: 0.6rem; color: var(--accent-primary); 
+                font-size: 0.65rem; color: var(--theme-muted); 
                 text-transform: uppercase; letter-spacing: 0.15em; font-weight: 800; 
             }
 
             /* Gamification Tracker */
             .gamify-mini {
-                margin-top: 15px;
-                background: rgba(255,255,255,0.03);
-                padding: 12px;
+                margin-top: 20px;
+                background: var(--theme-surface);
+                padding: 15px;
                 border-radius: 12px;
-                border: 1px solid rgba(255,255,255,0.05);
+                border: 1px solid var(--theme-border);
+                box-shadow: 0 2px 8px rgba(0,0,0,0.02);
             }
             .gamify-progress-bar {
-                height: 4px;
-                background: rgba(255,255,255,0.1);
-                border-radius: 2px;
-                margin: 8px 0;
+                height: 6px;
+                background: #f1f5f9;
+                border-radius: 6px;
+                margin: 10px 0;
                 overflow: hidden;
             }
             .gamify-progress-fill {
                 height: 100%;
-                background: var(--accent-primary);
-                box-shadow: 0 0 10px var(--accent-primary-glow);
+                background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+                position: relative;
+                border-radius: 6px;
             }
 
+            /* Navigation Links */
             .sb-nav { flex: 1; padding: 25px 15px; overflow-y: auto; }
+            .sb-nav::-webkit-scrollbar { width: 4px; }
+            .sb-nav::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 5px; }
+
             .sb-nav-label { 
-                font-size: 0.6rem; font-weight: 800; color: var(--text-dim); 
+                font-size: 0.65rem; font-weight: 800; color: #94a3b8; 
                 text-transform: uppercase; letter-spacing: 0.15em; margin: 30px 0 10px 15px; 
             }
             
             .sb-link {
                 display: flex; align-items: center; gap: 15px;
                 padding: 12px 15px; border-radius: 12px;
-                color: var(--text-silver); font-weight: 600; font-size: 0.85rem;
-                transition: all 0.3s var(--ease-luxury);
+                color: var(--theme-muted); font-weight: 600; font-size: 0.88rem;
+                transition: all 0.2s;
                 margin-bottom: 5px;
                 text-decoration: none;
-                opacity: 0.7;
             }
-            .sb-link i { font-size: 1rem; width: 22px; color: var(--accent-primary); transition: all 0.3s; }
+            .sb-link i { font-size: 1.1rem; width: 22px; color: #94a3b8; transition: all 0.2s; text-align: center; }
             .sb-link:hover { 
-                background: rgba(255,255,255,0.05);
-                color: #ffffff;
-                opacity: 1;
-                transform: translateX(5px);
+                background: var(--theme-bg);
+                color: var(--theme-text);
+                transform: translateX(4px);
             }
+            .sb-link:hover i { color: var(--theme-primary); }
+            
             .sb-link.active {
-                background: var(--accent-primary-glow);
-                color: var(--accent-primary);
-                border: 1px solid rgba(239, 68, 68, 0.2);
-                opacity: 1;
+                background: var(--theme-primary-soft);
+                color: #1d4ed8;
+                font-weight: 700;
+                border: 1px solid #bfdbfe;
+                box-shadow: 0 4px 10px rgba(59, 130, 246, 0.05);
             }
-            .sb-link.active i { transform: scale(1.1); }
+            .sb-link.active i { color: var(--theme-primary); transform: scale(1.1); }
+            
+            .text-red { color: #ef4444 !important; }
+            .text-red:hover { background: #fef2f2 !important; color: #dc2626 !important; }
+            .text-red:hover i { color: #ef4444 !important; }
 
-            /* ── MAIN CONTENT ── */
+            /* ── MAIN CONTENT OVERRIDES ── */
             #main-wrapper {
                 margin-left: var(--sb-w);
                 flex: 1; display: flex; flex-direction: column;
@@ -133,23 +195,35 @@
 
             .dashboard-topbar {
                 height: var(--tb-h);
-                background: rgba(10, 14, 22, 0.6);
+                background: rgba(255, 255, 255, 0.8);
                 backdrop-filter: blur(15px);
-                border-bottom: 1px solid var(--glass-border);
+                border-bottom: 1px solid var(--theme-border);
                 display: flex; align-items: center; justify-content: space-between;
                 padding: 0 40px;
                 position: sticky; top: 0; z-index: 100;
             }
+            
             .page-title-luxury { 
-                font-family: 'Playfair Display', serif; 
-                font-weight: 700; font-size: 1.25rem; color: var(--text-pure); 
+                font-family: 'Plus Jakarta Sans', sans-serif; 
+                font-weight: 800; font-size: 1.25rem; color: var(--theme-text); 
             }
 
-            .content-area { padding: 40px; flex: 1; max-width: 1400px; width: 100%; margin: 0 auto; }
+            .content-area { padding: 40px; flex: 1; max-width: 1400px; width: 100%; margin: 0 auto; color: var(--theme-text); }
+            
+            /* Typography helpers overriding base dark theme texts if any */
+            .text-pure { color: var(--theme-text) !important; }
+            .text-silver { color: var(--theme-text) !important; }
+            .text-dim { color: var(--theme-muted) !important; }
+            .text-gradient {
+                background: linear-gradient(135deg, var(--theme-primary) 0%, #8b5cf6 100%) !important;
+                -webkit-background-clip: text !important;
+                background-clip: text !important;
+                -webkit-text-fill-color: transparent !important;
+            }
 
             @media (max-width: 1100px) {
                 #sidebar { transform: translateX(-100%); }
-                #sidebar.open { transform: translateX(0); box-shadow: 20px 0 60px rgba(0,0,0,0.8); }
+                #sidebar.open { transform: translateX(0); box-shadow: 20px 0 60px rgba(0,0,0,0.1); }
                 #main-wrapper { margin-left: 0; }
                 .dashboard-topbar { padding: 0 20px; }
             }
@@ -173,41 +247,52 @@
                 <div class="tier-label">{{ app.user.tier|upper }} MEMBER</div>
             </div>
 
-            {% if is_granted('ROLE_PROVIDER') %}
-                <div class="gamify-mini">
-                    <div class="d-flex justify-content-between text-xxs fw-800 text-dim">
-                        <span>PROGRESSION</span>
-                        <span class="text-pure">PLATINUM</span>
-                    </div>
-                    <div class="gamify-progress-bar">
-                        <div class="gamify-progress-fill" style="width: 65%;"></div>
-                    </div>
-                    <div class="text-xxs text-dim">Level 4 Artisan</div>
-                </div>
+            {% set pts = app.user.reputationPoints %}
+            {% set tier = app.user.tier %}
+            {% if tier == 'Bronze' %}
+                {% set nextTier = 'Silver' %}{% set pct = (pts / 500 * 100)|round %}{% set level = 1 %}
+            {% elseif tier == 'Silver' %}
+                {% set nextTier = 'Gold' %}{% set pct = ((pts - 500) / 500 * 100)|round %}{% set level = 2 %}
+            {% elseif tier == 'Gold' %}
+                {% set nextTier = 'Platinum' %}{% set pct = ((pts - 1000) / 1500 * 100)|round %}{% set level = 3 %}
+            {% elseif tier == 'Platinum' %}
+                {% set nextTier = 'Aurora Elite' %}{% set pct = ((pts - 2500) / 2500 * 100)|round %}{% set level = 4 %}
+            {% else %}
+                {% set nextTier = 'Elite' %}{% set pct = 100 %}{% set level = 5 %}
             {% endif %}
+            {% if pct > 100 %}{% set pct = 100 %}{% endif %}
+            {% if pct < 0 %}{% set pct = 0 %}{% endif %}
+            <div class="gamify-mini">
+                <div class="d-flex justify-content-between text-xxs fw-800 text-dim" style="font-size: 0.65rem;">
+                    <span>TO {{ nextTier|upper }}</span>
+                    <span class="text-pure">{{ pts }} PTS</span>
+                </div>
+                <div class="gamify-progress-bar">
+                    <div class="gamify-progress-fill" style="width: {{ pct }}%;"></div>
+                </div>
+                <div class="text-xxs text-dim" style="font-size: 0.65rem;">Level {{ level }} — {{ tier }} Member</div>
+            </div>
         </div>
 
         <nav class="sb-nav">
+            <div class="sb-nav-label">Core Protocol</div>
             <a href="{{ path('app_home') }}" class="sb-link">
-                <i class="fa-solid fa-house-chimney"></i> Frontispiece
+                <i class="fa-solid fa-house-chimney"></i> Home
             </a>
-
-            <div class="sb-nav-label">Curatorship</div>
-            {% if is_granted('ROLE_PROVIDER') %}
-                <a href="{{ path('app_provider_dashboard') }}" class="sb-link {{ app.request.get('_route') == 'app_provider_dashboard' ? 'active' : '' }}">
-                    <i class="fa-solid fa-chart-line"></i> Atelier
-                </a>
-                <a href="{{ path('app_provider_my_services') }}" class="sb-link {{ app.request.get('_route') == 'app_provider_my_services' ? 'active' : '' }}">
-                    <i class="fa-solid fa-gem"></i> Collections
-                </a>
-            {% else %}
-                <a href="{{ path('app_customer_dashboard') }}" class="sb-link {{ app.request.get('_route') == 'app_customer_dashboard' ? 'active' : '' }}">
-                    <i class="fa-solid fa-book-open"></i> Manifest
-                </a>
-                <a href="{{ path('app_service_list') }}" class="sb-link">
-                    <i class="fa-solid fa-magnifying-glass-chart"></i> Explore
-                </a>
-            {% endif %}
+            
+            <a href="{{ path('app_service_list') }}" class="sb-link">
+                <i class="fa-solid fa-book-journal-whills"></i> Registry
+            </a>
+            
+            {% set curationUrl = is_granted('ROLE_PROVIDER') ? path('app_provider_my_services') : path('app_booking_my_bookings') %}
+            {% set isCurationActive = app.request.get('_route') in ['app_provider_my_services', 'app_booking_my_bookings'] %}
+            <a href="{{ curationUrl }}" class="sb-link {{ isCurationActive ? 'active' : '' }}">
+                <i class="fa-solid fa-layer-group"></i> Curation
+            </a>
+            
+            <a href="{{ path('app_customer_dashboard') }}" class="sb-link {{ app.request.get('_route') == 'app_customer_dashboard' ? 'active' : '' }}">
+                <i class="fa-solid fa-book-open"></i> Manifest
+            </a>
 
             <div class="sb-nav-label">Identity</div>
             <a href="{{ path('app_profile') }}" class="sb-link {{ app.request.get('_route') == 'app_profile' ? 'active' : '' }}">
@@ -227,10 +312,10 @@
     <div id="main-wrapper">
         <header class="dashboard-topbar">
             <div class="d-flex align-items-center gap-3">
-                <button class="bg-transparent border-0 text-teal d-xl-none fs-4" onclick="document.getElementById('sidebar').classList.toggle('open')">
+                <button class="bg-transparent border-0 text-teal d-xl-none fs-4" style="color:var(--theme-primary);" onclick="document.getElementById('sidebar').classList.toggle('open')">
                     <i class="fa-solid fa-bars-staggered"></i>
                 </button>
-                <div class="page-title-luxury">{% block page_title %}Atelier{% endblock %}</div>
+                <div class="page-title-luxury">{% block page_title %}Dashboard{% endblock %}</div>
             </div>
             <div class="d-flex align-items-center gap-4">
                 <div class="d-flex align-items-center gap-2 text-dim fw-bold" style="font-size: 0.65rem; letter-spacing: 0.1em;">
@@ -247,12 +332,12 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const widgets = document.querySelectorAll('.glass-card');
+            const widgets = document.querySelectorAll('.glass-card, .prof-card, .designer-profile-wrap > div');
             widgets.forEach((w, i) => {
                 w.style.opacity = '0';
                 w.style.transform = 'translateY(15px)';
                 setTimeout(() => {
-                    w.style.transition = 'all 0.6s var(--ease-luxury)';
+                    w.style.transition = 'all 0.6s ease';
                     w.style.opacity = '1';
                     w.style.transform = 'translateY(0)';
                 }, i * 60);
@@ -262,4 +347,3 @@
     {% block javascripts %}{% endblock %}
     </body>
 </html>
-

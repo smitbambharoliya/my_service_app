@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>{% block title %}Dashboard — ServiceHub{% endblock %}</title>
+
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+        <style>
+            /* ── AURORA GLASSY LIGHT THEME ── */
+            :root {
+                --aurora-white: #FFFFFF;
+                --aurora-bg: #F8FAFC;
+                --aurora-surface: rgba(255, 255, 255, 0.8);
+                --aurora-border: rgba(139, 92, 246, 0.15);
+
+                --aurora-violet: #8B5CF6;
+                --aurora-violet-light: rgba(139, 92, 246, 0.1);
+                --aurora-blue: #3B82F6;
+                --aurora-blue-light: rgba(59, 130, 246, 0.1);
+                --aurora-pink: #EC4899;
+                --aurora-pink-light: rgba(236, 72, 153, 0.1);
+                --aurora-cyan: #06B6D4;
+                --aurora-cyan-light: rgba(6, 182, 212, 0.1);
+                --aurora-emerald: #10B981;
+                --aurora-emerald-light: rgba(16, 185, 129, 0.1);
+                --aurora-amber: #F59E0B;
+                --aurora-amber-light: rgba(245, 158, 11, 0.1);
+
+                --aurora-text: #0F172A;
+                --aurora-text-secondary: #475569;
+                --aurora-text-muted: #94A3B8;
+
+                --gradient-violet: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);
+                --gradient-blue: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+                --gradient-aurora: linear-gradient(135deg, #8B5CF6 0%, #3B82F6 50%, #06B6D4 100%);
+
+                --glass-bg: rgba(255, 255, 255, 0.7);
+                --glass-border: rgba(255, 255, 255, 0.5);
+                --glass-shadow: 0 8px 32px rgba(139, 92, 246, 0.1);
+
+                --sb-w: 280px;
+                --tb-h: 70px;
+            }
+
+            * { box-sizing: border-box; }
+
+            body {
+                font-family: 'Plus Jakarta Sans', sans-serif;
+                background: var(--aurora-bg);
+                color: var(--aurora-text);
+                display: flex;
+                min-height: 100vh;
+                overflow-x: hidden;
+            }
+
+            h1, h2, h3, h4, h5, h6 {
+                font-family: 'Playfair Display', serif;
+                font-weight: 600;
+            }
+
+            /* ── Aurora Background ── */
+            .aurora-bg {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                z-index: -1;
+                overflow: hidden;
+                pointer-events: none;
+            }
+
+            .aurora-blob {
+                position: absolute;
+                border-radius: 50%;
+                filter: blur(80px);
+                opacity: 0.4;
+                animation: aurora-float 20s ease-in-out infinite;
+            }
+
+            .aurora-blob-1 {
+                width: 600px;
+                height: 600px;
+                background: linear-gradient(135deg, var(--aurora-violet), var(--aurora-pink));
+                top: -200px;
+                right: -100px;
+            }
+
+            .aurora-blob-2 {
+                width: 500px;
+                height: 500px;
+                background: linear-gradient(135deg, var(--aurora-blue), var(--aurora-cyan));
+                bottom: -150px;
+                left: -100px;
+                animation-delay: -5s;
+            }
+
+            .aurora-blob-3 {
+                width: 400px;
+                height: 400px;
+                background: linear-gradient(135deg, var(--aurora-cyan), var(--aurora-emerald));
+                top: 50%;
+                left: 50%;
+                animation-delay: -10s;
+            }
+
+            @keyframes aurora-float {
+                0%, 100% { transform: translate(0, 0) scale(1); }
+                25% { transform: translate(50px, -50px) scale(1.1); }
+                50% { transform: translate(-30px, 30px) scale(0.95); }
+                75% { transform: translate(30px, 50px) scale(1.05); }
+            }
+
+            /* ── SIDEBAR ── */
+            #sidebar-aurora {
+                width: var(--sb-w);
+                background: var(--glass-bg);
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                border-right: 1px solid var(--aurora-border);
+                display: flex;
+                flex-direction: column;
+                position: fixed;
+                top: 0;
+                left: 0;
+                bottom: 0;
+                z-index: 1000;
+                transition: transform 0.3s ease;
+            }
+
+            .sb-brand-aurora {
+                height: var(--tb-h);
+                display: flex;
+                align-items: center;
+                padding: 0 24px;
+                border-bottom: 1px solid var(--aurora-border);
+            }
+
+            .sb-brand-aurora .brand-logo {
+                font-family: 'Playfair Display', serif;
+                font-size: 1.5rem;
+                font-weight: 700;
+                background: var(--gradient-aurora);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+            }
+
+            .sb-user-card-aurora {
+                padding: 24px;
+                border-bottom: 1px solid var(--aurora-border);
+            }
+
+            .sb-user-avatar {
+                width: 56px;
+                height: 56px;
+                border-radius: 16px;
+                background: var(--gradient-violet);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                font-weight: 700;
+                font-size: 1.4rem;
+                margin-bottom: 16px;
+                box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+            }
+
+            .sb-user-info .name {
+                font-weight: 700;
+                color: var(--aurora-text);
+                font-size: 1rem;
+            }
+
+            .sb-user-info .tier {
+                font-size: 0.75rem;
+                color: var(--aurora-violet);
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 0.1em;
+            }
+
+            .sb-nav-aurora {
+                flex: 1;
+                padding: 16px 12px;
+                overflow-y: auto;
+            }
+
+            .sb-nav-label {
+                font-size: 0.7rem;
+                font-weight: 700;
+                color: var(--aurora-text-muted);
+                text-transform: uppercase;
+                letter-spacing: 0.15em;
+                margin: 24px 12px 8px;
+            }
+
+            .sb-link-aurora {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                padding: 12px 16px;
+                border-radius: 12px;
+                color: var(--aurora-text-secondary);
+                font-weight: 600;
+                font-size: 0.9rem;
+                transition: all 0.2s ease;
+                margin-bottom: 4px;
+                text-decoration: none;
+            }
+
+            .sb-link-aurora i {
+                font-size: 1rem;
+                width: 24px;
+                color: var(--aurora-violet);
+            }
+
+            .sb-link-aurora:hover {
+                background: var(--aurora-violet-light);
+                color: var(--aurora-violet);
+            }
+
+            .sb-link-aurora.active {
+                background: var(--aurora-violet-light);
+                color: var(--aurora-violet);
+                border-right: 3px solid var(--aurora-violet);
+            }
+
+            /* ── MAIN CONTENT ── */
+            #main-wrapper {
+                margin-left: var(--sb-w);
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                min-width: 0;
+            }
+
+            .dashboard-topbar-aurora {
+                height: var(--tb-h);
+                background: var(--glass-bg);
+                backdrop-filter: blur(20px);
+                border-bottom: 1px solid var(--aurora-border);
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 0 32px;
+                position: sticky;
+                top: 0;
+                z-index: 100;
+            }
+
+            .page-title-aurora {
+                font-family: 'Playfair Display', serif;
+                font-weight: 700;
+                font-size: 1.25rem;
+                color: var(--aurora-text);
+            }
+
+            .content-area-aurora {
+                padding: 32px;
+                flex: 1;
+                max-width: 1400px;
+                width: 100%;
+                margin: 0 auto;
+            }
+
+            /* ── CARDS ── */
+            .aurora-card {
+                background: var(--glass-bg);
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                border: 1px solid var(--aurora-border);
+                border-radius: 20px;
+                overflow: hidden;
+                box-shadow: var(--glass-shadow);
+            }
+
+            .aurora-card .card-header {
+                padding: 20px 24px;
+                border-bottom: 1px solid var(--aurora-border);
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+            }
+
+            .aurora-card .card-title {
+                font-family: 'Playfair Display', serif;
+                font-size: 1.1rem;
+                font-weight: 700;
+                color: var(--aurora-text);
+                margin: 0;
+            }
+
+            .aurora-card .card-body {
+                padding: 24px;
+            }
+
+            /* ── STAT CARDS ── */
+            .stat-card-aurora {
+                background: var(--glass-bg);
+                backdrop-filter: blur(20px);
+                border: 1px solid var(--aurora-border);
+                border-radius: 20px;
+                padding: 24px;
+                text-align: center;
+                transition: transform 0.2s ease;
+            }
+
+            .stat-card-aurora:hover {
+                transform: translateY(-4px);
+            }
+
+            .stat-icon-aurora {
+                width: 56px;
+                height: 56px;
+                border-radius: 16px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 1.4rem;
+                margin: 0 auto 16px;
+                color: white;
+            }
+
+            .stat-icon-aurora.violet { background: var(--gradient-violet); }
+            .stat-icon-aurora.blue { background: var(--gradient-blue); }
+            .stat-icon-aurora.emerald { background: linear-gradient(135deg, #10B981, #059669); }
+            .stat-icon-aurora.amber { background: linear-gradient(135deg, #F59E0B, #D97706); }
+
+            .stat-value-aurora {
+                font-size: 2rem;
+                font-weight: 800;
+                color: var(--aurora-text);
+                line-height: 1;
+                margin-bottom: 8px;
+            }
+
+            .stat-label-aurora {
+                font-size: 0.85rem;
+                color: var(--aurora-text-muted);
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+
+            /* ── BUTTONS ── */
+            .btn-aurora {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+                font-weight: 600;
+                border-radius: 12px;
+                transition: all 0.2s ease;
+                border: none;
+                cursor: pointer;
+                text-decoration: none;
+                padding: 10px 18px;
+                font-size: 0.85rem;
+            }
+
+            .btn-aurora-gradient {
+                background: var(--gradient-violet);
+                color: white;
+                box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+            }
+
+            .btn-aurora-gradient:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 25px rgba(139, 92, 246, 0.4);
+                color: white;
+            }
+
+            .btn-aurora-outline {
+                background: transparent;
+                color: var(--aurora-violet);
+                border: 2px solid var(--aurora-violet);
+            }
+
+            .btn-aurora-outline:hover {
+                background: var(--aurora-violet);
+                color: white;
+            }
+
+            /* ── BADGES ── */
+            .badge-aurora {
+                padding: 6px 14px;
+                border-radius: 30px;
+                font-size: 0.75rem;
+                font-weight: 700;
+                border: 1px solid transparent;
+            }
+
+            .badge-aurora-violet { background: var(--aurora-violet-light); color: var(--aurora-violet); border-color: rgba(139, 92, 246, 0.2); }
+            .badge-aurora-blue { background: var(--aurora-blue-light); color: var(--aurora-blue); border-color: rgba(59, 130, 246, 0.2); }
+            .badge-aurora-emerald { background: var(--aurora-emerald-light); color: var(--aurora-emerald); border-color: rgba(16, 185, 129, 0.2); }
+            .badge-aurora-amber { background: var(--aurora-amber-light); color: var(--aurora-amber); border-color: rgba(245, 158, 11, 0.2); }
+
+            /* ── TABLES ── */
+            .aurora-table {
+                width: 100%;
+                margin: 0;
+            }
+
+            .aurora-table thead th {
+                padding: 16px 20px;
+                font-size: 0.75rem;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                color: var(--aurora-text-muted);
+                font-weight: 700;
+                background: rgba(139, 92, 246, 0.03);
+                border-bottom: 1px solid var(--aurora-border);
+            }
+
+            .aurora-table tbody tr {
+                border-bottom: 1px solid var(--aurora-border);
+                transition: background 0.15s;
+            }
+
+            .aurora-table tbody tr:hover {
+                background: rgba(139, 92, 246, 0.03);
+            }
+
+            .aurora-table tbody td {
+                padding: 16px 20px;
+                font-size: 0.9rem;
+                color: var(--aurora-text);
+                vertical-align: middle;
+            }
+
+            /* ── CHART CONTAINER ── */
+            .chart-container-aurora {
+                background: var(--glass-bg);
+                backdrop-filter: blur(20px);
+                border: 1px solid var(--aurora-border);
+                border-radius: 20px;
+                padding: 24px;
+            }
+
+            /* ── MOBILE ── */
+            @media (max-width: 1100px) {
+                #sidebar-aurora { transform: translateX(-100%); }
+                #sidebar-aurora.open { transform: translateX(0); }
+                #main-wrapper { margin-left: 0; }
+                .dashboard-topbar-aurora { padding: 0 20px; }
+            }
+        </style>
+        {% block stylesheets %}{% endblock %}
+    </head>
+    <body>
+        <!-- Aurora Background -->
+        <div class="aurora-bg">
+            <div class="aurora-blob aurora-blob-1"></div>
+            <div class="aurora-blob aurora-blob-2"></div>
+            <div class="aurora-blob aurora-blob-3"></div>
+        </div>
+
+        {# ── SIDEBAR ── #}
+        <aside id="sidebar-aurora">
+            <div class="sb-brand-aurora">
+                <div class="brand-logo"><i class="fas fa-sparkles me-2"></i>ServiceHub</div>
+            </div>
+
+            <div class="sb-user-card-aurora">
+                <div class="sb-user-avatar">{{ app.user.fullName|slice(0,1)|upper }}</div>
+                <div class="sb-user-info">
+                    <div class="name">{{ app.user.fullName }}</div>
+                    <div class="tier">{{ app.user.tier }} Member</div>
+                </div>
+            </div>
+
+            <nav class="sb-nav-aurora">
+                <div class="sb-nav-label">Navigation</div>
+                <a href="{{ path('app_home') }}" class="sb-link-aurora">
+                    <i class="fas fa-home"></i> Home
+                </a>
+
+                <div class="sb-nav-label">Dashboard</div>
+                {% if is_granted('ROLE_PROVIDER') %}
+                    <a href="{{ path('app_provider_dashboard') }}" class="sb-link-aurora {{ app.request.get('_route') == 'app_provider_dashboard' ? 'active' : '' }}">
+                        <i class="fas fa-chart-line"></i> Provider Dashboard
+                    </a>
+                    {% set curationUrl = is_granted('ROLE_PROVIDER') ? path('app_provider_my_services') : (is_granted('ROLE_ADMIN') ? path('app_admin_services') : path('app_booking_my_bookings')) %}
+                    <a href="{{ curationUrl }}" class="sb-link-aurora {{ app.request.get('_route') == 'app_provider_my_services' ? 'active' : '' }}">
+                        <i class="fas fa-briefcase"></i> My Services
+                    </a>
+                {% else %}
+                    <a href="{{ path('app_customer_dashboard') }}" class="sb-link-aurora {{ app.request.get('_route') == 'app_customer_dashboard' ? 'active' : '' }}">
+                        <i class="fas fa-user"></i> Customer Dashboard
+                    </a>
+                    <a href="{{ path('app_service_list') }}" class="sb-link-aurora">
+                        <i class="fas fa-search"></i> Explore Services
+                    </a>
+                {% endif %}
+
+                <div class="sb-nav-label">Account</div>
+                <a href="{{ path('app_profile') }}" class="sb-link-aurora {{ app.request.get('_route') == 'app_profile' ? 'active' : '' }}">
+                    <i class="fas fa-user-circle"></i> Profile
+                </a>
+                <a href="{{ path('app_billing_index') }}" class="sb-link-aurora {{ app.request.get('_route') == 'app_billing_index' ? 'active' : '' }}">
+                    <i class="fas fa-wallet"></i> Billing
+                </a>
+
+                <div class="sb-nav-label">Session</div>
+                <a href="{{ path('app_logout') }}" class="sb-link-aurora" style="color: #EF4444;">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </nav>
+        </aside>
+
+        <div id="main-wrapper">
+            <header class="dashboard-topbar-aurora">
+                <div class="d-flex align-items-center gap-3">
+                    <button class="bg-transparent border-0 text-violet d-xl-none fs-4" onclick="document.getElementById('sidebar-aurora').classList.toggle('open')">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div class="page-title-aurora">{% block page_title %}Dashboard{% endblock %}</div>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                    <span class="badge-aurora badge-aurora-violet">
+                        <i class="fas fa-crown me-1"></i> {{ app.user.tier }}
+                    </span>
+                </div>
+            </header>
+
+            <main class="content-area-aurora">
+                {% block body %}{% endblock %}
+            </main>
+        </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        {% block javascripts %}{% endblock %}
+    </body>
+</html>

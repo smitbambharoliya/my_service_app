@@ -16,7 +16,7 @@ class ServiceRepository extends ServiceEntityRepository
         parent::__construct($registry, Service::class);
     }
 
-    public function smartMatchSearch(?string $query, ?string $category, ?string $priceRange): array
+    public function smartMatchSearch(?string $query, ?string $category, ?string $priceRange, ?string $tier = null, ?string $isPremium = null): array
     {
         $qb = $this->createQueryBuilder('s')
             ->where('s.isActive = true');
@@ -39,6 +39,17 @@ class ServiceRepository extends ServiceEntityRepository
             } elseif ($priceRange === '₹5,000+') {
                 $qb->andWhere('s.price > 5000');
             }
+        }
+
+        if ($tier) {
+            $qb->join('s.provider', 'p')
+               ->andWhere('p.tier = :tier')
+               ->setParameter('tier', $tier);
+        }
+
+        if ($isPremium !== null && $isPremium !== '') {
+            $qb->andWhere('s.isPremium = :isPremium')
+               ->setParameter('isPremium', $isPremium === '1');
         }
 
         return $qb->orderBy('s.id', 'DESC')

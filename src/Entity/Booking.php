@@ -93,7 +93,7 @@ class Booking
     }
 
     public function getBookingDate(): ?\DateTimeImmutable { return $this->bookingDate; }
-    public function setBookingDate(\DateTimeImmutable $bookingDate): static { $this->bookingDate = $bookingDate; return $this; }
+    public function setBookingDate(?\DateTimeImmutable $bookingDate): static { $this->bookingDate = $bookingDate; return $this; }
 
     public function getBookingType(): string { return $this->bookingType; }
     public function setBookingType(string $bookingType): static { $this->bookingType = $bookingType; return $this; }

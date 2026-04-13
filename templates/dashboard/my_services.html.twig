@@ -40,7 +40,7 @@
                         <div style="font-size:0.75rem;color:#94a3b8;margin-top:2px;">{{ service.description|slice(0,50) }}{% if service.description|length > 50 %}...{% endif %}</div>
                     </td>
                     <td style="padding:14px 20px;">
-                        <span style="background:#eff6ff;color:#2563eb;border:1px solid #bfdbfe;padding:4px 12px;border-radius:30px;font-size:0.72rem;font-weight:600;">{{ service.category }}</span>
+                        <span style="background:#eff6ff;color:#2563eb;border:1px solid #bfdbfe;padding:4px 12px;border-radius:30px;font-size:0.72rem;font-weight:600;">{{ service.category.name }}</span>
                     </td>
                     <td style="padding:14px 20px;font-weight:700;color:#16a34a;font-size:0.95rem;">₹{{ service.price }}</td>
                     <td style="padding:14px 20px;">

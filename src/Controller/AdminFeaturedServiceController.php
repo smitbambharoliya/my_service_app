@@ -112,7 +112,7 @@ class AdminFeaturedServiceController extends AbstractController
                 'title' => $s->getTitle(),
                 'provider' => $s->getProvider()->getEmail(),
                 'price' => $s->getPrice(),
-                'category' => $s->getCategory()
+                'category' => $s->getCategory()->getName()
             ];
         }
 

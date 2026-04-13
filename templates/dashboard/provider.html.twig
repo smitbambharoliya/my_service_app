@@ -75,6 +75,35 @@
         </div>
     </div>
 
+    {# ── ANALYTICS CHARTS ROW ── #}
+    <div class="row g-4 mb-5">
+        <div class="col-xl-8">
+            <div class="glass-card h-100">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h3 class="luxury-serif mb-1">Monthly Yield</h3>
+                        <p class="text-xxs text-dim mb-0">REVENUE VELOCITY — LAST 6 MONTHS</p>
+                    </div>
+                    <div class="badge-status status-alert" style="font-size:0.55rem;">PROVIDER KPI</div>
+                </div>
+                <div style="height: 260px;">
+                    <canvas id="yieldChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-4">
+            <div class="glass-card h-100">
+                <div class="mb-4">
+                    <h3 class="luxury-serif mb-1">Booking Status</h3>
+                    <p class="text-xxs text-dim mb-0">DISTRIBUTION ANALYSIS</p>
+                </div>
+                <div style="height: 260px;">
+                    <canvas id="statusChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="row g-5 mb-5">
         {# ── PROTOCOL LEDGER ── #}
         <div class="col-xl-8">
@@ -183,7 +212,84 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Analytics can be added here if needed in future
+
+        // ── MONTHLY YIELD BAR CHART ──
+        const yieldCtx = document.getElementById('yieldChart')?.getContext('2d');
+        if (yieldCtx) {
+            new Chart(yieldCtx, {
+                type: 'bar',
+                data: {
+                    labels: {{ chartLabels|raw }},
+                    datasets: [{
+                        label: 'Monthly Yield (₹)',
+                        data: {{ chartData|raw }},
+                        backgroundColor: 'rgba(239, 68, 68, 0.2)',
+                        borderColor: '#ef4444',
+                        borderWidth: 2,
+                        borderRadius: 8,
+                        borderSkipped: false,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: 'rgba(255,255,255,0.04)' },
+                            ticks: { color: '#64748b', font: { size: 10 }, callback: v => '₹' + (v/1000) + 'k' }
+                        },
+                        x: { grid: { display: false }, ticks: { color: '#64748b', font: { size: 10 } } }
+                    }
+                }
+            });
+        }
+
+        // ── STATUS DOUGHNUT CHART ──
+        const statusCtx = document.getElementById('statusChart')?.getContext('2d');
+        if (statusCtx) {
+            const completed = {{ bookings|filter(b => b.status|lower == 'completed')|length }};
+            const pending   = {{ bookings|filter(b => b.status|lower == 'pending')|length }};
+            const onWay     = {{ bookings|filter(b => b.status|lower == 'on-the-way')|length }};
+            const cancelled = {{ bookings|filter(b => b.status|lower == 'cancelled')|length }};
+            const other     = {{ bookings|length }} - completed - pending - onWay - cancelled;
+
+            new Chart(statusCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Completed', 'Pending', 'On the Way', 'Cancelled', 'Other'],
+                    datasets: [{
+                        data: [completed, pending, onWay, cancelled, other],
+                        backgroundColor: [
+                            'rgba(16,185,129,0.7)',
+                            'rgba(245,158,11,0.7)',
+                            'rgba(6,182,212,0.7)',
+                            'rgba(239,68,68,0.7)',
+                            'rgba(100,116,139,0.5)'
+                        ],
+                        borderWidth: 0,
+                        hoverOffset: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '70%',
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: '#94a3b8',
+                                font: { size: 10, weight: '700' },
+                                padding: 15,
+                                boxWidth: 10, boxHeight: 10
+                            }
+                        }
+                    }
+                }
+            });
+        }
     });
 </script>
 {% endblock %}
