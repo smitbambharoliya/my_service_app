@@ -7,7 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\DependencyInjection\Attribute\Target;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ServiceRepository::class)]
 class Service
@@ -18,12 +18,28 @@ class Service
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: 'Service title is required.')]
+    #[Assert\Length(
+        min: 3,
+        max: 255,
+        minMessage: 'Title must be at least {{ limit }} characters.',
+        maxMessage: 'Title must not exceed {{ limit }} characters.'
+    )]
     private ?string $title = null;
 
     #[ORM\Column(type: Types::TEXT)]
+    #[Assert\NotBlank(message: 'Service description is required.')]
+    #[Assert\Length(
+        min: 10,
+        max: 2000,
+        minMessage: 'Description must be at least {{ limit }} characters.',
+        maxMessage: 'Description must not exceed {{ limit }} characters.'
+    )]
     private ?string $description = null;
 
     #[ORM\Column]
+    #[Assert\NotBlank(message: 'Price is required.')]
+    #[Assert\Positive(message: 'Price must be greater than 0.')]
     private ?float $price = null;
 
     #[ORM\ManyToOne(targetEntity: Category::class, inversedBy: 'services')]

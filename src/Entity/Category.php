@@ -6,6 +6,7 @@ use App\Repository\CategoryRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: CategoryRepository::class)]
 class Category
@@ -16,12 +17,23 @@ class Category
     private ?int $id = null;
 
     #[ORM\Column(length: 100)]
+    #[Assert\NotBlank(message: 'Category name is required.')]
+    #[Assert\Length(
+        min: 2,
+        max: 100,
+        minMessage: 'Category name must be at least {{ limit }} characters.',
+        maxMessage: 'Category name must not exceed {{ limit }} characters.'
+    )]
     private ?string $name = null;
 
     #[ORM\Column(length: 50)]
+    #[Assert\NotBlank(message: 'Slug is required.')]
+    #[Assert\Length(max: 50, maxMessage: 'Slug must not exceed {{ limit }} characters.')]
+    #[Assert\Regex(pattern: '/^[a-z0-9\-]+$/', message: 'Slug should only contain lowercase letters, numbers and hyphens.')]
     private ?string $slug = null;
 
     #[ORM\Column(length: 100)]
+    #[Assert\NotBlank(message: 'Icon class is required.')]
     private ?string $icon = null;
 
     #[ORM\Column(length: 50)]

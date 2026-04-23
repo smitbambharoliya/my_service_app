@@ -4,16 +4,18 @@ namespace App\Controller;
 
 use App\Entity\Booking;
 use App\Entity\Review;
+use App\Event\ReviewSubmittedEvent;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 final class ReviewController extends AbstractController
 {
     #[Route('/dashboard/customer/booking/{id}/review', name: 'app_customer_add_review', methods: ['POST'])]
-    public function addReview(Booking $booking, Request $request, EntityManagerInterface $em): Response
+    public function addReview(Booking $booking, Request $request, EntityManagerInterface $em, EventDispatcherInterface $dispatcher): Response
     {
         $this->denyAccessUnlessGranted('ROLE_USER');
 
@@ -44,6 +46,10 @@ final class ReviewController extends AbstractController
                 $review->setComment($comment);
 
                 $em->persist($review);
+                $em->flush();
+
+                // Dispatch event — listeners handle notification to provider + gamification
+                $dispatcher->dispatch(new ReviewSubmittedEvent($review));
                 $em->flush();
 
                 $this->addFlash('success', 'Thank you! Your appreciation has been registered in the archive.');

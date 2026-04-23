@@ -5,8 +5,11 @@ namespace App\Controller;
 use App\Entity\Booking;
 use App\Entity\Service;
 use App\Entity\User;
-use App\Service\AdminAuditLogger;
-use App\Service\NotificationService;
+use App\Event\BookingCompletedEvent;
+use App\Event\BookingCreatedEvent;
+use App\Event\BookingStatusChangedEvent;
+use App\Event\EstimationRespondedEvent;
+use App\Event\EstimationSentEvent;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -14,25 +17,14 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
-
-use App\Service\GamificationService;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Route('/booking')]
 class BookingController extends AbstractController
 {
-    private AdminAuditLogger $auditLogger;
-    private GamificationService $gamification;
-    private NotificationService $notifications;
-
     public function __construct(
-        AdminAuditLogger $auditLogger,
-        GamificationService $gamification,
-        NotificationService $notifications
-    )
-    {
-        $this->auditLogger = $auditLogger;
-        $this->gamification = $gamification;
-        $this->notifications = $notifications;
+        private EventDispatcherInterface $dispatcher,
+    ) {
     }
 
     /**
@@ -80,36 +72,9 @@ class BookingController extends AbstractController
         $em->persist($booking);
         $em->flush();
 
-        // Award reputation points for booking
-        $user->setReputationPoints($user->getReputationPoints() + 10);
+        // Dispatch event — listeners handle notifications, audit, gamification
+        $this->dispatcher->dispatch(new BookingCreatedEvent($booking, $user));
         $em->flush();
-
-        $this->auditLogger->logBookingAction('BOOKING_CREATE', $booking->getId(), [
-            'customer' => $user->getEmail(),
-            'service' => $service->getTitle(),
-            'provider' => $service->getProvider()->getEmail()
-        ]);
-
-        $this->notifyBookingParticipant(
-            $service->getProvider(),
-            'New booking request received',
-            sprintf(
-                '%s requested "%s". Review the booking details and respond from your dashboard.',
-                $user->getFullName(),
-                $service->getTitle()
-            ),
-            $booking
-        );
-
-        $this->notifyBookingParticipant(
-            $user,
-            'Booking request created',
-            sprintf(
-                'Your booking for "%s" is now pending provider confirmation.',
-                $service->getTitle()
-            ),
-            $booking
-        );
 
         $this->addFlash('success', 'Booking created successfully! Tracking ID: ' . $trackingId);
         return $this->redirectToRoute('app_booking_detail', ['id' => $booking->getId()]);
@@ -212,34 +177,16 @@ class BookingController extends AbstractController
         $oldStatus = $booking->getStatus();
         $booking->setStatus($newStatus);
 
-        // Award points on completion
-        if ($newStatus === 'completed' && $oldStatus !== 'completed') {
-            $customer = $booking->getCustomer();
-            $this->gamification->awardPoints($customer, 50, false);
+        $em->flush();
 
-            $provider = $booking->getService()->getProvider();
-            $this->gamification->awardPoints($provider, 100, false);
+        // Dispatch the appropriate event
+        if ($newStatus === 'completed' && $oldStatus !== 'completed') {
+            $this->dispatcher->dispatch(new BookingCompletedEvent($booking, $user));
+        } else {
+            $this->dispatcher->dispatch(new BookingStatusChangedEvent($booking, $oldStatus, $newStatus, $user));
         }
 
         $em->flush();
-
-        $this->notifyBookingParticipant(
-            $booking->getCustomer(),
-            'Booking status updated',
-            sprintf(
-                'Your booking for "%s" moved from %s to %s.',
-                $booking->getService()->getTitle(),
-                str_replace('-', ' ', $oldStatus),
-                str_replace('-', ' ', $newStatus)
-            ),
-            $booking
-        );
-
-        $this->auditLogger->logBookingAction('BOOKING_STATUS_UPDATE', $booking->getId(), [
-            'old_status' => $oldStatus,
-            'new_status' => $newStatus,
-            'updated_by' => $user->getEmail()
-        ]);
 
         if ($request->isXmlHttpRequest()) {
             return new JsonResponse([
@@ -280,23 +227,13 @@ class BookingController extends AbstractController
             return $this->redirectToRoute('app_booking_detail', ['id' => $booking->getId()]);
         }
 
+        $oldStatus = $booking->getStatus();
         $booking->setStatus('cancelled');
         $em->flush();
 
-        $this->notifyBookingParticipant(
-            $booking->getService()->getProvider(),
-            'Booking cancelled',
-            sprintf(
-                '%s cancelled the booking for "%s".',
-                $booking->getCustomer()->getFullName(),
-                $booking->getService()->getTitle()
-            ),
-            $booking
-        );
-
-        $this->auditLogger->logBookingAction('BOOKING_CANCEL', $booking->getId(), [
-            'cancelled_by' => $user->getEmail()
-        ]);
+        // Dispatch event — listeners handle notification to provider + audit log
+        $this->dispatcher->dispatch(new BookingStatusChangedEvent($booking, $oldStatus, 'cancelled', $user));
+        $em->flush();
 
         $this->addFlash('success', 'Booking cancelled successfully.');
         return $this->redirectToRoute('app_booking_my_bookings');
@@ -407,21 +344,9 @@ class BookingController extends AbstractController
         $booking->setEstimationStatus($estimationStatus);
         $em->flush();
 
-        $this->notifyBookingParticipant(
-            $booking->getCustomer(),
-            'New estimate received',
-            sprintf(
-                'A new estimate of Rs. %s was shared for "%s".',
-                $estimatedCost,
-                $booking->getService()->getTitle()
-            ),
-            $booking
-        );
-
-        $this->auditLogger->logBookingAction('BOOKING_ESTIMATE_SUBMIT', $booking->getId(), [
-            'estimated_cost' => $estimatedCost,
-            'status' => $estimationStatus
-        ]);
+        // Dispatch event — listeners handle notification to customer, audit log, billing
+        $this->dispatcher->dispatch(new EstimationSentEvent($booking, $estimatedCost));
+        $em->flush();
 
         $this->addFlash('success', 'Estimation submitted successfully.');
         return $this->redirectToRoute('app_booking_detail', ['id' => $booking->getId()]);
@@ -462,19 +387,9 @@ class BookingController extends AbstractController
 
         $em->flush();
 
-        $this->notifyBookingParticipant(
-            $booking->getService()->getProvider(),
-            'Estimate response received',
-            sprintf(
-                '%s %s the estimate for "%s".',
-                $booking->getCustomer()->getFullName(),
-                $response,
-                $booking->getService()->getTitle()
-            ),
-            $booking
-        );
-
-        $this->auditLogger->logBookingAction('BOOKING_ESTIMATE_' . strtoupper($response), $booking->getId());
+        // Dispatch event — listeners handle notification to provider + audit log
+        $this->dispatcher->dispatch(new EstimationRespondedEvent($booking, $response));
+        $em->flush();
 
         $this->addFlash('success', 'Estimation ' . $response . ' successfully.');
         return $this->redirectToRoute('app_booking_detail', ['id' => $booking->getId()]);
@@ -504,22 +419,13 @@ class BookingController extends AbstractController
             return $this->redirectToRoute('app_provider_dashboard');
         }
 
+        $oldStatus = $booking->getStatus();
         $booking->setStatus('on-the-way');
         $em->flush();
 
-        $this->notifyBookingParticipant(
-            $booking->getCustomer(),
-            'Provider dispatched',
-            sprintf(
-                'Your provider is on the way for "%s".',
-                $booking->getService()->getTitle()
-            ),
-            $booking
-        );
-
-        $this->auditLogger->logBookingAction('BOOKING_DISPATCHED', $booking->getId(), [
-            'provider' => $user->getEmail()
-        ]);
+        // Dispatch event — listeners handle notification to customer + audit log
+        $this->dispatcher->dispatch(new BookingStatusChangedEvent($booking, $oldStatus, 'on-the-way', $user));
+        $em->flush();
 
         $this->addFlash('success', 'Booking dispatched! Provider is now on the way.');
         return $this->redirectToRoute('app_provider_dashboard');
@@ -550,42 +456,13 @@ class BookingController extends AbstractController
         }
 
         $booking->setStatus('completed');
-
-        // Award reputation points on completion
-        $customer = $booking->getCustomer();
-        $this->gamification->awardPoints($customer, 50, false);
-
-        $provider = $booking->getService()->getProvider();
-        $this->gamification->awardPoints($provider, 100, false);
-
         $em->flush();
 
-        $this->notifyBookingParticipant(
-            $customer,
-            'Booking completed',
-            sprintf(
-                'Your booking for "%s" has been marked completed.',
-                $booking->getService()->getTitle()
-            ),
-            $booking
-        );
-
-        $this->auditLogger->logBookingAction('BOOKING_COMPLETED', $booking->getId(), [
-            'provider' => $user->getEmail(),
-            'customer' => $customer->getEmail()
-        ]);
+        // Dispatch event — listeners handle notification, gamification, billing, audit
+        $this->dispatcher->dispatch(new BookingCompletedEvent($booking, $user));
+        $em->flush();
 
         $this->addFlash('success', 'Booking marked as completed. Reputation points awarded!');
         return $this->redirectToRoute('app_provider_dashboard');
-    }
-
-    private function notifyBookingParticipant(User $recipient, string $title, string $message, Booking $booking): void
-    {
-        $this->notifications->notifyBookingUpdate(
-            $recipient,
-            $title,
-            $message,
-            $this->generateUrl('app_booking_detail', ['id' => $booking->getId()])
-        );
     }
 }

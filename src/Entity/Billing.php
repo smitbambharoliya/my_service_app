@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\BillingRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: BillingRepository::class)]
 class Billing
@@ -18,9 +19,16 @@ class Billing
     private ?User $user = null;
 
     #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2)]
+    #[Assert\NotBlank(message: 'Amount is required.')]
+    #[Assert\Positive(message: 'Amount must be greater than 0.')]
     private ?string $amount = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: 'Payment status is required.')]
+    #[Assert\Choice(
+        choices: ['estimate', 'unpaid', 'paid', 'refunded'],
+        message: 'Invalid payment status.'
+    )]
     private ?string $paymentStatus = null;
 
     #[ORM\Column(length: 255)]

@@ -7,14 +7,18 @@ use App\Entity\Booking;
 use App\Entity\Review;
 use App\Entity\Service;
 use App\Entity\User;
+use App\Event\BookingCompletedEvent;
+use App\Event\BookingCreatedEvent;
+use App\Event\BookingStatusChangedEvent;
+use App\Event\EstimationSentEvent;
 use App\Form\BookingType;
 use App\Form\ServiceType;
-use App\Service\NotificationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Request; 
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 final class ServiceController extends AbstractController
 {
@@ -235,7 +239,7 @@ final class ServiceController extends AbstractController
         Service $service,
         Request $request,
         EntityManagerInterface $entityManager,
-        NotificationService $notificationService
+        EventDispatcherInterface $dispatcher
     ): Response
     {
         $this->denyAccessUnlessGranted('ROLE_USER');
@@ -245,7 +249,9 @@ final class ServiceController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $booking->setCustomer($this->getUser());
+            /** @var User $user */
+            $user = $this->getUser();
+            $booking->setCustomer($user);
             $booking->setService($service);
             $booking->setStatus('pending');
             $booking->setBookingDate(new \DateTimeImmutable());
@@ -253,26 +259,9 @@ final class ServiceController extends AbstractController
             $entityManager->persist($booking);
             $entityManager->flush();
 
-            $notificationService->notifyBookingUpdate(
-                $service->getProvider(),
-                'New booking request received',
-                sprintf(
-                    '%s requested "%s".',
-                    $this->getUser()->getFullName(),
-                    $service->getTitle()
-                ),
-                $this->generateUrl('app_booking_detail', ['id' => $booking->getId()])
-            );
-
-            $notificationService->notifyBookingUpdate(
-                $this->getUser(),
-                'Booking request created',
-                sprintf(
-                    'Your booking for "%s" is waiting for provider confirmation.',
-                    $service->getTitle()
-                ),
-                $this->generateUrl('app_booking_detail', ['id' => $booking->getId()])
-            );
+            // Dispatch event — listeners handle notifications, audit, gamification
+            $dispatcher->dispatch(new BookingCreatedEvent($booking, $user));
+            $entityManager->flush();
 
             $this->addFlash('success', 'Your Booking Has Been Placed Successfully!');
             return $this->redirectToRoute('app_customer_dashboard');
@@ -291,7 +280,7 @@ final class ServiceController extends AbstractController
         Booking $booking,
         Request $request,
         EntityManagerInterface $entityManager,
-        NotificationService $notificationService
+        EventDispatcherInterface $dispatcher
     ): Response
     {
         $this->denyAccessUnlessGranted('ROLE_PROVIDER');
@@ -307,31 +296,11 @@ final class ServiceController extends AbstractController
             if ($estimatedCost && is_numeric($estimatedCost) && $estimatedCost > 0) {
                 $booking->setEstimatedCost((string) $estimatedCost);
                 $booking->setEstimationStatus('sent');
-                
-                // Generate Estimate Bill
-                $billing = new Billing();
-                $billing->setUser($booking->getCustomer());
-                $billing->setAmount((string) $estimatedCost);
-                $billing->setPaymentStatus('estimate');
-                $billing->setTransactionId('EST-' . strtoupper(substr(uniqid(), -6)));
-                $billing->setCreatedAt(new \DateTimeImmutable());
-                $billing->setCategory($booking->getService()->getCategory()->getName());
-                $billing->setServiceName($booking->getService()->getTitle());
-                $billing->setDescription('Estimated cost provided by the professional for the visit.');
-                $entityManager->persist($billing);
-
                 $entityManager->flush();
 
-                $notificationService->notifyBookingUpdate(
-                    $booking->getCustomer(),
-                    'New estimate received',
-                    sprintf(
-                        'A new estimate of Rs. %s was shared for "%s".',
-                        $estimatedCost,
-                        $booking->getService()->getTitle()
-                    ),
-                    $this->generateUrl('app_booking_detail', ['id' => $booking->getId()])
-                );
+                // Dispatch event — listeners handle billing generation, notification, audit
+                $dispatcher->dispatch(new EstimationSentEvent($booking, (string) $estimatedCost));
+                $entityManager->flush();
 
                 $this->addFlash('success', 'Estimation of ₹' . $estimatedCost . ' sent to customer. Estimate bill created.');
             } else {
@@ -345,13 +314,15 @@ final class ServiceController extends AbstractController
         Booking $booking,
         Request $request,
         EntityManagerInterface $entityManager,
-        \App\Service\GamificationService $gamification,
-        NotificationService $notificationService
+        EventDispatcherInterface $dispatcher
     ): Response
     {
         $this->denyAccessUnlessGranted('ROLE_PROVIDER');
 
-        if ($booking->getService()->getProvider() !== $this->getUser()) {
+        /** @var User $user */
+        $user = $this->getUser();
+
+        if ($booking->getService()->getProvider() !== $user) {
             $this->addFlash('danger', 'Access denied.');
             return $this->redirectToRoute('app_provider_dashboard');
         }
@@ -364,38 +335,13 @@ final class ServiceController extends AbstractController
 
             if ($booking->getStatus() !== 'completed') {
                 $booking->setStatus('completed');
-
-                $billing = new Billing();
-                $billing->setUser($booking->getCustomer());
-                
-                if ($booking->getBookingType() === 'visit') {
-                    $billing->setAmount($booking->getEstimatedCost());
-                } else {
-                    $billing->setAmount((string) $booking->getService()->getPrice());
-                }
-                
-                $billing->setPaymentStatus('unpaid');
-                $billing->setTransactionId('BILL-' . strtoupper(substr(uniqid(), -6)));
-                $billing->setCreatedAt(new \DateTimeImmutable());
-                $billing->setCategory($booking->getService()->getCategory()->getName());
-                $billing->setServiceName($booking->getService()->getTitle());
-                $billing->setDescription('Final bill for completed service request.');
-                
-                $entityManager->persist($billing);
-                $gamification->awardPoints($booking->getService()->getProvider(), 500, false);
                 $entityManager->flush();
 
-                $notificationService->notifyBookingUpdate(
-                    $booking->getCustomer(),
-                    'Booking completed',
-                    sprintf(
-                        'Your booking for "%s" has been completed.',
-                        $booking->getService()->getTitle()
-                    ),
-                    $this->generateUrl('app_booking_detail', ['id' => $booking->getId()])
-                );
+                // Dispatch event — listeners handle billing, gamification, notification, audit
+                $dispatcher->dispatch(new BookingCompletedEvent($booking, $user));
+                $entityManager->flush();
 
-                $this->addFlash('success', 'Booking completed & final bill generated. You earned 500 Reputation Points! 🏆');
+                $this->addFlash('success', 'Booking completed & final bill generated. You earned Reputation Points! 🏆');
             }
         }
 
@@ -407,16 +353,20 @@ final class ServiceController extends AbstractController
         Booking $booking,
         Request $request,
         EntityManagerInterface $entityManager,
-        NotificationService $notificationService
+        EventDispatcherInterface $dispatcher
     ): Response
     {
         $this->denyAccessUnlessGranted('ROLE_PROVIDER');
 
-        if ($booking->getService()->getProvider() !== $this->getUser()) {
+        /** @var User $user */
+        $user = $this->getUser();
+
+        if ($booking->getService()->getProvider() !== $user) {
             throw $this->createAccessDeniedException();
         }
 
         if ($this->isCsrfTokenValid('dispatch' . $booking->getId(), $request->request->get('_token'))) {
+            $oldStatus = $booking->getStatus();
             $booking->setStatus('on-the-way');
             
             // Set initial tracking coordinates (from provider's profile or default)
@@ -426,15 +376,9 @@ final class ServiceController extends AbstractController
             
             $entityManager->flush();
 
-            $notificationService->notifyBookingUpdate(
-                $booking->getCustomer(),
-                'Provider dispatched',
-                sprintf(
-                    'Your provider is on the way for "%s".',
-                    $booking->getService()->getTitle()
-                ),
-                $this->generateUrl('app_booking_detail', ['id' => $booking->getId()])
-            );
+            // Dispatch event — listeners handle notification to customer + audit
+            $dispatcher->dispatch(new BookingStatusChangedEvent($booking, $oldStatus, 'on-the-way', $user));
+            $entityManager->flush();
 
             $this->addFlash('success', 'Protocol Status: DISPATCHED. Node is currently transit to sector.');
         }

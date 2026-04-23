@@ -3,12 +3,13 @@
 namespace App\Controller;
 
 use App\Entity\Booking;
-use App\Service\NotificationService;
+use App\Event\EstimationRespondedEvent;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 final class CustomerController extends AbstractController
 {
@@ -49,9 +50,8 @@ final class CustomerController extends AbstractController
         Booking $booking,
         EntityManagerInterface $entityManager,
         Request $request,
-        NotificationService $notificationService
-    ): Response
-    {
+        EventDispatcherInterface $dispatcher
+    ): Response {
         if ($booking->getCustomer() !== $this->getUser()) {
             $this->addFlash('danger', 'Access denied.');
             return $this->redirectToRoute('app_customer_dashboard');
@@ -61,16 +61,9 @@ final class CustomerController extends AbstractController
             $booking->setEstimationStatus('accepted');
             $entityManager->flush();
 
-            $notificationService->notifyBookingUpdate(
-                $booking->getService()->getProvider(),
-                'Estimate accepted',
-                sprintf(
-                    '%s accepted the estimate for "%s".',
-                    $booking->getCustomer()->getFullName(),
-                    $booking->getService()->getTitle()
-                ),
-                $this->generateUrl('app_booking_detail', ['id' => $booking->getId()])
-            );
+            // Dispatch event — listeners handle notification to provider + audit
+            $dispatcher->dispatch(new EstimationRespondedEvent($booking, 'accepted'));
+            $entityManager->flush();
 
             $this->addFlash('success', 'You have accepted the estimate of ₹' . $booking->getEstimatedCost() . '. The provider will proceed with the work.');
         }
@@ -83,9 +76,8 @@ final class CustomerController extends AbstractController
         Booking $booking,
         EntityManagerInterface $entityManager,
         Request $request,
-        NotificationService $notificationService
-    ): Response
-    {
+        EventDispatcherInterface $dispatcher
+    ): Response {
         if ($booking->getCustomer() !== $this->getUser()) {
             $this->addFlash('danger', 'Access denied.');
             return $this->redirectToRoute('app_customer_dashboard');
@@ -95,16 +87,9 @@ final class CustomerController extends AbstractController
             $booking->setEstimationStatus('rejected');
             $entityManager->flush();
 
-            $notificationService->notifyBookingUpdate(
-                $booking->getService()->getProvider(),
-                'Estimate rejected',
-                sprintf(
-                    '%s rejected the estimate for "%s".',
-                    $booking->getCustomer()->getFullName(),
-                    $booking->getService()->getTitle()
-                ),
-                $this->generateUrl('app_booking_detail', ['id' => $booking->getId()])
-            );
+            // Dispatch event — listeners handle notification to provider + audit
+            $dispatcher->dispatch(new EstimationRespondedEvent($booking, 'rejected'));
+            $entityManager->flush();
 
             $this->addFlash('warning', 'You have rejected the estimate. The provider will be notified.');
         }

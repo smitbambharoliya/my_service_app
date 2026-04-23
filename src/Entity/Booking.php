@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\BookingRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: BookingRepository::class)]
 class Booking
@@ -22,24 +23,40 @@ class Booking
     private ?Service $service = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: 'Booking status is required.')]
+    #[Assert\Choice(
+        choices: ['pending', 'confirmed', 'accepted', 'in_progress', 'on-the-way', 'completed', 'cancelled'],
+        message: 'Invalid booking status.'
+    )]
     private ?string $status = null;
 
     #[ORM\Column(length: 10, options: ["default" => "online"])]
+    #[Assert\Choice(
+        choices: ['online', 'visit'],
+        message: 'Booking type must be either online or visit.'
+    )]
     private string $bookingType = 'online';
 
     #[ORM\Column(type: 'text', nullable: true)]
+    #[Assert\Length(max: 2000, maxMessage: 'Notes must not exceed {{ limit }} characters.')]
     private ?string $notes = null;
 
     #[ORM\Column(type: 'decimal', precision: 10, scale: 2, nullable: true)]
+    #[Assert\Positive(message: 'Estimated cost must be greater than 0.')]
     private ?string $estimatedCost = null;
 
     #[ORM\Column(length: 30, nullable: true)]
+    #[Assert\Choice(
+        choices: ['pending', 'sent', 'accepted', 'rejected'],
+        message: 'Invalid estimation status.'
+    )]
     private ?string $estimationStatus = null;
 
     #[ORM\OneToOne(mappedBy: 'booking', cascade: ['persist', 'remove'])]
     private ?Review $review = null;
 
     #[ORM\Column]
+    #[Assert\NotNull(message: 'Booking date is required.')]
     private ?\DateTimeImmutable $bookingDate = null;
 
     #[ORM\Column(type: 'decimal', precision: 10, scale: 7, nullable: true)]

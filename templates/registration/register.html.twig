@@ -5,23 +5,6 @@
 {% block stylesheets %}
 <style>
     html { scroll-behavior: smooth; }
-    body {
-        background: #040812;
-        overflow-x: hidden;
-        overflow-y: auto;
-        min-height: 100vh;
-    }
-
-    /* Dark Theme Typography Overrides */
-    :root {
-        --text-pure: #ffffff;
-        --text-silver: #94a3b8;
-        --text-dim: #64748b;
-    }
-    h1, h2, h3, h4, h5, h6, .luxury-serif, .text-pure { color: #ffffff !important; }
-    .text-silver { color: var(--text-silver) !important; }
-    .text-dim { color: var(--text-dim) !important; }
-    .text-gold { color: #38bdf8 !important; }
 
     .portal-wrapper {
         min-height: 100vh;
@@ -29,136 +12,148 @@
         align-items: center;
         justify-content: center;
         position: relative;
-        padding: clamp(1.5rem, 4vw, 2.5rem) clamp(1rem, 3vw, 2.5rem) clamp(2.5rem, 6vh, 4rem);
+        padding: 2rem 1rem;
         box-sizing: border-box;
-    }
-
-    .portal-bg-accent {
-        position: absolute;
-        width: 1200px; height: 1200px;
-        background: radial-gradient(circle, rgba(59, 130, 246, 0.04) 0%, transparent 70%);
-        bottom: -400px; left: -400px;
-        z-index: 1;
-        pointer-events: none;
     }
 
     .portal-card {
         width: 100%;
-        max-width: 1250px;
+        max-width: 1200px;
         display: grid;
         grid-template-columns: 1fr 1.3fr;
-        background: #0f172a;
-        border: 1px solid rgba(255,255,255,0.05);
-        border-radius: var(--r-xl);
+        background: var(--glass-bg);
+        backdrop-filter: blur(var(--glass-blur));
+        -webkit-backdrop-filter: blur(var(--glass-blur));
+        border: 1px solid var(--glass-border);
+        border-radius: 28px;
         overflow: hidden;
         position: relative;
         z-index: 10;
-        box-shadow: 0 20px 50px rgba(0,0,0,0.5), 0 0 40px rgba(59, 130, 246, 0.15);
+        box-shadow: var(--shadow-elevated);
     }
 
-    /* Left Panel: The Heritage Story */
+    /* Left Panel */
     .portal-visual {
-        background: linear-gradient(rgba(15, 23, 42, 0.95), rgba(15, 23, 42, 0.8)), url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1200&auto=format&fit=crop');
-        background-size: cover;
-        background-position: center;
-        padding: 60px;
+        background: linear-gradient(135deg, #0ea5e9 0%, #8b5cf6 100%);
+        padding: 56px;
         display: flex;
         flex-direction: column;
         justify-content: center;
     }
+    .portal-visual h2, .portal-visual p, .portal-visual span { color: #ffffff !important; }
     
     .heritage-step {
         display: flex;
-        gap: 24px;
-        margin-bottom: 40px;
+        gap: 20px;
+        margin-bottom: 32px;
         align-items: flex-start;
     }
     .step-node {
         width: 40px; height: 40px;
-        border: 1px solid #3b82f6;
+        border: 2px solid rgba(255,255,255,0.4);
         border-radius: 50%;
         display: flex; align-items: center; justify-content: center;
-        color: #3b82f6;
+        color: #ffffff;
         font-weight: 800; font-size: 0.8rem;
         flex-shrink: 0;
-        background: rgba(59, 130, 246, 0.1);
+        background: rgba(255,255,255,0.2);
     }
-    .heritage-step h4 { font-family: 'Playfair Display', serif; color: #ffffff; margin-bottom: 8px; font-size: 1.2rem; }
-    .heritage-step p { color: #94a3b8; font-size: 0.85rem; margin: 0; line-height: 1.5; }
+    .heritage-step h4 { color: #ffffff; margin-bottom: 6px; font-size: 1.05rem; font-weight: 700; }
+    .heritage-step p { color: rgba(255,255,255,0.75); font-size: 0.85rem; margin: 0; line-height: 1.5; }
 
-    /* Right Panel: The Matrix Form */
+    /* Right Panel */
     .portal-form-side {
-        padding: 60px;
-        background: #0f172a;
+        padding: 48px 52px;
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(10px);
+        overflow-y: auto;
+        max-height: 95vh;
     }
 
     .input-label {
         font-size: 0.6rem;
         font-weight: 800;
-        color: var(--text-dim);
+        color: var(--color-on-surface-variant);
         text-transform: uppercase;
-        letter-spacing: 0.2em;
-        margin-bottom: 10px;
+        letter-spacing: 0.15em;
+        margin-bottom: 8px;
         display: block;
     }
 
     .auth-input {
         width: 100%;
-        background: rgba(0,0,0,0.2) !important;
-        border: 1px solid rgba(255,255,255,0.1);
-        border-radius: var(--r-md);
-        padding: 14px 20px;
-        color: #ffffff !important;
-        font-size: 0.85rem;
-        transition: all 0.4s var(--ease-luxury);
-        margin-bottom: 20px;
-        font-family: 'Plus Jakarta Sans', sans-serif;
+        background: rgba(255, 255, 255, 0.6);
+        border: 1px solid var(--glass-border);
+        border-radius: 12px;
+        padding: 12px 16px;
+        color: var(--color-on-surface);
+        font-size: 0.875rem;
+        transition: all 0.3s var(--ease-luxury);
+        margin-bottom: 18px;
+        font-family: 'Outfit', sans-serif;
     }
     .auth-input:focus {
-        background: rgba(0,0,0,0.4) !important;
-        border-color: #38bdf8;
+        background: rgba(255, 255, 255, 0.9);
+        border-color: var(--color-primary);
         outline: none;
-        box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
+        box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.12);
     }
+    .auth-input::placeholder { color: #94a3b8; }
 
-    /* Elegant Role Selector */
+    /* Role Selector */
     .luxury-role-selector {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 20px;
-        margin-bottom: 30px;
+        gap: 16px;
+        margin-bottom: 24px;
     }
     .role-option { cursor: pointer; position: relative; }
     .role-option input { display: none; }
     .role-ui {
-        background: rgba(0,0,0,0.2);
-        border: 1px solid rgba(255,255,255,0.1);
-        padding: 20px;
-        border-radius: var(--r-md);
+        background: rgba(255,255,255,0.5);
+        border: 1px solid var(--glass-border);
+        padding: 18px;
+        border-radius: 14px;
         text-align: center;
-        transition: all 0.4s var(--ease-luxury);
+        transition: all 0.3s var(--ease-luxury);
     }
-    .role-option:hover .role-ui { border-color: #38bdf8; transform: translateY(-5px); box-shadow: 0 10px 20px rgba(56, 189, 248, 0.15); }
+    .role-option:hover .role-ui { border-color: var(--color-primary); transform: translateY(-3px); box-shadow: 0 8px 20px rgba(14,165,233,0.1); }
     .role-option input:checked + .role-ui {
-        background: rgba(56, 189, 248, 0.1);
-        border-color: #38bdf8;
-        box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
+        background: rgba(14, 165, 233, 0.08);
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15);
     }
-    .role-ui i { display: block; font-size: 1.5rem; color: #64748b; margin-bottom: 10px; transition: color 0.4s; }
-    .role-option input:checked + .role-ui i { color: #38bdf8; }
-    .role-ui .title { display: block; font-weight: 800; font-size: 0.7rem; color: #ffffff; letter-spacing: 0.1em; }
+    .role-ui i { display: block; font-size: 1.4rem; color: #94a3b8; margin-bottom: 8px; transition: color 0.3s; }
+    .role-option input:checked + .role-ui i { color: var(--color-primary); }
+    .role-ui .title { display: block; font-weight: 700; font-size: 0.75rem; color: var(--color-on-surface); letter-spacing: 0.05em; }
+
+    .submit-btn {
+        width: 100%;
+        background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+        color: #ffffff;
+        border: none;
+        border-radius: 50px;
+        padding: 14px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s var(--ease-luxury);
+        box-shadow: 0 8px 25px rgba(14,165,233,0.25);
+    }
+    .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(14,165,233,0.35); }
+    .link-accent { color: var(--color-primary); font-weight: 700; text-decoration: none; }
+    .link-accent:hover { color: var(--color-secondary); }
 
     @media (max-width: 992px) {
         .portal-card { grid-template-columns: 1fr; max-width: 500px; }
         .portal-visual { display: none; }
-        .portal-form-side { padding: 40px; }
+        .portal-form-side { padding: 36px 28px; border-radius: 28px; max-height: none; }
     }
 </style>
 {% endblock %}
 
 {% block body %}
 <div class="portal-wrapper">
-    <div class="portal-bg-accent"></div>
 
     <div class="portal-card animate-fade-in text-start">
         {# ── LEFT PANEL ── #}
@@ -195,12 +190,12 @@
 
         {# ── RIGHT PANEL ── #}
         <div class="portal-form-side">
-            <div class="d-flex justify-content-between align-items-center mb-5">
+            <div class="d-flex justify-content-between align-items-center mb-4">
                 <div>
-                    <h3 class="luxury-serif text-pure mb-1">Establish Identity</h3>
-                    <p class="text-xxs text-dim fw-bold letter-spacing-1 mb-0">HERITAGE REGISTRATION MATRIX</p>
+                    <h3 class="mb-1" style="color: var(--color-on-surface); font-family: Outfit, sans-serif; font-weight: 800;">Create Account</h3>
+                    <p class="text-xxs fw-bold letter-spacing-1 mb-0" style="color: var(--color-on-surface-variant);">JOIN SERVICEHUB</p>
                 </div>
-                <a href="{{ path('app_login') }}" class="text-xxs text-gold fw-bold text-decoration-none">OR SIGN IN</a>
+                <a href="{{ path('app_login') }}" class="text-xxs link-accent">Sign in instead</a>
             </div>
 
             {{ form_start(registrationForm, {'attr': {'novalidate': 'novalidate'}}) }}
@@ -294,8 +289,8 @@
 
                 {{ form_rest(registrationForm) }}
 
-                <button type="submit" class="btn-aurora-gradient w-100 py-3 mb-0 justify-content-center" style="font-size: 0.8rem; border-radius: 50px;">
-                    INITIALIZE LEGACY <i class="fas fa-rocket ms-2"></i>
+                <button type="submit" class="submit-btn mb-0">
+                    Create Account <i class="fas fa-arrow-right ms-2"></i>
                 </button>
             {{ form_end(registrationForm) }}
         </div>

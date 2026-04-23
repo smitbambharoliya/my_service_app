@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\MessageRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: MessageRepository::class)]
 #[ORM\HasLifecycleCallbacks]
@@ -28,6 +29,12 @@ class Message
     private ?Booking $booking = null;
 
     #[ORM\Column(type: Types::TEXT)]
+    #[Assert\NotBlank(message: 'Message content cannot be empty.')]
+    #[Assert\Length(
+        min: 1,
+        max: 5000,
+        maxMessage: 'Message must not exceed {{ limit }} characters.'
+    )]
     private ?string $content = null;
 
     #[ORM\Column]

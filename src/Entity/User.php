@@ -10,6 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
@@ -23,6 +24,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?int $id = null;
 
     #[ORM\Column(length: 180)]
+    #[Assert\NotBlank(message: 'Email address is required.')]
+    #[Assert\Email(message: 'Please enter a valid email address.')]
+    #[Assert\Length(max: 180, maxMessage: 'Email must not exceed {{ limit }} characters.')]
     private ?string $email = null;
 
     #[ORM\Column]
@@ -35,9 +39,29 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private bool $isVerified = false;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: 'Full name is required.')]
+    #[Assert\Length(
+        min: 2,
+        max: 255,
+        minMessage: 'Name must be at least {{ limit }} characters.',
+        maxMessage: 'Name must not exceed {{ limit }} characters.'
+    )]
+    #[Assert\Regex(
+        pattern: '/^[a-zA-Z\s\-\']+$/',
+        message: 'Name should only contain letters, spaces and hyphens.'
+    )]
     private ?string $fullName = null;
 
     #[ORM\Column(length: 20, nullable: true)]
+    #[Assert\Length(
+        min: 10,
+        max: 10,
+        exactMessage: 'Mobile number must be exactly {{ limit }} digits.'
+    )]
+    #[Assert\Regex(
+        pattern: '/^[0-9]{10}$/',
+        message: 'Please enter a valid 10-digit mobile number.'
+    )]
     private ?string $mobile = null;
 
     #[ORM\OneToMany(targetEntity: Service::class, mappedBy: 'provider')]
@@ -74,15 +98,30 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $address = null;
 
     #[ORM\Column(length: 40, nullable: true)]
+    #[Assert\Length(max: 40, maxMessage: 'City name must not exceed {{ limit }} characters.')]
     private ?string $city = null;
 
     #[ORM\Column(length: 10, nullable: true)]
+    #[Assert\Length(
+        min: 6,
+        max: 6,
+        exactMessage: 'Pincode must be exactly {{ limit }} digits.'
+    )]
+    #[Assert\Regex(
+        pattern: '/^[0-9]{6}$/',
+        message: 'Please enter a valid 6-digit pincode.'
+    )]
     private ?string $pincode = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
+    #[Assert\LessThan('today', message: 'Date of birth must be in the past.')]
     private ?\DateTime $dot = null;
 
     #[ORM\Column(length: 10, nullable: true)]
+    #[Assert\Choice(
+        choices: ['Male', 'Female', 'Other'],
+        message: 'Please select a valid gender.'
+    )]
     private ?string $gender = null;
 
     #[ORM\Column(length: 6, nullable: true)]

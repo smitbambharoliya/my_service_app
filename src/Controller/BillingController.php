@@ -6,12 +6,14 @@ use App\Entity\Billing;
 use App\Entity\Booking;
 use App\Entity\Service;
 use App\Entity\User;
+use App\Event\PaymentCompletedEvent;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[IsGranted('ROLE_USER')]
 class BillingController extends AbstractController
@@ -211,7 +213,7 @@ class BillingController extends AbstractController
     }
 
     #[Route('/webhook/stripe', name: 'app_stripe_webhook', methods: ['POST'])]
-    public function stripeWebhook(Request $request, EntityManagerInterface $em): Response
+    public function stripeWebhook(Request $request, EntityManagerInterface $em, EventDispatcherInterface $dispatcher): Response
     {
         $payload = @file_get_contents('php://input');
         $sig_header = $request->headers->get('stripe-signature');
@@ -236,14 +238,9 @@ class BillingController extends AbstractController
             if ($billing && $billing->getPaymentStatus() !== 'paid') {
                 $billing->setPaymentStatus('paid');
                 $billing->setTransactionId('STR-' . strtoupper(substr(bin2hex(random_bytes(4)), 0, 8)));
-                
-                // If this was a subscription upgrade, apply the premium status to all services
-                if ($billing->getCategory() === 'Subscription') {
-                    $services = $billing->getUser()->getServices();
-                    foreach ($services as $service) {
-                        $service->setIsPremium(true);
-                    }
-                }
+
+                // Dispatch event — listeners handle premium upgrade + any post-payment logic
+                $dispatcher->dispatch(new PaymentCompletedEvent($billing));
 
                 $em->flush();
             }

@@ -5,23 +5,6 @@
 {% block stylesheets %}
 <style>
     html { scroll-behavior: smooth; }
-    body {
-        background: #6c86c8ff;
-        overflow-x: hidden;
-        overflow-y: auto;
-        min-height: 100vh;
-    }
-
-    /* Dark Theme Typography Overrides */
-    :root {
-        --text-pure: #ffffff;
-        --text-silver: #94a3b8;
-        --text-dim: #64748b;
-    }
-    h1, h2, h3, h4, h5, h6, .luxury-serif, .text-pure { color: #0c0707ff !important; }
-    .text-silver { color: var(--text-silver) !important; }
-    .text-dim { color: var(--text-dim) !important; }
-    .text-gold { color: #38bdf8 !important; }
 
     .portal-wrapper {
         min-height: 100vh;
@@ -29,31 +12,24 @@
         align-items: center;
         justify-content: center;
         position: relative;
-        padding: clamp(1.5rem, 4vw, 2.5rem) clamp(1rem, 3vw, 2.5rem) clamp(2.5rem, 6vh, 4rem);
+        padding: clamp(1.5rem, 4vw, 2.5rem);
         box-sizing: border-box;
-    }
-
-    .portal-bg-accent {
-        position: absolute;
-        width: 1200px; height: 1200px;
-        background: radial-gradient(circle, rgba(59, 130, 246, 0.04) 0%, transparent 70%);
-        top: -400px; right: -400px;
-        z-index: 1;
-        pointer-events: none;
     }
 
     .portal-card {
         width: 100%;
-        max-width: 1100px;
+        max-width: 1050px;
         display: grid;
         grid-template-columns: 1.2fr 1fr;
-        background: #0f172a;
-        border: 1px solid rgba(255,255,255,0.05);
-        border-radius: var(--r-xl);
+        background: var(--glass-bg);
+        backdrop-filter: blur(var(--glass-blur));
+        -webkit-backdrop-filter: blur(var(--glass-blur));
+        border: 1px solid var(--glass-border);
+        border-radius: 28px;
         overflow: hidden;
         position: relative;
         z-index: 10;
-        box-shadow: 0 20px 50px rgba(0,0,0,0.5), 0 0 40px rgba(59, 130, 246, 0.15);
+        box-shadow: var(--shadow-elevated);
     }
 
     .portal-visual {
@@ -64,59 +40,85 @@
         display: flex;
         flex-direction: column;
         justify-content: flex-end;
+        border-radius: 28px 0 0 28px;
+        overflow: hidden;
     }
     .portal-visual::after {
         content: ''; position: absolute; inset: 0;
-        background: linear-gradient(to top, rgba(15, 23, 42, 1) 0%, rgba(15, 23, 42, 0.4) 50%, rgba(15, 23, 42, 0) 100%);
+        background: linear-gradient(to top, rgba(15, 23, 42, 0.9) 0%, rgba(15, 23, 42, 0.3) 60%, transparent 100%);
     }
     .visual-content { position: relative; z-index: 10; }
+    .visual-content h2, .visual-content p { color: #ffffff !important; }
+    .visual-content .text-gold { color: #bae6fd !important; }
 
-    /* Right: The Secure Terminal */
     .portal-form-side {
-        padding: 60px;
-        background: #0f172a;
+        padding: 56px 52px;
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(10px);
     }
 
     .input-label {
         font-size: 0.65rem;
         font-weight: 800;
-        color: var(--text-dim);
+        color: var(--color-on-surface-variant);
         text-transform: uppercase;
-        letter-spacing: 0.2em;
-        margin-bottom: 12px;
+        letter-spacing: 0.15em;
+        margin-bottom: 8px;
         display: block;
     }
 
     .auth-input {
         width: 100%;
-        background: rgba(0, 0, 0, 0.2);
-        border: 1px solid rgba(255,255,255,0.1);
-        border-radius: var(--r-md);
-        padding: 16px 20px;
-        color: #ffffff;
+        background: rgba(255, 255, 255, 0.6);
+        border: 1px solid var(--glass-border);
+        border-radius: 12px;
+        padding: 14px 18px;
+        color: var(--color-on-surface);
         font-size: 0.9rem;
-        transition: all 0.4s var(--ease-luxury);
-        margin-bottom: 24px;
-        font-family: 'Plus Jakarta Sans', sans-serif;
+        transition: all 0.3s var(--ease-luxury);
+        margin-bottom: 20px;
+        font-family: 'Outfit', sans-serif;
     }
     .auth-input:focus {
-        background: rgba(0, 0, 0, 0.4);
-        border-color: #38bdf8;
+        background: rgba(255, 255, 255, 0.9);
+        border-color: var(--color-primary);
         outline: none;
-        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.12);
     }
+    .auth-input::placeholder { color: #94a3b8; }
+
+    .portal-form-side h3, .portal-form-side p, .portal-form-side label {
+        color: var(--color-on-surface) !important;
+    }
+    .link-accent { color: var(--color-primary); font-weight: 700; text-decoration: none; }
+    .link-accent:hover { color: var(--color-secondary); }
+
+    .submit-btn {
+        width: 100%;
+        background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+        color: #ffffff;
+        border: none;
+        border-radius: 50px;
+        padding: 14px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        cursor: pointer;
+        transition: all 0.3s var(--ease-luxury);
+        box-shadow: 0 8px 25px rgba(14,165,233,0.25);
+    }
+    .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(14,165,233,0.35); }
 
     @media (max-width: 992px) {
-        .portal-card { grid-template-columns: 1fr; max-width: 500px; }
+        .portal-card { grid-template-columns: 1fr; max-width: 480px; }
         .portal-visual { display: none; }
-        .portal-form-side { padding: 40px; }
+        .portal-form-side { padding: 40px 36px; border-radius: 28px; }
     }
 </style>
 {% endblock %}
 
 {% block body %}
 <div class="portal-wrapper">
-    <div class="portal-bg-accent"></div>
     
     <div class="portal-card animate-fade-in">
         {# ── LEFT: VISUAL ── #}
@@ -131,9 +133,9 @@
         {# ── RIGHT: THE SECURE TERMINAL ── #}
         <div class="portal-form-side">
             <div class="text-center mb-5">
-                <a href="{{ path('app_home') }}" class="luxury-serif text-pure text-decoration-none h3 mb-1 d-block">ServiceHub<span class="text-gold">.</span></a>
-                <p class="text-xs text-dim fw-bold letter-spacing-1 mb-1">Sign in to your account</p>
-                <p class="text-xxs text-muted mb-0">Use your email and password to continue.</p>
+                <a href="{{ path('app_home') }}" class="text-decoration-none h3 mb-1 d-block fw-800" style="color: var(--color-on-surface); font-family: Outfit, sans-serif;">Service<span style="color: var(--color-primary); font-style: italic;">Hub</span></a>
+                <p class="text-xs fw-bold letter-spacing-1 mb-1" style="color: var(--color-on-surface-variant);">Sign in to your account</p>
+                <p class="text-xxs mb-0" style="color: #94a3b8;">Use your email and password to continue.</p>
             </div>
 
             {% if error %}
@@ -151,26 +153,26 @@
 
                 <div class="mb-4">
                     <div class="d-flex justify-content-between align-items-center mb-2">
-                        <label class="input-label mb-0">Security Key</label>
-                        <a href="#" class="text-xxs text-gold text-decoration-none fw-bold">RECOVER KEY</a>
+                        <label class="input-label mb-0">Password</label>
+                        <a href="#" class="text-xxs link-accent">Forgot password?</a>
                     </div>
                     <input type="password" name="password" class="auth-input" placeholder="••••••••" required>
                 </div>
 
                 <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
 
-                <div class="mb-5 d-flex align-items-center gap-3">
-                    <input type="checkbox" name="_remember_me" id="rememberMe" class="form-check-input bg-transparent" style="border-color: #cbd5e1;">
-                    <label class="text-xs text-dim fw-bold cursor-pointer" for="rememberMe">TRUST THIS DEVICE</label>
+                <div class="mb-4 d-flex align-items-center gap-3">
+                    <input type="checkbox" name="_remember_me" id="rememberMe" class="form-check-input" style="border-color: #cbd5e1; width:18px; height:18px;">
+                    <label class="text-xs fw-600 cursor-pointer" for="rememberMe" style="color: var(--color-on-surface-variant);">Remember me on this device</label>
                 </div>
 
-                <button class="btn-aurora-gradient w-100 py-3 mb-4 justify-content-center" style="font-size: 0.8rem; border-radius: 50px;" type="submit">
-                    INITIALIZE SESSION <i class="fas fa-arrow-right ms-2"></i>
+                <button class="submit-btn mb-4" type="submit">
+                    Sign In <i class="fas fa-arrow-right ms-2"></i>
                 </button>
 
                 <div class="text-center">
-                    <p class="text-xs text-dim mb-0">
-                        New to the Heritage? <a href="{{ path('app_register') }}" class="text-gold fw-bold text-decoration-none">SIGN UP NOW</a>
+                    <p class="text-xs mb-0" style="color: var(--color-on-surface-variant);">
+                        New here? <a href="{{ path('app_register') }}" class="link-accent">Create an account</a>
                     </p>
                 </div>
             </form>

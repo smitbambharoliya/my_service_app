@@ -3,15 +3,15 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Event\UserRegisteredEvent;
 use App\Form\RegistrationFormType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Mailer\MailerInterface;
-use Symfony\Component\Mime\Email;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class RegistrationController extends AbstractController
 {
@@ -20,7 +20,7 @@ class RegistrationController extends AbstractController
         Request $request,
         UserPasswordHasherInterface $userPasswordHasher,
         EntityManagerInterface $entityManager,
-        MailerInterface $mailer
+        EventDispatcherInterface $dispatcher
     ): Response {
         $user = new User();
         $form = $this->createForm(RegistrationFormType::class, $user);
@@ -50,20 +50,9 @@ class RegistrationController extends AbstractController
             // Store email in session to identify user during OTP verification
             $request->getSession()->set('verify_email', $user->getEmail());
 
-            // Send OTP via Email
-            $emailSent = false;
+            // Dispatch event — listener handles OTP email sending
             try {
-                $emailMsg = (new Email())
-                    ->from($_ENV['MAILER_FROM'] ?? 'noreply@servicehub.local')
-                    ->to($user->getEmail())
-                    ->subject('Your ServiceHub Verification Code')
-                    ->html($this->renderView('registration/otp_email.html.twig', [
-                        'otp' => $otp,
-                        'name' => $user->getFullName(),
-                    ]));
-
-                $mailer->send($emailMsg);
-                $emailSent = true;
+                $dispatcher->dispatch(new UserRegisteredEvent($user, $otp));
                 $this->addFlash('success', 'Registration successful! OTP sent to ' . $user->getEmail() . '. Please check your inbox (and spam folder).');
             } catch (\Exception $e) {
                 // Determine environment directly if desired or just wrap based on $_ENV['APP_ENV']

@@ -10,7 +10,7 @@
         <div class="glass-card stat-card customer-accent">
             <div class="stat-label">Active Expeditions</div>
             <div class="stat-value text-gradient">{{ bookings|filter(b => b.status|lower in ['confirmed', 'pending', 'on-the-way', 'accepted'])|length }}</div>
-            <div class="text-xs text-dim">CURRENT OPERATIONS</div>
+            <div class="text-xs text-on-surface-variant">CURRENT OPERATIONS</div>
         </div>
         <div class="glass-card stat-card">
             <div class="stat-label">Capital Deployed</div>
@@ -18,13 +18,13 @@
             {% for b in bookings|filter(b => b.status|lower == 'completed') %}
                 {% set totalSpent = totalSpent + (b.estimatedCost|default(b.service.price)) %}
             {% endfor %}
-            <div class="stat-value text-pure">₹{{ totalSpent|number_format(0) }}</div>
-            <div class="text-xs text-dim">LIFETIME EXPENDITURE</div>
+            <div class="stat-value text-on-surface">₹{{ totalSpent|number_format(0) }}</div>
+            <div class="text-xs text-on-surface-variant">LIFETIME EXPENDITURE</div>
         </div>
         <div class="glass-card stat-card admin-accent">
             <div class="stat-label">Member Tier</div>
-            <div class="stat-value text-pure">{{ app.user.tier }}</div>
-            <div class="text-xs text-dim">{{ app.user.reputationPoints }} REPUTATION POINTS</div>
+            <div class="stat-value text-on-surface">{{ app.user.tier }}</div>
+            <div class="text-xs text-on-surface-variant">{{ app.user.reputationPoints }} REPUTATION POINTS</div>
         </div>
     </div>
 
@@ -35,7 +35,7 @@
                 <div class="d-flex justify-content-between align-items-center mb-5">
                     <div>
                         <h3 class="luxury-serif mb-1">Analytical Ingress</h3>
-                        <p class="text-xs text-dim mb-0">MONTHLY CAPEX VELOCITY</p>
+                        <p class="text-xs text-on-surface-variant mb-0">MONTHLY CAPEX VELOCITY</p>
                     </div>
                 </div>
                 <div style="height: 350px;">
@@ -52,15 +52,15 @@
                     <a href="{{ path('app_service_list') }}" class="glass-card p-3 d-flex align-items-center gap-4 text-decoration-none border-0" style="background: rgba(16, 185, 129, 0.05);">
                         <div class="p-3 rounded-circle" style="background: rgba(16, 185, 129, 0.1);"><i class="fas fa-compass text-teal"></i></div>
                         <div>
-                            <div class="text-pure fw-bold">Explore Curation</div>
-                            <div class="text-xs text-dim">Browse premium services</div>
+                            <div class="text-on-surface fw-bold">Explore Curation</div>
+                            <div class="text-xs text-on-surface-variant">Browse premium services</div>
                         </div>
                     </a>
                     <a href="{{ path('app_billing_index') }}" class="glass-card p-3 d-flex align-items-center gap-4 text-decoration-none border-0" style="background: rgba(245, 158, 11, 0.05);">
                         <div class="p-3 rounded-circle" style="background: rgba(245, 158, 11, 0.1);"><i class="fas fa-receipt text-gold"></i></div>
                         <div>
-                            <div class="text-pure fw-bold">Audit Exchequer</div>
-                            <div class="text-xs text-dim">Review financial records</div>
+                            <div class="text-on-surface fw-bold">Audit Exchequer</div>
+                            <div class="text-xs text-on-surface-variant">Review financial records</div>
                         </div>
                     </a>
                 </div>
@@ -91,8 +91,8 @@
                                 <div>
                                     <h4 class="mb-1 fw-bold">{{ booking.service.title }}</h4>
                                     <div class="d-flex gap-2">
-                                        <span class="text-xxs text-dim fw-800 border px-2 py-1 rounded-pill">{{ booking.service.category.name|upper }}</span>
-                                        <span class="text-xxs text-dim fw-800 border px-2 py-1 rounded-pill">{{ booking.bookingType|upper }}</span>
+                                        <span class="text-xxs text-on-surface-variant fw-800 border px-2 py-1 rounded-pill">{{ booking.service.category.name|upper }}</span>
+                                        <span class="text-xxs text-on-surface-variant fw-800 border px-2 py-1 rounded-pill">{{ booking.bookingType|upper }}</span>
                                     </div>
                                 </div>
                             </div>
@@ -106,7 +106,7 @@
                                 {% else %}
                                     <span class="badge-status {{ booking.status|lower == 'cancelled' ? 'status-alert' : 'status-active' }}">{{ booking.status|upper }}</span>
                                 {% endif %}
-                                <div class="text-xxs text-dim mt-2">{{ booking.bookingDate|date('d F Y') }}</div>
+                                <div class="text-xxs text-on-surface-variant mt-2">{{ booking.bookingDate|date('d F Y') }}</div>
                             </div>
                         </div>
 
@@ -117,7 +117,7 @@
                                     <div class="user-orb" style="width:28px; height:28px; font-size:0.6rem;">
                                         {{ booking.service.provider.fullName|slice(0,1)|upper }}
                                     </div>
-                                    <div class="text-xxs"><span class="text-dim">ARTISAN LEAD:</span> <span class="text-pure fw-bold">{{ booking.service.provider.fullName }}</span></div>
+                                    <div class="text-xxs"><span class="text-on-surface-variant">ARTISAN LEAD:</span> <span class="text-on-surface fw-bold">{{ booking.service.provider.fullName }}</span></div>
                                 </div>
                                 {% if booking.status|lower == 'on-the-way' %}
                                     <a href="{{ path('app_booking_track', {'id': booking.id}) }}" class="text-teal text-xxs text-decoration-none fw-800"><i class="fas fa-location-arrow me-2"></i> TRACK NODE</a>
@@ -129,8 +129,8 @@
                         <div class="p-4" style="border-top: 1px solid var(--glass-border);">
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <div>
-                                    <div class="text-xxs text-dim fw-800">CAPITAL RESERVED</div>
-                                    <div class="h5 text-pure fw-800 mb-0">₹{{ (booking.estimatedCost|default(booking.service.price))|number_format }}</div>
+                                    <div class="text-xxs text-on-surface-variant fw-800">CAPITAL RESERVED</div>
+                                    <div class="h5 text-on-surface fw-800 mb-0">₹{{ (booking.estimatedCost|default(booking.service.price))|number_format }}</div>
                                 </div>
                                 <div class="d-flex gap-2">
                                     {% if booking.status|lower == 'completed' %}
@@ -153,10 +153,10 @@
                                             <div class="rating-stars d-flex gap-1">
                                                 {% for i in 1..5 %}
                                                     <input type="radio" name="rating" value="{{ i }}" id="star-{{ booking.id }}-{{ i }}" class="d-none star-radio" required>
-                                                    <label for="star-{{ booking.id }}-{{ i }}" class="fa-solid fa-star text-dim cursor-pointer star-label" data-value="{{ i }}"></label>
+                                                    <label for="star-{{ booking.id }}-{{ i }}" class="fa-solid fa-star text-on-surface-variant cursor-pointer star-label" data-value="{{ i }}"></label>
                                                 {% endfor %}
                                             </div>
-                                            <span class="text-xxs text-dim fw-bold rating-text">Select rating</span>
+                                            <span class="text-xxs text-on-surface-variant fw-bold rating-text">Select rating</span>
                                         </div>
                                         <div class="d-flex gap-2">
                                             <input type="text" name="comment" class="luxury-input py-2 text-xs" placeholder="Archival comments (optional)..." style="flex: 1;">
@@ -170,7 +170,7 @@
                                         <div class="text-gold" style="font-size: 0.7rem;">
                                             {% for i in 1..booking.review.rating %} <i class="fas fa-star"></i> {% endfor %}
                                         </div>
-                                        <div class="text-xxs text-dim">ARCHIVED REVIEW</div>
+                                        <div class="text-xxs text-on-surface-variant">ARCHIVED REVIEW</div>
                                     </div>
                                     <p class="text-xxs text-silver mb-0 italic">"{{ booking.review.comment }}"</p>
                                 </div>
@@ -182,7 +182,7 @@
                 <div class="col-12 py-5 text-center">
                     <div class="mb-4 opacity-10"><i class="fas fa-microscope fs-1 text-teal"></i></div>
                     <h3 class="text-silver luxury-serif">Manifest is Void</h3>
-                    <p class="text-dim">You have no active or historical service protocols registered in the ledger.</p>
+                    <p class="text-on-surface-variant">You have no active or historical service protocols registered in the ledger.</p>
                     <a href="{{ path('app_service_list') }}" class="btn-luxury mt-4">Initiate Protocol</a>
                 </div>
             {% endfor %}
@@ -207,10 +207,10 @@
                 
                 labels.forEach(l => {
                     if(parseInt(l.getAttribute('data-value')) <= value) {
-                        l.classList.remove('text-dim');
+                        l.classList.remove('text-on-surface-variant');
                         l.classList.add('text-gold');
                     } else {
-                        l.classList.add('text-dim');
+                        l.classList.add('text-on-surface-variant');
                         l.classList.remove('text-gold');
                     }
                 });

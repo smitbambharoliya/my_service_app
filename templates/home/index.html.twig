@@ -1,409 +1,266 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}ServiceHub — Trusted Professional Services{% endblock %}
+{% block title %}ServiceHub — Luxury Digital Heritage Redefined{% endblock %}
 
 {% block stylesheets %}
 <style>
-    /* ── ALEXANDRIA LAYOUT SYSTEM ── */
-    .alex-section { padding: var(--space-lg) 0; }
-    .alex-section-lg { padding: var(--space-xl) 0; }
-    
-    /* Hero */
-    .alex-hero {
+    /* ── IMMERSIVE HERO ── */
+    .hero-luxury {
         position: relative;
-        min-height: 90vh;
+        padding: 240px 0 180px;
+        background: transparent;
+        min-height: 100vh;
         display: flex;
         align-items: center;
         overflow: hidden;
-        background-color: var(--color-background);
     }
-    .hero-visual {
+    
+    .hero-bg-bloom {
         position: absolute;
-        inset: 0;
-        z-index: 0;
+        width: 1200px; height: 1200px;
+        background: radial-gradient(circle, rgba(16, 185, 129, 0.05) 0%, transparent 70%);
+        top: -400px; right: -400px;
+        z-index: 1; pointer-events: none;
     }
-    .hero-visual img {
-        width: 100%; height: 100%;
-        object-cover: cover;
-        filter: grayscale(20%) brightness(0.7);
-    }
-    .hero-overlay {
+
+    .hero-bg-bloom-alt {
         position: absolute;
-        inset: 0;
-        background: linear-gradient(to right, var(--color-background) 0%, rgba(250, 249, 250, 0.4) 50%, transparent 100%);
+        width: 800px; height: 800px;
+        background: radial-gradient(circle, rgba(139, 92, 246, 0.03) 0%, transparent 70%);
+        bottom: -200px; left: -200px;
+        z-index: 1; pointer-events: none;
     }
-    .hero-content {
-        position: relative;
-        z-index: 10;
+
+    .hero-content { position: relative; z-index: 10; }
+
+    /* AI Sommelier Interface */
+    .sommelier-interface {
         max-width: 850px;
-    }
-    .hero-tagline {
-        font-family: var(--font-label);
-        font-size: 0.75rem;
-        letter-spacing: 0.3em;
-        color: var(--color-primary);
-        margin-bottom: 1.5rem;
-        display: block;
-    }
-    .hero-title {
-        font-size: clamp(3.5rem, 8vw, 6rem);
-        line-height: 1.1;
-        margin-bottom: 2rem;
-    }
-    .hero-description {
-        font-size: 1.25rem;
-        color: var(--color-on-surface-variant);
-        max-width: 600px;
-        margin-bottom: 2.5rem;
+        margin: 80px auto 0;
+        background: var(--glass-bg);
+        backdrop-filter: blur(var(--glass-blur));
+        -webkit-backdrop-filter: blur(var(--glass-blur));
+        border: 1px solid var(--glass-border);
+        border-radius: 32px;
+        padding: 50px;
+        text-align: left;
+        box-shadow: var(--shadow-elevated);
     }
 
-    /* Philosophy */
-    .philosophy-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: var(--space-lg);
-        align-items: center;
-    }
-    .philosophy-image-container {
-        position: relative;
-        aspect-ratio: 4/5;
-        background: var(--surface-low);
-        border-radius: var(--radius-lg);
-        overflow: hidden;
-    }
-    .philosophy-image-container img {
-        width: 100%; height: 100%;
-        object-fit: cover;
-        mix-blend-mode: multiply;
-        opacity: 0.8;
-    }
-    .philosophy-border {
-        position: absolute;
-        inset: 3rem;
-        border: 1px solid rgba(0, 107, 90, 0.2);
-        pointer-events: none;
-    }
+    .discovery-step { display: none; }
+    .discovery-step.active { display: block; animation: fadeInUp 0.8s var(--ease-luxury); }
 
-    /* Bento Grid (Categories) */
-    .bento-grid {
-        display: grid;
-        grid-template-columns: repeat(12, 1fr);
-        grid-template-rows: repeat(2, 400px);
-        gap: 1.5rem;
-    }
-    .bento-item {
-        position: relative;
-        border-radius: var(--radius-lg);
-        overflow: hidden;
-        background: var(--surface-mid);
-    }
-    .bento-item img {
-        position: absolute;
-        inset: 0;
-        width: 100%; height: 100%;
-        object-fit: cover;
-        transition: transform 0.7s var(--ease-luxury);
-    }
-    .bento-item:hover img { transform: scale(1.05); }
-    .bento-overlay {
-        position: absolute;
-        inset: 0;
-        background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 60%);
-    }
-    .bento-content {
-        position: absolute;
-        bottom: 2rem; left: 2rem;
-        color: #ffffff;
-    }
-    .bento-tag {
-        font-family: var(--font-label);
-        font-size: 0.65rem;
-        letter-spacing: 0.3em;
-        opacity: 0.7;
-    }
-    .bento-title { font-size: 1.8rem; margin-top: 0.5rem; color: #fff !important; }
-
-    .col-span-8 { grid-column: span 8; }
-    .col-span-4 { grid-column: span 4; }
-
-    /* Experts / Fellows */
-    .expert-card {
+    .mood-option {
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        padding: 25px;
+        border-radius: 20px;
+        cursor: pointer;
         transition: all 0.5s var(--ease-luxury);
-    }
-    .expert-portrait {
-        aspect-ratio: 3/4;
-        background: var(--surface-high);
-        border-radius: var(--radius-lg);
-        overflow: hidden;
-        margin-bottom: 2rem;
-    }
-    .expert-portrait img {
-        width: 100%; height: 100%;
-        object-fit: cover;
-        filter: grayscale(1) brightness(0.9);
-        transition: all 0.5s var(--ease-luxury);
-    }
-    .expert-card:hover .expert-portrait img { filter: grayscale(0) brightness(1); }
-    .expert-discipline {
-        font-family: var(--font-label);
-        font-size: 0.65rem;
-        color: var(--color-primary);
-        font-weight: 700;
-        letter-spacing: 0.3em;
-    }
-    .expert-quote {
-        font-size: 1rem;
-        font-style: italic;
-        color: var(--color-on-surface-variant);
-        line-height: 1.6;
-    }
-
-    /* CTA Card */
-    .cta-card {
-        background: #1b1c1d;
-        border-radius: 2rem;
-        padding: 5rem;
         text-align: center;
-        position: relative;
-        overflow: hidden;
+        height: 100%;
     }
-    .cta-bg {
-        position: absolute;
-        inset: 0;
-        opacity: 0.1;
-        pointer-events: none;
+    .mood-option:hover {
+        border-color: var(--color-primary);
+        background: var(--glass-bg-hover);
+        transform: translateY(-8px);
+        box-shadow: var(--shadow-elevated);
     }
-    .cta-bg img { width: 100%; height: 100%; object-fit: cover; }
-    .cta-content { position: relative; z-index: 10; }
-    .cta-title { color: #ffffff !important; font-size: 3rem; margin-bottom: 2rem; }
-    .cta-text { color: #a3a3a3; font-size: 1.125rem; max-width: 600px; margin: 0 auto 3rem; }
 
-    /* Responsive */
-    @media (max-width: 992px) {
-        .philosophy-grid { grid-template-columns: 1fr; }
-        .bento-grid { grid-template-rows: auto; }
-        .col-span-8, .col-span-4 { grid-column: span 12; height: 350px; }
-        .cta-card { padding: 3rem 1.5rem; }
+    /* Exhibits Gallery */
+    .archive-section { padding: 180px 0; background: transparent; border-top: 1px solid var(--glass-border); }
+    
+    .heritage-exhibit {
+        background: var(--glass-bg);
+        border-radius: 28px;
+        overflow: hidden;
+        border: 1px solid var(--glass-border);
+        transition: all 0.6s var(--ease-luxury);
+        height: 100%;
+    }
+    .heritage-exhibit:hover {
+        border-color: var(--accent-gold);
+        transform: translateY(-12px);
+        box-shadow: 0 40px 80px rgba(0,0,0,0.7);
+    }
+    .heritage-view {
+        height: 280px;
+        background-size: cover;
+        background-position: center;
+        position: relative;
+    }
+    .heritage-view::after {
+        content: ''; position: absolute; inset: 0;
+        background: linear-gradient(to bottom, transparent 20%, rgba(10, 14, 22, 0.95) 100%);
+    }
+
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(40px); }
+        to { opacity: 1; transform: translateY(0); }
     }
 </style>
 {% endblock %}
 
 {% block body %}
+
 <main>
-    {# ── 1. HERO: THE ARCHIVE OF EXCELLENCE ── #}
-    <section class="alex-hero px-4 px-md-5">
-        <div class="hero-visual">
-            <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuBc-AHamm9UDkWwja6MYTqzirkP5r-0na2Uxsmbafi2ah6eqQAA0sa6XWRpad4fBN2SrhUtxew8qGlu7zz62aQS4NaqwSvP8x6sXi40E_56Y6smxAv6P_3XGF82XeuCIQXORUqLEgf7j5XgYLJoQcskIkzI-VIPoMzD1KzZMW3BwdV4NcQL3IDV1vnyp8kL-FSHr1w6oMTk2pPqF5NU7JQvi9Y7LCkM6GXU89C_yOyJBNDlZlbINTBGVoCCPLKjcsZbwS3aXdXqHxM" alt="Archive Library">
-            <div class="hero-overlay"></div>
-        </div>
+    {# ── 1. LUXURY HERO ── #}
+    <div class="cyber-grid"></div>
+    <section class="hero-luxury">
+        <div class="hero-bg-bloom"></div>
+        <div class="hero-bg-bloom-alt"></div>
         
-        <div class="container hero-content">
-            <div class="reveal active">
-                <span class="hero-tagline">VOL. 1 — FIND TRUSTED EXPERTS</span>
-                <h1 class="hero-title">
-                    Quality <br>
-                    <span class="text-teal italic">Service Hub</span>
+        <div class="container hero-content text-center">
+            <div class="fade-up float-element">
+                <span class="text-holographic text-xxs fw-800 letter-spacing-4 mb-4 d-inline-block px-3 py-1" style="background-color: var(--glass-bg); border-radius: 20px; border: 1px solid var(--glass-border);">ESTABLISHED 2024</span>
+                <h1 class="luxury-serif text-holographic mb-4" style="font-size: clamp(3.5rem, 10vw, 6rem); line-height: 0.9;">
+                    The Digital <span style="color: var(--color-on-surface); -webkit-text-fill-color: var(--color-on-surface);">Heritage</span><br>Concierge.
                 </h1>
-                <p class="hero-description">
-                    The simplest way to connect with highly rated local professionals for all your needs.
+                <p class="text-on-surface-variant mx-auto mb-5 opacity-70" style="max-width:750px; font-size: 1.25rem; letter-spacing: 0.02em; line-height: 1.6;">
+                    Connect with elite technical curators through our high-fidelity ecosystem. <br class="d-none d-md-block"> Engineering excellence, delivered with artisanal precision.
                 </p>
-                <div class="d-flex align-items-center flex-wrap gap-4">
-                    {% include 'components/button.html.twig' with {'text': 'Browse All Services', 'url': path('app_service_list'), 'style': 'luxury'} %}
-                    <button class="bg-transparent border-0 p-0 font-label text-xxs tracking-widest d-flex align-items-center gap-3 group">
-                        <span style="width: 40px; height: 1px; background: var(--color-outline-variant); transition: width 0.3s;" class="line"></span>
-                        WHY CHOOSE US
-                    </button>
+            </div>
+
+            {# AI SOMMELIER INTERFACE #}
+            <div class="sommelier-interface glow-border fade-up" style="animation-delay: 0.4s;">
+                <div id="sommelier-content">
+                    <!-- Step 1: Intent Selection -->
+                    <div class="discovery-step active" id="step-1">
+                        <div class="d-flex justify-content-between align-items-center mb-5">
+                            <div>
+                                <h3 class="luxury-serif mb-1">AI Sommelier Protocol</h3>
+                                <div class="text-xxs text-on-surface-variant fw-800 letter-spacing-1">SELECT OPERATIONAL INTENT</div>
+                            </div>
+                            <div class="text-xxs text-teal fw-800 letter-spacing-2">PHASE 01 / 02</div>
+                        </div>
+                        
+                        <div class="row g-4">
+                            <div class="col-md-4">
+                                <div class="mood-option glow-border" onclick="nextStep('Emergent', 'High-priority restoration required.')">
+                                    <i class="fas fa-bolt-lightning text-holographic mb-4 fs-3"></i>
+                                    <div class="fw-800 text-on-surface text-xs letter-spacing-2 mb-2">EMERGENT</div>
+                                    <div class="text-xxs text-on-surface-variant">Urgent structural or electrical restoration nodes.</div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mood-option glow-border" onclick="nextStep('Curated', 'Bespoke professional consultation.')">
+                                    <i class="fas fa-chess-knight text-holographic mb-4 fs-3"></i>
+                                    <div class="fw-800 text-on-surface text-xs letter-spacing-2 mb-2">CURATED</div>
+                                    <div class="text-xxs text-on-surface-variant">Specialized engineering and aesthetic architectural updates.</div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mood-option glow-border" onclick="nextStep('Routine', 'Seamless preventive maintenance.')">
+                                    <i class="fas fa-leaf text-holographic mb-4 fs-3"></i>
+                                    <div class="fw-800 text-on-surface text-xs letter-spacing-2 mb-2">ROUTINE</div>
+                                    <div class="text-xxs text-on-surface-variant">Standardized hygiene and climate control preservation.</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Parameter Refinement -->
+                    <div class="discovery-step" id="step-2">
+                        <div class="d-flex justify-content-between align-items-center mb-5">
+                            <div class="d-flex align-items-center gap-4">
+                                <button class="bg-transparent border-0 text-on-surface-variant hover:text-on-surface transition-all" onclick="prevStep()"><i class="fas fa-arrow-left"></i></button>
+                                <div>
+                                    <h3 class="luxury-serif mb-1">Refine Parameters</h3>
+                                    <div class="text-xxs text-teal fw-800 letter-spacing-1" id="intent-display">PHASE 02 / 02</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <form action="{{ path('app_service_list') }}" method="GET">
+                            <input type="hidden" name="mood" id="mood-input">
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <label class="text-xxs text-on-surface-variant fw-800 letter-spacing-2 mb-3 d-block">TECHNICAL SECTOR</label>
+                                    <select name="category" class="luxury-input py-3">
+                                        <option value="">Scanning all sectors...</option>
+                                        <option value="Structural">Structural (Hydraulics & Drainage)</option>
+                                        <option value="Electrical">Electrical (Power & Photonics)</option>
+                                        <option value="Sanitization">Sanitization (Molecular Hygiene)</option>
+                                        <option value="Climate">Climate (HVAC Control)</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="text-xxs text-on-surface-variant fw-800 letter-spacing-2 mb-3 d-block">SENSORY ANALYTICS</label>
+                                    <input type="text" name="q" class="luxury-input py-3" placeholder="Identify specific symptoms or requirements...">
+                                </div>
+                                <div class="col-12 mt-4 text-end">
+                                    <button type="submit" class="btn-luxury px-5 py-3">INITIATE ARCHIVE SCAN <i class="fas fa-chevron-right ms-2"></i></button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
     </section>
 
-    {# ── 2. PHILOSOPHY: CURATION OF MASTERS ── #}
-    <section class="alex-section-lg bg-white">
+    {# ── 2. ARCHIVE PREVIEW ── #}
+    <section class="archive-section">
         <div class="container">
-            <div class="philosophy-grid">
-                <div class="reveal">
-                    <h2 class="display-5 mb-5">
-                        Hand-picked experts, <br>not just a random list.
-                    </h2>
-                    <div class="text-lg text-secondary space-y-4" style="line-height: 1.8;">
-                        <p class="mb-4">We don't show you everyone. We only work with professionals who have proven their skill and quality over many years.</p>
-                        <p>Our goal is to make high-quality service accessible. From legal help to creative projects, we have the right person for you.</p>
-                    </div>
-                </div>
-                <div class="reveal">
-                    <div class="philosophy-image-container">
-                        <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuB7AkXFDS1nCUMxDTbC93Bn99iyfp3IV2g3sJTdl4NyflWssIZ2ovBTGOm8UJ31496cST9notTWBWxgfWhY-O4zZj45nNoK_S6L34OyDea4xpIptJFuYJHlS5GCKmHIP9cieqcOHVuzBuMkpHniPQmanjh7UzsDLoGITopyMe72pvizu68KYxO7Fvklgt0TYjktwkTHW4h8LMiRhfZu33p1QbKTYa3PxSnQViHyfSa73hHLScDnibc_gDEg5Vdetp-eTvbEq2ItJgw" alt="Philosophy Visual">
-                        <div class="philosophy-border"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    {# ── 3. SPHERES OF MASTERY: BENTO GRID ── #}
-    <section class="alex-section bg-background">
-        <div class="container">
-            <div class="d-flex justify-content-between align-items-end mb-5">
+            <div class="d-flex justify-content-between align-items-end mb-5 pb-4">
                 <div>
-                    <span class="hero-tagline mb-2">OUR CATEGORIES</span>
-                    <h2 class="display-6">Services by Category</h2>
+                    <span class="text-gold text-xxs fw-800 letter-spacing-3 mb-3 d-block">THE ARCHIVE</span>
+                    <h2 class="luxury-serif text-on-surface mb-0" style="font-size: 3rem;">Executive Exhibits</h2>
                 </div>
-                <a href="{{ path('app_service_list') }}" class="font-label text-xs text-primary text-decoration-none border-bottom border-primary border-opacity-25 pb-1">VIEW ALL SERVICES</a>
+                <a href="{{ path('app_service_list') }}" class="btn-outline-luxury py-2 px-4 shadow-none" style="font-size:0.7rem;">ACCESS FULL COLLECTION</a>
             </div>
 
-            <div class="bento-grid">
-                <div class="bento-item col-span-8 reveal">
-                    <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuAwUrk5T5pqSIkYLGvs6fHV1ytTZKT5ueOabRW9qBT-fqYmm4CxjcqqbaJvylw0d37KrCT5MsX-q-rYdnBBzxEIFGpOA3AYiX3rXb487UJ-kclLNnfdadcYUfOxB-nd0z4wHOy8ZM3fL27vxVIPlaPW1WLFgzTlgAJgVXY2rr2y6fKbjaCAfVPAPasCeY_eGl1MsMs_JsgVxHoDGeBE8NcCrDZmU0vbWAVNu38eaVVhKxt1Qxb2wjyxjStrdN48-MUOs4NPCGTlfmg" alt="Legal">
-                    <div class="bento-overlay"></div>
-                    <div class="bento-content">
-                        <span class="bento-tag">CATEGORY 01</span>
-                        <h3 class="bento-title">Legal & Consulting</h3>
-                    </div>
-                </div>
-                <div class="bento-item col-span-4 reveal">
-                    <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuC1PXfJzMBt0G8foLV4ShpUraq0z0RQcyE2J2tQplOK5YqvhybgmoxiPNOLR-ee3xi2Blu-sKE-5JsebgAFHuWgc1MuNkJMbKZcRfZecIMFuWDvH4XqLzs8rabXnh7qbKPoLf7-qrJw8HQ1cyKazfmxE3uFmH7qMUuoimSeqs9lSf8MKtsMsNgqWulZTV_Ff1PLMSJj2VCcqcLo5s1JQzQ2ik5ciAgdZzYGcpV3FaD1JMnafHFRRKbgPcXBm7cZGyskLQrytDR2j_A" alt="Strategy">
-                    <div class="bento-overlay"></div>
-                    <div class="bento-content">
-                        <span class="bento-tag">CATEGORY 02</span>
-                        <h3 class="bento-title">Business Strategy</h3>
-                    </div>
-                </div>
-                <div class="bento-item col-span-4 reveal">
-                    <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuC_4Ui1ZQI1g65lj5S9X5EES5217Ud8KxqkveR4VS-JHPtLvMEJ-wmjmVUkHvWWi1NGlVpKzzxPWdTlO3HQC56_QY-gNdirrQApHVCmE5wGb7tKf_ztO8JYTwGFC4XySKQEiePnIyEsdLA1cyes1Xh89FDDQjs_rq5Q8CNMYpJYDs4QzC9lx8TWTAFyTnrQEGHBZdqzh1wDM2pm6P9os-CeSq-twnpW4djTfgmqjOHwvW4IH78RaSbPWLSKZoOzi5WclVnRBw1wi5w" alt="Creative">
-                    <div class="bento-overlay"></div>
-                    <div class="bento-content">
-                        <span class="bento-tag">CATEGORY 03</span>
-                        <h3 class="bento-title">Design & Creative</h3>
-                    </div>
-                </div>
-                <div class="bento-item col-span-8 reveal">
-                    <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuA43HOU7zxs_cHzYWZG1xxOGf28zYcoXEOe88az26Rls1VCdRCZnsJbxeu2DT7mPAs2fBg10EbaqklDkswSCHO6lGj39HgARFCuJJu48yEwqdoefDQi5garET_z3IYYOYi_MGWOyx20xNOMDt42D3nDWhB-2ZZQQZggWVbpNOGs68bUsbBvp7NmGzSNo8uhNxLu9dbjeE0jEDaBgSfgD0GBjaLVsDOt4OESDU0h41ou0vcH7JUxd0DuTdBwauCus8opJzodArntTpw" alt="Wealth">
-                    <div class="bento-overlay"></div>
-                    <div class="bento-content">
-                        <span class="bento-tag">CATEGORY 04</span>
-                        <h3 class="bento-title">Financial Planning</h3>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    {# ── 4. TRENDING ARTIFACTS (Dynamic Injection) ── #}
-    <section class="alex-section bg-white">
-        <div class="container">
-            <div class="text-center mb-5 reveal">
-                <span class="hero-tagline">MOST POPULAR</span>
-                <h2 class="display-6">Featured Services</h2>
-            </div>
-
-            <div class="row g-4">
+            <div class="row g-5">
                 {% if sections.trending is defined and sections.trending|length > 0 %}
                     {% for s in sections.trending|slice(0, 3) %}
-                        <div class="col-lg-4 reveal">
-                            {% embed 'components/card.html.twig' with {'class': 'h-100'} %}
-                                {% block content %}
-                                    <div class="aspect-video bg-surface-mid mb-4 rounded-lg overflow-hidden">
-                                        {# Use a placeholder for now, or match existing logic #}
-                                        <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=800&auto=format&fit=crop" class="w-100 h-100 object-fit-cover">
+                        <div class="col-lg-4 float-element" style="animation-delay: {{ loop.index0 * 0.2 }}s;">
+                            <div class="heritage-exhibit glow-border">
+                                <div class="heritage-view" style="background-image: url('https://images.unsplash.com/photo-1581578731548-c64695cc6952?q=80&w=800&auto=format&fit=crop');">
+                                    <div class="position-absolute bottom-0 start-0 p-4 w-100 d-flex justify-content-between align-items-end">
+                                        <span class="badge-status status-active">{{ s.category.name|upper }}</span>
+                                        <div class="text-xxs text-on-surface-variant fw-800">ARTIFACT #{{ s.id }}</div>
                                     </div>
-                                    <span class="font-label text-xxs text-primary mb-2 d-block">{{ s.category.name|default('Artifact') }}</span>
-                                    <h4 class="h5 mb-3">{{ s.title }}</h4>
-                                    <p class="text-on-surface-variant text-sm mb-4">{{ s.description|slice(0, 80) }}...</p>
-                                    <div class="d-flex justify-content-between align-items-center mt-auto">
-                                        <div class="fw-bold text-lg">₹{{ s.price|number_format }}</div>
-                                        <a href="{{ path('app_service_show', {'id': s.id}) }}" class="font-label text-xxs text-primary text-decoration-none">VIEW DETAILS</a>
+                                </div>
+                                <div class="p-4 pt-5">
+                                    <h4 class="luxury-serif text-on-surface mb-3" style="font-size: 1.4rem;">{{ s.title }}</h4>
+                                    <p class="text-xs text-on-surface-variant opacity-60 mb-5" style="height: 40px; overflow: hidden; line-height: 1.6;">{{ s.description|slice(0, 90) }}...</p>
+                                    
+                                    <div class="d-flex justify-content-between align-items-center pt-4" style="border-top: 1px solid var(--glass-border);">
+                                        <div>
+                                            <div class="text-on-surface h5 mb-0 fw-800">₹{{ s.price|number_format }}</div>
+                                            <div class="text-xxs text-on-surface-variant fw-800 mt-1">BASE RESERVE</div>
+                                        </div>
+                                        <a href="{{ path('app_service_show', {'id': s.id}) }}" class="btn-outline py-2 px-3" style="font-size: 0.65rem;">EXAMINE</a>
                                     </div>
-                                {% endblock %}
-                            {% endembed %}
+                                </div>
+                            </div>
                         </div>
                     {% endfor %}
+                {% else %}
+                    <div class="col-12 text-center py-5">
+                        <div class="glass-card py-5 border-dashed">
+                            <p class="text-on-surface-variant mb-0">The Archive is currently undergoing synchronization. Return momentarily.</p>
+                            <a href="{{ path('app_service_list') }}" class="btn-luxury mt-4">FORCE SCAN</a>
+                        </div>
+                    </div>
                 {% endif %}
             </div>
         </div>
     </section>
-
-    {# ── 5. THE FELLOWS: EXPERT PORTRAITS ── #}
-    <section class="alex-section-lg bg-surface-low">
-        <div class="container">
-            <div class="text-center mb-5 reveal">
-                <h2 class="display-5 mb-3">Our Top Experts</h2>
-                <p class="text-secondary text-lg">Meet some of our highly rated professionals.</p>
-            </div>
-
-            <div class="row g-5">
-                <div class="col-lg-4 reveal">
-                    <div class="expert-card">
-                        <div class="expert-portrait">
-                            <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuDssUR7UYGwHxAPu9FSI5aGlhBvgdmm8F20qcBZk_6JeHCfxSJ69flnGl2OtGIrcjQQQqOFQPiedzUzaUCX8gAW9akpxeL3k3hD6qVXYuMmZjhuxvG_wJniD9M0qQwNo4f3Lgv4drmmzDU56K_33BVZVHxYfzvDMivhvFcSEv6PEpt2LXtIsArnHEdF_xyx6IJVY-OjCtMD2t5PrkHEZf0Bl0TuLhraCyuUA3cxafg_i5supAqXgqPjcxm6_E2782Y1269M-hY1SKc" alt="Dr. Alistair Thorne">
-                        </div>
-                        <span class="expert-discipline">CONSTITUTIONAL LAW</span>
-                        <h4 class="h4 mt-2 mb-3">Dr. Alistair Thorne</h4>
-                        <p class="expert-quote">"The law is a living dialogue between people and their rights."</p>
-                    </div>
-                </div>
-                <div class="col-lg-4 reveal">
-                    <div class="expert-card">
-                        <div class="expert-portrait">
-                            <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCt9rSubd1Nl9gMZRETr5bEMy6zY_e3JHoQ7--U8dpLQ5YLiat_Z1Mv3z1-7Pl5CCsd9Kd10njlJ0enWUlx8iuHealknwxjL6AAp9bqnHcydh8My0YxyQQeZJi4-cgU52RAbaslH-Bmcg4Hg8l15Kh9R13Bz1Cvqom1hnppMtkVM62i-Zn0wMb0ksTEnyRgKXC06Q8EFmKXNQAnqL3tz7numGHSFymYmuBktiI-ZEtAOReC7QzcofCoZSD9Jx5w8-iwD5OWXmq4LTg" alt="Elena Vance">
-                        </div>
-                        <span class="expert-discipline">BRAND PHILOSOPHY</span>
-                        <h4 class="h4 mt-2 mb-3">Elena Vance</h4>
-                        <p class="expert-quote">"Great brands are built on trust and real value, not just marketing."</p>
-                    </div>
-                </div>
-                <div class="col-lg-4 reveal">
-                    <div class="expert-card">
-                        <div class="expert-portrait">
-                            <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCp7rMx5wyluRgzZbC5O7kTRE3XpdhJzPilT0NISPvGDN52nUkZMCB4_OQePo4AjkUEvlzlv2qxMRg_qKHl_IfEa8aIWEfzZ6r2uBgtDhw4J3diZJkiZ_IE_e1Pd08VqZT7dnLXYKtlM9UtXAwB9IWNv7SRO2vhCsvwmBwMEjPYgHeHAQvQaox0ciKGGPWrARMgBiJFV_FI0Ys5gwtuH5ykHoZGAq2d7TyirEtDK-o7MNF6pBVijyoS_E2ckl8cbYQZYxyGh_wsqrA" alt="Julian Hearst">
-                        </div>
-                        <span class="expert-discipline">ESTATE MANAGEMENT</span>
-                        <h4 class="h4 mt-2 mb-3">Julian Hearst</h4>
-                        <p class="expert-quote">"Successful management requires balance, wisdom, and modern tools."</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    {# ── 6. CTA: APPLY AS MASTER ── #}
-    <section class="alex-section px-4">
-        <div class="container">
-            <div class="cta-card reveal">
-                <div class="cta-bg">
-                    <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuAoEcIbe83LrgemG8BnP9-xqOFnM1hTp20CstNreJUOpHrY2z-_6pQdf6UTw6o5udqRmvHbHcM581QBEZ0URGGZSn6Y9ONKU_S6Pxz-l6_rkCmSv_p14Blcg5ONQeRNICxbZaKzpISlGSaCCUDWwuiyicJ-Q73TBrRKRafhwX17TQzeA3fLa3Ra0Tn5rqbCe3UF_cTxhhLvTRhiNyNDcA78ijSJhFKxYMOkeEUrWy2L7V9w-bfctsIpMNF8cEo7FrhumLGrSvvb2XU" alt="Texture">
-                </div>
-                <div class="cta-content">
-                    <h2 class="cta-title">Are you an expert in <br>your field?</h2>
-                    <p class="cta-text">
-                        Join our platform as a service provider and reach new customers today. We only accept the best professionals in the industry.
-                    </p>
-                    <div class="d-flex justify-content-center">
-                        {% include 'components/button.html.twig' with {'text': 'Apply to Join', 'url': path('app_register'), 'style': 'luxury'} %}
-                    </div>
-                    <p class="mt-4 font-label text-xxs opacity-50">TRUSTED BY 10,000+ USERS</p>
-                </div>
-            </div>
-        </div>
-    </section>
 </main>
-{% endblock %}
 
-{% block javascripts %}
-{{ parent() }}
 <script>
-    document.addEventListener("DOMContentLoaded", () => {
-        // Scroll Reveals
-        const revealObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if(entry.isIntersecting) {
-                    entry.target.classList.add('active');
-                    revealObserver.unobserve(entry.target);
-                }
-            });
-        }, { threshold: 0.1 });
+    function nextStep(mood, description) {
+        document.getElementById('mood-input').value = mood;
+        document.getElementById('intent-display').innerText = description;
+        document.getElementById('step-1').classList.remove('active');
+        document.getElementById('step-2').classList.add('active');
+    }
 
-        document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
-    });
+    function prevStep() {
+        document.getElementById('step-2').classList.remove('active');
+        document.getElementById('step-1').classList.add('active');
+    }
 </script>
+
 {% endblock %}

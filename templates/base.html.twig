@@ -14,7 +14,7 @@
         
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;500;600;700&family=Public+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
         <!-- Client-side tailwind compiler removed for production rendering speed -->
         <script>
             tailwind.config = {
@@ -31,9 +31,7 @@
                             background: '#faf9fa',
                         },
                         fontFamily: {
-                            serif: ['Noto Serif', 'serif'],
-                            sans: ['Inter', 'sans-serif'],
-                            label: ['Public Sans', 'sans-serif'],
+                            sans: ['Outfit', 'Inter', 'sans-serif'],
                         },
                         borderRadius: {
                             'xl': '8px',
@@ -78,9 +76,9 @@
             .brand-accent { color: var(--color-primary); font-style: italic; }
             
             .nav-link-alexandria {
-                font-family: 'Noto Serif', serif;
+                font-family: 'Outfit', sans-serif;
                 color: var(--color-on-surface-variant);
-                font-weight: 400;
+                font-weight: 600;
                 font-size: 0.95rem;
                 padding: 4px 0;
                 transition: all 0.3s var(--ease-luxury);
@@ -88,8 +86,8 @@
                 border-bottom: 2px solid transparent;
             }
             .nav-link-alexandria:hover, .nav-link-alexandria.active {
-                color: #ffffff !important;
-                border-bottom-color: #ffffff;
+                color: var(--color-primary) !important;
+                border-bottom-color: var(--color-primary);
                 border-bottom-width: 3px;
                 font-weight: 700;
             }
@@ -97,7 +95,7 @@
             .user-orb {
                 width: 40px; height: 40px;
                 border-radius: 50%;
-                background: linear-gradient(135deg, var(--color-primary), var(--color-emerald-deep));
+                background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
                 display: flex; align-items: center; justify-content: center;
                 font-weight: 700; color: #ffffff;
                 box-shadow: var(--shadow-primary-glow);
@@ -119,6 +117,7 @@
         </style>
     </head>
     <body class="customer-accent">
+        <div class="ambient-bg"></div>
 
     {% if app.request.get('_route') not in ['app_login', 'app_register', 'app_verify_otp'] %}
     <nav class="luxury-navbar" id="mainNavbar">
