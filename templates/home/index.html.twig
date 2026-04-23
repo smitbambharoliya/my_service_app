@@ -1,317 +1,407 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}ServiceHub — Luxury Digital Heritage Redefined{% endblock %}
+{% block title %}ServiceHub — Trusted Professional Services{% endblock %}
 
 {% block stylesheets %}
 <style>
-    /* ── OBSIDIAN X HERITAGE DESIGN SYSTEM ── */
-    .hero-luxury {
+    /* ── ALEXANDRIA LAYOUT SYSTEM ── */
+    .alex-section { padding: var(--space-lg) 0; }
+    .alex-section-lg { padding: var(--space-xl) 0; }
+    
+    /* Hero */
+    .alex-hero {
         position: relative;
-        padding: 220px 0 160px;
-        background-color: #040812;
-        background-image: linear-gradient(to bottom, rgba(4, 8, 18, 0.4) 0%, rgba(4, 8, 18, 0.8) 80%, rgba(4, 8, 18, 1) 100%), url('https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=2560&auto=format&fit=crop');
-        background-size: cover;
-        background-position: center;
-        background-attachment: fixed;
-        min-height: 100vh;
+        min-height: 90vh;
         display: flex;
         align-items: center;
         overflow: hidden;
+        background-color: var(--color-background);
     }
-    
-    .hero-bg-bloom {
+    .hero-visual {
         position: absolute;
-        width: 1400px; height: 1400px;
-        background: radial-gradient(circle, rgba(14, 165, 233, 0.15) 0%, transparent 70%);
-        top: -400px; right: -300px;
-        z-index: 1; pointer-events: none;
+        inset: 0;
+        z-index: 0;
     }
-
-    .hero-bg-bloom-alt {
+    .hero-visual img {
+        width: 100%; height: 100%;
+        object-cover: cover;
+        filter: grayscale(20%) brightness(0.7);
+    }
+    .hero-overlay {
         position: absolute;
-        width: 1200px; height: 1200px;
-        background: radial-gradient(circle, rgba(139, 92, 246, 0.12) 0%, rgba(236, 72, 153, 0.08) 40%, transparent 70%);
-        bottom: -300px; left: -300px;
-        z-index: 1; pointer-events: none;
+        inset: 0;
+        background: linear-gradient(to right, var(--color-background) 0%, rgba(250, 249, 250, 0.4) 50%, transparent 100%);
     }
-
-    .hero-content { position: relative; z-index: 10; }
-
-    /* Cinematic Text Effects */
-    .hero-title {
-        font-family: 'Playfair Display', serif;
-        font-size: clamp(3.5rem, 9vw, 5.5rem); 
-        line-height: 1.0; 
-        font-weight: 900;
-        color: #f8fafc !important;
-        text-shadow: 0 4px 20px rgba(14, 165, 233, 0.5), 0 0 10px rgba(139, 92, 246, 0.4);
-    }
-
-    /* Tilt Card Concept */
-    .premium-tilt-card {
-        background: #0f172a;
-        border: 1px solid rgba(255,255,255,0.05);
-        border-radius: var(--radius-lg);
-        padding: 40px;
-        transition: transform 0.1s cubic-bezier(0.23, 1, 0.32, 1), box-shadow 0.1s;
-        transform-style: preserve-3d;
-        cursor: pointer;
-        height: 100%;
-        display: flex; flex-direction: column; justify-content: space-between;
-        box-shadow: 0 15px 35px rgba(0,0,0,0.4), 0 0 20px rgba(14, 165, 233, 0.1);
-    }
-    
-    .premium-tilt-card:hover {
-        box-shadow: 0 20px 50px rgba(139, 92, 246, 0.4), 0 0 40px rgba(14, 165, 233, 0.4);
-        border-color: rgba(139, 92, 246, 0.6);
-    }
-
-    .tilt-inner { transform: translateZ(30px); }
-
-    .tilt-icon {
-        width: 64px; height: 64px;
-        background: rgba(20, 184, 166, 0.1);
-        border-radius: var(--radius-md);
-        display: flex; align-items: center; justify-content: center;
-        font-size: 1.8rem; color: var(--color-accent-teal);
-        margin-bottom: 24px;
-    }
-
-    /* Scroll Reveals */
-    .reveal { opacity: 0; transform: translateY(40px); transition: all 1s cubic-bezier(0.23, 1, 0.32, 1); }
-    .reveal.active { opacity: 1; transform: translateY(0); }
-
-    /* Archive Section */
-    .archive-section { 
-        padding: 160px 0; 
-        background: #020617; 
+    .hero-content {
         position: relative;
+        z-index: 10;
+        max-width: 850px;
     }
-    .archive-section::before {
-        content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
-        background: linear-gradient(90deg, transparent, rgba(15, 23, 42, 0.1), transparent);
+    .hero-tagline {
+        font-family: var(--font-label);
+        font-size: 0.75rem;
+        letter-spacing: 0.3em;
+        color: var(--color-primary);
+        margin-bottom: 1.5rem;
+        display: block;
+    }
+    .hero-title {
+        font-size: clamp(3.5rem, 8vw, 6rem);
+        line-height: 1.1;
+        margin-bottom: 2rem;
+    }
+    .hero-description {
+        font-size: 1.25rem;
+        color: var(--color-on-surface-variant);
+        max-width: 600px;
+        margin-bottom: 2.5rem;
     }
 
-    /* Dark Theme Typography Overrides */
-    :root {
-        --text-pure: #ffffff;
-        --text-silver: #94a3b8;
-        --text-dim: #64748b;
+    /* Philosophy */
+    .philosophy-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: var(--space-lg);
+        align-items: center;
     }
-    h1, h2, h3, h4, h5, h6, .luxury-serif, .text-pure { color: #ffffff !important; }
-    .text-silver { color: var(--text-silver) !important; }
-    .text-dim { color: var(--text-dim) !important; }
-    .premium-dark-card h4, .premium-dark-card .text-pure { color: #ffffff !important; }
+    .philosophy-image-container {
+        position: relative;
+        aspect-ratio: 4/5;
+        background: var(--surface-low);
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+    }
+    .philosophy-image-container img {
+        width: 100%; height: 100%;
+        object-fit: cover;
+        mix-blend-mode: multiply;
+        opacity: 0.8;
+    }
+    .philosophy-border {
+        position: absolute;
+        inset: 3rem;
+        border: 1px solid rgba(0, 107, 90, 0.2);
+        pointer-events: none;
+    }
 
-    /* Vibrant Light Theme Button Overrides */
-    .btn-luxury {
-        background: linear-gradient(135deg, #0ea5e9 0%, #8b5cf6 100%) !important;
-        color: #ffffff !important;
-        box-shadow: 0 10px 25px rgba(14, 165, 233, 0.3) !important;
-        border: none !important;
+    /* Bento Grid (Categories) */
+    .bento-grid {
+        display: grid;
+        grid-template-columns: repeat(12, 1fr);
+        grid-template-rows: repeat(2, 400px);
+        gap: 1.5rem;
     }
-    .btn-luxury:hover {
-        box-shadow: 0 15px 35px rgba(139, 92, 246, 0.4) !important;
-        transform: translateY(-2px) scale(1.02);
-        color: #ffffff !important;
-        filter: brightness(1.1);
+    .bento-item {
+        position: relative;
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+        background: var(--surface-mid);
     }
-    .btn-outline-luxury {
-        background: rgba(14, 165, 233, 0.05) !important;
-        border: 1px solid rgba(14, 165, 233, 0.3) !important;
-        color: #0ea5e9 !important;
-        box-shadow: none !important;
+    .bento-item img {
+        position: absolute;
+        inset: 0;
+        width: 100%; height: 100%;
+        object-fit: cover;
+        transition: transform 0.7s var(--ease-luxury);
     }
-    .btn-outline-luxury:hover {
-        background: #0ea5e9 !important;
-        color: #ffffff !important;
-        box-shadow: 0 10px 20px rgba(14, 165, 233, 0.2) !important;
-        border-color: #0ea5e9 !important;
+    .bento-item:hover img { transform: scale(1.05); }
+    .bento-overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 60%);
+    }
+    .bento-content {
+        position: absolute;
+        bottom: 2rem; left: 2rem;
+        color: #ffffff;
+    }
+    .bento-tag {
+        font-family: var(--font-label);
+        font-size: 0.65rem;
+        letter-spacing: 0.3em;
+        opacity: 0.7;
+    }
+    .bento-title { font-size: 1.8rem; margin-top: 0.5rem; color: #fff !important; }
+
+    .col-span-8 { grid-column: span 8; }
+    .col-span-4 { grid-column: span 4; }
+
+    /* Experts / Fellows */
+    .expert-card {
+        transition: all 0.5s var(--ease-luxury);
+    }
+    .expert-portrait {
+        aspect-ratio: 3/4;
+        background: var(--surface-high);
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+        margin-bottom: 2rem;
+    }
+    .expert-portrait img {
+        width: 100%; height: 100%;
+        object-fit: cover;
+        filter: grayscale(1) brightness(0.9);
+        transition: all 0.5s var(--ease-luxury);
+    }
+    .expert-card:hover .expert-portrait img { filter: grayscale(0) brightness(1); }
+    .expert-discipline {
+        font-family: var(--font-label);
+        font-size: 0.65rem;
+        color: var(--color-primary);
+        font-weight: 700;
+        letter-spacing: 0.3em;
+    }
+    .expert-quote {
+        font-size: 1rem;
+        font-style: italic;
+        color: var(--color-on-surface-variant);
+        line-height: 1.6;
+    }
+
+    /* CTA Card */
+    .cta-card {
+        background: #1b1c1d;
+        border-radius: 2rem;
+        padding: 5rem;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+    .cta-bg {
+        position: absolute;
+        inset: 0;
+        opacity: 0.1;
+        pointer-events: none;
+    }
+    .cta-bg img { width: 100%; height: 100%; object-fit: cover; }
+    .cta-content { position: relative; z-index: 10; }
+    .cta-title { color: #ffffff !important; font-size: 3rem; margin-bottom: 2rem; }
+    .cta-text { color: #a3a3a3; font-size: 1.125rem; max-width: 600px; margin: 0 auto 3rem; }
+
+    /* Responsive */
+    @media (max-width: 992px) {
+        .philosophy-grid { grid-template-columns: 1fr; }
+        .bento-grid { grid-template-rows: auto; }
+        .col-span-8, .col-span-4 { grid-column: span 12; height: 350px; }
+        .cta-card { padding: 3rem 1.5rem; }
     }
 </style>
 {% endblock %}
 
 {% block body %}
-
 <main>
-    {# ── 1. CINEMATIC HERO ── #}
-    <section class="hero-luxury">
-        <div class="hero-bg-bloom"></div>
-        <div class="hero-bg-bloom-alt"></div>
+    {# ── 1. HERO: THE ARCHIVE OF EXCELLENCE ── #}
+    <section class="alex-hero px-4 px-md-5">
+        <div class="hero-visual">
+            <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuBc-AHamm9UDkWwja6MYTqzirkP5r-0na2Uxsmbafi2ah6eqQAA0sa6XWRpad4fBN2SrhUtxew8qGlu7zz62aQS4NaqwSvP8x6sXi40E_56Y6smxAv6P_3XGF82XeuCIQXORUqLEgf7j5XgYLJoQcskIkzI-VIPoMzD1KzZMW3BwdV4NcQL3IDV1vnyp8kL-FSHr1w6oMTk2pPqF5NU7JQvi9Y7LCkM6GXU89C_yOyJBNDlZlbINTBGVoCCPLKjcsZbwS3aXdXqHxM" alt="Archive Library">
+            <div class="hero-overlay"></div>
+        </div>
         
-        <div class="container hero-content text-center">
+        <div class="container hero-content">
             <div class="reveal active">
-                <span class="text-teal text-xxs fw-900 letter-spacing-5 mb-4 d-block" style="color: #38bdf8 !important; text-shadow: 0 0 10px rgba(14, 165, 233, 0.5);">PREMIUM CURATION • ESTD 2024</span>
-                <h1 class="hero-title mb-4">
-                    Your Digital <br>
-                    <span style="background: linear-gradient(90deg, #38bdf8, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0px 2px 10px rgba(167, 139, 250, 0.5));">Heritage</span><br>
-                    Concierge.
+                <span class="hero-tagline">VOL. 1 — FIND TRUSTED EXPERTS</span>
+                <h1 class="hero-title">
+                    Quality <br>
+                    <span class="text-teal italic">Service Hub</span>
                 </h1>
-                <p class="mx-auto mb-5" style="max-width:700px; font-size: 1.35rem; line-height: 1.7; font-weight: 500; color: #94a3b8; text-shadow: 0 2px 10px rgba(0,0,0,0.8);">
-                    Experience the next evolution of prestige maintenance. <br class="d-none d-md-block"> We bridge the gap between complex engineering and effortless luxury.
+                <p class="hero-description">
+                    The simplest way to connect with highly rated local professionals for all your needs.
                 </p>
-                <div class="d-flex justify-content-center flex-wrap gap-3">
-                    {% include 'components/button.html.twig' with {'text': 'REGISTRY', 'url': path('app_service_list'), 'style': 'luxury', 'class': 'py-3 px-5 shadow-lg'} %}
-                    {% set curationUrl = app.user ? (is_granted('ROLE_PROVIDER') ? path('app_provider_my_services') : path('app_booking_my_bookings')) : path('app_login') %}
-                    {% include 'components/button.html.twig' with {'text': 'CURATION', 'url': curationUrl, 'style': 'outline', 'class': 'py-3 px-5'} %}
-                    {% include 'components/button.html.twig' with {'text': 'MANIFEST', 'url': path('app_customer_dashboard'), 'style': 'outline', 'class': 'py-3 px-5'} %}
+                <div class="d-flex align-items-center flex-wrap gap-4">
+                    {% include 'components/button.html.twig' with {'text': 'Browse All Services', 'url': path('app_service_list'), 'style': 'luxury'} %}
+                    <button class="bg-transparent border-0 p-0 font-label text-xxs tracking-widest d-flex align-items-center gap-3 group">
+                        <span style="width: 40px; height: 1px; background: var(--color-outline-variant); transition: width 0.3s;" class="line"></span>
+                        WHY CHOOSE US
+                    </button>
                 </div>
             </div>
         </div>
     </section>
 
-    {# ── 2. PREMIUM CATEGORY SECTORS (Tilt Cards) ── #}
-    <section class="py-5" id="sommelier" style="background: #040812;">
-        <div class="container py-5">
+    {# ── 2. PHILOSOPHY: CURATION OF MASTERS ── #}
+    <section class="alex-section-lg bg-white">
+        <div class="container">
+            <div class="philosophy-grid">
+                <div class="reveal">
+                    <h2 class="display-5 mb-5">
+                        Hand-picked experts, <br>not just a random list.
+                    </h2>
+                    <div class="text-lg text-secondary space-y-4" style="line-height: 1.8;">
+                        <p class="mb-4">We don't show you everyone. We only work with professionals who have proven their skill and quality over many years.</p>
+                        <p>Our goal is to make high-quality service accessible. From legal help to creative projects, we have the right person for you.</p>
+                    </div>
+                </div>
+                <div class="reveal">
+                    <div class="philosophy-image-container">
+                        <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuB7AkXFDS1nCUMxDTbC93Bn99iyfp3IV2g3sJTdl4NyflWssIZ2ovBTGOm8UJ31496cST9notTWBWxgfWhY-O4zZj45nNoK_S6L34OyDea4xpIptJFuYJHlS5GCKmHIP9cieqcOHVuzBuMkpHniPQmanjh7UzsDLoGITopyMe72pvizu68KYxO7Fvklgt0TYjktwkTHW4h8LMiRhfZu33p1QbKTYa3PxSnQViHyfSa73hHLScDnibc_gDEg5Vdetp-eTvbEq2ItJgw" alt="Philosophy Visual">
+                        <div class="philosophy-border"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    {# ── 3. SPHERES OF MASTERY: BENTO GRID ── #}
+    <section class="alex-section bg-background">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-end mb-5">
+                <div>
+                    <span class="hero-tagline mb-2">OUR CATEGORIES</span>
+                    <h2 class="display-6">Services by Category</h2>
+                </div>
+                <a href="{{ path('app_service_list') }}" class="font-label text-xs text-primary text-decoration-none border-bottom border-primary border-opacity-25 pb-1">VIEW ALL SERVICES</a>
+            </div>
+
+            <div class="bento-grid">
+                <div class="bento-item col-span-8 reveal">
+                    <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuAwUrk5T5pqSIkYLGvs6fHV1ytTZKT5ueOabRW9qBT-fqYmm4CxjcqqbaJvylw0d37KrCT5MsX-q-rYdnBBzxEIFGpOA3AYiX3rXb487UJ-kclLNnfdadcYUfOxB-nd0z4wHOy8ZM3fL27vxVIPlaPW1WLFgzTlgAJgVXY2rr2y6fKbjaCAfVPAPasCeY_eGl1MsMs_JsgVxHoDGeBE8NcCrDZmU0vbWAVNu38eaVVhKxt1Qxb2wjyxjStrdN48-MUOs4NPCGTlfmg" alt="Legal">
+                    <div class="bento-overlay"></div>
+                    <div class="bento-content">
+                        <span class="bento-tag">CATEGORY 01</span>
+                        <h3 class="bento-title">Legal & Consulting</h3>
+                    </div>
+                </div>
+                <div class="bento-item col-span-4 reveal">
+                    <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuC1PXfJzMBt0G8foLV4ShpUraq0z0RQcyE2J2tQplOK5YqvhybgmoxiPNOLR-ee3xi2Blu-sKE-5JsebgAFHuWgc1MuNkJMbKZcRfZecIMFuWDvH4XqLzs8rabXnh7qbKPoLf7-qrJw8HQ1cyKazfmxE3uFmH7qMUuoimSeqs9lSf8MKtsMsNgqWulZTV_Ff1PLMSJj2VCcqcLo5s1JQzQ2ik5ciAgdZzYGcpV3FaD1JMnafHFRRKbgPcXBm7cZGyskLQrytDR2j_A" alt="Strategy">
+                    <div class="bento-overlay"></div>
+                    <div class="bento-content">
+                        <span class="bento-tag">CATEGORY 02</span>
+                        <h3 class="bento-title">Business Strategy</h3>
+                    </div>
+                </div>
+                <div class="bento-item col-span-4 reveal">
+                    <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuC_4Ui1ZQI1g65lj5S9X5EES5217Ud8KxqkveR4VS-JHPtLvMEJ-wmjmVUkHvWWi1NGlVpKzzxPWdTlO3HQC56_QY-gNdirrQApHVCmE5wGb7tKf_ztO8JYTwGFC4XySKQEiePnIyEsdLA1cyes1Xh89FDDQjs_rq5Q8CNMYpJYDs4QzC9lx8TWTAFyTnrQEGHBZdqzh1wDM2pm6P9os-CeSq-twnpW4djTfgmqjOHwvW4IH78RaSbPWLSKZoOzi5WclVnRBw1wi5w" alt="Creative">
+                    <div class="bento-overlay"></div>
+                    <div class="bento-content">
+                        <span class="bento-tag">CATEGORY 03</span>
+                        <h3 class="bento-title">Design & Creative</h3>
+                    </div>
+                </div>
+                <div class="bento-item col-span-8 reveal">
+                    <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuA43HOU7zxs_cHzYWZG1xxOGf28zYcoXEOe88az26Rls1VCdRCZnsJbxeu2DT7mPAs2fBg10EbaqklDkswSCHO6lGj39HgARFCuJJu48yEwqdoefDQi5garET_z3IYYOYi_MGWOyx20xNOMDt42D3nDWhB-2ZZQQZggWVbpNOGs68bUsbBvp7NmGzSNo8uhNxLu9dbjeE0jEDaBgSfgD0GBjaLVsDOt4OESDU0h41ou0vcH7JUxd0DuTdBwauCus8opJzodArntTpw" alt="Wealth">
+                    <div class="bento-overlay"></div>
+                    <div class="bento-content">
+                        <span class="bento-tag">CATEGORY 04</span>
+                        <h3 class="bento-title">Financial Planning</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    {# ── 4. TRENDING ARTIFACTS (Dynamic Injection) ── #}
+    <section class="alex-section bg-white">
+        <div class="container">
             <div class="text-center mb-5 reveal">
-                <h2 class="luxury-serif text-pure mb-2" style="font-size: 2.5rem;">Curation Sectors</h2>
-                <p class="text-dim text-sm letter-spacing-2 text-uppercase fw-bold">Select an intervention protocol</p>
+                <span class="hero-tagline">MOST POPULAR</span>
+                <h2 class="display-6">Featured Services</h2>
             </div>
 
             <div class="row g-4">
-                <div class="col-lg-4 col-md-6 reveal">
-                    <div class="premium-tilt-card" data-tilt>
-                        <div class="tilt-inner">
-                            <div class="tilt-icon"><i class="fas fa-bolt-lightning text-red"></i></div>
-                            <h3 class="luxury-serif text-pure h4 mb-3">Structural & Power</h3>
-                            <p class="text-dim text-sm mb-4">Immediate emergent protocols for critical systems failure and power photonics.</p>
-                            <a href="{{ path('app_service_list') }}" class="text-teal text-xs fw-bold letter-spacing-2 text-decoration-none">INITIALIZE SCAN <i class="fas fa-arrow-right ms-2"></i></a>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-4 col-md-6 reveal">
-                    <div class="premium-tilt-card" data-tilt>
-                        <div class="tilt-inner">
-                            <div class="tilt-icon" style="color: var(--color-accent-gold); background: rgba(212, 175, 55, 0.1);"><i class="fas fa-gem"></i></div>
-                            <h3 class="luxury-serif text-pure h4 mb-3">Bespoke Artisan</h3>
-                            <p class="text-dim text-sm mb-4">Curated aesthetic upgrades and high-end fabrication for elite environments.</p>
-                            <a href="{{ path('app_service_list') }}" class="text-gold text-xs fw-bold letter-spacing-2 text-decoration-none">INITIALIZE SCAN <i class="fas fa-arrow-right ms-2"></i></a>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-4 col-md-6 reveal">
-                    <div class="premium-tilt-card" data-tilt>
-                        <div class="tilt-inner">
-                            <div class="tilt-icon" style="color: #3b82f6; background: rgba(59, 130, 246, 0.1);"><i class="fas fa-shield-halved"></i></div>
-                            <h3 class="luxury-serif text-pure h4 mb-3">Molecular Preserves</h3>
-                            <p class="text-dim text-sm mb-4">Preventive hygiene, HVAC atmospheric control, and routine preservation.</p>
-                            <a href="{{ path('app_service_list') }}" class="text-pure text-xs fw-bold letter-spacing-2 text-decoration-none">INITIALIZE SCAN <i class="fas fa-arrow-right ms-2"></i></a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    {# ── 3. ARCHIVE EXHIBITS GALLERY ── #}
-    <section class="archive-section">
-        <div class="container">
-            <div class="d-flex justify-content-between align-items-end mb-5 reveal">
-                <div>
-                    <span class="text-teal text-xxs fw-900 letter-spacing-4 mb-3 d-block">THE COLLECTION</span>
-                    <h2 class="luxury-serif mb-0 text-pure" style="font-size: 3.2rem;">Executive Artifacts</h2>
-                </div>
-                {% include 'components/button.html.twig' with {'text': 'VIEW FULL MANIFEST', 'url': path('app_service_list'), 'style': 'outline', 'class': 'rounded-pill text-xs'} %}
-            </div>
-
-            <div class="row g-5">
                 {% if sections.trending is defined and sections.trending|length > 0 %}
                     {% for s in sections.trending|slice(0, 3) %}
                         <div class="col-lg-4 reveal">
-                            {% include 'components/card.html.twig' with {'class': 'p-0 border-0', 'style': 'glass'} %}
+                            {% embed 'components/card.html.twig' with {'class': 'h-100'} %}
                                 {% block content %}
-                                    <div style="height: 240px; background-image: url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=800&auto=format&fit=crop'); background-size: cover; background-position: center; position: relative; border-radius: var(--radius-lg) var(--radius-lg) 0 0;">
-                                        <div class="position-absolute bottom-0 start-0 p-4 w-100 d-flex justify-content-between align-items-center" style="background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);">
-                                            <span class="badge bg-primary text-white border-0 py-1 px-2 rounded-1 fw-bold text-xxs" style="letter-spacing: 1px;">{{ s.category.name|default('Artifact')|upper }}</span>
-                                            <div class="text-xxs text-white fw-900" style="opacity: 0.9; letter-spacing: 1px;">ID-{{ s.id|format('%04d') }}</div>
-                                        </div>
+                                    <div class="aspect-video bg-surface-mid mb-4 rounded-lg overflow-hidden">
+                                        {# Use a placeholder for now, or match existing logic #}
+                                        <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=800&auto=format&fit=crop" class="w-100 h-100 object-fit-cover">
                                     </div>
-                                    <div class="p-4 premium-dark-card" style="background: #0f172a; border: 1px solid rgba(255,255,255,0.05); border-top: none; border-radius: 0 0 var(--radius-lg) var(--radius-lg); box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
-                                        <h4 class="luxury-serif mb-2 text-pure" style="font-size: 1.4rem;">{{ s.title }}</h4>
-                                        <p class="text-dim mb-4" style="font-size: 0.85rem; height: 42px; overflow: hidden;">{{ s.description|slice(0, 90) }}...</p>
-                                        
-                                        <div class="d-flex justify-content-between align-items-center pt-3 border-top" style="border-color: rgba(15, 23, 42, 0.05) !important;">
-                                            <div>
-                                                <div class="h5 mb-0 fw-bold text-pure">₹{{ s.price|number_format }}</div>
-                                            </div>
-                                            {% include 'components/button.html.twig' with {'text': 'CONFIGURE', 'url': path('app_service_show', {'id': s.id}), 'style': 'luxury', 'class': 'py-2 px-4 shadow-sm text-xxs'} %}
-                                        </div>
+                                    <span class="font-label text-xxs text-primary mb-2 d-block">{{ s.category.name|default('Artifact') }}</span>
+                                    <h4 class="h5 mb-3">{{ s.title }}</h4>
+                                    <p class="text-on-surface-variant text-sm mb-4">{{ s.description|slice(0, 80) }}...</p>
+                                    <div class="d-flex justify-content-between align-items-center mt-auto">
+                                        <div class="fw-bold text-lg">₹{{ s.price|number_format }}</div>
+                                        <a href="{{ path('app_service_show', {'id': s.id}) }}" class="font-label text-xxs text-primary text-decoration-none">VIEW DETAILS</a>
                                     </div>
                                 {% endblock %}
-                            
+                            {% endembed %}
                         </div>
                     {% endfor %}
-                {% else %}
-                    <div class="col-12 text-center py-5 reveal">
-                        <div class="glass-card py-5 border-dashed">
-                            <p class="text-dim mb-0">Artifact archives are currently rotating. Please stand by for the next cycle.</p>
-                            {% include 'components/button.html.twig' with {'text': 'MANUAL RECOVERY', 'url': path('app_service_list'), 'style': 'luxury', 'class': 'mt-5 px-5'} %}
-                        </div>
-                    </div>
                 {% endif %}
             </div>
         </div>
     </section>
 
-    {# ── 4. ARCHIVE FOOTER ── #}
-    <footer class="py-5" style="background: #020617; border-top: 1px solid rgba(255,255,255,0.05);">
-        <div class="container py-5 reveal">
+    {# ── 5. THE FELLOWS: EXPERT PORTRAITS ── #}
+    <section class="alex-section-lg bg-surface-low">
+        <div class="container">
+            <div class="text-center mb-5 reveal">
+                <h2 class="display-5 mb-3">Our Top Experts</h2>
+                <p class="text-secondary text-lg">Meet some of our highly rated professionals.</p>
+            </div>
+
             <div class="row g-5">
-                <div class="col-lg-4">
-                    <a class="luxury-serif fw-900 fs-2 text-decoration-none text-pure" href="#">Service<span class="text-teal">Hub</span></a>
-                    <p class="text-dim mt-4" style="max-width: 300px;">The world's first Digital Heritage Concierge. Maintaining excellence for the discerning elite.</p>
+                <div class="col-lg-4 reveal">
+                    <div class="expert-card">
+                        <div class="expert-portrait">
+                            <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuDssUR7UYGwHxAPu9FSI5aGlhBvgdmm8F20qcBZk_6JeHCfxSJ69flnGl2OtGIrcjQQQqOFQPiedzUzaUCX8gAW9akpxeL3k3hD6qVXYuMmZjhuxvG_wJniD9M0qQwNo4f3Lgv4drmmzDU56K_33BVZVHxYfzvDMivhvFcSEv6PEpt2LXtIsArnHEdF_xyx6IJVY-OjCtMD2t5PrkHEZf0Bl0TuLhraCyuUA3cxafg_i5supAqXgqPjcxm6_E2782Y1269M-hY1SKc" alt="Dr. Alistair Thorne">
+                        </div>
+                        <span class="expert-discipline">CONSTITUTIONAL LAW</span>
+                        <h4 class="h4 mt-2 mb-3">Dr. Alistair Thorne</h4>
+                        <p class="expert-quote">"The law is a living dialogue between people and their rights."</p>
+                    </div>
                 </div>
-                <div class="col-lg-2">
-                    <div class="text-xxs text-silver fw-900 mb-4 letter-spacing-2">MANIFEST</div>
-                    <ul class="list-unstyled">
-                        <li><a href="#" class="text-xs text-dim text-decoration-none hover-teal">Registry</a></li>
-                        <li class="mt-2"><a href="#" class="text-xs text-dim text-decoration-none hover-teal">Atelier</a></li>
-                        <li class="mt-2"><a href="#" class="text-xs text-dim text-decoration-none hover-teal">Curation</a></li>
-                    </ul>
+                <div class="col-lg-4 reveal">
+                    <div class="expert-card">
+                        <div class="expert-portrait">
+                            <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCt9rSubd1Nl9gMZRETr5bEMy6zY_e3JHoQ7--U8dpLQ5YLiat_Z1Mv3z1-7Pl5CCsd9Kd10njlJ0enWUlx8iuHealknwxjL6AAp9bqnHcydh8My0YxyQQeZJi4-cgU52RAbaslH-Bmcg4Hg8l15Kh9R13Bz1Cvqom1hnppMtkVM62i-Zn0wMb0ksTEnyRgKXC06Q8EFmKXNQAnqL3tz7numGHSFymYmuBktiI-ZEtAOReC7QzcofCoZSD9Jx5w8-iwD5OWXmq4LTg" alt="Elena Vance">
+                        </div>
+                        <span class="expert-discipline">BRAND PHILOSOPHY</span>
+                        <h4 class="h4 mt-2 mb-3">Elena Vance</h4>
+                        <p class="expert-quote">"Great brands are built on trust and real value, not just marketing."</p>
+                    </div>
                 </div>
-                <div class="col-lg-6 text-lg-end">
-                    <div class="text-xxs text-silver fw-900 mb-4 letter-spacing-2">GLOBAL PRESTIGE</div>
-                    <div class="d-flex justify-content-lg-end gap-3 text-dim opacity-50">
-                        <i class="fab fa-cc-visa fs-3"></i>
-                        <i class="fab fa-cc-mastercard fs-3"></i>
-                        <i class="fab fa-cc-stripe fs-3"></i>
-                        <i class="fab fa-apple-pay fs-3"></i>
+                <div class="col-lg-4 reveal">
+                    <div class="expert-card">
+                        <div class="expert-portrait">
+                            <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCp7rMx5wyluRgzZbC5O7kTRE3XpdhJzPilT0NISPvGDN52nUkZMCB4_OQePo4AjkUEvlzlv2qxMRg_qKHl_IfEa8aIWEfzZ6r2uBgtDhw4J3diZJkiZ_IE_e1Pd08VqZT7dnLXYKtlM9UtXAwB9IWNv7SRO2vhCsvwmBwMEjPYgHeHAQvQaox0ciKGGPWrARMgBiJFV_FI0Ys5gwtuH5ykHoZGAq2d7TyirEtDK-o7MNF6pBVijyoS_E2ckl8cbYQZYxyGh_wsqrA" alt="Julian Hearst">
+                        </div>
+                        <span class="expert-discipline">ESTATE MANAGEMENT</span>
+                        <h4 class="h4 mt-2 mb-3">Julian Hearst</h4>
+                        <p class="expert-quote">"Successful management requires balance, wisdom, and modern tools."</p>
                     </div>
                 </div>
             </div>
-            <div class="mt-5 pt-5 border-top d-flex justify-content-between align-items-center" style="border-color: rgba(15, 23, 42, 0.05) !important;">
-                <div class="text-xxs text-dim fw-800">© 2024 SERVICEHUB ARCHIVE. ALL RIGHTS RESERVED.</div>
-                <div class="text-xxs text-dim fw-800">SECURED BY HERITAGE ENCRYPTION</div>
+        </div>
+    </section>
+
+    {# ── 6. CTA: APPLY AS MASTER ── #}
+    <section class="alex-section px-4">
+        <div class="container">
+            <div class="cta-card reveal">
+                <div class="cta-bg">
+                    <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuAoEcIbe83LrgemG8BnP9-xqOFnM1hTp20CstNreJUOpHrY2z-_6pQdf6UTw6o5udqRmvHbHcM581QBEZ0URGGZSn6Y9ONKU_S6Pxz-l6_rkCmSv_p14Blcg5ONQeRNICxbZaKzpISlGSaCCUDWwuiyicJ-Q73TBrRKRafhwX17TQzeA3fLa3Ra0Tn5rqbCe3UF_cTxhhLvTRhiNyNDcA78ijSJhFKxYMOkeEUrWy2L7V9w-bfctsIpMNF8cEo7FrhumLGrSvvb2XU" alt="Texture">
+                </div>
+                <div class="cta-content">
+                    <h2 class="cta-title">Are you an expert in <br>your field?</h2>
+                    <p class="cta-text">
+                        Join our platform as a service provider and reach new customers today. We only accept the best professionals in the industry.
+                    </p>
+                    <div class="d-flex justify-content-center">
+                        {% include 'components/button.html.twig' with {'text': 'Apply to Join', 'url': path('app_register'), 'style': 'luxury'} %}
+                    </div>
+                    <p class="mt-4 font-label text-xxs opacity-50">TRUSTED BY 10,000+ USERS</p>
+                </div>
             </div>
         </div>
-    </footer>
+    </section>
 </main>
 {% endblock %}
 
 {% block javascripts %}
 {{ parent() }}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.1/vanilla-tilt.min.js"></script>
 <script>
     document.addEventListener("DOMContentLoaded", () => {
-        // Initialize 3D Tilt Effect
-        VanillaTilt.init(document.querySelectorAll(".premium-tilt-card"), {
-            max: 10,
-            speed: 400,
-            glare: true,
-            "max-glare": 0.15,
-            perspective: 1000,
-            scale: 1.02
-        });
-
-        // Initialize Scroll Reveals (Progressive Enhancement)
+        // Scroll Reveals
         const revealObserver = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if(entry.isIntersecting) {
                     entry.target.classList.add('active');
-                    revealObserver.unobserve(entry.target); // Reveal only once
+                    revealObserver.unobserve(entry.target);
                 }
             });
-        }, { threshold: 0.1, rootMargin: "0px 0px -50px 0px" });
+        }, { threshold: 0.1 });
 
         document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
     });

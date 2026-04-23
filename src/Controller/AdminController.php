@@ -76,17 +76,32 @@ final class AdminController extends AbstractController
         $chartLabels = [];
         $today = new \DateTime();
         
+        $startDate = (clone $today)->modify('-6 days')->setTime(0, 0, 0);
+        $endDate = clone $today; // Current time
+
+        $qb = $em->createQueryBuilder()
+            ->select('SUBSTRING(b.bookingDate, 1, 10) as dateString', 'COUNT(b.id) as dayCount')
+            ->from(Booking::class, 'b')
+            ->where('b.bookingDate >= :startDate')
+            ->andWhere('b.bookingDate <= :endDate')
+            ->setParameter('startDate', $startDate)
+            ->setParameter('endDate', $endDate)
+            ->groupBy('dateString');
+
+        $groupedBookings = $qb->getQuery()->getResult();
+        
+        $bookingCounts = [];
+        foreach ($groupedBookings as $row) {
+            $bookingCounts[$row['dateString']] = (int) $row['dayCount'];
+        }
+        
         for ($i = 6; $i >= 0; $i--) {
-            // Find bookings matching the specific day
             $targetDate = (clone $today)->modify("-$i days");
-            $dayCount = 0;
-            foreach ($em->getRepository(Booking::class)->findAll() as $b) {
-                if ($b->getBookingDate() && $b->getBookingDate()->format('Y-m-d') === $targetDate->format('Y-m-d')) {
-                    $dayCount++;
-                }
-            }
+            $dateString = $targetDate->format('Y-m-d');
+            $dayCount = $bookingCounts[$dateString] ?? 0;
+            
             $chartLabels[] = $targetDate->format('M d');
-            // If completely empty database, mock some aesthetic random realistic numbers around 15-30
+            // Mock some basic analytics if completely empty for aesthetic
             $chartData[] = $dayCount > 0 ? $dayCount : rand(12, 35);
         }
 

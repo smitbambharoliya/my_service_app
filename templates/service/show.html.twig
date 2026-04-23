@@ -1,109 +1,350 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ service.title }} — Exhibit Details{% endblock %}
+{% block title %}{{ service.title }} | Service Details{% endblock %}
 
 {% block body %}
-<div class="animate-fade-in">
-    {# ── 1. IMMERSIVE HEADER ── #}
-    <section class="py-5" style="background: linear-gradient(to bottom, var(--bg-deep), var(--bg-surface)); border-bottom: 1px solid var(--glass-border);">
-        <div class="container">
-            <nav class="mb-4" style="--bs-breadcrumb-divider: '·';">
-                <ol class="breadcrumb text-xs fw-800 text-uppercase letter-spacing-1">
-                    <li class="breadcrumb-item"><a href="{{ path('app_home') }}" class="text-dim text-decoration-none">Home</a></li>
-                    <li class="breadcrumb-item"><a href="{{ path('app_service_list') }}" class="text-dim text-decoration-none">Services</a></li>
-                    <li class="breadcrumb-item active text-gold" aria-current="page">{{ service.category.name|upper }}</li>
-                </ol>
-            </nav>
-            
-            <div class="row align-items-end g-5">
-                <div class="col-lg-8">
-                    <h1 class="luxury-serif text-pure mb-4" style="font-size: 3.5rem;">{{ service.title }}</h1>
-                    <div class="d-flex align-items-center gap-4">
-                        <div class="tier-badge tier-gold px-4 py-2">EXERT LEVEL</div>
-                        <div class="text-silver fw-bold"><i class="fas fa-star text-gold me-2"></i> 4.9 <span class="text-dim">/ 5.0</span></div>
-                        <div class="text-dim text-xs fw-800">PROTOCOL ID: #EX-{{ service.id }}</div>
+<section class="py-5" style="background: linear-gradient(180deg, #f8fbff 0%, #eef4ff 100%);">
+    <div class="container">
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="{{ path('app_home') }}" class="text-decoration-none">Home</a></li>
+                <li class="breadcrumb-item"><a href="{{ path('app_service_list') }}" class="text-decoration-none">Services</a></li>
+                <li class="breadcrumb-item active" aria-current="page">{{ service.title }}</li>
+            </ol>
+        </nav>
+
+        <div class="row g-4 align-items-stretch">
+            <div class="col-lg-7">
+                <div class="card border-0 shadow-sm rounded-4 overflow-hidden h-100">
+                    <div class="service-hero-image">
+                        {% if service.image %}
+                            <img src="{{ asset('uploads/services/' ~ service.image) }}" alt="{{ service.title }}">
+                        {% else %}
+                            <img src="https://images.unsplash.com/photo-1581578731548-c64695cc6952?q=80&w=1200&auto=format&fit=crop" alt="{{ service.title }}">
+                        {% endif %}
+                    </div>
+                    <div class="card-body p-4 p-lg-5">
+                        <div class="d-flex flex-wrap gap-2 mb-3">
+                            <span class="badge rounded-pill text-bg-light border px-3 py-2">{{ service.category.name }}</span>
+                            {% if service.isPremium %}
+                                <span class="badge rounded-pill text-bg-warning px-3 py-2">Premium</span>
+                            {% endif %}
+                            <span class="badge rounded-pill text-bg-primary-subtle text-primary-emphasis px-3 py-2">Provider: {{ provider ? provider.tier : 'Verified' }}</span>
+                        </div>
+
+                        <div class="d-flex flex-column flex-md-row justify-content-between gap-3 mb-3">
+                            <div>
+                                <h1 class="fw-bold mb-2" style="color:#0f172a;">{{ service.title }}</h1>
+                                <p class="text-muted mb-0">Service ID #{{ service.id }}</p>
+                            </div>
+                            <div class="text-md-end">
+                                <div class="text-muted small text-uppercase fw-semibold">Starting Price</div>
+                                <div class="fw-bold" style="font-size:2rem; color:#0f172a;">₹{{ service.price|number_format(2) }}</div>
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-4">
+                            <div class="col-sm-4">
+                                <div class="stat-chip">
+                                    <div class="stat-label">Average Rating</div>
+                                    <div class="stat-value">
+                                        {% if provider_average_rating is not null %}
+                                            {{ provider_average_rating|number_format(1) }}/5
+                                        {% else %}
+                                            New
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-4">
+                                <div class="stat-chip">
+                                    <div class="stat-label">Completed Jobs</div>
+                                    <div class="stat-value">{{ provider_completed_jobs }}</div>
+                                </div>
+                            </div>
+                            <div class="col-sm-4">
+                                <div class="stat-chip">
+                                    <div class="stat-label">Reviews</div>
+                                    <div class="stat-value">{{ provider_review_count }}</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <h4 class="fw-bold mb-3" style="color:#0f172a;">About This Service</h4>
+                        <p class="text-muted mb-0" style="line-height:1.8;">{{ service.description }}</p>
                     </div>
                 </div>
-                <div class="col-lg-4 text-lg-end">
-                    <div class="text-dim text-xs mb-2">INITIAL RESERVE</div>
-                    <div class="luxury-serif text-gold" style="font-size: 2.5rem;">₹{{ service.price|number_format }}</div>
+            </div>
+
+            <div class="col-lg-5">
+                <div class="sticky-top" style="top: 100px;">
+                    <div class="card border-0 shadow-sm rounded-4 mb-4">
+                        <div class="card-body p-4">
+                            <div class="d-flex align-items-center gap-3 mb-4">
+                                <div class="provider-avatar">
+                                    {{ provider and provider.fullName ? provider.fullName|slice(0, 1)|upper : 'P' }}
+                                </div>
+                                <div>
+                                    <h4 class="fw-bold mb-1" style="color:#0f172a;">{{ provider ? provider.fullName : 'Service Provider' }}</h4>
+                                    <div class="text-muted">{{ provider ? provider.tier : 'Verified' }} Provider</div>
+                                </div>
+                            </div>
+
+                            <h5 class="fw-bold mb-3" style="color:#0f172a;">Provider Details</h5>
+                            <div class="detail-list">
+                                <div class="detail-row">
+                                    <span>City</span>
+                                    <strong>{{ provider and provider.city ? provider.city : 'Not added yet' }}</strong>
+                                </div>
+                                <div class="detail-row">
+                                    <span>Mobile</span>
+                                    <strong>{{ provider and provider.mobile ? provider.mobile : 'Available after booking' }}</strong>
+                                </div>
+                                <div class="detail-row">
+                                    <span>Joined</span>
+                                    <strong>{{ provider and provider.createdAt ? provider.createdAt|date('M Y') : 'Recently' }}</strong>
+                                </div>
+                                <div class="detail-row">
+                                    <span>Active Services</span>
+                                    <strong>{{ provider_active_services_count }}</strong>
+                                </div>
+                            </div>
+
+                            <div class="booking-box mt-4">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <span class="text-muted fw-semibold">Next Step</span>
+                                    <span class="fw-bold" style="color:#0f172a;">Booking Form</span>
+                                </div>
+                                <p class="text-muted small mb-4">First review the provider profile, past work, and customer feedback below. Then continue to booking.</p>
+
+                                <div class="d-grid gap-2">
+                                    {% if is_granted('ROLE_USER') %}
+                                        <a href="{{ path('app_service_book', {id: service.id}) }}" class="btn btn-primary btn-lg rounded-3">
+                                            <i class="fas fa-calendar-check me-2"></i>Continue to Booking
+                                        </a>
+                                    {% else %}
+                                        <a href="{{ path('app_login') }}" class="btn btn-primary btn-lg rounded-3">
+                                            <i class="fas fa-right-to-bracket me-2"></i>Login to Book
+                                        </a>
+                                    {% endif %}
+                                    <a href="{{ path('app_service_list') }}" class="btn btn-outline-secondary rounded-3">
+                                        <i class="fas fa-arrow-left me-2"></i>Back to Services
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card border-0 shadow-sm rounded-4">
+                        <div class="card-body p-4">
+                            <h5 class="fw-bold mb-3" style="color:#0f172a;">Booking Flow</h5>
+                            <ul class="mb-0 text-muted small ps-3" style="line-height:1.8;">
+                                <li>Provider ni basic details pehla dekhay.</li>
+                                <li>Temna bija services ane work preview joi shakay.</li>
+                                <li>Customer reviews joi ne pachhi booking page par jai shakay.</li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-    </section>
+    </div>
+</section>
 
-    {# ── 2. PRODUCT SHOWCASE ── #}
-    <section class="py-5 container">
-        <div class="row g-5">
-            {# Left: Visuals & Narrative #}
-            <div class="col-lg-8">
-                <div class="glass-card p-0 mb-5 overflow-hidden" style="height: 500px;">
-                    <img src="https://images.unsplash.com/photo-1581578731548-c64695cc6952?q=80&w=1200&auto=format&fit=crop" class="w-100 h-100 object-fit-cover" alt="Service Exhibit">
-                </div>
+<section class="py-5 bg-white">
+    <div class="container">
+        <div class="mb-4">
+            <h2 class="fw-bold mb-1" style="color:#0f172a;">Previous Work</h2>
+            <p class="text-muted mb-0">Aa provider na bija active services ane work preview.</p>
+        </div>
 
-                <div class="mb-5">
-                    <h3 class="luxury-serif text-pure mb-4">Executive Narrative</h3>
-                    <p class="text-silver mb-5" style="font-size: 1.1rem; line-height: 1.8;">
-                        {{ service.description }}
-                    </p>
-
-                    <div class="row g-4">
-                        <div class="col-md-6 text-start">
-                            <div class="p-4 rounded-4" style="background: rgba(255,255,255,0.02); border: 1px solid var(--glass-border);">
-                                <div class="text-gold mb-3"><i class="fas fa-feather fs-4"></i></div>
-                                <h5 class="text-pure fw-bold mb-2">Sensory Notes</h5>
-                                <p class="text-xs text-dim mb-0">High-precision execution, silent operation protocols, and premium structural integrity.</p>
+        <div class="row g-4">
+            {% if provider_other_services is not empty %}
+                {% for item in provider_other_services %}
+                    <div class="col-md-6 col-xl-4">
+                        <a href="{{ path('app_service_show', {id: item.id}) }}" class="card border-0 shadow-sm rounded-4 h-100 text-decoration-none overflow-hidden service-work-card">
+                            <div class="work-image">
+                                {% if item.image %}
+                                    <img src="{{ asset('uploads/services/' ~ item.image) }}" alt="{{ item.title }}">
+                                {% else %}
+                                    <img src="https://images.unsplash.com/photo-1520607162513-77705c0f0d4a?q=80&w=900&auto=format&fit=crop" alt="{{ item.title }}">
+                                {% endif %}
                             </div>
-                        </div>
-                        <div class="col-md-6 text-start">
-                            <div class="p-4 rounded-4" style="background: rgba(255,255,255,0.02); border: 1px solid var(--glass-border);">
-                                <div class="text-gold mb-3"><i class="fas fa-shield-halved fs-4"></i></div>
-                                <h5 class="text-pure fw-bold mb-2">Heritage Guarantee</h5>
-                                <p class="text-xs text-dim mb-0">Includes a 12-month post-operational audit and priority access to follow-up consultations.</p>
+                            <div class="card-body p-4">
+                                <div class="text-muted small mb-2">{{ item.category.name }}</div>
+                                <h5 class="fw-bold mb-2" style="color:#0f172a;">{{ item.title }}</h5>
+                                <p class="text-muted small mb-3">{{ item.description|slice(0, 100) }}{% if item.description|length > 100 %}...{% endif %}</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <strong style="color:#0f172a;">₹{{ item.price|number_format(2) }}</strong>
+                                    <span class="text-primary fw-semibold">View service</span>
+                                </div>
                             </div>
+                        </a>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="col-12">
+                    <div class="card border-0 shadow-sm rounded-4">
+                        <div class="card-body p-4 text-center text-muted">
+                            Aa provider nu aa primary service profile che. Vadhare work items add thay pachhi ahinya dekhashe.
                         </div>
                     </div>
                 </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<section class="py-5" style="background:#f8fafc;">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+            <div>
+                <h2 class="fw-bold mb-1" style="color:#0f172a;">Customer Reviews</h2>
+                <p class="text-muted mb-0">Provider ne malela recent feedback.</p>
             </div>
-
-            {# Right: Reservation Control #}
-            <div class="col-lg-4">
-                <div class="sticky-top" style="top: 120px;">
-                    <div class="glass-card mb-4" style="background: rgba(212, 175, 55, 0.03); border-color: var(--gold-border);">
-                        <h4 class="luxury-serif text-pure mb-4">Request Protocol</h4>
-                        
-                        <div class="mb-4">
-                            <div class="text-xs text-dim mb-2 text-uppercase">Selected Tier</div>
-                            <div class="p-3 rounded-4 bg-deep d-flex justify-content-between align-items-center">
-                                <span class="text-pure fw-bold">Standard Professional</span>
-                                <span class="text-gold fs-5">₹{{ service.price|number_format }}</span>
-                            </div>
-                        </div>
-
-                        <div class="d-grid gap-3">
-                            <a href="{{ path('app_service_book', {id: service.id}) }}" class="btn-luxury w-100 justify-content-center">
-                                RESERVE EXHIBIT <i class="fas fa-calendar-check ms-2"></i>
-                            </a>
-                            <p class="text-center text-xs text-dim mt-3">NO INITIAL DEPOSIT REQUIRED</p>
-                        </div>
-                    </div>
-
-                    <div class="glass-card text-center">
-                        <div class="user-orb mx-auto mb-3" style="width: 60px; height: 60px; font-size:1.3rem;">
-                            {{ service.provider.fullName|slice(0,1)|upper }}
-                        </div>
-                        <div class="text-pure fw-bold mb-1">{{ service.provider.fullName }}</div>
-                        <div class="text-xs text-dim text-uppercase letter-spacing-1 mb-4">{{ service.provider.tier }} ARTISAN</div>
-                        <a href="#" class="btn-outline-luxury w-100" style="font-size: 0.75rem;">VIEW PORTFOLIO</a>
-                    </div>
-                </div>
+            <div class="text-muted">
+                {% if provider_average_rating is not null %}
+                    <i class="fas fa-star text-warning me-1"></i>{{ provider_average_rating|number_format(1) }} average from {{ provider_review_count }} review{{ provider_review_count == 1 ? '' : 's' }}
+                {% else %}
+                    No reviews yet
+                {% endif %}
             </div>
         </div>
-    </section>
-</div>
+
+        <div class="row g-4">
+            {% if provider_reviews is not empty %}
+                {% for review in provider_reviews %}
+                    <div class="col-md-6 col-xl-4">
+                        <div class="card border-0 shadow-sm rounded-4 h-100">
+                            <div class="card-body p-4">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <div class="review-stars">
+                                        {% for i in 1..5 %}
+                                            <i class="fa{{ review.rating >= i ? 's' : 'r' }} fa-star"></i>
+                                        {% endfor %}
+                                    </div>
+                                    <span class="text-muted small">{{ review.createdAt|date('d M Y') }}</span>
+                                </div>
+                                <p class="mb-3 text-muted" style="line-height:1.7;">
+                                    {% if review.comment %}
+                                        "{{ review.comment }}"
+                                    {% else %}
+                                        Customer left a rating for this provider.
+                                    {% endif %}
+                                </p>
+                                <div class="fw-semibold" style="color:#0f172a;">{{ review.customer.fullName }}</div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="col-12">
+                    <div class="card border-0 shadow-sm rounded-4">
+                        <div class="card-body p-4 text-center text-muted">
+                            Aa provider mate haju review aavya nathi.
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
 
 <style>
-    .object-fit-cover { object-fit: cover; }
-    .cursor-pointer { cursor: pointer; }
+    .service-hero-image {
+        height: 360px;
+        background: #e2e8f0;
+    }
+
+    .service-hero-image img,
+    .work-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+
+    .provider-avatar {
+        width: 68px;
+        height: 68px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #1d4ed8, #0ea5e9);
+        color: white;
+        font-size: 1.5rem;
+        font-weight: 700;
+    }
+
+    .stat-chip {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 18px;
+        padding: 1rem;
+        height: 100%;
+    }
+
+    .stat-label {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        margin-bottom: 0.35rem;
+    }
+
+    .stat-value {
+        font-size: 1.35rem;
+        font-weight: 700;
+        color: #0f172a;
+    }
+
+    .detail-list {
+        display: grid;
+        gap: 0.85rem;
+    }
+
+    .detail-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        padding-bottom: 0.85rem;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .detail-row span {
+        color: #64748b;
+    }
+
+    .detail-row strong {
+        color: #0f172a;
+        text-align: right;
+    }
+
+    .booking-box {
+        background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+        border: 1px solid #bfdbfe;
+        border-radius: 20px;
+        padding: 1.25rem;
+    }
+
+    .work-image {
+        height: 220px;
+        background: #e2e8f0;
+    }
+
+    .service-work-card {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .service-work-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 1rem 2rem rgba(15, 23, 42, 0.08) !important;
+    }
+
+    .review-stars {
+        color: #f59e0b;
+    }
 </style>
 {% endblock %}

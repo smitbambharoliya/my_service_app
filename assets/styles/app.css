@@ -1,92 +1,73 @@
 /* ═══════════════════════════════════════════════════════════════
-   ServiceHub — Unified Design System
-   Obsidian X (Dark) + Aurora (Admin Light) + Utility Classes
+   ServiceHub — Alexandria Design System
+   High-End Editorial aesthetic with Scholarly Authority
    ═══════════════════════════════════════════════════════════════ */
 
 /* ── GOOGLE FONTS IMPORT ── */
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;500;600;700&family=Public+Sans:wght@300;400;600;700&display=swap');
 
 /* ═══════════════════════════
-   1. OBSIDIAN X DARK TOKENS
+   1. ALEXANDRIA DESIGN TOKENS
    ═══════════════════════════ */
 :root {
     color-scheme: light;
 
-    /* EXACT MATCH FROM MASTER PROMPT STRICT NAMING */
-    --color-bg-primary: #f8fafc; /* Clean ivory/slate 50 */
-    --color-surface-glass: rgba(255, 255, 255, 0.85);
-    --color-accent-teal: #0ea5e9; /* Light blue/teal */
-    --color-accent-gold: #f59e0b;
+    /* BRAND COLORS (Alexandria Protocol) */
+    --color-primary: #006b5a;
+    --color-primary-container: #33ccaf;
+    --color-on-primary: #ffffff;
+    --color-on-primary-container: #00201a;
     
-    --radius-sm: 8px;
-    --radius-md: 14px;
-    --radius-lg: 24px;
+    --color-secondary: #5a5f63;
+    --color-secondary-container: #dfe3e8;
+    --color-on-secondary: #ffffff;
     
-    --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.05);
-    --shadow-glow: 0 0 15px rgba(14, 165, 233, 0.2);
-    --shadow-deep: 0 20px 50px rgba(0, 0, 0, 0.1);
+    --color-tertiary: #6d5e00;
+    --color-tertiary-container: #cbb653;
     
+    --color-background: #faf9fa;
+    --color-surface: #faf9fa;
+    --color-on-surface: #1b1c1d;
+    --color-on-surface-variant: #3c4a45;
+    
+    --color-outline: #6c7a75;
+    --color-outline-variant: #bbcac4;
+    
+    /* SURFACE TIERS (Tonal Shift Strategy) */
+    --surface-lowest:  #ffffff;
+    --surface-low:     #f5f3f4;
+    --surface-mid:     #efedee;
+    --surface-high:    #e9e8e9;
+    --surface-highest: #e3e2e3;
+    
+    /* RADII (Subtle Elegance) */
+    --radius-sm: 2px;
+    --radius-md: 4px;
+    --radius-lg: 8px;
+    --radius-xl: 12px;
+    --radius-pill: 9999px;
+    
+    /* ELEVATION (Depth through tonal layering) */
+    --shadow-editorial: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.03);
+    --shadow-modal: 0 20px 40px rgba(27, 28, 29, 0.06), 0 0 0 1px rgba(27, 28, 29, 0.03);
+    --shadow-primary-glow: 0 10px 25px rgba(0, 107, 90, 0.15);
+    
+    /* SPACING */
     --space-xs: 0.5rem;
     --space-sm: 1rem;
     --space-md: 2rem;
-    --space-lg: 3rem;
-    --space-xl: 5rem;
+    --space-lg: 4rem;
+    --space-xl: 8rem;
 
-    /* ── BASE SURFACES (Legacy Aliases) ── */
-    --bg-deep:     var(--color-bg-primary);
-    --bg-surface:  #ffffff;
-    --bg-elevated: #f1f5f9;
-    --bg-glass:    var(--color-surface-glass);
-
-    /* ── ACCENT PALETTES ── */
-    --accent-teal:        #0ea5e9;
-    --accent-teal-glow:   rgba(14, 165, 233, 0.15);
-    --accent-violet:      #8b5cf6;
-    --accent-violet-glow: rgba(139, 92, 246, 0.15);
-    --accent-gold:        #f59e0b;
-    --accent-gold-deep:   #d97706;
-    --accent-gold-glow:   rgba(245, 158, 11, 0.15);
-    --accent-red:         #ef4444;
-    --accent-red-glow:    rgba(239, 68, 68, 0.15);
-    --accent-cyan:        #06b6d4;
-    --accent-cyan-glow:   rgba(6, 182, 212, 0.15);
-
-    /* ── TEXT ── */
-    --text-pure:   #0f172a;
-    --text-silver: #334155;
-    --text-muted:  #64748b;
-    --text-dim:    #94a3b8;
-
-    /* ── UI TOKENS ── */
-    --glass-border:    rgba(15, 23, 42, 0.08);
-    --glass-blur:      20px;
-    --r-sm:   10px;
-    --r-md:   14px;
-    --r-lg:   20px;
-    --r-xl:   30px;
-    --r-pill: 9999px;
+    /* LEGACY ALIASES (For backward compatibility during migration) */
+    --bg-deep:     var(--color-background);
+    --bg-surface:  var(--color-surface);
+    --bg-elevated: var(--surface-low);
+    --accent-teal: var(--color-primary);
+    --text-pure:   var(--color-on-surface);
+    --text-silver: var(--color-on-surface-variant);
+    --text-muted:  #6c7a75;
     --ease-luxury: cubic-bezier(0.23, 1, 0.32, 1);
-    --shadow-elevated:
-        0 20px 40px rgba(15, 23, 42, 0.08),
-        0 0 0 1px rgba(15, 23, 42, 0.03);
-
-    /* ── AURORA ADMIN TOKENS (Light Panel) ── */
-    --aurora-violet:    #8B5CF6;
-    --aurora-blue:      #3B82F6;
-    --aurora-pink:      #EC4899;
-    --aurora-cyan:      #06B6D4;
-    --aurora-emerald:   #10B981;
-    --aurora-amber:     #F59E0B;
-    --aurora-red:       #EF4444;
-    --aurora-indigo:    #6366F1;
-    --aurora-purple:    #8B5CF6;
-    --aurora-gray:      #6B7280;
-    --aurora-text:      #1e293b;
-    --aurora-text-muted: #64748b;
-    --aurora-bg:        #f8fafc;
-    --aurora-surface:   #ffffff;
-    --aurora-border:    rgba(15, 23, 42, 0.08);
-    --glass-bg:         rgba(255, 255, 255, 0.7);
 }
 
 /* ═══════════════════════════
@@ -99,31 +80,33 @@
 }
 
 body {
-    background-color: var(--bg-deep);
-    color: var(--text-silver);
-    font-family: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
-    line-height: 1.6;
+    background-color: var(--color-background);
+    color: var(--color-on-surface);
+    font-family: "Inter", system-ui, -apple-system, sans-serif;
+    line-height: 1.7; /* Generous editorial leading */
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
-    background-attachment: fixed;
-    background-image:
-        radial-gradient(circle at 10% 20%, rgba(14, 165, 233, 0.06) 0%, transparent 40%),
-        radial-gradient(circle at 90% 10%, rgba(139, 92, 246, 0.06) 0%, transparent 35%),
-        radial-gradient(circle at 50% 90%, rgba(245, 158, 11, 0.04) 0%, transparent 40%);
 }
 
 /* ═══════════════════════════
-   3. TYPOGRAPHY
+   3. TYPOGRAPHY (Editorial Authority)
    ═══════════════════════════ */
-h1, h2, h3, .luxury-serif {
-    font-family: "Playfair Display", serif;
-    color: var(--text-pure);
+h1, h2, h3, h4, .font-serif, .luxury-serif {
+    font-family: "Noto Serif", serif;
+    color: var(--color-on-surface);
     font-weight: 700;
-    letter-spacing: -0.01em;
+    letter-spacing: -0.02em;
+}
+
+.font-label {
+    font-family: "Public Sans", sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    font-weight: 600;
 }
 
 .text-gradient {
-    background: linear-gradient(135deg, #fff 0%, var(--accent-teal) 50%, var(--accent-gold) 100%);
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-container) 100%);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -133,29 +116,22 @@ h1, h2, h3, .luxury-serif {
 .text-xs  { font-size: 0.75rem !important; }
 .text-xxs { font-size: 0.65rem !important; }
 .text-sm  { font-size: 0.875rem !important; }
-
-/* Letter Spacing Utilities */
-.letter-spacing-1 { letter-spacing: 0.05em !important; }
-.letter-spacing-2 { letter-spacing: 0.10em !important; }
-.letter-spacing-3 { letter-spacing: 0.15em !important; }
-.letter-spacing-4 { letter-spacing: 0.20em !important; }
-.letter-spacing-5 { letter-spacing: 0.25em !important; }
+.text-lg  { font-size: 1.125rem !important; }
+.text-xl  { font-size: 1.25rem !important; }
 
 /* ── TEXT COLOR SHORTCUTS ── */
-.text-teal   { color: var(--accent-teal)   !important; }
-.text-gold   { color: var(--accent-gold)   !important; }
-.text-violet { color: var(--accent-violet) !important; }
-.text-red    { color: var(--accent-red)    !important; }
-.text-cyan   { color: var(--accent-cyan)   !important; }
-.text-pure   { color: var(--text-pure)     !important; }
-.text-silver { color: var(--text-silver)   !important; }
-.text-dim    { color: var(--text-dim)      !important; }
-.text-muted  { color: var(--text-muted)    !important; }
-.text-admin  { color: var(--accent-red)    !important; }
+.text-primary { color: var(--color-primary) !important; }
+.text-secondary { color: var(--color-secondary) !important; }
+.text-on-surface { color: var(--color-on-surface) !important; }
+.text-on-surface-variant { color: var(--color-on-surface-variant) !important; }
+.text-teal   { color: var(--color-primary) !important; }
+.text-gold   { color: var(--color-tertiary) !important; }
+.text-pure   { color: var(--color-on-surface) !important; }
+.text-silver { color: var(--color-on-surface-variant) !important; }
 
 /* ── BG SHORTCUTS ── */
-.bg-deep    { background-color: var(--bg-deep)    !important; }
-.bg-surface { background-color: var(--bg-surface) !important; }
+.bg-deep    { background-color: var(--color-background) !important; }
+.bg-surface { background-color: var(--color-surface)    !important; }
 
 /* ═══════════════════════════
    4. GLASS CARD COMPONENT

@@ -28,9 +28,20 @@ final class HomeController extends AbstractController
             $sections['trending'] = $sRepo->findBy([], ['id' => 'DESC'], 6);
         }
 
+        // REDIRECT LOGIC FOR PROFESSIONAL SEPARATION
+        if ($this->isGranted('ROLE_PROVIDER')) {
+            return $this->redirectToRoute('app_provider_dashboard');
+        }
+
         // Guests and Normal Users see the public marketing page
         return $this->render('home/index.html.twig', [
             'sections' => $sections,
         ]);
+    }
+
+    #[Route('/provider/home', name: 'app_provider_home')]
+    public function providerHome(): Response
+    {
+        return $this->render('home/provider_home.html.twig');
     }
 }

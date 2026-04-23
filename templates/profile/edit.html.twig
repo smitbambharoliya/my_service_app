@@ -39,6 +39,25 @@
         font-weight: 800;
         margin-bottom: 30px;
     }
+    .preference-card {
+        background: rgba(255,255,255,0.65);
+        border: 1px solid var(--theme-border);
+        border-radius: 20px;
+        padding: 24px;
+        height: 100%;
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+    .preference-card .pref-title {
+        font-weight: 800;
+        color: var(--theme-text);
+        margin-bottom: 6px;
+    }
+    .preference-card .pref-copy {
+        color: var(--theme-muted);
+        font-size: 0.86rem;
+        line-height: 1.5;
+        margin: 0;
+    }
 </style>
 {% endblock %}
 
@@ -81,6 +100,56 @@
                 <div class="col-md-6">
                     <label class="auth-label">Current Sector</label>
                     <input type="text" class="auth-input" value="India Sector G-Alpha" readonly>
+                </div>
+            </div>
+        </div>
+
+        <div class="identity-section" id="notification-preferences">
+            <h3 class="identity-h3">Notification Relay</h3>
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <div class="preference-card d-flex justify-content-between gap-3">
+                        <div>
+                            <div class="pref-title">In-app booking alerts</div>
+                            <p class="pref-copy">Show booking status changes, cancellations, and estimate activity inside ServiceHub.</p>
+                        </div>
+                        <div class="form-check form-switch m-0">
+                            {{ form_widget(form.bookingInAppNotifications, {'attr': {'class': 'form-check-input'}}) }}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="preference-card d-flex justify-content-between gap-3">
+                        <div>
+                            <div class="pref-title">Email booking alerts</div>
+                            <p class="pref-copy">Receive booking changes by email when providers confirm, dispatch, cancel, or send estimates.</p>
+                        </div>
+                        <div class="form-check form-switch m-0">
+                            {{ form_widget(form.bookingEmailNotifications, {'attr': {'class': 'form-check-input'}}) }}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="preference-card d-flex justify-content-between gap-3">
+                        <div>
+                            <div class="pref-title">In-app message alerts</div>
+                            <p class="pref-copy">Surface new chat messages in the notification center as soon as they arrive.</p>
+                        </div>
+                        <div class="form-check form-switch m-0">
+                            {{ form_widget(form.messageInAppNotifications, {'attr': {'class': 'form-check-input'}}) }}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="preference-card d-flex justify-content-between gap-3">
+                        <div>
+                            <div class="pref-title">Email message alerts</div>
+                            <p class="pref-copy">Receive a quick email nudge when someone sends you a new message.</p>
+                        </div>
+                        <div class="form-check form-switch m-0">
+                            {{ form_widget(form.messageEmailNotifications, {'attr': {'class': 'form-check-input'}}) }}
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

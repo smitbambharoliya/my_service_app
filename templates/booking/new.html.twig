@@ -95,8 +95,8 @@
                             <button type="submit" class="btn btn-lg rounded-3 fw-bold shadow-sm text-white" style="background:linear-gradient(135deg,#1e40af,#2563eb);border:none;padding:14px;">
                                 <i class="fas fa-check-circle me-2"></i>Confirm Booking
                             </button>
-                            <a href="{{ path('app_service_list') }}" class="btn btn-outline-secondary rounded-3">
-                                <i class="fas fa-arrow-left me-1"></i>Back to Services
+                            <a href="{{ path('app_service_show', {id: service.id}) }}" class="btn btn-outline-secondary rounded-3">
+                                <i class="fas fa-arrow-left me-1"></i>Back to Service Details
                             </a>
                         </div>
 

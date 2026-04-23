@@ -7,7 +7,7 @@
         
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;500;600;700&family=Public+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
         
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -19,54 +19,60 @@
             :root {
                 --sb-w: 280px;
                 --tb-h: 70px;
-                --theme-bg: #f8fafc;
+                --theme-bg: #faf9fa;
                 --theme-surface: #ffffff;
                 --theme-border: #e2e8f0;
-                --theme-text: #1e293b;
-                --theme-muted: #64748b;
-                --theme-primary: #3b82f6;
-                --theme-primary-soft: #eff6ff;
+                --theme-text: #1b1c1d;
+                --theme-muted: #3c4a45;
+                --theme-primary: #006b5a;
+                --theme-primary-soft: rgba(0, 107, 90, 0.05);
 
-                /* Override Dark Theme Tokens for Glass Cards */
+                /* Dashboard Tokens */
                 --bg-glass: #ffffff;
                 --glass-border: #e2e8f0;
                 --shadow-elevated: 0 10px 30px rgba(0, 0, 0, 0.03), 0 0 0 1px rgba(0, 0, 0, 0.02);
             }
 
-            h1, h2, h3, h4, h5, h6, .luxury-serif, .text-pure { color: #1e293b !important; }
+            h1, h2, h3, h4, h5, h6, .luxury-serif, .text-pure { 
+                font-family: 'Noto Serif', serif;
+                color: var(--theme-text) !important; 
+            }
             .text-silver { color: #475569 !important; }
             .text-dim { color: var(--theme-muted) !important; }
             
             .btn-luxury {
-                background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+                background: linear-gradient(135deg, #006b5a 0%, #33ccaf 100%);
                 color: #ffffff !important;
                 border: none;
-                border-radius: 8px;
+                border-radius: 50px;
+                font-family: 'Public Sans', sans-serif;
                 font-weight: 700;
-                letter-spacing: 1px;
+                font-size: 0.75rem;
+                letter-spacing: 0.1em;
                 text-transform: uppercase;
-                transition: all 0.3s ease;
-                box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+                transition: all 0.3s var(--ease-luxury);
+                box-shadow: 0 4px 15px rgba(0, 107, 90, 0.2);
             }
             .btn-luxury:hover {
                 transform: translateY(-2px);
-                box-shadow: 0 8px 25px rgba(139, 92, 246, 0.4);
+                box-shadow: 0 8px 25px rgba(0, 107, 90, 0.3);
                 color: #ffffff;
             }
             .btn-outline-luxury {
                 background: transparent;
-                color: #3b82f6 !important;
-                border: 1px solid rgba(59, 130, 246, 0.5);
-                border-radius: 8px;
+                color: var(--theme-primary) !important;
+                border: 1px solid rgba(0, 107, 90, 0.3);
+                border-radius: 50px;
+                font-family: 'Public Sans', sans-serif;
                 font-weight: 700;
-                letter-spacing: 1px;
+                font-size: 0.75rem;
+                letter-spacing: 0.1em;
                 text-transform: uppercase;
-                transition: all 0.3s ease;
+                transition: all 0.3s var(--ease-luxury);
             }
             .btn-outline-luxury:hover {
-                border-color: #8b5cf6;
-                color: #8b5cf6 !important;
-                background: rgba(139, 92, 246, 0.05);
+                border-color: var(--theme-primary);
+                background: rgba(0, 107, 90, 0.05);
             }
 
             body {
@@ -75,76 +81,74 @@
                 display: flex;
                 min-height: 100vh;
                 overflow-x: hidden;
-                font-family: 'Plus Jakarta Sans', sans-serif;
+                font-family: 'Inter', sans-serif;
             }
 
-            /* ── SIDEBAR (Light Mode) ── */
+            /* ── SIDEBAR (Alexandria Style) ── */
             #sidebar {
                 width: var(--sb-w);
-                background: var(--theme-surface);
+                background: #ffffff;
                 border-right: 1px solid var(--theme-border);
                 display: flex;
                 flex-direction: column;
                 position: fixed; top: 0; left: 0; bottom: 0;
                 z-index: 1000;
-                transition: transform 0.4s ease;
-                box-shadow: 2px 0 10px rgba(0,0,0,0.02);
+                transition: transform 0.4s var(--ease-luxury);
             }
 
             .sb-brand {
                 height: var(--tb-h);
                 display: flex; align-items: center; padding: 0 30px;
-                font-family: 'Plus Jakarta Sans', sans-serif;
-                font-weight: 800; font-size: 1.4rem; color: var(--theme-text);
+                font-family: 'Noto Serif', serif;
+                font-weight: 700; font-size: 1.5rem; color: var(--theme-text);
                 border-bottom: 1px solid var(--theme-border);
-                letter-spacing: -0.5px;
+                letter-spacing: -0.02em;
             }
-            .sb-brand span { color: var(--theme-primary); }
+            .sb-brand span { color: var(--theme-primary); font-style: italic; }
 
             .sb-user-card {
                 padding: 30px;
-                background: var(--theme-bg);
+                background: #faf9fa;
                 border-bottom: 1px solid var(--theme-border);
             }
             
             .sb-user-orb {
                 width: 60px; height: 60px;
-                border-radius: 16px;
-                background: linear-gradient(135deg, #dbeafe, #eff6ff);
+                border-radius: 50%;
+                background: linear-gradient(135deg, #006b5a, #33ccaf);
                 margin-bottom: 20px;
                 display: flex; align-items: center; justify-content: center;
-                font-family: 'Plus Jakarta Sans', sans-serif;
-                font-weight: 800; color: var(--theme-primary); font-size: 1.8rem;
-                border: 1px solid #bfdbfe;
-                box-shadow: 0 4px 10px rgba(59, 130, 246, 0.1);
+                font-family: 'Noto Serif', serif;
+                font-weight: 700; color: #ffffff; font-size: 1.8rem;
+                border: 2px solid #ffffff;
+                box-shadow: 0 4px 15px rgba(0, 107, 90, 0.1);
             }
-            .sb-user-info .name { color: var(--theme-text); font-weight: 800; font-size: 1.05rem; margin-bottom: 2px; }
+            .sb-user-info .name { color: var(--theme-text); font-weight: 700; font-size: 1.1rem; margin-bottom: 2px; }
             .sb-user-info .tier-label { 
-                font-size: 0.65rem; color: var(--theme-muted); 
+                font-family: 'Public Sans', sans-serif;
+                font-size: 0.6rem; color: var(--theme-muted); 
                 text-transform: uppercase; letter-spacing: 0.15em; font-weight: 800; 
             }
 
-            /* Gamification Tracker */
+            /* Gamification Tracker (Alexandria Emerald) */
             .gamify-mini {
-                margin-top: 20px;
-                background: var(--theme-surface);
+                margin-top: 24px;
+                background: #ffffff;
                 padding: 15px;
                 border-radius: 12px;
                 border: 1px solid var(--theme-border);
-                box-shadow: 0 2px 8px rgba(0,0,0,0.02);
             }
             .gamify-progress-bar {
-                height: 6px;
+                height: 4px;
                 background: #f1f5f9;
-                border-radius: 6px;
+                border-radius: 4px;
                 margin: 10px 0;
                 overflow: hidden;
             }
             .gamify-progress-fill {
                 height: 100%;
-                background: linear-gradient(90deg, #3b82f6, #8b5cf6);
-                position: relative;
-                border-radius: 6px;
+                background: linear-gradient(90deg, #006b5a, #33ccaf);
+                border-radius: 4px;
             }
 
             /* Navigation Links */
@@ -153,36 +157,37 @@
             .sb-nav::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 5px; }
 
             .sb-nav-label { 
-                font-size: 0.65rem; font-weight: 800; color: #94a3b8; 
-                text-transform: uppercase; letter-spacing: 0.15em; margin: 30px 0 10px 15px; 
+                font-family: 'Public Sans', sans-serif;
+                font-size: 0.6rem; font-weight: 800; color: #94a3b8; 
+                text-transform: uppercase; letter-spacing: 0.2em; margin: 30px 0 10px 15px; 
             }
             
             .sb-link {
                 display: flex; align-items: center; gap: 15px;
                 padding: 12px 15px; border-radius: 12px;
-                color: var(--theme-muted); font-weight: 600; font-size: 0.88rem;
+                color: var(--theme-muted); font-weight: 500; font-size: 0.9rem;
                 transition: all 0.2s;
                 margin-bottom: 5px;
                 text-decoration: none;
             }
-            .sb-link i { font-size: 1.1rem; width: 22px; color: #94a3b8; transition: all 0.2s; text-align: center; }
+            .sb-link i { font-size: 1rem; width: 22px; color: #94a3b8; transition: all 0.2s; text-align: center; }
             .sb-link:hover { 
-                background: var(--theme-bg);
+                background: #faf9fa;
                 color: var(--theme-text);
-                transform: translateX(4px);
             }
             .sb-link:hover i { color: var(--theme-primary); }
             
             .sb-link.active {
                 background: var(--theme-primary-soft);
-                color: #1d4ed8;
+                color: var(--theme-primary);
                 font-weight: 700;
-                border: 1px solid #bfdbfe;
-                box-shadow: 0 4px 10px rgba(59, 130, 246, 0.05);
+                border-left: 3px solid var(--theme-primary);
+                border-radius: 0 12px 12px 0;
             }
-            .sb-link.active i { color: var(--theme-primary); transform: scale(1.1); }
+            .sb-link.active i { color: var(--theme-primary); }
             
-            .text-red { color: #ef4444 !important; }
+            .text-red { color: #dc2626 !important; }
+            .text-red:hover { background: #fef2f2 !important; }
             .text-red:hover { background: #fef2f2 !important; color: #dc2626 !important; }
             .text-red:hover i { color: #ef4444 !important; }
 
@@ -275,36 +280,53 @@
         </div>
 
         <nav class="sb-nav">
-            <div class="sb-nav-label">Core Protocol</div>
-            <a href="{{ path('app_home') }}" class="sb-link">
+            <div class="sb-nav-label">MAIN MENU</div>
+            {% set homeUrl = is_granted('ROLE_PROVIDER') ? path('app_provider_home') : path('app_home') %}
+            <a href="{{ homeUrl }}" class="sb-link">
                 <i class="fa-solid fa-house-chimney"></i> Home
             </a>
             
-            <a href="{{ path('app_service_list') }}" class="sb-link">
-                <i class="fa-solid fa-book-journal-whills"></i> Registry
-            </a>
+            {% if not is_granted('ROLE_PROVIDER') %}
+                <a href="{{ path('app_service_list') }}" class="sb-link">
+                    <i class="fa-solid fa-book-journal-whills"></i> All Services
+                </a>
+            {% endif %}
             
-            {% set curationUrl = is_granted('ROLE_PROVIDER') ? path('app_provider_my_services') : path('app_booking_my_bookings') %}
-            {% set isCurationActive = app.request.get('_route') in ['app_provider_my_services', 'app_booking_my_bookings'] %}
-            <a href="{{ curationUrl }}" class="sb-link {{ isCurationActive ? 'active' : '' }}">
-                <i class="fa-solid fa-layer-group"></i> Curation
-            </a>
-            
-            <a href="{{ path('app_customer_dashboard') }}" class="sb-link {{ app.request.get('_route') == 'app_customer_dashboard' ? 'active' : '' }}">
-                <i class="fa-solid fa-book-open"></i> Manifest
+            {% if is_granted('ROLE_PROVIDER') %}
+                <a href="{{ path('app_provider_my_services') }}" class="sb-link {{ app.request.get('_route') == 'app_provider_my_services' ? 'active' : '' }}">
+                    <i class="fa-solid fa-layer-group"></i> My Services
+                </a>
+                <a href="{{ path('app_provider_dashboard') }}" class="sb-link {{ app.request.get('_route') == 'app_provider_dashboard' ? 'active' : '' }}">
+                    <i class="fa-solid fa-book-open"></i> Dashboard
+                </a>
+            {% else %}
+                <a href="{{ path('app_booking_my_bookings') }}" class="sb-link {{ app.request.get('_route') == 'app_booking_my_bookings' ? 'active' : '' }}">
+                    <i class="fa-solid fa-layer-group"></i> My Bookings
+                </a>
+                <a href="{{ path('app_customer_dashboard') }}" class="sb-link {{ app.request.get('_route') == 'app_customer_dashboard' ? 'active' : '' }}">
+                    <i class="fa-solid fa-book-open"></i> My Dashboard
+                </a>
+            {% endif %}
+
+            <a href="{{ path('app_message_inbox') }}" class="sb-link {{ app.request.get('_route') starts with 'app_message_' ? 'active' : '' }}">
+                <i class="fa-regular fa-message"></i> Messages
             </a>
 
-            <div class="sb-nav-label">Identity</div>
+            <a href="{{ path('app_notification_index') }}" class="sb-link {{ app.request.get('_route') starts with 'app_notification_' ? 'active' : '' }}">
+                <i class="fa-regular fa-bell"></i> Alerts
+            </a>
+
+            <div class="sb-nav-label">MY PROFILE</div>
             <a href="{{ path('app_profile') }}" class="sb-link {{ app.request.get('_route') == 'app_profile' ? 'active' : '' }}">
-                <i class="fa-regular fa-id-badge"></i> Heritage
+                <i class="fa-regular fa-id-badge"></i> Profile Settings
             </a>
             <a href="{{ path('app_billing_index') }}" class="sb-link {{ app.request.get('_route') == 'app_billing_index' ? 'active' : '' }}">
-                <i class="fa-solid fa-vault"></i> Exchequer
+                <i class="fa-solid fa-vault"></i> Billing & Payments
             </a>
 
-            <div class="sb-nav-label">Protocol</div>
+            <div class="sb-nav-label">ACCOUNT</div>
             <a href="{{ path('app_logout') }}" class="sb-link text-red">
-                <i class="fa-solid fa-power-off"></i> Cease Session
+                <i class="fa-solid fa-power-off"></i> Sign Out
             </a>
         </nav>
     </aside>
@@ -318,6 +340,9 @@
                 <div class="page-title-luxury">{% block page_title %}Dashboard{% endblock %}</div>
             </div>
             <div class="d-flex align-items-center gap-4">
+                {% if app.user %}
+                    {% include 'partials/_notification_bell.html.twig' %}
+                {% endif %}
                 <div class="d-flex align-items-center gap-2 text-dim fw-bold" style="font-size: 0.65rem; letter-spacing: 0.1em;">
                     <i class="fa-solid fa-fingerprint"></i> PROTOCOL v2.4
                 </div>

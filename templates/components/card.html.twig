@@ -6,16 +6,16 @@
   style (string) => 'glass' | 'aurora'
 #}
 {% set c_style = style|default('glass') %}
-{% set base_class = c_style == 'glass' ? 'glass-card' : 'aurora-card' %}
+{% set base_class = c_style == 'glass' ? 'bg-white rounded-xl shadow-editorial border border-outline-variant/15 overflow-hidden' : 'aurora-card' %}
 
 <div class="{{ base_class }} {{ class|default('') }}">
     {% if title is defined and title %}
-        <div class="card-header-custom border-bottom border-secondary pb-3 mb-3">
-            <h3 class="title m-0 p-0 text-white">{{ title }}</h3>
+        <div class="px-6 py-4 bg-surface-low border-b border-outline-variant/10">
+            <h3 class="font-serif text-xl m-0 p-0 text-on-surface">{{ title }}</h3>
         </div>
     {% endif %}
     
-    <div class="card-body">
+    <div class="px-6 py-5">
         {% block content %}{% endblock %}
     </div>
 </div>

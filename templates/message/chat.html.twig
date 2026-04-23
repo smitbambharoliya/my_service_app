@@ -55,25 +55,26 @@
         <div class="text-center text-muted mb-4 font-inter" style="font-size:0.8rem;">
             Conversation directly with {{ contact.email }} started. Messages are actively monitored for safety.
         </div>
-        
-        {# Messages loaded here via Twig initially, then updated via AJAX #}
-        {% for msg in conversation %}
-            {% if msg.sender.id == app.user.id %}
-                <div class="msg-bubble msg-sent">
-                    {{ msg.content|nl2br }}
-                    <div class="msg-time">{{ msg.createdAt|date('H:i') }} <i class="fas fa-check-double ms-1 {{ msg.isRead ? 'text-white' : 'opacity-50' }}"></i></div>
-                </div>
-            {% else %}
-                <div class="msg-bubble msg-rcvd">
-                    {{ msg.content|nl2br }}
-                    <div class="msg-time">{{ msg.createdAt|date('H:i') }}</div>
-                </div>
-            {% endif %}
-        {% endfor %}
+        <div id="chatMessages">
+            {% for msg in conversation %}
+                {% if msg.sender.id == app.user.id %}
+                    <div class="msg-bubble msg-sent">
+                        {{ msg.content|nl2br }}
+                        <div class="msg-time">{{ msg.createdAt|date('H:i') }} <i class="fas fa-check-double ms-1 {{ msg.isRead ? 'text-white' : 'opacity-50' }}"></i></div>
+                    </div>
+                {% else %}
+                    <div class="msg-bubble msg-rcvd">
+                        {{ msg.content|nl2br }}
+                        <div class="msg-time">{{ msg.createdAt|date('H:i') }}</div>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
     </div>
 
     <div class="chat-footer">
-        <form class="chat-form" id="msgForm">
+        <form class="chat-form" id="msgForm" method="post" action="{{ path('app_message_chat', {'id': contact.id}) }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('send_message' ~ contact.id) }}">
             <input type="text" id="msgInput" class="chat-input" placeholder="Type a message..." autocomplete="off">
             <button type="submit" class="send-btn" id="sendBtn" title="Send (Enter)"><i class="fas fa-paper-plane"></i></button>
         </form>
@@ -86,11 +87,13 @@
 <script>
 document.addEventListener('DOMContentLoaded', () => {
     const chatContainer = document.getElementById('chatContainer');
+    const chatMessages = document.getElementById('chatMessages');
     const msgForm = document.getElementById('msgForm');
     const msgInput = document.getElementById('msgInput');
     const sendBtn = document.getElementById('sendBtn');
     const contactId = '{{ contact.id }}';
     const currentUserId = '{{ app.user.id }}';
+    const csrfToken = '{{ csrf_token('send_message' ~ contact.id) }}';
 
     // Auto-scroll to bottom on load
     chatContainer.scrollTop = chatContainer.scrollHeight;
@@ -98,26 +101,37 @@ document.addEventListener('DOMContentLoaded', () => {
     // Smart AJAX Polling for real-time messages
     let pollingInterval = null;
 
+    function escapeHtml(value) {
+        return value
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
+
+    function renderConversation(messages) {
+        chatMessages.innerHTML = messages.map((msg) => {
+            const sentByCurrentUser = String(msg.senderId) === String(currentUserId);
+            const bubbleClass = sentByCurrentUser ? 'msg-bubble msg-sent' : 'msg-bubble msg-rcvd';
+            const checkIcon = sentByCurrentUser ? `<i class="fas fa-check-double ms-1 ${msg.isRead ? 'text-white' : 'opacity-50'}"></i>` : '';
+
+            return `
+                <div class="${bubbleClass}">
+                    ${escapeHtml(msg.content).replace(/\n/g, '<br>')}
+                    <div class="msg-time">${escapeHtml(msg.time)} ${checkIcon}</div>
+                </div>
+            `;
+        }).join('');
+
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
     function pollMessages() {
         fetch(`{{ path('api_message_poll', {'id': contact.id}) }}`)
             .then(res => res.json())
             .then(data => {
-                // To keep it simple, if new length is > current DOM count, append the new ones
-                const currentCount = chatContainer.querySelectorAll('.msg-bubble').length;
-                if(data.messages.length > currentCount) {
-                    const newMessages = data.messages.slice(currentCount);
-                    newMessages.forEach(msg => {
-                        const div = document.createElement('div');
-                        div.className = `msg-bubble ${msg.senderId == currentUserId ? 'msg-sent' : 'msg-rcvd'}`;
-                        const checkIcon = msg.senderId == currentUserId ? `<i class="fas fa-check-double ms-1 ${msg.isRead ? 'text-white':'opacity-50'}"></i>` : '';
-                        div.innerHTML = `
-                            ${msg.content.replace(/\n/g, '<br>')}
-                            <div class="msg-time">${msg.time} ${checkIcon}</div>
-                        `;
-                        chatContainer.appendChild(div);
-                    });
-                    chatContainer.scrollTop = chatContainer.scrollHeight;
-                }
+                renderConversation(data.messages || []);
             })
             .catch(err => console.error("Poll Error:", err));
     }
@@ -136,24 +150,30 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
         const content = msgInput.value.trim();
         if(!content) return;
-
-        // Optimistically add to UI immediately to feel fast
-        const optDiv = document.createElement('div');
-        optDiv.className = 'msg-bubble msg-sent';
-        const rawTime = new Date().toLocaleTimeString('en-US', {hour12: false, hour: "numeric", minute: "numeric"});
-        optDiv.innerHTML = `${content.replace(/\n/g, '<br>')} <div class="msg-time">${rawTime} <i class="fas fa-clock ms-1 opacity-50"></i></div>`;
-        chatContainer.appendChild(optDiv);
-        chatContainer.scrollTop = chatContainer.scrollHeight;
-        
-        msgInput.value = '';
-        msgInput.focus();
+        sendBtn.disabled = true;
 
         // Send via API
         fetch(`{{ path('api_message_send', {'id': contact.id}) }}`, {
             method: 'POST',
-            headers: {'Content-Type': 'application/json'},
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken
+            },
             body: JSON.stringify({ content: content })
-        }).then(() => pollMessages()); // Force poll to sync state
+        })
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error('Unable to send message');
+                }
+
+                msgInput.value = '';
+                msgInput.focus();
+                return pollMessages();
+            })
+            .catch((error) => console.error('Send Error:', error))
+            .finally(() => {
+                sendBtn.disabled = false;
+            });
     });
 });
 </script>

@@ -1,0 +1,141 @@
+<style>
+    .notification-shell .notification-button {
+        width: 42px;
+        height: 42px;
+        border-radius: 14px;
+        border: 1px solid rgba(148, 163, 184, 0.25);
+        background: rgba(255,255,255,0.82);
+        color: #334155;
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 12px 24px rgba(15, 23, 42, 0.05);
+    }
+    .notification-shell .notification-button:hover {
+        color: #0f172a;
+        border-color: rgba(59, 130, 246, 0.4);
+        background: #ffffff;
+    }
+    .notification-shell .notification-badge {
+        position: absolute;
+        top: -4px;
+        right: -4px;
+        min-width: 20px;
+        height: 20px;
+        padding: 0 6px;
+        border-radius: 999px;
+        background: #ef4444;
+        color: #ffffff;
+        font-size: 0.68rem;
+        font-weight: 800;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 10px 18px rgba(239, 68, 68, 0.3);
+    }
+    .notification-shell .notification-menu {
+        width: min(380px, calc(100vw - 32px));
+        border: 1px solid rgba(226, 232, 240, 0.9);
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 30px 60px rgba(15, 23, 42, 0.12);
+    }
+    .notification-shell .notification-item {
+        display: block;
+        padding: 16px 18px;
+        text-decoration: none;
+        color: inherit;
+        border-top: 1px solid rgba(226, 232, 240, 0.8);
+        transition: background 0.2s ease;
+    }
+    .notification-shell .notification-item:hover {
+        background: #f8fafc;
+    }
+    .notification-shell .notification-item.unread {
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.08), rgba(255, 255, 255, 0.98));
+    }
+</style>
+
+<div class="dropdown notification-shell" data-notification-widget>
+    <button class="notification-button btn btn-link text-decoration-none p-0" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Notifications">
+        <i class="fa-regular fa-bell"></i>
+        <span class="notification-badge" data-notification-count>0</span>
+    </button>
+
+    <div class="dropdown-menu dropdown-menu-end notification-menu p-0">
+        <div class="px-4 py-3 d-flex align-items-center justify-content-between bg-white">
+            <div>
+                <div class="fw-bold text-dark">Notifications</div>
+                <div class="text-muted" style="font-size: 0.78rem;">Live updates from bookings and messages</div>
+            </div>
+            <a href="{{ path('app_notification_index') }}" class="text-decoration-none fw-semibold" style="font-size: 0.8rem;">View all</a>
+        </div>
+        <div data-notification-list>
+            <div class="px-4 py-4 text-muted" style="font-size: 0.88rem;">Loading notifications...</div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const widget = document.querySelector('[data-notification-widget]');
+    if (!widget) {
+        return;
+    }
+
+    const countBadge = widget.querySelector('[data-notification-count]');
+    const list = widget.querySelector('[data-notification-list]');
+    const summaryUrl = '{{ path('app_notification_summary') }}';
+
+    function escapeHtml(value) {
+        return value
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
+
+    function renderNotifications(data) {
+        const count = Number(data.count || 0);
+        countBadge.textContent = count > 99 ? '99+' : String(count);
+        countBadge.style.display = count > 0 ? 'inline-flex' : 'none';
+
+        if (!data.notifications || data.notifications.length === 0) {
+            list.innerHTML = '<div class="px-4 py-4 text-muted" style="font-size: 0.88rem;">No notifications yet.</div>';
+            return;
+        }
+
+        list.innerHTML = data.notifications.map((notification) => `
+            <a href="${notification.visitUrl}" class="notification-item ${notification.isRead ? '' : 'unread'}">
+                <div class="d-flex justify-content-between gap-3 mb-1">
+                    <div class="fw-semibold text-dark">${escapeHtml(notification.title)}</div>
+                    <div class="text-muted flex-shrink-0" style="font-size: 0.72rem;">${escapeHtml(notification.createdAt || '')}</div>
+                </div>
+                <div class="text-muted" style="font-size: 0.82rem; line-height: 1.45;">${escapeHtml(notification.message)}</div>
+            </a>
+        `).join('');
+    }
+
+    async function loadNotifications() {
+        try {
+            const response = await fetch(summaryUrl, {
+                headers: {'X-Requested-With': 'XMLHttpRequest'}
+            });
+
+            if (!response.ok) {
+                throw new Error('Unable to fetch notifications');
+            }
+
+            renderNotifications(await response.json());
+        } catch (error) {
+            list.innerHTML = '<div class="px-4 py-4 text-danger" style="font-size: 0.88rem;">Unable to load notifications right now.</div>';
+        }
+    }
+
+    widget.querySelector('[data-bs-toggle="dropdown"]').addEventListener('click', loadNotifications);
+    loadNotifications();
+    setInterval(loadNotifications, 20000);
+});
+</script>

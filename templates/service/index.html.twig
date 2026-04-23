@@ -8,7 +8,6 @@
 <style>
     body { background: #f3f4f6; color: #0f172a; font-family: 'Plus Jakarta Sans', sans-serif; }
 
-    /* ── LAYOUT ── */
     .ultimate-container {
         display: flex;
         max-width: 1600px;
@@ -17,7 +16,6 @@
         gap: 3rem;
     }
 
-    /* ── SIDEBAR ── */
     .ultimate-sidebar {
         width: 320px;
         flex-shrink: 0;
@@ -66,34 +64,6 @@
         display: block;
     }
 
-    .toggle-group {
-        display: flex;
-        border: 1px solid #e2e8f0;
-        border-radius: 8px;
-        overflow: hidden;
-    }
-
-    .toggle-btn {
-        flex: 1;
-        background: transparent;
-        border: none;
-        padding: 10px;
-        font-size: 0.8rem;
-        font-weight: 600;
-        color: #64748b;
-        cursor: pointer;
-        transition: all 0.2s;
-    }
-
-    .toggle-btn.active {
-        background: #1e293b;
-        color: white;
-    }
-
-    .toggle-btn:not(:last-child) {
-        border-right: 1px solid #e2e8f0;
-    }
-
     .ultimate-checkbox {
         display: flex;
         align-items: center;
@@ -125,7 +95,8 @@
         color: white;
         font-size: 12px;
         position: absolute;
-        top: 50%; left: 50%;
+        top: 50%;
+        left: 50%;
         transform: translate(-50%, -50%);
     }
 
@@ -135,7 +106,6 @@
         font-weight: 500;
     }
 
-    /* ── MAIN CONTENT ── */
     .ultimate-main {
         flex: 1;
         min-width: 0;
@@ -163,16 +133,19 @@
         color: #475569;
     }
 
-    .sort-actions span { cursor: pointer; display: flex; align-items: center; gap: 8px;}
+    .sort-actions span {
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
 
-    /* ── GRID ── */
     .ultimate-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
         gap: 2rem;
     }
 
-    /* ── CARDS ── */
     .ultimate-card {
         background: #ffffff;
         border-radius: 12px;
@@ -209,17 +182,13 @@
     }
 
     .meta-left i { color: #94a3b8; }
-    .meta-left .fa-star { color: #eab308; }
     .meta-left .time { color: #94a3b8; font-weight: 500; }
     .meta-left .reviews { color: #94a3b8; font-weight: 500; }
 
     .meta-right i {
-        font-size: 1.2rem;
+        font-size: 1.1rem;
         color: #94a3b8;
-        transition: color 0.2s;
     }
-
-    .meta-right i:hover { color: #ef4444; }
 
     .card-image-box {
         width: 100%;
@@ -259,8 +228,10 @@
         font-weight: 500;
     }
 
-    .price-block { text-align: right; }
-    
+    .price-block {
+        text-align: right;
+    }
+
     .price-block strong {
         font-size: 1.2rem;
         font-weight: 800;
@@ -273,17 +244,32 @@
         font-weight: 500;
     }
 
-    /* ── MAP TOGGLE & LIVE MAP ── */
     #mapContainer {
-        position: fixed; inset: 0; z-index: 45; width: 100%; height: 100vh;
+        position: fixed;
+        inset: 0;
+        z-index: 45;
+        width: 100%;
+        height: 100vh;
         display: none;
     }
-    #mapContainer.active { display: block; }
-    
+
+    #mapContainer.active {
+        display: block;
+    }
+
     .map-close-btn {
-        position: absolute; top: 30px; left: 30px; z-index: 50;
-        width: 50px; height: 50px; border-radius: 12px; background: rgba(0, 0, 0, 0.6);
-        color: white; font-size: 1.5rem; cursor: pointer; border: none;
+        position: absolute;
+        top: 30px;
+        left: 30px;
+        z-index: 50;
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        background: rgba(0, 0, 0, 0.6);
+        color: white;
+        font-size: 1.5rem;
+        cursor: pointer;
+        border: none;
     }
 
     @media (max-width: 1024px) {
@@ -295,14 +281,13 @@
 
 {% block body %}
 <div class="ultimate-container">
-    {# ── SIDEBAR ── #}
     <aside class="ultimate-sidebar">
         <form action="{{ path('app_service_list') }}" method="GET" id="filterForm">
             <div class="filter-header">
                 <h4>Filter by</h4>
                 <a href="{{ path('app_service_list') }}" class="reset-btn" style="text-decoration:none; display:inline-block;">Reset all &times;</a>
             </div>
-            
+
             <div class="filter-group" style="margin-top: 1rem;">
                 <label class="filter-label">CATEGORY</label>
                 <label class="ultimate-checkbox">
@@ -310,10 +295,10 @@
                     <span>All Services</span>
                 </label>
                 {% for cat in all_categories %}
-                <label class="ultimate-checkbox">
-                    <input type="radio" name="category" value="{{ cat.id }}" onchange="this.form.submit()" {{ active_category == cat.id ? 'checked' : '' }}>
-                    <span>{{ cat.name }}</span>
-                </label>
+                    <label class="ultimate-checkbox">
+                        <input type="radio" name="category" value="{{ cat.id }}" onchange="this.form.submit()" {{ active_category == cat.id ? 'checked' : '' }}>
+                        <span>{{ cat.name }}</span>
+                    </label>
                 {% endfor %}
             </div>
 
@@ -379,10 +364,9 @@
         </form>
     </aside>
 
-    {# ── MAIN ── #}
     <main class="ultimate-main">
         <div class="ultimate-topbar">
-            <h2>{{ services|length }} services to rent</h2>
+            <h2>{{ services|length }} services available</h2>
             <div class="sort-actions">
                 <span>Closest to me <i class="fas fa-chevron-down" style="font-size:0.8rem; margin-left:4px;"></i></span>
                 <span onclick="toggleMap()" style="color: #64748b;"><i class="fas fa-map" style="color: #0f172a;"></i> Show map <i class="fas fa-columns" style="color: #0f172a;"></i></span>
@@ -392,36 +376,36 @@
         <div class="ultimate-grid">
             {% if services is defined and services|length > 0 %}
                 {% for service in services %}
-                <div class="ultimate-card" onclick="openBookingModal('{{ service.id }}', '{{ service.title|escape('html_attr') }}', {{ service.price }})">
-                    <div class="card-header">
-                        <div class="meta-left">
-                            <i class="fas fa-walking"></i> {{ random(50, 400) }}m <span class="time">({{ random(2, 10) }} min)</span>
-                            <span style="margin: 0 4px; color: #e2e8f0;">|</span>
-                            <i class="fas fa-star"></i> 4.{{ random(5, 9) }} <span class="reviews">({{ random(40, 200) }})</span>
+                    <a href="{{ path('app_service_show', {id: service.id}) }}" class="ultimate-card text-decoration-none">
+                        <div class="card-header">
+                            <div class="meta-left">
+                                <i class="fas fa-walking"></i> {{ random(50, 400) }}m <span class="time">({{ random(2, 10) }} min)</span>
+                                <span style="margin: 0 4px; color: #e2e8f0;">|</span>
+                                <i class="fas fa-user-tie"></i> <span class="reviews">{{ service.provider ? service.provider.tier : 'Verified' }}</span>
+                            </div>
+                            <div class="meta-right">
+                                <i class="fas fa-arrow-up-right-from-square"></i>
+                            </div>
                         </div>
-                        <div class="meta-right">
-                            <i class="far fa-heart"></i>
+
+                        <div class="card-image-box">
+                            {% if service.image %}
+                                <img src="{{ asset('uploads/services/' ~ service.image) }}" style="border-radius: 8px;" alt="{{ service.title }}">
+                            {% else %}
+                                <img src="https://images.unsplash.com/photo-1581578731548-c64695cc6952?q=80&w=600&auto=format&fit=crop" style="border-radius: 8px;" alt="{{ service.title }}">
+                            {% endif %}
                         </div>
-                    </div>
-                    
-                    <div class="card-image-box">
-                        {% if service.image %}
-                            <img src="{{ asset('uploads/services/' ~ service.image) }}" style="border-radius: 8px;" alt="{{ service.title }}">
-                        {% else %}
-                            <img src="https://images.unsplash.com/photo-1581578731548-c64695cc6952?q=80&w=600&auto=format&fit=crop" style="border-radius: 8px;" alt="{{ service.title }}">
-                        {% endif %}
-                    </div>
-                    
-                    <div class="card-footer">
-                        <div class="info-block">
-                            <h4>{{ service.title }}</h4>
-                            <p>{{ service.category ? service.category.name : 'Premium Service' }}</p>
+
+                        <div class="card-footer">
+                            <div class="info-block">
+                                <h4>{{ service.title }}</h4>
+                                <p>{{ service.provider ? service.provider.fullName : 'Service Provider' }} · {{ service.category ? service.category.name : 'Premium Service' }}</p>
+                            </div>
+                            <div class="price-block">
+                                <strong>₹{{ service.price|number_format(2) }}</strong> <span>View details</span>
+                            </div>
                         </div>
-                        <div class="price-block">
-                            <strong>₹{{ service.price|number_format(2) }}</strong> <span>/ hour</span>
-                        </div>
-                    </div>
-                </div>
+                    </a>
                 {% endfor %}
             {% else %}
                 <div style="grid-column: 1/-1; text-align: center; padding: 4rem;">
@@ -433,112 +417,15 @@
     </main>
 </div>
 
-{# ── LEAFLET MAP CONTAINER ── #}
 <div id="mapContainer">
     <button class="map-close-btn" onclick="toggleMap()">
         <i class="fas fa-times"></i>
     </button>
 </div>
 
-{# ── BOOKING MODAL (PRESERVED LOGIC) ── #}
-<div id="bookingModal" style="opacity: 0; visibility: hidden; transition: all 0.3s; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 100; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(5px);">
-    <div style="background: white; border-radius: 20px; padding: 2rem; width: 100%; max-width: 500px; box-shadow: 0 20px 40px rgba(0,0,0,0.2);">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-            <h2 style="margin: 0; font-size: 1.5rem; font-weight: 700;">Complete Your Booking</h2>
-            <button onclick="closeBookingModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #94a3b8;">&times;</button>
-        </div>
-
-        <div id="bookingSteps">
-            {# Step 1: Confirm Service #}
-            <div class="booking-step" id="step1">
-                <div id="serviceInfo" style="margin-bottom: 2rem; padding: 1.5rem; background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0;"></div>
-                <button onclick="nextStep()" style="width: 100%; padding: 12px; background: #0f172a; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">Continue</button>
-            </div>
-
-            {# Step 2: Select Date & Time #}
-            <div class="booking-step" id="step2" style="display: none;">
-                <div style="margin-bottom: 1.5rem;">
-                    <label style="display: block; margin-bottom: 0.5rem; color: #475569; font-weight: 600;">Preferred Date</label>
-                    <input type="date" id="bookingDate" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #cbd5e1; outline: none;">
-                </div>
-                <div style="margin-bottom: 2rem;">
-                    <label style="display: block; margin-bottom: 0.5rem; color: #475569; font-weight: 600;">Preferred Time</label>
-                    <input type="time" id="bookingTime" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #cbd5e1; outline: none;">
-                </div>
-                <div style="display: flex; gap: 1rem;">
-                    <button onclick="prevStep()" style="flex: 1; padding: 12px; background: white; border: 1px solid #cbd5e1; color: #475569; border-radius: 8px; font-weight: 600; cursor: pointer;">Back</button>
-                    <button onclick="nextStep()" style="flex: 1; padding: 12px; background: #0f172a; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">Continue</button>
-                </div>
-            </div>
-
-            {# Step 3: Special Requests #}
-            <div class="booking-step" id="step3" style="display: none;">
-                <div style="margin-bottom: 2rem;">
-                    <label style="display: block; margin-bottom: 0.5rem; color: #475569; font-weight: 600;">Additional Notes</label>
-                    <textarea id="bookingNotes" rows="4" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #cbd5e1; outline: none;" placeholder="Any specific preferences or special requests..."></textarea>
-                </div>
-                <div style="display: flex; gap: 1rem;">
-                    <button onclick="prevStep()" style="flex: 1; padding: 12px; background: white; border: 1px solid #cbd5e1; color: #475569; border-radius: 8px; font-weight: 600; cursor: pointer;">Back</button>
-                    <button onclick="submitBooking()" style="flex: 1; padding: 12px; background: #10b981; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">Complete Booking</button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-    let currentStep = 1;
-    let selectedService = { id: null, name: null, price: null };
     let map = null;
-
-    function openBookingModal(serviceId, serviceName, price = 0) {
-        selectedService = { id: serviceId, name: serviceName, price: price };
-        document.getElementById('serviceInfo').innerHTML = `
-            <p style="margin: 0 0 8px 0; color: #64748b; font-size: 0.9rem;">SELECTED SERVICE</p>
-            <h3 style="margin: 0 0 12px 0; color: #0f172a;">${serviceName}</h3>
-            <div style="display: flex; justify-content: space-between; border-top: 1px solid #e2e8f0; padding-top: 12px;">
-                <span style="color: #475569; font-weight: 600;">Estimated Cost</span>
-                <strong style="color: #0f172a; font-size: 1.1rem;">₹${price}</strong>
-            </div>
-        `;
-        const modal = document.getElementById('bookingModal');
-        modal.style.opacity = '1';
-        modal.style.visibility = 'visible';
-        currentStep = 1;
-        showStep(1);
-    }
-
-    function closeBookingModal() {
-        const modal = document.getElementById('bookingModal');
-        modal.style.opacity = '0';
-        modal.style.visibility = 'hidden';
-    }
-
-    function showStep(step) {
-        document.querySelectorAll('.booking-step').forEach(s => s.style.display = 'none');
-        document.getElementById('step' + step).style.display = 'block';
-    }
-
-    function nextStep() {
-        if (currentStep < 3) {
-            currentStep++;
-            showStep(currentStep);
-        }
-    }
-
-    function prevStep() {
-        if (currentStep > 1) {
-            currentStep--;
-            showStep(currentStep);
-        }
-    }
-
-    function submitBooking() {
-        alert('Booking initiated! Proceeding to tracking/checkout...');
-        closeBookingModal();
-        window.location.href = "{{ path('app_customer_dashboard') }}";
-    }
 
     function toggleMap() {
         const mapContainer = document.getElementById('mapContainer');

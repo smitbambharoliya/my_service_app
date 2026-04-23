@@ -1,0 +1,54 @@
+# ServiceHub: Luxury Symfony 7 Production Readiness Checklist
+
+This checklist is tailored to your high-end Symfony 7 application featuring 3D elements, high-resolution imagery, and Stripe transactions. 
+
+## 1. Deployment & Server Architecture
+
+For a luxury brand, downtime or slow response times break the illusion of quality.
+
+### Hosting Selection
+- **Platform.sh (Recommended for Symfony):** Often the best choice for a premium Symfony app. It offers out-of-the-box zero-downtime deployments, exact staging replicas, and native Symfony integration.
+- **AWS (Amazon Web Services):** Best for absolute, infinite scale and granular control (ECS/Fargate, RDS, CloudFront), but requires significant DevOps expertise. 
+- **DigitalOcean:** Very cost-effective but requires managing your own infrastructure (Ubuntu, Nginx configuration, firewall). If you lack a dedicated DevOps team, prefer Platform.sh.
+
+### Server Optimization
+- [ ] **PHP 8.2/8.3 OPCache:** Enable OPCache. In `php.ini`, set `opcache.enable=1`, `opcache.memory_consumption=256`, and most importantly `opcache.validate_timestamps=0` (never check for file changes in production).
+- [ ] **OPCache Preloading:** Symfony supports preloading. Configure `opcache.preload=/path/to/project/var/cache/prod/App_KernelProdContainer.preload.php`.
+- [ ] **Nginx & PHP-FPM:** Configure Nginx to serve static files directly. Tune PHP-FPM `pm.max_children` and `pm.start_servers` based on your available RAM.
+- [ ] **Compression:** Enable Gzip and Brotli compression in Nginx for `text/html`, `application/javascript`, `text/css`, etc. Do *not* compress 3D assets (like `glb` or `gltf`) if they are already compressed.
+
+## 2. Security Hardening & Secrets
+
+Luxury clients demand absolute data privacy, and handling Stripe requires high security.
+
+- [ ] **Symfony Secrets Vault (Crucial):** Never put sensitive production keys (Stripe API, Database Passwords) in `.env` or `.env.local`. Use Symfony Secrets Vault. Run `php bin/console secrets:set STRIPE_SECRET_KEY` to encrypt them. Only the decryption key resides on the production server.
+- [ ] **Stripe Webhook Signatures:** Verify Stripe webhook signatures in your controllers using `\Stripe\Webhook::constructEvent` to prevent spoofed successful payments.
+- [ ] **Rate Limiting:** Protect your login, registration, and payment endpoints against brute-force attacks using Symfony's Rate Limiter component. 
+- [ ] **Content Security Policy (CSP):** Add CSP headers via NelmioSecurityBundle. This explicitly tells the browser which domains are allowed to load resources, blocking XSS attacks.
+- [ ] **Strict-Transport-Security (HSTS):** Force all connections to use HTTPS.
+
+## 3. Performance for Luxury UX (3D & Assets)
+
+To load heavy assets (High-Res Images, 3D models) in under 2 seconds, the architecture must be edge-optimized.
+
+- [ ] **CDN (Cloudflare or CloudFront):** A CDN is **mandatory**. 3D assets and high-res images must be served from edge locations closest to the user. Cloudflare is highly recommended for its ease of setup and robust edge caching.
+- [ ] **AssetMapper Compilation:** Do not rely on dynamic asset resolution in production. During deployment, run `php bin/console asset-map:compile`. This physically copies/hashes all JS/CSS/3D assets into a `public/assets/` directory.
+- [ ] **Preload Critical Assets:** Use AssetMapper's `preload` feature for critical fonts, the hero image, or the initial 3D model. In Twig: `<link rel="preload" href="{{ asset('models/hero-object.glb') }}" as="fetch">`.
+- [ ] **Lazy Loading:** For images below the fold, use `loading="lazy"`. Ensure 3D canvas libraries (like Three.js) only initialize when the canvas is in the viewport.
+- [ ] **Image Optimization:** Serve `.webp` or `.avif` formats based on browser support instead of heavy JPGs or PNGs.
+
+## 4. Database & Migrations
+
+- [ ] **Doctrine Caches:** Enable Metadata, Query, and Result caching in Doctrine using APCu or Redis. This drastically reduces database load.
+- [ ] **Safe Migrations Workflow:** Run `php bin/console doctrine:migrations:migrate --no-interaction` purely during the CI/CD deployment pipeline, *before* switching traffic to the new code.
+- [ ] **Non-Destructive Migrations:** Never rename or delete columns in a continuous deployment environment without a multi-step release process to prevent zero-downtime deployment errors. 
+- [ ] **Database Connection Pooling:** If using AWS split environments, use something like PgBouncer or RDS Proxy to prevent maxing out database connections.
+
+## 5. Monitoring & Observability
+
+When something breaks, you need to know before the client does.
+
+- [ ] **Sentry for Exceptions:** Use **Sentry** as your primary error tracker. Install `sentry/sentry-symfony`. It captures fatal errors, 500s, and Stripe fulfillment failures instantly, providing full stack traces.
+- [ ] **Monolog Structured Logging:** Configure Monolog to output JSON logs in production (`formatter: monolog.formatter.json`). Store them in a centralized logging tool like Datadog or AWS CloudWatch.
+- [ ] **New Relic / Datadog (APM):** Use New Relic or Datadog Application Performance Monitoring (APM) to track the exact millisecond execution time of each Symfony controller and Doctrine query. This is how you identify slow database queries. 
+- [ ] **Uptime Monitoring:** Set up a synthetic monitor (like Pingdom or Better Uptime) that pings your site every minute and checks for a specific text string (to ensure it hasn't returned a blank 200 OK page).

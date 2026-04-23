@@ -1,45 +1,45 @@
 {% extends 'dashboard_base.html.twig' %}
 
-{% block title %}Atelier Control — ServiceHub{% endblock %}
-{% block page_title %}Atelier Control{% endblock %}
+{% block title %}Provider Dashboard — ServiceHub{% endblock %}
+{% block page_title %}Provider Dashboard{% endblock %}
 
 {% block body %}
 <div class="animate-fade-in">
     {# ── WELCOME & REPUTATION ── #}
     <div class="row g-4 mb-5">
         <div class="col-xl-8">
-            <div class="glass-card p-5 h-100 d-flex flex-column justify-content-center" style="background: linear-gradient(135deg, rgba(239, 68, 68, 0.10), transparent); border: 1px solid rgba(239, 68, 68, 0.32);">
-                <div class="text-xxs text-admin fw-800 letter-spacing-2 mb-3">
+            <div class="glass-card p-5 h-100 d-flex flex-column justify-content-center" style="background: linear-gradient(135deg, rgba(0, 107, 90, 0.05), transparent); border: 1px solid rgba(0, 107, 90, 0.1);">
+                <div class="font-label text-xxs text-primary fw-800 letter-spacing-2 mb-3">
                     {% if app.user.services|length == 0 %}
-                        NEW PROVIDER: INITIALIZATION REQUIRED
+                        NEW PROVIDER: SETUP REQUIRED
                     {% else %}
-                        PROTOCOL STATUS: OPERATIONAL
+                        ACCOUNT STATUS: ACTIVE
                     {% endif %}
                 </div>
-                <h1 class="luxury-serif text-pure mb-3" style="font-size: 3rem;">Salutations, {{ app.user.fullName }}</h1>
-                <p class="text-silver mb-5 opacity-70" style="max-width:550px; line-height: 1.6;">
+                <h1 class="h1 mb-3" style="font-size: 3rem;">Welcome, {{ app.user.fullName }}</h1>
+                <p class="text-on-surface-variant mb-5 opacity-70" style="max-width:550px; line-height: 1.8;">
                     {% if app.user.services|length == 0 %}
-                        Your atelier is offline. Publish your first technical artifact to integrate with the ServiceHub global network.
+                        Your account is not yet active. Please add your first service to start getting bookings from customers.
                     {% else %}
-                        Your atelier is synchronized. Monitor live telemetry and legacy protocols through your high-fidelity dashboard.
+                        Your account is active. You can monitor your earnings, active bookings, and reviews from this dashboard.
                     {% endif %}
                 </p>
                 <div class="d-flex gap-3">
-                    <a href="{{ path('app_service_new') }}" class="btn-luxury px-4 py-2" style="background: var(--admin-accent) !important; font-size: 0.75rem;">
-                        <i class="fas fa-plus me-2"></i> UNVEIL NEW SERVICE
+                    <a href="{{ path('app_service_new') }}" class="btn-luxury px-4 py-2">
+                        <i class="fas fa-plus me-2"></i> ADD NEW SERVICE
                     </a>
-                    <a href="{{ path('app_provider_my_services') }}" class="btn-outline-luxury px-4 py-2" style="border-color: var(--admin-accent) !important; color: var(--admin-accent) !important; font-size: 0.75rem;">COLLECTION MANIFEST</a>
+                    <a href="{{ path('app_provider_my_services') }}" class="btn-outline-luxury px-4 py-2">MY SERVICES</a>
                 </div>
             </div>
         </div>
         <div class="col-xl-4">
-            <div class="glass-card p-5 h-100 d-flex flex-column align-items-center justify-content-center border-admin-glow">
-                <div class="text-xxs text-admin fw-800 letter-spacing-3 mb-4">REPUTATION HERITAGE</div>
-                <div class="user-orb" style="width:120px; height:120px; font-size:2.5rem; margin-bottom:24px; border-color: var(--admin-accent); box-shadow: 0 0 40px rgba(239, 68, 68, 0.15);">
+            <div class="glass-card p-5 h-100 d-flex flex-column align-items-center justify-content-center border-emerald-soft">
+                <div class="font-label text-xxs text-dim fw-800 letter-spacing-3 mb-4">PROVIDER RATING</div>
+                <div class="user-orb" style="width:120px; height:120px; font-size:2.5rem; margin-bottom:24px; box-shadow: 0 0 40px rgba(0, 107, 90, 0.1);">
                     {{ app.user.reputationPoints }}
                 </div>
-                <div class="badge-status status-active px-4 py-2" style="background: rgba(239,68,68,0.1); color: var(--admin-accent); border-color: rgba(239,68,68,0.3);">
-                    {{ app.user.tier|upper }} ARCHITECT
+                <div class="font-label text-xxs px-4 py-2 rounded-full" style="background: rgba(0, 107, 90, 0.1); color: var(--theme-primary); border: 1px solid rgba(0, 107, 90, 0.2);">
+                    {{ app.user.tier|upper }} PARTNER
                 </div>
             </div>
         </div>
@@ -48,29 +48,29 @@
     {# ── KPI ANALYTICS ── #}
     <div class="row g-4 mb-5">
         <div class="col-md-3">
-            <div class="glass-card p-4">
-                <div class="text-xxs text-dim fw-800 mb-2">ACTIVE PROTOCOLS</div>
-                <div class="h2 text-pure fw-800 mb-0">{{ bookings|filter(b => b.status in ['Pending', 'Confirmed', 'on-the-way', 'Accepted'])|length }}</div>
+            <div class="glass-card p-4 border-0" style="background: var(--theme-bg);">
+                <div class="font-label text-xxs text-dim fw-800 mb-2">ACTIVE BOOKINGS</div>
+                <div class="h2 text-pure fw-700 mb-0">{{ bookings|filter(b => b.status in ['Pending', 'Confirmed', 'on-the-way', 'Accepted'])|length }}</div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="glass-card p-4">
-                <div class="text-xxs text-dim fw-800 mb-2">LIFETIME YIELD</div>
+            <div class="glass-card p-4 border-0" style="background: var(--theme-bg);">
+                <div class="font-label text-xxs text-dim fw-800 mb-2">TOTAL EARNINGS</div>
                 {% set totalRev = 0 %}
                 {% for b in bookings|filter(b => b.status == 'Completed') %}{% set totalRev = totalRev + (b.estimatedCost|default(b.service.price)) %}{% endfor %}
-                <div class="h2 text-pure fw-800 mb-0">₹{{ totalRev|number_format(0) }}</div>
+                <div class="h2 text-pure fw-700 mb-0">₹{{ totalRev|number_format(0) }}</div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="glass-card p-4">
-                <div class="text-xxs text-dim fw-800 mb-2">HERITAGE SCORE</div>
-                <div class="h2 text-teal fw-800 mb-0">9.8<span class="text-xxs text-dim">/10</span></div>
+            <div class="glass-card p-4 border-0" style="background: var(--theme-bg);">
+                <div class="font-label text-xxs text-dim fw-800 mb-2">QUALITY SCORE</div>
+                <div class="h2 text-primary fw-700 mb-0">9.8<span class="text-xxs text-dim">/10</span></div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="glass-card p-4">
-                <div class="text-xxs text-dim fw-800 mb-2">PENDING ESTIMATES</div>
-                <div class="h2 text-admin fw-800 mb-0">{{ bookings|filter(b => b.bookingType == 'visit' and b.estimatedCost is empty)|length }}</div>
+            <div class="glass-card p-4 border-0" style="background: var(--theme-bg);">
+                <div class="font-label text-xxs text-dim fw-800 mb-2">PENDING QUOTES</div>
+                <div class="h2 text-primary fw-700 mb-0">{{ bookings|filter(b => b.bookingType == 'visit' and b.estimatedCost is empty)|length }}</div>
             </div>
         </div>
     </div>
@@ -81,10 +81,9 @@
             <div class="glass-card h-100">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <div>
-                        <h3 class="luxury-serif mb-1">Monthly Yield</h3>
-                        <p class="text-xxs text-dim mb-0">REVENUE VELOCITY — LAST 6 MONTHS</p>
+                        <h3 class="h4 mb-1">Monthly Earnings</h3>
+                        <p class="font-label text-xxs text-dim mb-0">REVENUE OVERVIEW — LAST 6 MONTHS</p>
                     </div>
-                    <div class="badge-status status-alert" style="font-size:0.55rem;">PROVIDER KPI</div>
                 </div>
                 <div style="height: 260px;">
                     <canvas id="yieldChart"></canvas>
@@ -94,8 +93,8 @@
         <div class="col-xl-4">
             <div class="glass-card h-100">
                 <div class="mb-4">
-                    <h3 class="luxury-serif mb-1">Booking Status</h3>
-                    <p class="text-xxs text-dim mb-0">DISTRIBUTION ANALYSIS</p>
+                    <h3 class="h4 mb-1">Booking Status</h3>
+                    <p class="font-label text-xxs text-dim mb-0">DISTRIBUTION ANALYSIS</p>
                 </div>
                 <div style="height: 260px;">
                     <canvas id="statusChart"></canvas>
@@ -105,42 +104,42 @@
     </div>
 
     <div class="row g-5 mb-5">
-        {# ── PROTOCOL LEDGER ── #}
+        {# ── APPOINTMENT LIST ── #}
         <div class="col-xl-8">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 class="luxury-serif text-pure mb-0">Protocol Ledger</h2>
-                <a href="#all-logs" class="text-xxs text-admin fw-800 letter-spacing-1 text-decoration-none">VIEW ALL LOGS</a>
+                <h2 class="h3 text-pure mb-0">Current Appointments</h2>
+                <a href="#all-logs" class="font-label text-xxs text-primary fw-800 letter-spacing-1 text-decoration-none">VIEW ALL BOOKINGS</a>
             </div>
-            <div class="glass-card p-0 overflow-hidden">
+            <div class="glass-card p-0 overflow-hidden border-0 shadow-sm">
                 <div class="table-responsive">
-                    <table class="table mb-0">
+                    <table class="table mb-0 align-middle">
                         <thead>
-                            <tr class="text-xxs text-dim fw-800">
-                                <th class="ps-4 py-4">CLIENT NODE</th>
-                                <th class="py-4">ARTIFACT</th>
+                            <tr class="font-label text-xxs text-dim fw-800 border-0" style="background: #faf9fa;">
+                                <th class="ps-4 py-4">CUSTOMER NAME</th>
+                                <th class="py-4">SERVICE</th>
                                 <th class="py-4">STATUS</th>
-                                <th class="pe-4 py-4 text-end">OPERATIONS</th>
+                                <th class="pe-4 py-4 text-end">ACTIONS</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for booking in bookings|slice(0, 5) %}
-                                <tr class="border-top border-glass">
+                                <tr class="border-top border-light">
                                     <td class="ps-4 py-4">
                                         <div class="d-flex align-items-center gap-3">
-                                            <div class="user-orb" style="width:36px; height:36px; font-size:0.8rem; background: var(--bg-deep);">{{ booking.customer.fullName|slice(0,1)|upper }}</div>
+                                            <div class="user-orb" style="width:36px; height:36px; font-size:0.8rem;">{{ booking.customer.fullName|slice(0,1)|upper }}</div>
                                             <div>
                                                 <div class="text-pure fw-bold" style="font-size:0.85rem;">{{ booking.customer.fullName }}</div>
-                                                <div class="text-xxs text-dim">{{ booking.customer.tier|upper }}</div>
+                                                <div class="font-label text-xxs text-dim">{{ booking.customer.tier|upper }}</div>
                                             </div>
                                         </div>
                                     </td>
                                     <td class="py-4">
                                         <div class="text-pure fw-bold text-xxs mb-1">{{ booking.service.title|upper }}</div>
-                                        <div class="text-xxs text-dim">{{ booking.bookingDate|date('d M Y') }}</div>
+                                        <div class="font-label text-xxs text-dim">{{ booking.bookingDate|date('d M Y') }}</div>
                                     </td>
                                     <td class="py-4">
-                                        <span class="badge-status status-{{ booking.status|lower in ['completed', 'accepted'] ? 'active' : 'pending' }} px-3" 
-                                              style="{{ booking.status|lower == 'completed' ? '' : 'background: rgba(239,68,68,0.1); color: var(--admin-accent); border-color: rgba(239,68,68,0.2);' }}">
+                                        <span class="font-label text-xxxs px-3 py-1 rounded-full d-inline-block" 
+                                              style="background: rgba(0, 107, 90, 0.08); color: #006b5a; border: 1px solid rgba(0, 107, 90, 0.15);">
                                             {{ booking.status|upper }}
                                         </span>
                                     </td>
@@ -149,20 +148,20 @@
                                             {% if booking.status == 'Confirmed' %}
                                                 <form action="{{ path('app_provider_dispatch_booking', {'id': booking.id}) }}" method="post">
                                                     <input type="hidden" name="_token" value="{{ csrf_token('dispatch' ~ booking.id) }}">
-                                                    <button type="submit" class="btn-luxury px-3 py-1" style="font-size: 0.6rem; background: var(--admin-accent) !important;">DISPATCH</button>
+                                                    <button type="submit" class="btn-luxury px-3 py-2" style="font-size: 0.6rem;">START JOB</button>
                                                 </form>
                                             {% elseif booking.status == 'on-the-way' %}
                                                 <form action="{{ path('app_provider_complete_booking', {'id': booking.id}) }}" method="post">
                                                     <input type="hidden" name="_token" value="{{ csrf_token('complete' ~ booking.id) }}">
-                                                    <button type="submit" class="btn-luxury px-3 py-1" style="font-size: 0.6rem; background: var(--admin-accent) !important;">CONCLUDE</button>
+                                                    <button type="submit" class="btn-luxury px-3 py-2" style="font-size: 0.6rem;">FINISH JOB</button>
                                                 </form>
                                             {% endif %}
                                             
                                             {% if booking.bookingType == 'visit' and not booking.estimatedCost %}
-                                                <form action="{{ path('app_provider_send_estimate', {'id': booking.id}) }}" method="post" class="d-flex gap-2">
+                                                <form action="{{ path('app_provider_send_estimate', {'id': booking.id}) }}" method="post" class="d-flex gap-2 align-items-center">
                                                     <input type="hidden" name="_token" value="{{ csrf_token('estimate' ~ booking.id) }}">
-                                                    <input type="number" name="estimatedCost" class="luxury-input py-1 px-2 mb-0" style="width:80px; font-size:0.65rem;" placeholder="₹ Est." required>
-                                                    <button type="submit" class="btn-outline-luxury py-1 px-2" style="font-size:0.6rem; border-color: var(--admin-accent) !important; color: var(--admin-accent) !important;">PROPOSE</button>
+                                                    <input type="number" name="estimatedCost" class="form-control form-control-sm mb-0" style="width:70px; font-size:0.7rem; border-radius: 4px;" placeholder="₹" required>
+                                                    <button type="submit" class="btn-outline-luxury py-2 px-3" style="font-size:0.6rem;">PROPOSE</button>
                                                 </form>
                                             {% endif %}
                                         </div>
@@ -177,32 +176,32 @@
 
         {# ── RECENT REVIEWS ── #}
         <div class="col-xl-4">
-            <h2 class="luxury-serif text-pure mb-4">Heritage Voices</h2>
+            <h2 class="h3 text-pure mb-4">Customer Reviews</h2>
             <div class="glass-card p-4">
                 <div class="d-flex flex-column gap-4">
                     {% set reviews = [] %}
                     {% for b in bookings %}{% if b.review is not empty %}{% set reviews = reviews|merge([b.review]) %}{% endif %}{% endfor %}
                     
                     {% for review in reviews|reverse|slice(0, 3) %}
-                        <div class="review-feedback p-3 rounded-4" style="background: rgba(255,255,255,0.02); border: 1px solid var(--glass-border);">
-                            <div class="d-flex justify-content-between mb-2">
-                                <div class="text-gold" style="font-size: 0.7rem;">
+                        <div class="review-feedback p-4 rounded-xl" style="background: #faf9fa; border: 1px solid var(--theme-border);">
+                            <div class="d-flex justify-content-between mb-3">
+                                <div style="color: #006b5a; font-size: 0.7rem;">
                                     {% for i in 1..5 %}<i class="f{{ review.rating >= i ? 'as' : 'ar' }} fa-star"></i>{% endfor %}
                                 </div>
-                                <div class="text-xxs text-dim fw-800">{{ review.createdAt|date('d M Y') }}</div>
+                                <div class="font-label text-xxs text-dim fw-800">{{ review.createdAt|date('d M Y') }}</div>
                             </div>
-                            <p class="text-xs text-silver italic mb-2">"{{ review.comment|slice(0, 80) }}..."</p>
-                            <div class="text-xxs text-pure fw-800">— {{ review.customer.fullName|upper }}</div>
+                            <p class="text-sm text-on-surface-variant italic mb-3" style="line-height: 1.6;">"{{ review.comment|slice(0, 100) }}..."</p>
+                            <div class="font-label text-xxs text-primary fw-800">— {{ review.customer.fullName|upper }}</div>
                         </div>
                     {% else %}
-                        <div class="text-center py-5 opacity-40">
+                        <div class="text-center py-5 opacity-30">
                             <i class="fas fa-comment-slash fs-2 mb-3"></i>
-                            <p class="text-xxs text-dim fw-800">NO RECENT FEEDBACK NODES</p>
+                            <p class="font-label text-xxs text-dim fw-800">NO RECENT CUSTOMER REVIEWS</p>
                         </div>
                     {% endfor %}
                 </div>
-                <div class="mt-4 pt-4 border-top border-glass text-center">
-                    <a href="#" class="btn-outline-luxury w-100 py-3" style="font-size: 0.65rem;">VIEW FULL REPUTATION MANIFEST</a>
+                <div class="mt-4 pt-4 border-top border-light text-center">
+                    <a href="#" class="font-label text-xxs text-primary text-decoration-none fw-800">VIEW ALL REVIEWS</a>
                 </div>
             </div>
         </div>
@@ -221,12 +220,12 @@
                 data: {
                     labels: {{ chartLabels|raw }},
                     datasets: [{
-                        label: 'Monthly Yield (₹)',
+                        label: 'Monthly Earnings (₹)',
                         data: {{ chartData|raw }},
-                        backgroundColor: 'rgba(239, 68, 68, 0.2)',
-                        borderColor: '#ef4444',
+                        backgroundColor: 'rgba(0, 107, 90, 0.15)',
+                        borderColor: '#006b5a',
                         borderWidth: 2,
-                        borderRadius: 8,
+                        borderRadius: 4,
                         borderSkipped: false,
                     }]
                 },
@@ -237,10 +236,10 @@
                     scales: {
                         y: {
                             beginAtZero: true,
-                            grid: { color: 'rgba(255,255,255,0.04)' },
-                            ticks: { color: '#64748b', font: { size: 10 }, callback: v => '₹' + (v/1000) + 'k' }
+                            grid: { color: 'rgba(0,0,0,0.02)' },
+                            ticks: { color: '#64748b', font: { size: 10, family: 'Inter' }, callback: v => '₹' + (v/1000) + 'k' }
                         },
-                        x: { grid: { display: false }, ticks: { color: '#64748b', font: { size: 10 } } }
+                        x: { grid: { display: false }, ticks: { color: '#64748b', font: { size: 10, family: 'Inter' } } }
                     }
                 }
             });
@@ -252,21 +251,19 @@
             const completed = {{ bookings|filter(b => b.status|lower == 'completed')|length }};
             const pending   = {{ bookings|filter(b => b.status|lower == 'pending')|length }};
             const onWay     = {{ bookings|filter(b => b.status|lower == 'on-the-way')|length }};
-            const cancelled = {{ bookings|filter(b => b.status|lower == 'cancelled')|length }};
-            const other     = {{ bookings|length }} - completed - pending - onWay - cancelled;
+            const other     = {{ bookings|length }} - completed - pending - onWay;
 
             new Chart(statusCtx, {
                 type: 'doughnut',
                 data: {
-                    labels: ['Completed', 'Pending', 'On the Way', 'Cancelled', 'Other'],
+                    labels: ['Completed', 'Pending', 'In Transit', 'Other'],
                     datasets: [{
-                        data: [completed, pending, onWay, cancelled, other],
+                        data: [completed, pending, onWay, other],
                         backgroundColor: [
-                            'rgba(16,185,129,0.7)',
-                            'rgba(245,158,11,0.7)',
-                            'rgba(6,182,212,0.7)',
-                            'rgba(239,68,68,0.7)',
-                            'rgba(100,116,139,0.5)'
+                            '#006b5a',
+                            '#33ccaf',
+                            '#0ea5e9',
+                            '#e2e8f0'
                         ],
                         borderWidth: 0,
                         hoverOffset: 8
@@ -275,15 +272,16 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    cutout: '70%',
+                    cutout: '80%',
                     plugins: {
                         legend: {
                             position: 'bottom',
                             labels: {
-                                color: '#94a3b8',
-                                font: { size: 10, weight: '700' },
+                                color: '#3c4a45',
+                                font: { size: 10, weight: '600', family: 'Inter' },
                                 padding: 15,
-                                boxWidth: 10, boxHeight: 10
+                                boxWidth: 8, boxHeight: 8,
+                                usePointStyle: true
                             }
                         }
                     }

@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,700;1,400&amp;family=Inter:wght@400;500;600&amp;family=Public+Sans:wght@300;400;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary": "#6d5e00",
+                        "primary-fixed": "#6df9da",
+                        "on-primary-fixed-variant": "#005143",
+                        "tertiary-fixed": "#f9e37a",
+                        "surface-tint": "#006b5a",
+                        "secondary-fixed": "#dfe3e8",
+                        "on-surface": "#1b1c1d",
+                        "background": "#faf9fa",
+                        "surface-container": "#efedee",
+                        "on-primary-fixed": "#00201a",
+                        "on-primary-container": "#005244",
+                        "on-background": "#1b1c1d",
+                        "on-error": "#ffffff",
+                        "on-tertiary": "#ffffff",
+                        "tertiary-container": "#cbb653",
+                        "surface-container-high": "#e9e8e9",
+                        "error-container": "#ffdad6",
+                        "primary": "#006b5a",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-highest": "#e3e2e3",
+                        "secondary-container": "#dfe3e8",
+                        "on-secondary": "#ffffff",
+                        "inverse-surface": "#303031",
+                        "on-secondary-container": "#606569",
+                        "on-error-container": "#93000a",
+                        "secondary": "#5a5f63",
+                        "surface-container-low": "#f5f3f4",
+                        "on-primary": "#ffffff",
+                        "inverse-on-surface": "#f2f0f1",
+                        "on-secondary-fixed": "#171c20",
+                        "on-tertiary-fixed": "#211b00",
+                        "surface-variant": "#e3e2e3",
+                        "primary-fixed-dim": "#4addbf",
+                        "tertiary-fixed-dim": "#dcc661",
+                        "on-surface-variant": "#3c4a45",
+                        "primary-container": "#33ccaf",
+                        "on-secondary-fixed-variant": "#42474b",
+                        "surface-dim": "#dbdadb",
+                        "outline": "#6c7a75",
+                        "on-tertiary-container": "#534700",
+                        "on-tertiary-fixed-variant": "#524600",
+                        "surface-bright": "#faf9fa",
+                        "inverse-primary": "#4addbf",
+                        "secondary-fixed-dim": "#c2c7cc",
+                        "outline-variant": "#bbcac4",
+                        "error": "#ba1a1a",
+                        "surface": "#faf9fa"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "headline": ["Noto Serif"],
+                        "body": ["Inter"],
+                        "label": ["Public Sans"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .font-serif { font-family: 'Noto Serif', serif; }
+        .font-sans { font-family: 'Public Sans', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24; }
+    </style>
+</head>
+<body class="bg-background text-on-background selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 bg-white/80 dark:bg-stone-950/80 backdrop-blur-xl shadow-sm dark:shadow-none">
+<div class="flex justify-between items-center px-8 py-4 max-w-screen-2xl mx-auto">
+<div class="text-2xl font-serif font-bold text-stone-900 dark:text-stone-50">Alexandria</div>
+<div class="hidden md:flex items-center gap-8">
+<a class="font-serif tracking-tight leading-relaxed text-teal-600 dark:text-teal-400 border-b-2 border-teal-500 pb-1" href="#">Curations</a>
+<a class="font-serif tracking-tight leading-relaxed text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 transition-colors" href="#">Scholars</a>
+<a class="font-serif tracking-tight leading-relaxed text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 transition-colors" href="#">Archives</a>
+<a class="font-serif tracking-tight leading-relaxed text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 transition-colors" href="#">Glossary</a>
+</div>
+<div class="flex items-center gap-6">
+<button class="material-symbols-outlined text-stone-600 hover:scale-95 active:opacity-80 transition-all" data-icon="search">search</button>
+<button class="px-6 py-2 bg-gradient-to-r from-primary to-primary-container text-on-primary rounded-full font-label text-sm font-semibold tracking-wide scale-95 active:opacity-80 transition-transform">Sign In</button>
+</div>
+</div>
+</nav>
+<main class="pt-20">
+<!-- Hero Section -->
+<section class="relative min-h-[921px] flex items-center px-8 overflow-hidden">
+<div class="absolute inset-0 z-0">
+<img alt="The Archive of Excellence" class="w-full h-full object-cover grayscale-[20%] brightness-75" data-alt="cinematic wide shot of a majestic classical library with high wood shelves, soft dust motes in sunbeams, and a leather desk" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBc-AHamm9UDkWwja6MYTqzirkP5r-0na2Uxsmbafi2ah6eqQAA0sa6XWRpad4fBN2SrhUtxew8qGlu7zz62aQS4NaqwSvP8x6sXi40E_56Y6smxAv6P_3XGF82XeuCIQXORUqLEgf7j5XgYLJoQcskIkzI-VIPoMzD1KzZMW3BwdV4NcQL3IDV1vnyp8kL-FSHr1w6oMTk2pPqF5NU7JQvi9Y7LCkM6GXU89C_yOyJBNDlZlbINTBGVoCCPLKjcsZbwS3aXdXqHxM"/>
+<div class="absolute inset-0 bg-gradient-to-r from-background via-background/40 to-transparent"></div>
+</div>
+<div class="relative z-10 max-w-4xl">
+<span class="font-sans text-xs uppercase tracking-[0.3em] text-primary mb-6 block">Vol. 1 — The Curated Collective</span>
+<h1 class="font-serif text-6xl md:text-8xl text-on-surface leading-[1.1] mb-8 tracking-tight">
+                    The Archive of <br/><span class="italic text-primary">Excellence</span>
+</h1>
+<p class="font-body text-xl text-secondary max-w-xl mb-10 leading-relaxed">
+                    A digital sanctum connecting discerning patrons with the world's most distinguished professional artisans.
+                </p>
+<div class="flex items-center gap-6">
+<button class="px-10 py-4 bg-gradient-to-r from-primary to-primary-container text-on-primary rounded-full font-label font-bold tracking-widest uppercase text-xs transition-transform hover:scale-105 active:scale-95">
+                        Explore the Collection
+                    </button>
+<button class="flex items-center gap-2 group">
+<span class="w-12 h-[1px] bg-outline-variant group-hover:w-16 transition-all"></span>
+<span class="font-sans text-xs tracking-widest uppercase">View Philosophy</span>
+</button>
+</div>
+</div>
+</section>
+<!-- The Philosophy -->
+<section class="py-32 px-8 bg-surface-container-lowest">
+<div class="max-w-screen-2xl mx-auto grid md:grid-cols-2 gap-24 items-center">
+<div class="space-y-12">
+<h2 class="font-serif text-4xl md:text-5xl text-on-surface leading-tight">
+                        A curation of masters, <br/>not a list of leads.
+                    </h2>
+<div class="space-y-8 font-body text-lg text-secondary leading-relaxed">
+<p>We reject the noise of the open marketplace. Alexandria operates as a digital curator, hand-selecting experts who demonstrate not just skill, but an archival commitment to their craft.</p>
+<p>In an age of fleeting interactions, we facilitate legacies. Our masters represent the pinnacle of Legal, Strategic, and Creative disciplines.</p>
+</div>
+</div>
+<div class="relative aspect-[4/5] bg-surface-container-low overflow-hidden rounded-xl">
+<img alt="Philosophy visual" class="w-full h-full object-cover mix-blend-multiply opacity-80" data-alt="minimalist close-up of high-quality architectural blueprints on a white desk with soft shadows" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB7AkXFDS1nCUMxDTbC93Bn99iyfp3IV2g3sJTdl4NyflWssIZ2ovBTGOm8UJ31496cST9notTWBWxgfWhY-O4zZj45nNoK_S6L34OyDea4xpIptJFuYJHlS5GCKmHIP9cieqcOHVuzBuMkpHniPQmanjh7UzsDLoGITopyMe72pvizu68KYxO7Fvklgt0TYjktwkTHW4h8LMiRhfZu33p1QbKTYa3PxSnQViHyfSa73hHLScDnibc_gDEg5Vdetp-eTvbEq2ItJgw"/>
+<div class="absolute inset-12 border border-primary/20 pointer-events-none"></div>
+</div>
+</div>
+</section>
+<!-- Categories Grid (Bento Style) -->
+<section class="py-32 px-8 bg-surface">
+<div class="max-w-screen-2xl mx-auto">
+<div class="flex justify-between items-end mb-16">
+<div>
+<span class="font-sans text-xs tracking-[0.2em] text-secondary uppercase mb-4 block">The Departments</span>
+<h2 class="font-serif text-5xl">Spheres of Mastery</h2>
+</div>
+<a class="font-sans text-sm tracking-widest text-primary font-bold border-b border-primary/30 pb-1" href="#">VIEW ALL ARCHIVES</a>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-12 gap-6 h-[800px]">
+<div class="md:col-span-8 bg-stone-200 relative group overflow-hidden rounded-xl">
+<img alt="Legal" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="monochrome elegant law office with marble columns and leather bound books" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAwUrk5T5pqSIkYLGvs6fHV1ytTZKT5ueOabRW9qBT-fqYmm4CxjcqqbaJvylw0d37KrCT5MsX-q-rYdnBBzxEIFGpOA3AYiX3rXb487UJ-kclLNnfdadcYUfOxB-nd0z4wHOy8ZM3fL27vxVIPlaPW1WLFgzTlgAJgVXY2rr2y6fKbjaCAfVPAPasCeY_eGl1MsMs_JsgVxHoDGeBE8NcCrDZmU0vbWAVNu38eaVVhKxt1Qxb2wjyxjStrdN48-MUOs4NPCGTlfmg"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
+<div class="absolute bottom-8 left-8 text-white">
+<span class="font-sans text-[10px] tracking-[0.3em] uppercase opacity-70">Archive 01</span>
+<h3 class="font-serif text-3xl mt-2">Jurisprudence &amp; Counsel</h3>
+</div>
+</div>
+<div class="md:col-span-4 bg-stone-300 relative group overflow-hidden rounded-xl">
+<img alt="Strategy" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="abstract architectural sketch with precise lines and geometric shapes on textured paper" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC1PXfJzMBt0G8foLV4ShpUraq0z0RQcyE2J2tQplOK5YqvhybgmoxiPNOLR-ee3xi2Blu-sKE-5JsebgAFHuWgc1MuNkJMbKZcRfZecIMFuWDvH4XqLzs8rabXnh7qbKPoLf7-qrJw8HQ1cyKazfmxE3uFmH7qMUuoimSeqs9lSf8MKtsMsNgqWulZTV_Ff1PLMSJj2VCcqcLo5s1JQzQ2ik5ciAgdZzYGcpV3FaD1JMnafHFRRKbgPcXBm7cZGyskLQrytDR2j_A"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
+<div class="absolute bottom-8 left-8 text-white">
+<span class="font-sans text-[10px] tracking-[0.3em] uppercase opacity-70">Archive 02</span>
+<h3 class="font-serif text-3xl mt-2">Strategic Architecture</h3>
+</div>
+</div>
+<div class="md:col-span-4 bg-stone-400 relative group overflow-hidden rounded-xl">
+<img alt="Creative" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="close up of oil paint textures on canvas with muted earth tones and rich brushstrokes" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC_4Ui1ZQI1g65lj5S9X5EES5217Ud8KxqkveR4VS-JHPtLvMEJ-wmjmVUkHvWWi1NGlVpKzzxPWdTlO3HQC56_QY-gNdirrQApHVCmE5wGb7tKf_ztO8JYTwGFC4XySKQEiePnIyEsdLA1cyes1Xh89FDDQjs_rq5Q8CNMYpJYDs4QzC9lx8TWTAFyTnrQEGHBZdqzh1wDM2pm6P9os-CeSq-twnpW4djTfgmqjOHwvW4IH78RaSbPWLSKZoOzi5WclVnRBw1wi5w"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
+<div class="absolute bottom-8 left-8 text-white">
+<span class="font-sans text-[10px] tracking-[0.3em] uppercase opacity-70">Archive 03</span>
+<h3 class="font-serif text-3xl mt-2">Creative Direction</h3>
+</div>
+</div>
+<div class="md:col-span-8 bg-stone-500 relative group overflow-hidden rounded-xl">
+<img alt="Wealth" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="high end gold fountain pen resting on expensive stationery with elegant handwriting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA43HOU7zxs_cHzYWZG1xxOGf28zYcoXEOe88az26Rls1VCdRCZnsJbxeu2DT7mPAs2fBg10EbaqklDkswSCHO6lGj39HgARFCuJJu48yEwqdoefDQi5garET_z3IYYOYi_MGWOyx20xNOMDt42D3nDWhB-2ZZQQZggWVbpNOGs68bUsbBvp7NmGzSNo8uhNxLu9dbjeE0jEDaBgSfgD0GBjaLVsDOt4OESDU0h41ou0vcH7JUxd0DuTdBwauCus8opJzodArntTpw"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
+<div class="absolute bottom-8 left-8 text-white">
+<span class="font-sans text-[10px] tracking-[0.3em] uppercase opacity-70">Archive 04</span>
+<h3 class="font-serif text-3xl mt-2">Wealth Stewardship</h3>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Featured Experts -->
+<section class="py-32 bg-surface-container-low overflow-hidden">
+<div class="max-w-screen-2xl mx-auto px-8">
+<div class="text-center mb-24">
+<h2 class="font-serif text-5xl mb-4">The Fellows</h2>
+<p class="font-body text-secondary">A glimpse into this month's curated cohort.</p>
+</div>
+<div class="flex flex-nowrap md:grid md:grid-cols-3 gap-12">
+<!-- Expert 1 -->
+<div class="min-w-[80vw] md:min-w-0 group">
+<div class="aspect-[3/4] bg-surface-container-highest overflow-hidden rounded-xl mb-8">
+<img alt="Expert portrait" class="w-full h-full object-cover grayscale brightness-90 group-hover:grayscale-0 transition-all duration-500" data-alt="sophisticated middle aged man with graying hair in a tailored charcoal suit looking thoughtfully off camera" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDssUR7UYGwHxAPu9FSI5aGlhBvgdmm8F20qcBZk_6JeHCfxSJ69flnGl2OtGIrcjQQQqOFQPiedzUzaUCX8gAW9akpxeL3k3hD6qVXYuMmZjhuxvG_wJniD9M0qQwNo4f3Lgv4drmmzDU56K_33BVZVHxYfzvDMivhvFcSEv6PEpt2LXtIsArnHEdF_xyx6IJVY-OjCtMD2t5PrkHEZf0Bl0TuLhraCyuUA3cxafg_i5supAqXgqPjcxm6_E2782Y1269M-hY1SKc"/>
+</div>
+<span class="font-sans text-[10px] tracking-[0.3em] text-primary uppercase font-bold">Constitutional Law</span>
+<h4 class="font-serif text-2xl mt-2 mb-3">Dr. Alistair Thorne</h4>
+<p class="font-body text-secondary leading-relaxed italic">"The law is not a static text, but a living dialogue between history and intent."</p>
+</div>
+<!-- Expert 2 -->
+<div class="min-w-[80vw] md:min-w-0 group">
+<div class="aspect-[3/4] bg-surface-container-highest overflow-hidden rounded-xl mb-8">
+<img alt="Expert portrait" class="w-full h-full object-cover grayscale brightness-90 group-hover:grayscale-0 transition-all duration-500" data-alt="professional woman in elegant beige knitwear sitting in a sunlit modern studio" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCt9rSubd1Nl9gMZRETr5bEMy6zY_e3JHoQ7--U8dpLQ5YLiat_Z1Mv3z1-7Pl5CCsd9Kd10njlJ0enWUlx8iuHealknwxjL6AAp9bqnHcydh8My0YxyQQeZJi4-cgU52RAbaslH-Bmcg4Hg8l15Kh9R13Bz1Cvqom1hnppMtkVM62i-Zn0wMb0ksTEnyRgKXC06Q8EFmKXNQAnqL3tz7numGHSFymYmuBktiI-ZEtAOReC7QzcofCoZSD9Jx5w8-iwD5OWXmq4LTg"/>
+</div>
+<span class="font-sans text-[10px] tracking-[0.3em] text-primary uppercase font-bold">Brand Philosophy</span>
+<h4 class="font-serif text-2xl mt-2 mb-3">Elena Vance</h4>
+<p class="font-body text-secondary leading-relaxed italic">"True brands are built on silence and substance, not noise and numbers."</p>
+</div>
+<!-- Expert 3 -->
+<div class="min-w-[80vw] md:min-w-0 group">
+<div class="aspect-[3/4] bg-surface-container-highest overflow-hidden rounded-xl mb-8">
+<img alt="Expert portrait" class="w-full h-full object-cover grayscale brightness-90 group-hover:grayscale-0 transition-all duration-500" data-alt="man with beard in refined casual attire looking directly at the lens with a calm expression" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCp7rMx5wyluRgzZbC5O7kTRE3XpdhJzPilT0NISPvGDN52nUkZMCB4_OQePo4AjkUEvlzlv2qxMRg_qKHl_IfEa8aIWEfzZ6r2uBgtDhw4J3diZJkiZ_IE_e1Pd08VqZT7dnLXYKtlM9UtXAwB9IWNv7SRO2vhCsvwmBwMEjPYgHeHAQvQaox0ciKGGPWrARMgBiJFV_FI0Ys5gwtuH5ykHoZGAq2d7TyirEtDK-o7MNF6pBVijyoS_E2ckl8cbYQZYxyGh_wsqrA"/>
+</div>
+<span class="font-sans text-[10px] tracking-[0.3em] text-primary uppercase font-bold">Estate Management</span>
+<h4 class="font-serif text-2xl mt-2 mb-3">Julian Hearst</h4>
+<p class="font-body text-secondary leading-relaxed italic">"Preserving legacy requires a balance of ancient prudence and modern agility."</p>
+</div>
+</div>
+</div>
+</section>
+<!-- CTA Section -->
+<section class="py-32 px-8">
+<div class="max-w-4xl mx-auto bg-stone-900 rounded-3xl p-16 text-center relative overflow-hidden">
+<div class="absolute inset-0 opacity-10">
+<img alt="Texture bg" class="w-full h-full object-cover" data-alt="texture of heavy linen paper with subtle grain and elegant shadow play" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAoEcIbe83LrgemG8BnP9-xqOFnM1hTp20CstNreJUOpHrY2z-_6pQdf6UTw6o5udqRmvHbHcM581QBEZ0URGGZSn6Y9ONKU_S6Pxz-l6_rkCmSv_p14Blcg5ONQeRNICxbZaKzpISlGSaCCUDWwuiyicJ-Q73TBrRKRafhwX17TQzeA3fLa3Ra0Tn5rqbCe3UF_cTxhhLvTRhiNyNDcA78ijSJhFKxYMOkeEUrWy2L7V9w-bfctsIpMNF8cEo7FrhumLGrSvvb2XU"/>
+</div>
+<div class="relative z-10">
+<h2 class="font-serif text-4xl md:text-5xl text-white mb-8 leading-tight">Are you a master of <br/>your discipline?</h2>
+<p class="text-stone-400 font-body text-lg mb-12 max-w-xl mx-auto">
+                        Alexandria is currently reviewing applications for the Winter Cohort. Join our network of elite practitioners and reach the world's most discerning patrons.
+                    </p>
+<button class="px-12 py-5 bg-primary text-on-primary rounded-full font-label font-bold tracking-widest uppercase text-xs transition-all hover:bg-primary-container">
+                        Request Invitation
+                    </button>
+<p class="mt-8 text-stone-500 font-sans text-[10px] tracking-widest uppercase">Selectivity rate: 2.4%</p>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-stone-50 dark:bg-stone-950 w-full py-12 px-8 border-t border-stone-200/15 dark:border-stone-800/15">
+<div class="flex flex-col md:flex-row justify-between items-center gap-6 max-w-screen-2xl mx-auto">
+<div class="font-serif italic text-xl text-stone-800 dark:text-stone-200">Alexandria</div>
+<div class="flex flex-wrap justify-center gap-8 font-sans text-sm tracking-wide">
+<a class="text-stone-500 dark:text-stone-400 hover:underline decoration-teal-500/30 underline-offset-4 transition-opacity" href="#">Terms of Service</a>
+<a class="text-stone-500 dark:text-stone-400 hover:underline decoration-teal-500/30 underline-offset-4 transition-opacity" href="#">Privacy Policy</a>
+<a class="text-stone-500 dark:text-stone-400 hover:underline decoration-teal-500/30 underline-offset-4 transition-opacity" href="#">Editorial Guidelines</a>
+<a class="text-stone-500 dark:text-stone-400 hover:underline decoration-teal-500/30 underline-offset-4 transition-opacity" href="#">Contact</a>
+<a class="text-stone-500 dark:text-stone-400 hover:underline decoration-teal-500/30 underline-offset-4 transition-opacity" href="#">Institutional Access</a>
+</div>
+<div class="text-stone-500 dark:text-stone-400 font-sans text-sm tracking-wide">
+                © 2024 Alexandria Digital Curator. All rights reserved.
+            </div>
+</div>
+</footer>
+</body></html>

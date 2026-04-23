@@ -5,53 +5,53 @@
 
 {% block body %}
 <div class="animate-fade-in">
-    <div class="glass-card mb-5">
-        <span class="text-gold text-xs fw-800 letter-spacing-2 mb-3 d-block">NEW PROVIDER CHECKLIST</span>
-        <h2 class="luxury-serif text-pure mb-3">Welcome, {{ app.user.fullName }}.</h2>
-        <p class="text-silver mb-4" style="max-width:620px;">
+    <div class="glass-card mb-5 p-5">
+        <span class="font-label text-primary text-xxs fw-800 letter-spacing-2 mb-3 d-block text-uppercase">NEW PROVIDER CHECKLIST</span>
+        <h2 class="h1 mb-3">Welcome, {{ app.user.fullName }}.</h2>
+        <p class="text-on-surface-variant mb-4 opacity-70" style="max-width:620px; line-height: 1.8;">
             Before your first service goes live, please complete these quick steps so customers get a clear, trusted view of who you are and what you offer.
         </p>
 
-        <ol class="list-unstyled mb-4">
-            <li class="mb-3 d-flex gap-3">
-                <div class="tier-badge tier-silver px-3 py-2">Step 1</div>
+        <ol class="list-unstyled mb-5">
+            <li class="mb-4 d-flex gap-4">
+                <div class="user-orb d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; min-width: 48px; font-size: 0.8rem;">1</div>
                 <div>
-                    <div class="fw-bold text-pure">Complete your profile details</div>
-                    <div class="text-xs text-dim">Add address, city and contact details so bookings can be routed correctly.</div>
+                    <div class="fw-bold text-pure h5 mb-1">Complete your profile details</div>
+                    <div class="text-sm text-dim">Add address, city and contact details so bookings can be routed correctly.</div>
                 </div>
             </li>
-            <li class="mb-3 d-flex gap-3">
-                <div class="tier-badge tier-silver px-3 py-2">Step 2</div>
+            <li class="mb-4 d-flex gap-4">
+                <div class="user-orb d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; min-width: 48px; font-size: 0.8rem;">2</div>
                 <div>
-                    <div class="fw-bold text-pure">Review quality expectations</div>
-                    <div class="text-xs text-dim">Services should have clear titles, honest descriptions and realistic pricing.</div>
+                    <div class="fw-bold text-pure h5 mb-1">Review quality expectations</div>
+                    <div class="text-sm text-dim">Services should have clear titles, honest descriptions and realistic pricing.</div>
                 </div>
             </li>
-            <li class="mb-1 d-flex gap-3">
-                <div class="tier-badge tier-silver px-3 py-2">Step 3</div>
+            <li class="mb-0 d-flex gap-4">
+                <div class="user-orb d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; min-width: 48px; font-size: 0.8rem;">3</div>
                 <div>
-                    <div class="fw-bold text-pure">Create your first service</div>
-                    <div class="text-xs text-dim">After you publish, your service becomes visible to customers in the listings.</div>
+                    <div class="fw-bold text-pure h5 mb-1">Create your first service</div>
+                    <div class="text-sm text-dim">After you publish, your service becomes visible to customers in the listings.</div>
                 </div>
             </li>
         </ol>
 
         <div class="d-flex flex-wrap gap-3">
-            <a href="{{ path('app_profile') }}" class="btn-outline px-4 py-2" style="font-size:0.8rem;">
-                <i class="fas fa-user-edit me-2"></i> Go to profile
+            <a href="{{ path('app_profile') }}" class="btn-outline-luxury px-4 py-2">
+                <i class="fas fa-user-edit me-2"></i> GO TO PROFILE
             </a>
-            <a href="{{ path('app_service_new') }}" class="btn-luxury px-4 py-2" style="font-size:0.8rem;">
-                <i class="fas fa-plus me-2"></i> Create first service
+            <a href="{{ path('app_service_new') }}" class="btn-luxury px-4 py-2">
+                <i class="fas fa-plus me-2"></i> CREATE FIRST SERVICE
             </a>
         </div>
     </div>
 
-    <div class="glass-card">
-        <h3 class="mb-3">Helpful tips</h3>
-        <ul class="text-xs text-dim mb-0">
-            <li class="mb-1">Use real photos or clear icons when describing your service in the description.</li>
-            <li class="mb-1">Keep pricing transparent — mention if materials or visit charges are extra.</li>
-            <li>Update your availability promptly so customers only see services that are actually open.</li>
+    <div class="glass-card p-4 border-0" style="background: rgba(0, 107, 90, 0.05);">
+        <h3 class="h5 mb-3 text-primary"><i class="fas fa-lightbulb me-2"></i>Professional Insights</h3>
+        <ul class="text-sm text-dim mb-0 ps-3">
+            <li class="mb-2">Use high-resolution imagery to represent your technical artifacts.</li>
+            <li class="mb-2">Maintain absolute transparency in pricing and delivery protocols.</li>
+            <li>Promptly synchronize your availability to maintain heritage reputation.</li>
         </ul>
     </div>
 </div>

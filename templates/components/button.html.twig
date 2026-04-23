@@ -9,16 +9,20 @@
 #}
 {% set c_type = type|default('button') %}
 {% set c_style = style|default('luxury') %}
-{% set base_class = c_style == 'luxury' ? 'btn-luxury' : (c_style == 'outline' ? 'btn-outline-luxury' : 'btn-aurora btn-aurora-gradient') %}
+{% set base_class = 
+    c_style == 'luxury' ? 'px-10 py-4 bg-gradient-to-r from-primary to-primary-container text-on-primary rounded-full font-label font-bold tracking-widest uppercase text-xs transition-transform hover:scale-105 active:scale-95' 
+    : (c_style == 'outline' ? 'px-8 py-3 border border-outline-variant text-on-surface-variant rounded-full font-label font-bold tracking-widest uppercase text-xs transition-all hover:border-primary hover:text-primary' 
+    : 'btn-aurora btn-aurora-gradient') 
+%}
 
 {% if url is defined and url %}
-    <a href="{{ url }}" class="{{ base_class }} {{ class|default('') }}">
-        {% if icon is defined and icon %}<i class="fa-solid {{ icon }}"></i>{% endif %}
+    <a href="{{ url }}" class="{{ base_class }} {{ class|default('') }} d-inline-flex align-items-center justify-content-center text-decoration-none">
+        {% if icon is defined and icon %}<i class="fa-solid {{ icon }} me-2"></i>{% endif %}
         {{ text }}
     </a>
 {% else %}
-    <button type="{{ c_type }}" class="{{ base_class }} {{ class|default('') }}">
-        {% if icon is defined and icon %}<i class="fa-solid {{ icon }}"></i>{% endif %}
+    <button type="{{ c_type }}" class="{{ base_class }} {{ class|default('') }} d-inline-flex align-items-center justify-content-center">
+        {% if icon is defined and icon %}<i class="fa-solid {{ icon }} me-2"></i>{% endif %}
         {{ text }}
     </button>
 {% endif %}

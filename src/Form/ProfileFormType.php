@@ -4,6 +4,7 @@ namespace App\Form;
 
 use App\Entity\User;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -21,6 +22,18 @@ class ProfileFormType extends AbstractType
             ->add('phoneNumber', TextType::class, [
                 'property_path' => 'mobile',
                 'required' => false
+            ])
+            ->add('bookingInAppNotifications', CheckboxType::class, [
+                'required' => false,
+            ])
+            ->add('bookingEmailNotifications', CheckboxType::class, [
+                'required' => false,
+            ])
+            ->add('messageInAppNotifications', CheckboxType::class, [
+                'required' => false,
+            ])
+            ->add('messageEmailNotifications', CheckboxType::class, [
+                'required' => false,
             ])
             ->add('plainPassword', RepeatedType::class, [
                 'type' => PasswordType::class,

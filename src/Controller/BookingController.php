@@ -6,6 +6,7 @@ use App\Entity\Booking;
 use App\Entity\Service;
 use App\Entity\User;
 use App\Service\AdminAuditLogger;
+use App\Service\NotificationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -21,11 +22,17 @@ class BookingController extends AbstractController
 {
     private AdminAuditLogger $auditLogger;
     private GamificationService $gamification;
+    private NotificationService $notifications;
 
-    public function __construct(AdminAuditLogger $auditLogger, GamificationService $gamification)
+    public function __construct(
+        AdminAuditLogger $auditLogger,
+        GamificationService $gamification,
+        NotificationService $notifications
+    )
     {
         $this->auditLogger = $auditLogger;
         $this->gamification = $gamification;
+        $this->notifications = $notifications;
     }
 
     /**
@@ -82,6 +89,27 @@ class BookingController extends AbstractController
             'service' => $service->getTitle(),
             'provider' => $service->getProvider()->getEmail()
         ]);
+
+        $this->notifyBookingParticipant(
+            $service->getProvider(),
+            'New booking request received',
+            sprintf(
+                '%s requested "%s". Review the booking details and respond from your dashboard.',
+                $user->getFullName(),
+                $service->getTitle()
+            ),
+            $booking
+        );
+
+        $this->notifyBookingParticipant(
+            $user,
+            'Booking request created',
+            sprintf(
+                'Your booking for "%s" is now pending provider confirmation.',
+                $service->getTitle()
+            ),
+            $booking
+        );
 
         $this->addFlash('success', 'Booking created successfully! Tracking ID: ' . $trackingId);
         return $this->redirectToRoute('app_booking_detail', ['id' => $booking->getId()]);
@@ -140,6 +168,7 @@ class BookingController extends AbstractController
         // Get all bookings for services owned by this provider
         $bookings = $em->createQueryBuilder()
             ->select('b')
+            ->addSelect('s')
             ->from(Booking::class, 'b')
             ->join('b.service', 's')
             ->where('s.provider = :provider')
@@ -194,6 +223,18 @@ class BookingController extends AbstractController
 
         $em->flush();
 
+        $this->notifyBookingParticipant(
+            $booking->getCustomer(),
+            'Booking status updated',
+            sprintf(
+                'Your booking for "%s" moved from %s to %s.',
+                $booking->getService()->getTitle(),
+                str_replace('-', ' ', $oldStatus),
+                str_replace('-', ' ', $newStatus)
+            ),
+            $booking
+        );
+
         $this->auditLogger->logBookingAction('BOOKING_STATUS_UPDATE', $booking->getId(), [
             'old_status' => $oldStatus,
             'new_status' => $newStatus,
@@ -241,6 +282,17 @@ class BookingController extends AbstractController
 
         $booking->setStatus('cancelled');
         $em->flush();
+
+        $this->notifyBookingParticipant(
+            $booking->getService()->getProvider(),
+            'Booking cancelled',
+            sprintf(
+                '%s cancelled the booking for "%s".',
+                $booking->getCustomer()->getFullName(),
+                $booking->getService()->getTitle()
+            ),
+            $booking
+        );
 
         $this->auditLogger->logBookingAction('BOOKING_CANCEL', $booking->getId(), [
             'cancelled_by' => $user->getEmail()
@@ -355,6 +407,17 @@ class BookingController extends AbstractController
         $booking->setEstimationStatus($estimationStatus);
         $em->flush();
 
+        $this->notifyBookingParticipant(
+            $booking->getCustomer(),
+            'New estimate received',
+            sprintf(
+                'A new estimate of Rs. %s was shared for "%s".',
+                $estimatedCost,
+                $booking->getService()->getTitle()
+            ),
+            $booking
+        );
+
         $this->auditLogger->logBookingAction('BOOKING_ESTIMATE_SUBMIT', $booking->getId(), [
             'estimated_cost' => $estimatedCost,
             'status' => $estimationStatus
@@ -399,6 +462,18 @@ class BookingController extends AbstractController
 
         $em->flush();
 
+        $this->notifyBookingParticipant(
+            $booking->getService()->getProvider(),
+            'Estimate response received',
+            sprintf(
+                '%s %s the estimate for "%s".',
+                $booking->getCustomer()->getFullName(),
+                $response,
+                $booking->getService()->getTitle()
+            ),
+            $booking
+        );
+
         $this->auditLogger->logBookingAction('BOOKING_ESTIMATE_' . strtoupper($response), $booking->getId());
 
         $this->addFlash('success', 'Estimation ' . $response . ' successfully.');
@@ -431,6 +506,16 @@ class BookingController extends AbstractController
 
         $booking->setStatus('on-the-way');
         $em->flush();
+
+        $this->notifyBookingParticipant(
+            $booking->getCustomer(),
+            'Provider dispatched',
+            sprintf(
+                'Your provider is on the way for "%s".',
+                $booking->getService()->getTitle()
+            ),
+            $booking
+        );
 
         $this->auditLogger->logBookingAction('BOOKING_DISPATCHED', $booking->getId(), [
             'provider' => $user->getEmail()
@@ -475,6 +560,16 @@ class BookingController extends AbstractController
 
         $em->flush();
 
+        $this->notifyBookingParticipant(
+            $customer,
+            'Booking completed',
+            sprintf(
+                'Your booking for "%s" has been marked completed.',
+                $booking->getService()->getTitle()
+            ),
+            $booking
+        );
+
         $this->auditLogger->logBookingAction('BOOKING_COMPLETED', $booking->getId(), [
             'provider' => $user->getEmail(),
             'customer' => $customer->getEmail()
@@ -482,5 +577,15 @@ class BookingController extends AbstractController
 
         $this->addFlash('success', 'Booking marked as completed. Reputation points awarded!');
         return $this->redirectToRoute('app_provider_dashboard');
+    }
+
+    private function notifyBookingParticipant(User $recipient, string $title, string $message, Booking $booking): void
+    {
+        $this->notifications->notifyBookingUpdate(
+            $recipient,
+            $title,
+            $message,
+            $this->generateUrl('app_booking_detail', ['id' => $booking->getId()])
+        );
     }
 }

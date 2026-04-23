@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Booking;
+use App\Service\NotificationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -44,7 +45,12 @@ final class CustomerController extends AbstractController
     }
 
     #[Route('/dashboard/customer/booking/{id}/accept-estimate', name: 'app_customer_accept_estimate', methods: ['POST'])]
-    public function acceptEstimate(Booking $booking, EntityManagerInterface $entityManager, Request $request): Response
+    public function acceptEstimate(
+        Booking $booking,
+        EntityManagerInterface $entityManager,
+        Request $request,
+        NotificationService $notificationService
+    ): Response
     {
         if ($booking->getCustomer() !== $this->getUser()) {
             $this->addFlash('danger', 'Access denied.');
@@ -54,6 +60,18 @@ final class CustomerController extends AbstractController
         if ($this->isCsrfTokenValid('accept_estimate' . $booking->getId(), $request->request->get('_token'))) {
             $booking->setEstimationStatus('accepted');
             $entityManager->flush();
+
+            $notificationService->notifyBookingUpdate(
+                $booking->getService()->getProvider(),
+                'Estimate accepted',
+                sprintf(
+                    '%s accepted the estimate for "%s".',
+                    $booking->getCustomer()->getFullName(),
+                    $booking->getService()->getTitle()
+                ),
+                $this->generateUrl('app_booking_detail', ['id' => $booking->getId()])
+            );
+
             $this->addFlash('success', 'You have accepted the estimate of ₹' . $booking->getEstimatedCost() . '. The provider will proceed with the work.');
         }
 
@@ -61,7 +79,12 @@ final class CustomerController extends AbstractController
     }
 
     #[Route('/dashboard/customer/booking/{id}/reject-estimate', name: 'app_customer_reject_estimate', methods: ['POST'])]
-    public function rejectEstimate(Booking $booking, EntityManagerInterface $entityManager, Request $request): Response
+    public function rejectEstimate(
+        Booking $booking,
+        EntityManagerInterface $entityManager,
+        Request $request,
+        NotificationService $notificationService
+    ): Response
     {
         if ($booking->getCustomer() !== $this->getUser()) {
             $this->addFlash('danger', 'Access denied.');
@@ -71,6 +94,18 @@ final class CustomerController extends AbstractController
         if ($this->isCsrfTokenValid('reject_estimate' . $booking->getId(), $request->request->get('_token'))) {
             $booking->setEstimationStatus('rejected');
             $entityManager->flush();
+
+            $notificationService->notifyBookingUpdate(
+                $booking->getService()->getProvider(),
+                'Estimate rejected',
+                sprintf(
+                    '%s rejected the estimate for "%s".',
+                    $booking->getCustomer()->getFullName(),
+                    $booking->getService()->getTitle()
+                ),
+                $this->generateUrl('app_booking_detail', ['id' => $booking->getId()])
+            );
+
             $this->addFlash('warning', 'You have rejected the estimate. The provider will be notified.');
         }
 

@@ -65,26 +65,19 @@ class BillingController extends AbstractController
         $billing = new Billing();
         $billing->setUser($user);
         $billing->setAmount($_ENV['PREMIUM_PLAN_PRICE'] ?? '999.00');
-        $billing->setPaymentStatus('success');
-        $billing->setTransactionId('TXN-' . strtoupper(bin2hex(random_bytes(8))) . '-' . time());
+        $billing->setPaymentStatus('unpaid');
+        $billing->setTransactionId('SUB-' . strtoupper(bin2hex(random_bytes(8))) . '-' . time());
         $billing->setCreatedAt(new \DateTimeImmutable());
         $billing->setCategory('Subscription');
         $billing->setServiceName('Premium Plan Upgrade');
         $billing->setDescription('One-time fee to elevate all services to premium tier search placement.');
 
         $entityManager->persist($billing);
-
-
-        $services = $entityManager->getRepository(Service::class)->findBy(['provider' => $user]);
-        foreach ($services as $service) {
-            $service->setIsPremium(true);
-        }
-
         $entityManager->flush();
 
-        $this->addFlash('success', 'Badhai ho! Have tame Premium Member cho. Tamari services search ma top par dekhase.');
+        $this->addFlash('info', 'Redirecting to secure gateway to complete your premium upgrade.');
 
-        return $this->redirectToRoute('app_billing_history');
+        return $this->redirectToRoute('app_billing_checkout', ['id' => $billing->getId()]);
     }
 
     #[Route('/dashboard/provider/billing/new', name: 'app_provider_billing_new', methods: ['GET', 'POST'])]
@@ -95,7 +88,9 @@ class BillingController extends AbstractController
         $provider = $this->getUser();
 
         $bookings = $entityManager->getRepository(Booking::class)->createQueryBuilder('b')
+            ->addSelect('c')
             ->join('b.service', 's')
+            ->join('b.customer', 'c')
             ->where('s.provider = :provider')
             ->setParameter('provider', $provider)
             ->getQuery()
@@ -220,16 +215,16 @@ class BillingController extends AbstractController
     {
         $payload = @file_get_contents('php://input');
         $sig_header = $request->headers->get('stripe-signature');
-        $endpoint_secret = $_ENV['STRIPE_WEBHOOK_SECRET'] ?? ''; // Set this in .env.local
+        $endpoint_secret = $_ENV['STRIPE_WEBHOOK_SECRET'] ?? null; // Set this in .env.local
+
+        if (!$endpoint_secret) {
+            return new Response('Stripe webhook secret is missing from environment.', 500);
+        }
 
         try {
-            if ($endpoint_secret) {
-                $event = \Stripe\Webhook::constructEvent(
-                    $payload, $sig_header, $endpoint_secret
-                );
-            } else {
-                $event = json_decode($payload);
-            }
+            $event = \Stripe\Webhook::constructEvent(
+                $payload, $sig_header, $endpoint_secret
+            );
         } catch(\UnexpectedValueException|\Stripe\Exception\SignatureVerificationException $e) {
             return new Response('Invalid payload or signature', 400);
         }
@@ -241,6 +236,15 @@ class BillingController extends AbstractController
             if ($billing && $billing->getPaymentStatus() !== 'paid') {
                 $billing->setPaymentStatus('paid');
                 $billing->setTransactionId('STR-' . strtoupper(substr(bin2hex(random_bytes(4)), 0, 8)));
+                
+                // If this was a subscription upgrade, apply the premium status to all services
+                if ($billing->getCategory() === 'Subscription') {
+                    $services = $billing->getUser()->getServices();
+                    foreach ($services as $service) {
+                        $service->setIsPremium(true);
+                    }
+                }
+
                 $em->flush();
             }
         }

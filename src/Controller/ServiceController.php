@@ -4,10 +4,12 @@ namespace App\Controller;
 
 use App\Entity\Billing;
 use App\Entity\Booking;
+use App\Entity\Review;
 use App\Entity\Service;
 use App\Entity\User;
 use App\Form\BookingType;
 use App\Form\ServiceType;
+use App\Service\NotificationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request; 
@@ -50,8 +52,58 @@ final class ServiceController extends AbstractController
     #[Route('/service/{id}', name: 'app_service_show', requirements: ['id' => '\d+'])]
     public function show(Service $service): Response
     {
+        $provider = $service->getProvider();
+        $providerReviews = [];
+        $providerAverageRating = null;
+        $providerCompletedJobs = 0;
+        $providerActiveServices = [];
+        $providerOtherServices = [];
+
+        if ($provider instanceof User) {
+            $providerReviews = $provider->getReviewsReceived()->toArray();
+
+            usort(
+                $providerReviews,
+                fn (Review $left, Review $right) => $right->getCreatedAt() <=> $left->getCreatedAt()
+            );
+
+            if ($providerReviews !== []) {
+                $providerAverageRating = array_sum(
+                    array_map(
+                        static fn (Review $review): int => (int) $review->getRating(),
+                        $providerReviews
+                    )
+                ) / count($providerReviews);
+            }
+
+            foreach ($provider->getServices() as $providerService) {
+                if (!$providerService->isActive()) {
+                    continue;
+                }
+
+                $providerActiveServices[] = $providerService;
+
+                if ($providerService->getId() !== $service->getId()) {
+                    $providerOtherServices[] = $providerService;
+                }
+
+                foreach ($providerService->getBookings() as $booking) {
+                    if (strtolower((string) $booking->getStatus()) === 'completed') {
+                        $providerCompletedJobs++;
+                    }
+                }
+            }
+        }
+
         return $this->render('service/show.html.twig', [
             'service' => $service,
+            'provider' => $provider,
+            'provider_reviews' => array_slice($providerReviews, 0, 6),
+            'provider_average_rating' => $providerAverageRating,
+            'provider_review_count' => count($providerReviews),
+            'provider_completed_jobs' => $providerCompletedJobs,
+            'provider_active_services_count' => count($providerActiveServices),
+            'provider_other_services' => array_slice($providerOtherServices, 0, 3),
         ]);
     }
 
@@ -179,7 +231,12 @@ final class ServiceController extends AbstractController
     }
 
     #[Route('/book/service/{id}', name: 'app_service_book')]
-    public function book(Service $service, Request $request, EntityManagerInterface $entityManager): Response
+    public function book(
+        Service $service,
+        Request $request,
+        EntityManagerInterface $entityManager,
+        NotificationService $notificationService
+    ): Response
     {
         $this->denyAccessUnlessGranted('ROLE_USER');
 
@@ -196,6 +253,27 @@ final class ServiceController extends AbstractController
             $entityManager->persist($booking);
             $entityManager->flush();
 
+            $notificationService->notifyBookingUpdate(
+                $service->getProvider(),
+                'New booking request received',
+                sprintf(
+                    '%s requested "%s".',
+                    $this->getUser()->getFullName(),
+                    $service->getTitle()
+                ),
+                $this->generateUrl('app_booking_detail', ['id' => $booking->getId()])
+            );
+
+            $notificationService->notifyBookingUpdate(
+                $this->getUser(),
+                'Booking request created',
+                sprintf(
+                    'Your booking for "%s" is waiting for provider confirmation.',
+                    $service->getTitle()
+                ),
+                $this->generateUrl('app_booking_detail', ['id' => $booking->getId()])
+            );
+
             $this->addFlash('success', 'Your Booking Has Been Placed Successfully!');
             return $this->redirectToRoute('app_customer_dashboard');
         }
@@ -209,7 +287,12 @@ final class ServiceController extends AbstractController
     // --- ESTIMATION (Provider sends estimate for Visit bookings) ---
 
     #[Route('/dashboard/provider/booking/{id}/estimate', name: 'app_provider_send_estimate', methods: ['POST'])]
-    public function sendEstimation(Booking $booking, Request $request, EntityManagerInterface $entityManager): Response
+    public function sendEstimation(
+        Booking $booking,
+        Request $request,
+        EntityManagerInterface $entityManager,
+        NotificationService $notificationService
+    ): Response
     {
         $this->denyAccessUnlessGranted('ROLE_PROVIDER');
 
@@ -238,6 +321,18 @@ final class ServiceController extends AbstractController
                 $entityManager->persist($billing);
 
                 $entityManager->flush();
+
+                $notificationService->notifyBookingUpdate(
+                    $booking->getCustomer(),
+                    'New estimate received',
+                    sprintf(
+                        'A new estimate of Rs. %s was shared for "%s".',
+                        $estimatedCost,
+                        $booking->getService()->getTitle()
+                    ),
+                    $this->generateUrl('app_booking_detail', ['id' => $booking->getId()])
+                );
+
                 $this->addFlash('success', 'Estimation of ₹' . $estimatedCost . ' sent to customer. Estimate bill created.');
             } else {
                 $this->addFlash('danger', 'Please enter a valid estimated cost.');
@@ -246,7 +341,13 @@ final class ServiceController extends AbstractController
 
         return $this->redirectToRoute('app_provider_dashboard');
     }    #[Route('/dashboard/provider/booking/{id}/complete', name: 'app_provider_complete_booking', methods: ['POST'])]
-    public function completeBooking(Booking $booking, Request $request, EntityManagerInterface $entityManager, \App\Service\GamificationService $gamification): Response
+    public function completeBooking(
+        Booking $booking,
+        Request $request,
+        EntityManagerInterface $entityManager,
+        \App\Service\GamificationService $gamification,
+        NotificationService $notificationService
+    ): Response
     {
         $this->denyAccessUnlessGranted('ROLE_PROVIDER');
 
@@ -284,6 +385,16 @@ final class ServiceController extends AbstractController
                 $gamification->awardPoints($booking->getService()->getProvider(), 500, false);
                 $entityManager->flush();
 
+                $notificationService->notifyBookingUpdate(
+                    $booking->getCustomer(),
+                    'Booking completed',
+                    sprintf(
+                        'Your booking for "%s" has been completed.',
+                        $booking->getService()->getTitle()
+                    ),
+                    $this->generateUrl('app_booking_detail', ['id' => $booking->getId()])
+                );
+
                 $this->addFlash('success', 'Booking completed & final bill generated. You earned 500 Reputation Points! 🏆');
             }
         }
@@ -292,7 +403,12 @@ final class ServiceController extends AbstractController
     }
 
     #[Route('/dashboard/provider/booking/{id}/dispatch', name: 'app_provider_dispatch_booking', methods: ['POST'])]
-    public function dispatchBooking(Booking $booking, Request $request, EntityManagerInterface $entityManager): Response
+    public function dispatchBooking(
+        Booking $booking,
+        Request $request,
+        EntityManagerInterface $entityManager,
+        NotificationService $notificationService
+    ): Response
     {
         $this->denyAccessUnlessGranted('ROLE_PROVIDER');
 
@@ -309,6 +425,17 @@ final class ServiceController extends AbstractController
             $booking->setLongitude($provider->getLongitude() ?? '72.8311'); // Default Surat long
             
             $entityManager->flush();
+
+            $notificationService->notifyBookingUpdate(
+                $booking->getCustomer(),
+                'Provider dispatched',
+                sprintf(
+                    'Your provider is on the way for "%s".',
+                    $booking->getService()->getTitle()
+                ),
+                $this->generateUrl('app_booking_detail', ['id' => $booking->getId()])
+            );
+
             $this->addFlash('success', 'Protocol Status: DISPATCHED. Node is currently transit to sector.');
         }
 

@@ -55,6 +55,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: Review::class, mappedBy: 'provider')]
     private Collection $reviewsReceived;
 
+    #[ORM\OneToMany(targetEntity: Notification::class, mappedBy: 'user', orphanRemoval: true)]
+    private Collection $notifications;
+
     #[ORM\Column(options: ["default" => false])]
     private bool $isPremium = false;
 
@@ -103,6 +106,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
 
+    #[ORM\Column(options: ["default" => true])]
+    private bool $bookingInAppNotifications = true;
+
+    #[ORM\Column(options: ["default" => true])]
+    private bool $bookingEmailNotifications = true;
+
+    #[ORM\Column(options: ["default" => true])]
+    private bool $messageInAppNotifications = true;
+
+    #[ORM\Column(options: ["default" => true])]
+    private bool $messageEmailNotifications = true;
+
     public function __construct()
     {
         $this->services = new ArrayCollection();
@@ -110,6 +125,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->billings = new ArrayCollection();
         $this->reviewsGiven = new ArrayCollection();
         $this->reviewsReceived = new ArrayCollection();
+        $this->notifications = new ArrayCollection();
         $this->createdAt = new \DateTimeImmutable();
     }
 
@@ -215,6 +231,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getReviewsReceived(): Collection
     {
         return $this->reviewsReceived;
+    }
+
+    public function getNotifications(): Collection
+    {
+        return $this->notifications;
     }
 
     public function isPremium(): bool
@@ -415,6 +436,54 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setCreatedAt(\DateTimeImmutable $createdAt): static
     {
         $this->createdAt = $createdAt;
+
+        return $this;
+    }
+
+    public function isBookingInAppNotifications(): bool
+    {
+        return $this->bookingInAppNotifications;
+    }
+
+    public function setBookingInAppNotifications(bool $bookingInAppNotifications): static
+    {
+        $this->bookingInAppNotifications = $bookingInAppNotifications;
+
+        return $this;
+    }
+
+    public function isBookingEmailNotifications(): bool
+    {
+        return $this->bookingEmailNotifications;
+    }
+
+    public function setBookingEmailNotifications(bool $bookingEmailNotifications): static
+    {
+        $this->bookingEmailNotifications = $bookingEmailNotifications;
+
+        return $this;
+    }
+
+    public function isMessageInAppNotifications(): bool
+    {
+        return $this->messageInAppNotifications;
+    }
+
+    public function setMessageInAppNotifications(bool $messageInAppNotifications): static
+    {
+        $this->messageInAppNotifications = $messageInAppNotifications;
+
+        return $this;
+    }
+
+    public function isMessageEmailNotifications(): bool
+    {
+        return $this->messageEmailNotifications;
+    }
+
+    public function setMessageEmailNotifications(bool $messageEmailNotifications): static
+    {
+        $this->messageEmailNotifications = $messageEmailNotifications;
 
         return $this;
     }

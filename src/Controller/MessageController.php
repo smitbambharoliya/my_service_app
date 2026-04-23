@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Message;
 use App\Entity\User;
 use App\Repository\MessageRepository;
+use App\Service\NotificationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -30,9 +31,19 @@ class MessageController extends AbstractController
     }
 
     #[Route('/chat/{id}', name: 'app_message_chat', methods: ['GET', 'POST'])]
-    public function chat(User $contact, Request $request, MessageRepository $messageRepo, EntityManagerInterface $em): Response
+    public function chat(
+        User $contact,
+        Request $request,
+        MessageRepository $messageRepo,
+        EntityManagerInterface $em,
+        NotificationService $notificationService
+    ): Response
     {
         $currentUser = $this->getUser();
+
+        if ($currentUser instanceof User && $contact->getId() === $currentUser->getId()) {
+            throw $this->createAccessDeniedException('You cannot message yourself.');
+        }
 
         // Mark unread messages as read
         $unreadMessages = $messageRepo->findBy([
@@ -62,6 +73,13 @@ class MessageController extends AbstractController
                 $msg->setContent($content);
                 $em->persist($msg);
                 $em->flush();
+
+                $notificationService->notifyMessage(
+                    $contact,
+                    sprintf('%s sent you a message', $currentUser->getFullName()),
+                    strlen($content) > 120 ? substr($content, 0, 117) . '...' : $content,
+                    $this->generateUrl('app_message_chat', ['id' => $currentUser->getId()])
+                );
             }
             return $this->redirectToRoute('app_message_chat', ['id' => $contact->getId()]);
         }
@@ -76,9 +94,24 @@ class MessageController extends AbstractController
 
     // ── AJAX POLLING API ──
     #[Route('/api/poll/{id}', name: 'api_message_poll', methods: ['GET'])]
-    public function apiPoll(User $contact, MessageRepository $messageRepo): JsonResponse
+    public function apiPoll(User $contact, MessageRepository $messageRepo, EntityManagerInterface $em): JsonResponse
     {
         $currentUser = $this->getUser();
+
+        $unreadMessages = $messageRepo->findBy([
+            'sender' => $contact,
+            'receiver' => $currentUser,
+            'isRead' => false,
+        ]);
+
+        foreach ($unreadMessages as $message) {
+            $message->setIsRead(true);
+        }
+
+        if (count($unreadMessages) > 0) {
+            $em->flush();
+        }
+
         $conversation = $messageRepo->getConversation($currentUser, $contact);
 
         $messagesFormat = [];
@@ -98,16 +131,25 @@ class MessageController extends AbstractController
     }
 
     #[Route('/api/send/{id}', name: 'api_message_send', methods: ['POST'])]
-    public function apiSend(User $contact, Request $request, EntityManagerInterface $em): JsonResponse
+    public function apiSend(
+        User $contact,
+        Request $request,
+        EntityManagerInterface $em,
+        NotificationService $notificationService
+    ): JsonResponse
     {
         $currentUser = $this->getUser();
+
+        if ($currentUser instanceof User && $contact->getId() === $currentUser->getId()) {
+            return $this->json(['error' => 'You cannot message yourself.'], 400);
+        }
 
         if (!$this->isCsrfTokenValid('send_message' . $contact->getId(), $request->headers->get('X-CSRF-TOKEN'))) {
             return $this->json(['error' => 'Invalid CSRF token'], 403);
         }
 
         $data = json_decode($request->getContent(), true);
-        $content = current($data) ?: $request->request->get('content'); // handle raw json or standard payload
+        $content = $data['content'] ?? $request->request->get('content');
 
         if (!$content) {
             return $this->json(['status' => 'error', 'message' => 'Empty content'], 400);
@@ -119,6 +161,13 @@ class MessageController extends AbstractController
         $msg->setContent($content);
         $em->persist($msg);
         $em->flush();
+
+        $notificationService->notifyMessage(
+            $contact,
+            sprintf('%s sent you a message', $currentUser->getFullName()),
+            strlen($content) > 120 ? substr($content, 0, 117) . '...' : $content,
+            $this->generateUrl('app_message_chat', ['id' => $currentUser->getId()])
+        );
 
         return $this->json(['status' => 'success']);
     }

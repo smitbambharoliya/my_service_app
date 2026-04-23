@@ -14,7 +14,34 @@
         
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;500;600;700&family=Public+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+        <!-- Client-side tailwind compiler removed for production rendering speed -->
+        <script>
+            tailwind.config = {
+                theme: {
+                    extend: {
+                        colors: {
+                            primary: '#006b5a',
+                            'primary-container': '#33ccaf',
+                            'on-primary': '#ffffff',
+                            'on-surface': '#1b1c1d',
+                            'on-surface-variant': '#3c4a45',
+                            'outline-variant': '#bbcac4',
+                            'surface-low': '#f5f3f4',
+                            background: '#faf9fa',
+                        },
+                        fontFamily: {
+                            serif: ['Noto Serif', 'serif'],
+                            sans: ['Inter', 'sans-serif'],
+                            label: ['Public Sans', 'sans-serif'],
+                        },
+                        borderRadius: {
+                            'xl': '8px',
+                        }
+                    }
+                }
+            }
+        </script>
 
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -25,79 +52,69 @@
 
         <style>
             .luxury-navbar {
-                background: rgba(255, 255, 255, 0.98) !important;
+                background: rgba(250, 249, 250, 0.8) !important;
                 backdrop-filter: blur(20px);
                 -webkit-backdrop-filter: blur(20px);
-                border-bottom: 2px solid rgba(14, 165, 233, 0.2);
-                padding: 1.25rem 0;
+                border-bottom: 1px solid var(--color-outline-variant);
+                padding: 1.5rem 0;
                 position: sticky;
                 top: 0;
                 z-index: 1000;
                 transition: all 0.4s var(--ease-luxury);
-                box-shadow: var(--shadow-soft);
             }
             .luxury-navbar.scrolled {
-                padding: 0.85rem 0;
-                background: rgba(255, 255, 255, 0.98);
-                border-bottom-color: var(--accent-teal);
+                padding: 1rem 0;
+                background: rgba(255, 255, 255, 0.98) !important;
+                box-shadow: var(--shadow-editorial);
             }
             .nav-brand-luxury {
-                font-family: 'Playfair Display', serif;
-                font-size: 1.6rem;
-                font-weight: 800;
-                color: #0f172a !important;
-                display: flex; align-items: center; gap: 4px;
+                font-family: 'Noto Serif', serif;
+                font-size: 1.75rem;
+                font-weight: 700;
+                color: var(--color-on-surface) !important;
                 text-decoration: none;
+                letter-spacing: -0.02em;
             }
-            .gold-dot { color: #f59e0b; }
+            .brand-accent { color: var(--color-primary); font-style: italic; }
             
-            .nav-link-luxury {
-                color: #64748b;
-                font-weight: 800;
-                font-size: 0.8rem;
-                text-transform: uppercase;
-                letter-spacing: 0.1em;
-                padding: 8px 20px;
-                border-radius: 8px;
-                transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+            .nav-link-alexandria {
+                font-family: 'Noto Serif', serif;
+                color: var(--color-on-surface-variant);
+                font-weight: 400;
+                font-size: 0.95rem;
+                padding: 4px 0;
+                transition: all 0.3s var(--ease-luxury);
                 text-decoration: none;
-                border: 1px solid transparent;
+                border-bottom: 2px solid transparent;
             }
-            .nav-link-luxury:hover {
-                color: #0ea5e9;
-                background: rgba(14, 165, 233, 0.05);
-            }
-            .nav-link-luxury.active {
+            .nav-link-alexandria:hover, .nav-link-alexandria.active {
                 color: #ffffff !important;
-                background-color: #0ea5e9 !important;
-                box-shadow: 0 4px 15px rgba(14, 165, 233, 0.3);
-            }
-
-            .nav-notification {
-                position: relative;
-                color: var(--text-muted);
-                font-size: 1.1rem;
-                cursor: pointer;
-                transition: color 0.3s;
-            }
-            .nav-notification:hover { color: var(--accent-teal); }
-            .notif-dot {
-                position: absolute;
-                top: -2px; right: -2px;
-                width: 8px; height: 8px;
-                background: var(--accent-red);
-                border-radius: 50%;
-                border: 2px solid var(--bg-deep);
+                border-bottom-color: #ffffff;
+                border-bottom-width: 3px;
+                font-weight: 700;
             }
 
             .user-orb {
-                width: 38px; height: 38px;
-                border-radius: 12px;
-                background: linear-gradient(135deg, var(--accent-teal), var(--accent-violet));
+                width: 40px; height: 40px;
+                border-radius: 50%;
+                background: linear-gradient(135deg, var(--color-primary), var(--color-emerald-deep));
                 display: flex; align-items: center; justify-content: center;
-                font-weight: 800; color: #0a0e16;
-                box-shadow: 0 4px 15px var(--accent-teal-glow);
-                border: 1px solid rgba(0,0,0,0.1);
+                font-weight: 700; color: #ffffff;
+                box-shadow: var(--shadow-primary-glow);
+                border: 2px solid #ffffff;
+                transition: all 0.3s var(--ease-luxury);
+            }
+            button:hover .user-orb {
+                transform: scale(1.1) rotate(5deg);
+                box-shadow: 0 0 20px rgba(0, 107, 90, 0.4);
+            }
+            .profile-trigger {
+                transition: all 0.3s var(--ease-luxury);
+                border-radius: 12px;
+                padding: 4px 12px !important;
+            }
+            .profile-trigger:hover {
+                background: rgba(0, 107, 90, 0.05);
             }
         </style>
     </head>
@@ -108,35 +125,37 @@
         <div class="container d-flex align-items-center justify-content-between">
             
             <a class="nav-brand-luxury" href="{{ path('app_home') }}">
-                Service<span class="gold-dot">Hub</span>
+                Service<span class="brand-accent">Hub</span>
             </a>
 
-            <ul class="nav d-none d-lg-flex align-items-center gap-2">
-                <li><a href="{{ path('app_home') }}" class="nav-link-luxury {{ app.request.get('_route') == 'app_home' ? 'active' : '' }}">Home</a></li>
-                <li><a href="{{ path('app_service_list') }}" class="nav-link-luxury {{ app.request.get('_route') == 'app_service_list' ? 'active' : '' }}">Registry</a></li>
-                {% if app.user and is_granted('ROLE_PROVIDER') %}
-                    <li><a href="{{ path('app_provider_my_services') }}" class="nav-link-luxury {{ app.request.get('_route') == 'app_provider_my_services' ? 'active' : '' }}">Curation</a></li>
-                {% elseif app.user %}
-                    <li><a href="{{ path('app_booking_my_bookings') }}" class="nav-link-luxury {{ app.request.get('_route') == 'app_booking_my_bookings' ? 'active' : '' }}">Curation</a></li>
+            <ul class="nav d-none d-lg-flex align-items-center gap-5">
+                {% if is_granted('ROLE_PROVIDER') %}
+                    {# PROVIDER DASHBOARD NAVIGATION #}
+                    <li><a href="{{ path('app_provider_home') }}" class="nav-link-alexandria {{ app.request.get('_route') == 'app_provider_home' ? 'active' : '' }}">Home</a></li>
+                    <li><a href="{{ path('app_provider_dashboard') }}" class="nav-link-alexandria {{ app.request.get('_route') starts with 'app_provider_dashboard' or app.request.get('_route') == 'app_provider_onboarding' ? 'active' : '' }}">Dashboard</a></li>
+                    <li><a href="{{ path('app_provider_my_services') }}" class="nav-link-alexandria {{ app.request.get('_route') starts with 'app_provider_my_services' or app.request.get('_route') starts with 'app_service_show' ? 'active' : '' }}">My Services</a></li>
+                    <li><a href="{{ path('app_service_new') }}" class="nav-link-alexandria {{ app.request.get('_route') == 'app_service_new' ? 'active' : '' }}">Add Service</a></li>
                 {% else %}
-                    <li><a href="{{ path('app_login') }}" class="nav-link-luxury">Curation</a></li>
-                {% endif %}
-                
-                {% if app.user %}
-                    <li><a href="{{ path('app_customer_dashboard') }}" class="nav-link-luxury {{ app.request.get('_route') == 'app_customer_dashboard' ? 'active' : '' }}">Manifest</a></li>
+                    {# CUSTOMER/GUEST MARKETPLACE NAVIGATION #}
+                    <li><a href="{{ path('app_home') }}" class="nav-link-alexandria {{ app.request.get('_route') == 'app_home' ? 'active' : '' }}">Home</a></li>
+                    <li><a href="{{ path('app_service_list') }}" class="nav-link-alexandria {{ app.request.get('_route') == 'app_service_list' ? 'active' : '' }}">Services</a></li>
+                    
+                    {% if app.user %}
+                        <li><a href="{{ path('app_booking_my_bookings') }}" class="nav-link-alexandria {{ app.request.get('_route') == 'app_booking_my_bookings' ? 'active' : '' }}">My Bookings</a></li>
+                        <li><a href="{{ path('app_customer_dashboard') }}" class="nav-link-alexandria {{ app.request.get('_route') == 'app_customer_dashboard' ? 'active' : '' }}">My Profile</a></li>
+                    {% else %}
+                        <li><a href="{{ path('app_login') }}" class="nav-link-alexandria">Login</a></li>
+                    {% endif %}
                 {% endif %}
                 
                 {% if is_granted('ROLE_ADMIN') %}
-                    <li><a href="{{ path('app_admin_dashboard') }}" class="nav-link-luxury {{ 'admin' in app.request.getPathInfo() ? 'active' : '' }}">Dashboard</a></li>
+                    <li><a href="{{ path('app_admin_dashboard') }}" class="nav-link-alexandria {{ 'admin' in app.request.getPathInfo() ? 'active' : '' }}">Admin</a></li>
                 {% endif %}
             </ul>
 
             <div class="d-flex align-items-center gap-4">
                 {% if app.user %}
-                    <div class="nav-notification d-none d-md-block">
-                        <i class="fa-regular fa-bell"></i>
-                        <span class="notif-dot"></span>
-                    </div>
+                    {% include 'partials/_notification_bell.html.twig' %}
 
                     <div class="dropdown">
                         <button class="bg-transparent border-0 p-0 d-flex align-items-center gap-3" data-bs-toggle="dropdown">
