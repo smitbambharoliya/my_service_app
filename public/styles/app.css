@@ -149,12 +149,35 @@ h1, h2, h3, .luxury-serif {
     padding: 2rem;
     transition: all 0.5s var(--ease-luxury);
     position: relative;
-    overflow: hidden;
+    /* 3D Cinematic Enhancements */
+    transform-style: preserve-3d;
 }
 .glass-card:hover {
     border-color: rgba(255, 255, 255, 0.15);
     box-shadow: var(--shadow-elevated);
-    transform: translateY(-4px);
+    transform: translateY(-4px) scale3d(1.02, 1.02, 1.02);
+}
+
+/* 3D Pop Out Effect for Card Contents */
+.glass-card > * {
+    transform: translateZ(30px);
+    transition: all 0.3s var(--ease-luxury);
+}
+.heritage-exhibit {
+    transform-style: preserve-3d;
+}
+.heritage-exhibit:hover .heritage-view {
+    transform: translateZ(40px) scale(0.95);
+    border-radius: 20px;
+}
+.heritage-exhibit:hover .p-4 {
+    transform: translateZ(50px);
+}
+.mood-option {
+    transform-style: preserve-3d;
+}
+.mood-option > * {
+    transform: translateZ(30px);
 }
 
 /* ═══════════════════════════

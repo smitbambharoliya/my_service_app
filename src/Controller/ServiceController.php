@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Constants\AppConstants;
 use App\Entity\Billing;
 use App\Entity\Booking;
 use App\Entity\Review;
@@ -35,11 +36,11 @@ final class ServiceController extends AbstractController
 
         $repo = $em->getRepository(Service::class);
         
-        // If filters are active, use smartMatchSearch, else just get all active
+        // If filters are active, use smartMatchSearch, else use optimized query
         if ($query || $category || $priceRange || $tier || $isPremium !== null) {
             $services = $repo->smartMatchSearch($query, $category, $priceRange, $tier, $isPremium);
         } else {
-            $services = $repo->findBy(['isActive' => true], ['id' => 'DESC']);
+            $services = $repo->findActiveWithProvider();
         }
         
         return $this->render('service/index.html.twig', [
@@ -54,7 +55,7 @@ final class ServiceController extends AbstractController
     }
 
     #[Route('/service/{id}', name: 'app_service_show', requirements: ['id' => '\d+'])]
-    public function show(Service $service): Response
+    public function show(Service $service, EntityManagerInterface $em): Response
     {
         $provider = $service->getProvider();
         $providerReviews = [];
@@ -64,39 +65,15 @@ final class ServiceController extends AbstractController
         $providerOtherServices = [];
 
         if ($provider instanceof User) {
-            $providerReviews = $provider->getReviewsReceived()->toArray();
-
-            usort(
-                $providerReviews,
-                fn (Review $left, Review $right) => $right->getCreatedAt() <=> $left->getCreatedAt()
-            );
-
-            if ($providerReviews !== []) {
-                $providerAverageRating = array_sum(
-                    array_map(
-                        static fn (Review $review): int => (int) $review->getRating(),
-                        $providerReviews
-                    )
-                ) / count($providerReviews);
-            }
-
-            foreach ($provider->getServices() as $providerService) {
-                if (!$providerService->isActive()) {
-                    continue;
-                }
-
-                $providerActiveServices[] = $providerService;
-
-                if ($providerService->getId() !== $service->getId()) {
-                    $providerOtherServices[] = $providerService;
-                }
-
-                foreach ($providerService->getBookings() as $booking) {
-                    if (strtolower((string) $booking->getStatus()) === 'completed') {
-                        $providerCompletedJobs++;
-                    }
-                }
-            }
+            // Get provider stats using optimized queries
+            $userRepo = $em->getRepository(User::class);
+            $stats = $userRepo->getProviderStats($provider);
+            
+            $providerCompletedJobs = $stats['completed_jobs'];
+            $providerAverageRating = $stats['average_rating'];
+            
+            // Get other services
+            $providerOtherServices = $userRepo->getProviderActiveServices($provider, $service);
         }
 
         return $this->render('service/show.html.twig', [
@@ -107,7 +84,7 @@ final class ServiceController extends AbstractController
             'provider_review_count' => count($providerReviews),
             'provider_completed_jobs' => $providerCompletedJobs,
             'provider_active_services_count' => count($providerActiveServices),
-            'provider_other_services' => array_slice($providerOtherServices, 0, 3),
+            'provider_other_services' => $providerOtherServices,
         ]);
     }
 

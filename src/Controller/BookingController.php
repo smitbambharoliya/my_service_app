@@ -5,11 +5,7 @@ namespace App\Controller;
 use App\Entity\Booking;
 use App\Entity\Service;
 use App\Entity\User;
-use App\Event\BookingCompletedEvent;
-use App\Event\BookingCreatedEvent;
-use App\Event\BookingStatusChangedEvent;
-use App\Event\EstimationRespondedEvent;
-use App\Event\EstimationSentEvent;
+use App\Service\BookingService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -17,22 +13,16 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Route('/booking')]
 class BookingController extends AbstractController
 {
-    public function __construct(
-        private EventDispatcherInterface $dispatcher,
-    ) {
-    }
-
     /**
      * Create a new booking
      */
     #[Route('/create/{id}', name: 'app_booking_create', methods: ['POST'])]
     #[IsGranted('ROLE_USER')]
-    public function createBooking(Service $service, Request $request, EntityManagerInterface $em): Response
+    public function createBooking(Service $service, Request $request, BookingService $bookingService): Response
     {
         /** @var User $user */
         $user = $this->getUser();
@@ -49,34 +39,9 @@ class BookingController extends AbstractController
             return $this->redirectToRoute('app_service_show', ['id' => $service->getId()]);
         }
 
-        $booking = new Booking();
-        $booking->setCustomer($user);
-        $booking->setService($service);
-        $booking->setStatus('pending');
-        $booking->setBookingDate(new \DateTimeImmutable());
-        $booking->setBookingType($request->request->get('booking_type', 'online'));
-        $booking->setNotes($request->request->get('notes'));
+        $booking = $bookingService->createBooking($user, $service, $request->request->all());
 
-        // Generate tracking ID
-        $trackingId = 'TRK-' . strtoupper(uniqid());
-        $booking->setTrackingId($trackingId);
-
-        // Set location if provided
-        $latitude = $request->request->get('latitude');
-        $longitude = $request->request->get('longitude');
-        if ($latitude && $longitude) {
-            $booking->setLatitude($latitude);
-            $booking->setLongitude($longitude);
-        }
-
-        $em->persist($booking);
-        $em->flush();
-
-        // Dispatch event — listeners handle notifications, audit, gamification
-        $this->dispatcher->dispatch(new BookingCreatedEvent($booking, $user));
-        $em->flush();
-
-        $this->addFlash('success', 'Booking created successfully! Tracking ID: ' . $trackingId);
+        $this->addFlash('success', 'Booking created successfully! Tracking ID: ' . $booking->getTrackingId());
         return $this->redirectToRoute('app_booking_detail', ['id' => $booking->getId()]);
     }
 
@@ -152,7 +117,7 @@ class BookingController extends AbstractController
      */
     #[Route('/{id}/status', name: 'app_booking_status', methods: ['POST'])]
     #[IsGranted('ROLE_USER')]
-    public function updateStatus(Booking $booking, Request $request, EntityManagerInterface $em): Response
+    public function updateStatus(Booking $booking, Request $request, BookingService $bookingService): Response
     {
         /** @var User $user */
         $user = $this->getUser();
@@ -174,19 +139,7 @@ class BookingController extends AbstractController
             return new JsonResponse(['error' => 'Invalid status'], 400);
         }
 
-        $oldStatus = $booking->getStatus();
-        $booking->setStatus($newStatus);
-
-        $em->flush();
-
-        // Dispatch the appropriate event
-        if ($newStatus === 'completed' && $oldStatus !== 'completed') {
-            $this->dispatcher->dispatch(new BookingCompletedEvent($booking, $user));
-        } else {
-            $this->dispatcher->dispatch(new BookingStatusChangedEvent($booking, $oldStatus, $newStatus, $user));
-        }
-
-        $em->flush();
+        $bookingService->updateStatus($booking, $newStatus, $user);
 
         if ($request->isXmlHttpRequest()) {
             return new JsonResponse([
@@ -205,7 +158,7 @@ class BookingController extends AbstractController
      */
     #[Route('/{id}/cancel', name: 'app_booking_cancel', methods: ['POST'])]
     #[IsGranted('ROLE_USER')]
-    public function cancelBooking(Booking $booking, Request $request, EntityManagerInterface $em): Response
+    public function cancelBooking(Booking $booking, Request $request, BookingService $bookingService): Response
     {
         /** @var User $user */
         $user = $this->getUser();
@@ -227,13 +180,7 @@ class BookingController extends AbstractController
             return $this->redirectToRoute('app_booking_detail', ['id' => $booking->getId()]);
         }
 
-        $oldStatus = $booking->getStatus();
-        $booking->setStatus('cancelled');
-        $em->flush();
-
-        // Dispatch event — listeners handle notification to provider + audit log
-        $this->dispatcher->dispatch(new BookingStatusChangedEvent($booking, $oldStatus, 'cancelled', $user));
-        $em->flush();
+        $bookingService->cancelBooking($booking, $user);
 
         $this->addFlash('success', 'Booking cancelled successfully.');
         return $this->redirectToRoute('app_booking_my_bookings');
@@ -244,7 +191,7 @@ class BookingController extends AbstractController
      */
     #[Route('/{id}/location', name: 'app_booking_location', methods: ['POST'])]
     #[IsGranted('ROLE_PROVIDER')]
-    public function updateLocation(Booking $booking, Request $request, EntityManagerInterface $em): JsonResponse
+    public function updateLocation(Booking $booking, Request $request, BookingService $bookingService): JsonResponse
     {
         /** @var User $user */
         $user = $this->getUser();
@@ -260,9 +207,7 @@ class BookingController extends AbstractController
             return new JsonResponse(['error' => 'Latitude and longitude required'], 400);
         }
 
-        $booking->setLatitude($data['latitude']);
-        $booking->setLongitude($data['longitude']);
-        $em->flush();
+        $bookingService->updateLocation($booking, $data['latitude'], $data['longitude']);
 
         return new JsonResponse([
             'success' => true,
@@ -322,7 +267,7 @@ class BookingController extends AbstractController
      */
     #[Route('/{id}/estimate', name: 'app_booking_estimate', methods: ['POST'])]
     #[IsGranted('ROLE_PROVIDER')]
-    public function submitEstimation(Booking $booking, Request $request, EntityManagerInterface $em): Response
+    public function submitEstimation(Booking $booking, Request $request, BookingService $bookingService): Response
     {
         /** @var User $user */
         $user = $this->getUser();
@@ -340,13 +285,7 @@ class BookingController extends AbstractController
         $estimatedCost = $request->request->get('estimated_cost');
         $estimationStatus = $request->request->get('estimation_status', 'pending');
 
-        $booking->setEstimatedCost($estimatedCost);
-        $booking->setEstimationStatus($estimationStatus);
-        $em->flush();
-
-        // Dispatch event — listeners handle notification to customer, audit log, billing
-        $this->dispatcher->dispatch(new EstimationSentEvent($booking, $estimatedCost));
-        $em->flush();
+        $bookingService->submitEstimation($booking, $estimatedCost, $estimationStatus);
 
         $this->addFlash('success', 'Estimation submitted successfully.');
         return $this->redirectToRoute('app_booking_detail', ['id' => $booking->getId()]);
@@ -357,7 +296,7 @@ class BookingController extends AbstractController
      */
     #[Route('/{id}/estimate-response', name: 'app_booking_estimate_response', methods: ['POST'])]
     #[IsGranted('ROLE_USER')]
-    public function respondToEstimation(Booking $booking, Request $request, EntityManagerInterface $em): Response
+    public function respondToEstimation(Booking $booking, Request $request, BookingService $bookingService): Response
     {
         /** @var User $user */
         $user = $this->getUser();
@@ -379,17 +318,7 @@ class BookingController extends AbstractController
             return $this->redirectToRoute('app_booking_detail', ['id' => $booking->getId()]);
         }
 
-        $booking->setEstimationStatus($response);
-
-        if ($response === 'accepted') {
-            $booking->setStatus('confirmed');
-        }
-
-        $em->flush();
-
-        // Dispatch event — listeners handle notification to provider + audit log
-        $this->dispatcher->dispatch(new EstimationRespondedEvent($booking, $response));
-        $em->flush();
+        $bookingService->respondToEstimation($booking, $response);
 
         $this->addFlash('success', 'Estimation ' . $response . ' successfully.');
         return $this->redirectToRoute('app_booking_detail', ['id' => $booking->getId()]);
@@ -400,7 +329,7 @@ class BookingController extends AbstractController
      */
     #[Route('/{id}/dispatch', name: 'app_provider_dispatch_booking', methods: ['POST'])]
     #[IsGranted('ROLE_PROVIDER')]
-    public function dispatchBooking(Booking $booking, Request $request, EntityManagerInterface $em): Response
+    public function dispatchBooking(Booking $booking, Request $request, BookingService $bookingService): Response
     {
         /** @var User $user */
         $user = $this->getUser();
@@ -419,13 +348,7 @@ class BookingController extends AbstractController
             return $this->redirectToRoute('app_provider_dashboard');
         }
 
-        $oldStatus = $booking->getStatus();
-        $booking->setStatus('on-the-way');
-        $em->flush();
-
-        // Dispatch event — listeners handle notification to customer + audit log
-        $this->dispatcher->dispatch(new BookingStatusChangedEvent($booking, $oldStatus, 'on-the-way', $user));
-        $em->flush();
+        $bookingService->dispatchBooking($booking, $user);
 
         $this->addFlash('success', 'Booking dispatched! Provider is now on the way.');
         return $this->redirectToRoute('app_provider_dashboard');
@@ -436,7 +359,7 @@ class BookingController extends AbstractController
      */
     #[Route('/{id}/complete', name: 'app_provider_complete_booking', methods: ['POST'])]
     #[IsGranted('ROLE_PROVIDER')]
-    public function completeBooking(Booking $booking, Request $request, EntityManagerInterface $em): Response
+    public function completeBooking(Booking $booking, Request $request, BookingService $bookingService): Response
     {
         /** @var User $user */
         $user = $this->getUser();
@@ -455,12 +378,7 @@ class BookingController extends AbstractController
             return $this->redirectToRoute('app_provider_dashboard');
         }
 
-        $booking->setStatus('completed');
-        $em->flush();
-
-        // Dispatch event — listeners handle notification, gamification, billing, audit
-        $this->dispatcher->dispatch(new BookingCompletedEvent($booking, $user));
-        $em->flush();
+        $bookingService->completeBooking($booking, $user);
 
         $this->addFlash('success', 'Booking marked as completed. Reputation points awarded!');
         return $this->redirectToRoute('app_provider_dashboard');

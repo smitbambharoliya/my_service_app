@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Constants\AppConstants;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -25,7 +26,7 @@ final class HomeController extends AbstractController
         }
 
         if (empty($sections['trending'])) {
-            $sections['trending'] = $sRepo->findBy([], ['id' => 'DESC'], 6);
+            $sections['trending'] = $sRepo->findActiveWithProvider(AppConstants::FEATURED_SERVICES_LIMIT);
         }
 
         // REDIRECT LOGIC FOR PROFESSIONAL SEPARATION

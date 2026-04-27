@@ -33,6 +33,75 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         $this->getEntityManager()->flush();
     }
 
+    /**
+     * Get provider statistics efficiently (avoiding N+1 queries)
+     */
+    public function getProviderStats(User $provider): array
+    {
+        $em = $this->getEntityManager();
+
+        // Get completed jobs count
+        $completedJobsCount = $em->createQueryBuilder()
+            ->select('COUNT(b.id)')
+            ->from(\App\Entity\User::class, 'u')
+            ->join('u.services', 's')
+            ->join('s.bookings', 'b')
+            ->where('u.id = :userId')
+            ->andWhere('b.status = :status')
+            ->setParameter('userId', $provider->getId())
+            ->setParameter('status', 'completed')
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        // Get average rating
+        $avgRating = $em->createQueryBuilder()
+            ->select('AVG(r.rating)')
+            ->from(\App\Entity\User::class, 'u')
+            ->join('u.reviewsReceived', 'r')
+            ->where('u.id = :userId')
+            ->setParameter('userId', $provider->getId())
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        // Get review count
+        $reviewCount = $em->createQueryBuilder()
+            ->select('COUNT(r.id)')
+            ->from(\App\Entity\User::class, 'u')
+            ->join('u.reviewsReceived', 'r')
+            ->where('u.id = :userId')
+            ->setParameter('userId', $provider->getId())
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return [
+            'completed_jobs' => (int)$completedJobsCount,
+            'average_rating' => $avgRating ? round($avgRating, 1) : null,
+            'review_count' => (int)$reviewCount,
+        ];
+    }
+
+    /**
+     * Get provider's active services (excludes given service)
+     */
+    public function getProviderActiveServices(User $provider, ?\App\Entity\Service $excludeService = null): array
+    {
+        $qb = $this->getEntityManager()->createQueryBuilder()
+            ->select('s')
+            ->from(\App\Entity\Service::class, 's')
+            ->where('s.provider = :provider')
+            ->andWhere('s.isActive = true')
+            ->setParameter('provider', $provider)
+            ->orderBy('s.id', 'DESC')
+            ->setMaxResults(3);
+
+        if ($excludeService !== null) {
+            $qb->andWhere('s.id != :excludeId')
+               ->setParameter('excludeId', $excludeService->getId());
+        }
+
+        return $qb->getQuery()->getResult();
+    }
+
     //    /**
     //     * @return User[] Returns an array of User objects
     //     */

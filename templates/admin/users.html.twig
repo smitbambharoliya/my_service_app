@@ -8,16 +8,21 @@
 <div class="d-flex align-items-center justify-content-between mb-4">
     <div>
         <h4 style="color:var(--admin-text);font-weight:700;margin:0;">All Registered Users</h4>
-        <p style="color:var(--admin-text-muted);font-size:0.85rem;margin:4px 0 0;">Total: <strong style="color:var(--admin-text);">{{ users|length }}</strong> accounts</p>
+        <p style="color:var(--admin-text-muted);font-size:0.85rem;margin:4px 0 0;">Total: <strong style="color:var(--admin-text);">{{ users.getTotalItemCount() }}</strong> accounts</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{{ path('app_admin_users_export') }}" class="btn-admin btn-admin-outline" style="font-size:0.85rem;padding:8px 16px;">
+            <i class="fas fa-file-export me-1"></i> Export to CSV
+        </a>
+        <a href="{{ path('app_admin_user_new') }}" class="btn-admin btn-admin-red" style="font-size:0.85rem;padding:8px 16px;">
+            <i class="fas fa-user-plus me-1"></i> Create New User
+        </a>
     </div>
 </div>
 
 <div class="admin-card">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
         <h2 style="margin:0;font-size:1.5rem;font-weight:700;">User Management</h2>
-        <a href="{{ path('app_admin_user_new') }}" class="btn-admin btn-admin-red" style="font-size:0.85rem;padding:8px 16px;">
-            <i class="fas fa-user-plus me-1"></i> Create New User
-        </a>
     </div>
 
     <div style="overflow-x:auto;">
@@ -107,6 +112,10 @@
                 {% endfor %}
             </tbody>
         </table>
+    </div>
+    
+    <div class="d-flex justify-content-center mt-4">
+        {{ knp_pagination_render(users) }}
     </div>
 </div>
 {% endblock %}

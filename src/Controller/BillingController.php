@@ -7,6 +7,7 @@ use App\Entity\Booking;
 use App\Entity\Service;
 use App\Entity\User;
 use App\Event\PaymentCompletedEvent;
+use App\Service\BillingService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -58,24 +59,12 @@ class BillingController extends AbstractController
 
     #[Route('/billing/upgrade-premium', name: 'app_billing_upgrade')]
     #[IsGranted('ROLE_PROVIDER')]
-    public function upgrade(EntityManagerInterface $entityManager): Response
+    public function upgrade(BillingService $billingService): Response
     {
         /** @var \App\Entity\User $user */
         $user = $this->getUser();
 
-
-        $billing = new Billing();
-        $billing->setUser($user);
-        $billing->setAmount($_ENV['PREMIUM_PLAN_PRICE'] ?? '999.00');
-        $billing->setPaymentStatus('unpaid');
-        $billing->setTransactionId('SUB-' . strtoupper(bin2hex(random_bytes(8))) . '-' . time());
-        $billing->setCreatedAt(new \DateTimeImmutable());
-        $billing->setCategory('Subscription');
-        $billing->setServiceName('Premium Plan Upgrade');
-        $billing->setDescription('One-time fee to elevate all services to premium tier search placement.');
-
-        $entityManager->persist($billing);
-        $entityManager->flush();
+        $billing = $billingService->createPremiumUpgrade($user, $_ENV['PREMIUM_PLAN_PRICE'] ?? '999.00');
 
         $this->addFlash('info', 'Redirecting to secure gateway to complete your premium upgrade.');
 
@@ -84,7 +73,7 @@ class BillingController extends AbstractController
 
     #[Route('/dashboard/provider/billing/new', name: 'app_provider_billing_new', methods: ['GET', 'POST'])]
     #[IsGranted('ROLE_PROVIDER')]
-    public function newBilling(Request $request, EntityManagerInterface $entityManager): Response
+    public function newBilling(Request $request, EntityManagerInterface $entityManager, BillingService $billingService): Response
     {
         /** @var User $provider */
         $provider = $this->getUser();
@@ -139,19 +128,7 @@ class BillingController extends AbstractController
                 $customer = array_key_exists($customerId, $customers) ? $customers[$customerId] : null;
 
                 if ($customer) {
-                    $billing = new Billing();
-                    $billing->setUser($customer);
-                    $billing->setAmount((string) $totalAmount);
-                    $billing->setPaymentStatus('unpaid');
-                    $billing->setTransactionId('MAN-' . strtoupper(substr(uniqid(), -6)));
-                    $billing->setCreatedAt(new \DateTimeImmutable());
-                    $billing->setCategory($category);
-                    $billing->setServiceName('Custom Bill (' . count($items) . ' items)');
-                    $billing->setDescription($description);
-                    $billing->setItems($items);
-
-                    $entityManager->persist($billing);
-                    $entityManager->flush();
+                    $billingService->createCustomBill($customer, $category, $description, $items, $totalAmount);
 
                     $this->addFlash('success', 'Custom bill of ₹' . $totalAmount . ' generated successfully for ' . $customer->getFullName() . '.');
                     return $this->redirectToRoute('app_provider_billing_new');
