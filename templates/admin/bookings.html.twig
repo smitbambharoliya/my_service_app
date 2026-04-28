@@ -22,6 +22,35 @@
         </div>
     </div>
 
+    <div class="admin-filter-console">
+        <form method="GET" class="row g-3 align-items-end">
+            <div class="col-lg-5">
+                <label for="booking-search">Search</label>
+                <input id="booking-search" type="text" name="search" class="form-control" placeholder="Tracking, customer, provider, service..." value="{{ search|default('') }}">
+            </div>
+            <div class="col-md-3 col-lg-3">
+                <label for="booking-status">Status</label>
+                <select id="booking-status" name="status" class="form-select">
+                    <option value="">All status</option>
+                    {% for status in ['pending', 'confirmed', 'accepted', 'in_progress', 'on-the-way', 'completed', 'cancelled'] %}
+                        <option value="{{ status }}" {{ status_filter|default('') == status ? 'selected' : '' }}>{{ status|replace({'_': ' ', '-': ' '})|title }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3 col-lg-2">
+                <label for="booking-sort">Sort</label>
+                <select id="booking-sort" name="sort" class="form-select">
+                    <option value="newest" {{ sort_filter|default('newest') == 'newest' ? 'selected' : '' }}>Newest first</option>
+                    <option value="oldest" {{ sort_filter|default('newest') == 'oldest' ? 'selected' : '' }}>Oldest first</option>
+                </select>
+            </div>
+            <div class="col-md-3 col-lg-2 admin-filter-actions">
+                <button type="submit" class="btn-luxury w-100 py-2">FILTER</button>
+                <a href="{{ path('app_admin_bookings') }}" class="btn-outline-luxury py-2 px-3" title="Clear filters"><i class="fas fa-rotate-left"></i></a>
+            </div>
+        </form>
+    </div>
+
     {# ── MISSION GRID ── #}
     <div class="row g-4">
         {% for booking in bookings %}

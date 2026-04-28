@@ -165,6 +165,27 @@
     .btn-power:hover { background: #10b981; color: #fff; }
     .btn-delete:hover { background: #ef4444; color: #fff; }
 
+    .cms-filter-console {
+        background: rgba(255,255,255,0.035);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 20px;
+        padding: 18px;
+        margin-bottom: 28px;
+    }
+    .cms-filter-console label {
+        display: block;
+        margin-bottom: 8px;
+        color: var(--text-dim);
+        font-size: 0.65rem;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+    }
+    .cms-filter-console select option {
+        background: #080a0f;
+        color: #fff;
+    }
+
 </style>
 {% endblock %}
 
@@ -177,11 +198,49 @@
         <div class="d-flex justify-content-between align-items-center mb-5">
             <div>
                 <h2 class="luxury-serif text-pure mb-1">Live Manifest</h2>
-                <p class="text-dim text-xs">MANAGING GLOBAL HOMEPAGE NODES</p>
+                <p class="text-dim text-xs">MANAGING <strong class="text-white">{{ features.getTotalItemCount() }}</strong> GLOBAL HOMEPAGE NODES</p>
             </div>
             <a href="{{ path('app_home') }}" target="_blank" class="btn-outline-luxury py-2 px-4">
                 <i class="fas fa-eye me-2"></i> PREVIEW PORTAL
             </a>
+        </div>
+
+        <div class="cms-filter-console">
+            <form method="GET" class="row g-3 align-items-end">
+                <div class="col-lg-4">
+                    <label for="feature-search">Search</label>
+                    <input id="feature-search" type="text" name="search" class="cyber-input" placeholder="Service, provider, category..." value="{{ search|default('') }}">
+                </div>
+                <div class="col-md-4 col-lg-2">
+                    <label for="feature-section">Section</label>
+                    <select id="feature-section" name="section" class="cyber-input">
+                        <option value="">All sections</option>
+                        {% for sec in ['hero', 'trending', 'premium', 'seasonal'] %}
+                            <option value="{{ sec }}" {{ section_filter|default('') == sec ? 'selected' : '' }}>{{ sec|title }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4 col-lg-2">
+                    <label for="feature-status">Status</label>
+                    <select id="feature-status" name="status" class="cyber-input">
+                        <option value="">All status</option>
+                        <option value="active" {{ status_filter|default('') == 'active' ? 'selected' : '' }}>Active</option>
+                        <option value="inactive" {{ status_filter|default('') == 'inactive' ? 'selected' : '' }}>Inactive</option>
+                    </select>
+                </div>
+                <div class="col-md-4 col-lg-2">
+                    <label for="feature-sort">Sort</label>
+                    <select id="feature-sort" name="sort" class="cyber-input">
+                        <option value="display_order" {{ sort_filter|default('display_order') == 'display_order' ? 'selected' : '' }}>Display order</option>
+                        <option value="newest" {{ sort_filter|default('display_order') == 'newest' ? 'selected' : '' }}>Newest first</option>
+                        <option value="oldest" {{ sort_filter|default('display_order') == 'oldest' ? 'selected' : '' }}>Oldest first</option>
+                    </select>
+                </div>
+                <div class="col-lg-2 d-flex gap-2">
+                    <button type="submit" class="btn-luxury w-100 py-2">FILTER</button>
+                    <a href="{{ path('app_admin_featured_services') }}" class="btn-outline-luxury py-2 px-3" title="Clear filters"><i class="fas fa-rotate-left"></i></a>
+                </div>
+            </form>
         </div>
 
         {% set sections = ['hero', 'trending', 'premium', 'seasonal'] %}
@@ -218,6 +277,7 @@
                                 {% endif %}
                                 
                                 <form action="{{ path('app_admin_featured_services_toggle', {'id': f.id}) }}" method="post" class="m-0">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('toggle' ~ f.id) }}">
                                     <button type="submit" class="btn-action btn-power" title="Toggle Status">
                                         <i class="fas fa-power-off"></i>
                                     </button>
@@ -237,6 +297,12 @@
                 </div>
             </div>
         {% endfor %}
+
+        <div class="d-flex justify-content-center mt-4">
+            <div class="glass-card p-2 border-0 shadow-none">
+                {{ knp_pagination_render(features) }}
+            </div>
+        </div>
 
     </div>
 

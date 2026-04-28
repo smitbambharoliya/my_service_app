@@ -29,14 +29,14 @@
     {# ── SEARCH & FILTER CONSOLE ── #}
     <div class="glass-card p-4 mb-5 border-glow-hover">
         <form method="GET" class="row g-3 align-items-end">
-            <div class="col-md-4">
+            <div class="col-lg-3">
                 <label class="text-xxs text-dim fw-800 mb-2 d-block">FILTER BY KEYWORD</label>
                 <div class="position-relative">
                     <i class="fas fa-search position-absolute top-50 translate-middle-y ms-3 text-teal"></i>
-                    <input type="text" name="search" class="form-control ps-5" placeholder="Scanning identities..." value="{{ search }}">
+                    <input type="text" name="search" class="form-control ps-5" placeholder="Scanning identities..." value="{{ search|default('') }}">
                 </div>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-4 col-lg-2">
                 <label class="text-xxs text-dim fw-800 mb-2 d-block">ROLE SENSORS</label>
                 <select name="role" class="form-select">
                     <option value="">All Roles</option>
@@ -45,7 +45,7 @@
                     <option value="ROLE_USER" {{ role_filter == 'ROLE_USER' ? 'selected' : '' }}>Customers</option>
                 </select>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-4 col-lg-2">
                 <label class="text-xxs text-dim fw-800 mb-2 d-block">CONNECTION STATUS</label>
                 <select name="status" class="form-select">
                     <option value="">All States</option>
@@ -53,8 +53,16 @@
                     <option value="inactive" {{ status_filter == 'inactive' ? 'selected' : '' }}>Suspended</option>
                 </select>
             </div>
-            <div class="col-md-2">
+            <div class="col-md-4 col-lg-2">
+                <label class="text-xxs text-dim fw-800 mb-2 d-block">SORT ORDER</label>
+                <select name="sort" class="form-select">
+                    <option value="newest" {{ sort_filter|default('newest') == 'newest' ? 'selected' : '' }}>Newest first</option>
+                    <option value="oldest" {{ sort_filter|default('newest') == 'oldest' ? 'selected' : '' }}>Oldest first</option>
+                </select>
+            </div>
+            <div class="col-lg-3 admin-filter-actions">
                 <button type="submit" class="btn-luxury w-100 py-2">EXECUTE SCAN</button>
+                <a href="{{ path('app_admin_user_command_hub') }}" class="btn-outline-luxury py-2 px-3" title="Clear filters"><i class="fas fa-rotate-left"></i></a>
             </div>
         </form>
     </div>

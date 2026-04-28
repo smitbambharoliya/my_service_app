@@ -53,6 +53,106 @@
         box-shadow: 0 0 20px rgba(0, 255, 213, 0.2);
     }
     .btn-admin-gradient:hover { transform: translateY(-2px); box-shadow: 0 0 30px rgba(0, 255, 213, 0.4); }
+
+    /* ── SYNCHRONIZED SPHERES TABLE ── */
+    .spheres-card {
+        min-height: 0;
+    }
+    .spheres-table-wrap {
+        overflow-x: auto;
+    }
+    .spheres-table {
+        width: 100%;
+        min-width: 760px;
+        table-layout: fixed;
+        border-collapse: collapse;
+    }
+    .spheres-table th,
+    .spheres-table td {
+        padding: 16px 18px;
+        vertical-align: middle;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        line-height: 1.35;
+    }
+    .spheres-table th {
+        color: rgba(247, 251, 255, 0.78);
+        font-size: 0.7rem;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        white-space: nowrap;
+    }
+    .spheres-table tbody tr:last-child td {
+        border-bottom: 0;
+    }
+    .sphere-identity-col { width: 36%; }
+    .sphere-code-col { width: 18%; }
+    .sphere-load-col { width: 13%; }
+    .sphere-status-col { width: 15%; }
+    .sphere-actions-col { width: 18%; }
+    .sphere-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 10px;
+        background: rgba(0, 255, 213, 0.1);
+        border: 1px solid rgba(0, 255, 213, 0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--accent-cyan);
+        flex: 0 0 44px;
+    }
+    .sphere-name {
+        max-width: 220px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .sphere-slug {
+        max-width: 220px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-size: 0.68rem;
+    }
+    .sphere-code {
+        display: inline-block;
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        vertical-align: middle;
+    }
+    .sphere-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+        flex-wrap: nowrap;
+    }
+    .btn-action-spatial {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: all 0.25s var(--ease-spatial);
+        cursor: pointer;
+        padding: 0;
+        flex: 0 0 38px;
+    }
+    .btn-action-spatial:hover {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: currentColor;
+        transform: translateY(-1px);
+    }
+    .text-amber { color: #ffd166 !important; }
+
+    @media (max-width: 1199px) {
+        .sphere-identity-col { width: 34%; }
+        .sphere-actions-col { width: 20%; }
+    }
 </style>
 {% endblock %}
 
@@ -126,17 +226,54 @@
     </div>
 
     <div class="col-lg-8">
-        <div class="glass-card p-0 overflow-hidden border-glow-hover">
+        <div class="glass-card spheres-card p-0 overflow-hidden border-glow-hover">
             <div class="p-4 d-flex justify-content-between align-items-center border-bottom border-white border-opacity-5">
                 <div class="d-flex align-items-center gap-3">
                     <div class="p-2 rounded-3 bg-surface border-glass"><i class="fas fa-layer-group text-teal"></i></div>
                     <h4 class="luxury-serif text-white m-0">Synchronized Spheres</h4>
                 </div>
-                <span class="badge-status status-active">{{ categories|length }} ACTIVE UNITS</span>
+                <span class="badge-status status-active">{{ categories.getTotalItemCount() }} UNITS</span>
             </div>
 
-            <div class="table-responsive">
-                <table class="admin-table m-0">
+            <div class="admin-filter-console m-4">
+                <form method="GET" class="row g-3 align-items-end">
+                    <div class="col-lg-4">
+                        <label for="category-search">Search</label>
+                        <input id="category-search" type="text" name="search" class="form-control" placeholder="Name, slug, description..." value="{{ search|default('') }}">
+                    </div>
+                    <div class="col-md-4 col-lg-3">
+                        <label for="category-status">Status</label>
+                        <select id="category-status" name="status" class="form-select">
+                            <option value="">All status</option>
+                            <option value="active" {{ status_filter|default('') == 'active' ? 'selected' : '' }}>Online</option>
+                            <option value="inactive" {{ status_filter|default('') == 'inactive' ? 'selected' : '' }}>Dormant</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4 col-lg-3">
+                        <label for="category-sort">Sort</label>
+                        <select id="category-sort" name="sort" class="form-select">
+                            <option value="sort_order" {{ sort_filter|default('sort_order') == 'sort_order' ? 'selected' : '' }}>Display order</option>
+                            <option value="name" {{ sort_filter|default('sort_order') == 'name' ? 'selected' : '' }}>Name A-Z</option>
+                            <option value="newest" {{ sort_filter|default('sort_order') == 'newest' ? 'selected' : '' }}>Newest first</option>
+                            <option value="oldest" {{ sort_filter|default('sort_order') == 'oldest' ? 'selected' : '' }}>Oldest first</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4 col-lg-2 admin-filter-actions">
+                        <button type="submit" class="btn-luxury w-100 py-2">FILTER</button>
+                        <a href="{{ path('app_admin_categories') }}" class="btn-outline-luxury py-2 px-3" title="Clear filters"><i class="fas fa-rotate-left"></i></a>
+                    </div>
+                </form>
+            </div>
+
+            <div class="spheres-table-wrap">
+                <table class="spheres-table m-0">
+                    <colgroup>
+                        <col class="sphere-identity-col">
+                        <col class="sphere-code-col">
+                        <col class="sphere-load-col">
+                        <col class="sphere-status-col">
+                        <col class="sphere-actions-col">
+                    </colgroup>
                     <thead>
                         <tr>
                             <th class="ps-4">SPHERE IDENTITY</th>
@@ -151,16 +288,16 @@
                             <tr class="reveal-3d">
                                 <td class="ps-4">
                                     <div class="d-flex align-items-center gap-3">
-                                        <div style="width: 40px; height: 40px; border-radius: 10px; background: rgba(0,255,213,0.1); border: 1px solid rgba(0,255,213,0.2); display: flex; align-items: center; justify-content: center; color: var(--accent-cyan);">
+                                        <div class="sphere-icon">
                                             <i class="fas {{ category.icon }}"></i>
                                         </div>
                                         <div>
-                                            <div class="fw-bold text-white small">{{ category.name }}</div>
-                                            <div class="text-dim" style="font-size: 0.65rem;">{{ category.slug }}</div>
+                                            <div class="sphere-name fw-bold text-white small">{{ category.name }}</div>
+                                            <div class="sphere-slug text-dim">{{ category.slug }}</div>
                                         </div>
                                     </div>
                                 </td>
-                                <td><code class="text-teal" style="font-size: 0.7rem;">{{ category.icon }}</code></td>
+                                <td><code class="sphere-code text-teal" style="font-size: 0.7rem;">{{ category.icon }}</code></td>
                                 <td><span class="text-white fw-bold">{{ category.serviceCount }}</span> <span class="text-dim text-xxs">UNITS</span></td>
                                 <td>
                                     {% if category.isActive %}
@@ -170,7 +307,7 @@
                                     {% endif %}
                                 </td>
                                 <td class="pe-4 text-end">
-                                    <div class="d-flex justify-content-end gap-2">
+                                    <div class="sphere-actions">
                                         <button class="btn-action-spatial text-blue" data-bs-toggle="modal" data-bs-target="#editModal{{ category.id }}">
                                             <i class="fas fa-edit"></i>
                                         </button>
@@ -194,6 +331,10 @@
                         {% endfor %}
                     </tbody>
                 </table>
+            </div>
+
+            <div class="d-flex justify-content-center p-4 border-top border-white border-opacity-10">
+                {{ knp_pagination_render(categories) }}
             </div>
         </div>
     </div>

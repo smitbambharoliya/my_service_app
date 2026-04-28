@@ -10,11 +10,40 @@
         <div class="glass-card px-4 py-2 border-0 d-flex align-items-center gap-3">
             <div class="pulse-indicator"></div>
             <span class="text-xxs fw-800 letter-spacing-1 text-dim">LIVE AUDIT STREAM</span>
-            <span class="badge-status status-active">{{ logs|length }} NODES</span>
+            <span class="badge-status status-active">{{ logs.getTotalItemCount() }} NODES</span>
         </div>
         <a href="{{ path('app_admin_audit_logs') }}" class="btn-luxury py-2 px-4" style="font-size: 0.7rem;">
             <i class="fas fa-sync-alt me-2"></i> RESYNC FEED
         </a>
+    </div>
+
+    <div class="admin-filter-console">
+        <form method="GET" class="row g-3 align-items-end">
+            <div class="col-lg-5">
+                <label for="audit-search">Search</label>
+                <input id="audit-search" type="text" name="search" class="form-control" placeholder="Action, admin email, entity, IP..." value="{{ search|default('') }}">
+            </div>
+            <div class="col-md-4 col-lg-3">
+                <label for="audit-action">Action</label>
+                <select id="audit-action" name="action" class="form-select">
+                    <option value="">All actions</option>
+                    {% for action in actions|default([]) %}
+                        <option value="{{ action }}" {{ action_filter|default('') == action ? 'selected' : '' }}>{{ action|replace({'_': ' '})|title }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4 col-lg-2">
+                <label for="audit-sort">Sort</label>
+                <select id="audit-sort" name="sort" class="form-select">
+                    <option value="newest" {{ sort_filter|default('newest') == 'newest' ? 'selected' : '' }}>Newest first</option>
+                    <option value="oldest" {{ sort_filter|default('newest') == 'oldest' ? 'selected' : '' }}>Oldest first</option>
+                </select>
+            </div>
+            <div class="col-md-4 col-lg-2 admin-filter-actions">
+                <button type="submit" class="btn-luxury w-100 py-2">FILTER</button>
+                <a href="{{ path('app_admin_audit_logs') }}" class="btn-outline-luxury py-2 px-3" title="Clear filters"><i class="fas fa-rotate-left"></i></a>
+            </div>
+        </form>
     </div>
 
     {# ── SPATIAL LOG GRID ── #}
@@ -85,6 +114,12 @@
                 </div>
             </div>
         {% endfor %}
+    </div>
+
+    <div class="d-flex justify-content-center mt-5">
+        <div class="glass-card p-2 border-0 shadow-none">
+            {{ knp_pagination_render(logs) }}
+        </div>
     </div>
 </div>
 

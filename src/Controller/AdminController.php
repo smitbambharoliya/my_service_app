@@ -99,8 +99,32 @@ final class AdminController extends AbstractController
     #[Route('/users', name: 'app_admin_users')]
     public function manageUsers(EntityManagerInterface $em, PaginatorInterface $paginator, Request $request): Response
     {
-        $queryBuilder = $em->getRepository(User::class)->createQueryBuilder('u')
-            ->orderBy('u.createdAt', 'DESC');
+        $search = trim((string) $request->query->get('search', ''));
+        $roleFilter = $request->query->get('role');
+        $statusFilter = $request->query->get('status');
+        $sort = $request->query->get('sort', 'newest');
+
+        $queryBuilder = $em->getRepository(User::class)->createQueryBuilder('u');
+
+        if ($search !== '') {
+            $queryBuilder
+                ->andWhere('u.email LIKE :search OR u.fullName LIKE :search OR u.mobile LIKE :search')
+                ->setParameter('search', '%' . $search . '%');
+        }
+
+        if ($roleFilter) {
+            $queryBuilder
+                ->andWhere('u.roles LIKE :role')
+                ->setParameter('role', '%' . $roleFilter . '%');
+        }
+
+        if ($statusFilter !== null && $statusFilter !== '') {
+            $queryBuilder
+                ->andWhere('u.isActive = :status')
+                ->setParameter('status', $statusFilter === 'active');
+        }
+
+        $queryBuilder->orderBy('u.createdAt', $sort === 'oldest' ? 'ASC' : 'DESC');
 
         $pagination = $paginator->paginate(
             $queryBuilder,
@@ -110,6 +134,10 @@ final class AdminController extends AbstractController
 
         return $this->render('admin/users.html.twig', [
             'users' => $pagination,
+            'search' => $search,
+            'role_filter' => $roleFilter,
+            'status_filter' => $statusFilter,
+            'sort_filter' => $sort,
         ]);
     }
 
@@ -170,8 +198,35 @@ final class AdminController extends AbstractController
     #[Route('/services', name: 'app_admin_services')]
     public function manageServices(EntityManagerInterface $em, PaginatorInterface $paginator, Request $request): Response
     {
+        $search = trim((string) $request->query->get('search', ''));
+        $statusFilter = $request->query->get('status');
+        $premiumFilter = $request->query->get('premium');
+        $sort = $request->query->get('sort', 'newest');
+
         $queryBuilder = $em->getRepository(Service::class)->createQueryBuilder('s')
-            ->orderBy('s.createdAt', 'DESC');
+            ->leftJoin('s.provider', 'p')
+            ->leftJoin('s.category', 'c')
+            ->addSelect('p', 'c');
+
+        if ($search !== '') {
+            $queryBuilder
+                ->andWhere('s.title LIKE :search OR s.description LIKE :search OR p.fullName LIKE :search OR p.email LIKE :search OR c.name LIKE :search')
+                ->setParameter('search', '%' . $search . '%');
+        }
+
+        if ($statusFilter !== null && $statusFilter !== '') {
+            $queryBuilder
+                ->andWhere('s.isActive = :status')
+                ->setParameter('status', $statusFilter === 'active');
+        }
+
+        if ($premiumFilter !== null && $premiumFilter !== '') {
+            $queryBuilder
+                ->andWhere('s.isPremium = :premium')
+                ->setParameter('premium', $premiumFilter === 'premium');
+        }
+
+        $queryBuilder->orderBy('s.id', $sort === 'oldest' ? 'ASC' : 'DESC');
 
         $pagination = $paginator->paginate(
             $queryBuilder,
@@ -181,6 +236,10 @@ final class AdminController extends AbstractController
 
         return $this->render('admin/services.html.twig', [
             'services' => $pagination,
+            'search' => $search,
+            'status_filter' => $statusFilter,
+            'premium_filter' => $premiumFilter,
+            'sort_filter' => $sort,
         ]);
     }
 
@@ -212,8 +271,29 @@ final class AdminController extends AbstractController
     #[Route('/bookings', name: 'app_admin_bookings')]
     public function manageBookings(EntityManagerInterface $em, PaginatorInterface $paginator, Request $request): Response
     {
+        $search = trim((string) $request->query->get('search', ''));
+        $statusFilter = $request->query->get('status');
+        $sort = $request->query->get('sort', 'newest');
+
         $queryBuilder = $em->getRepository(Booking::class)->createQueryBuilder('b')
-            ->orderBy('b.bookingDate', 'DESC');
+            ->join('b.customer', 'customer')
+            ->join('b.service', 'service')
+            ->leftJoin('service.provider', 'provider')
+            ->addSelect('customer', 'service', 'provider');
+
+        if ($search !== '') {
+            $queryBuilder
+                ->andWhere('b.trackingId LIKE :search OR customer.email LIKE :search OR customer.fullName LIKE :search OR service.title LIKE :search OR provider.email LIKE :search OR provider.fullName LIKE :search')
+                ->setParameter('search', '%' . $search . '%');
+        }
+
+        if ($statusFilter) {
+            $queryBuilder
+                ->andWhere('b.status = :status')
+                ->setParameter('status', $statusFilter);
+        }
+
+        $queryBuilder->orderBy('b.bookingDate', $sort === 'oldest' ? 'ASC' : 'DESC');
 
         $pagination = $paginator->paginate(
             $queryBuilder,
@@ -223,6 +303,9 @@ final class AdminController extends AbstractController
 
         return $this->render('admin/bookings.html.twig', [
             'bookings' => $pagination,
+            'search' => $search,
+            'status_filter' => $statusFilter,
+            'sort_filter' => $sort,
         ]);
     }
 
@@ -297,16 +380,41 @@ final class AdminController extends AbstractController
     }
 
     #[Route('/providers', name: 'app_admin_providers')]
-    public function manageProviders(EntityManagerInterface $em): Response
+    public function manageProviders(EntityManagerInterface $em, PaginatorInterface $paginator, Request $request): Response
     {
-        $providers = $em->getRepository(User::class)->createQueryBuilder('u')
+        $search = trim((string) $request->query->get('search', ''));
+        $statusFilter = $request->query->get('status');
+        $sort = $request->query->get('sort', 'newest');
+
+        $queryBuilder = $em->getRepository(User::class)->createQueryBuilder('u')
             ->where('u.roles LIKE :role')
-            ->setParameter('role', '%ROLE_PROVIDER%')
-            ->getQuery()
-            ->getResult();
+            ->setParameter('role', '%ROLE_PROVIDER%');
+
+        if ($search !== '') {
+            $queryBuilder
+                ->andWhere('u.email LIKE :search OR u.fullName LIKE :search OR u.mobile LIKE :search')
+                ->setParameter('search', '%' . $search . '%');
+        }
+
+        if ($statusFilter !== null && $statusFilter !== '') {
+            $queryBuilder
+                ->andWhere('u.isActive = :status')
+                ->setParameter('status', $statusFilter === 'active');
+        }
+
+        $queryBuilder->orderBy('u.createdAt', $sort === 'oldest' ? 'ASC' : 'DESC');
+
+        $providers = $paginator->paginate(
+            $queryBuilder,
+            $request->query->getInt('page', 1),
+            10
+        );
 
         return $this->render('admin/providers.html.twig', [
             'providers' => $providers,
+            'search' => $search,
+            'status_filter' => $statusFilter,
+            'sort_filter' => $sort,
         ]);
     }
 
@@ -334,13 +442,46 @@ final class AdminController extends AbstractController
     }
 
     #[Route('/categories', name: 'app_admin_categories')]
-    public function manageCategories(EntityManagerInterface $em): Response
+    public function manageCategories(EntityManagerInterface $em, PaginatorInterface $paginator, Request $request): Response
     {
-        $categories = $em->getRepository(Category::class)->findBy([], ['sortOrder' => 'ASC']);
+        $search = trim((string) $request->query->get('search', ''));
+        $statusFilter = $request->query->get('status');
+        $sort = $request->query->get('sort', 'sort_order');
+
+        $queryBuilder = $em->getRepository(Category::class)->createQueryBuilder('c');
+
+        if ($search !== '') {
+            $queryBuilder
+                ->andWhere('c.name LIKE :search OR c.slug LIKE :search OR c.description LIKE :search')
+                ->setParameter('search', '%' . $search . '%');
+        }
+
+        if ($statusFilter !== null && $statusFilter !== '') {
+            $queryBuilder
+                ->andWhere('c.isActive = :status')
+                ->setParameter('status', $statusFilter === 'active');
+        }
+
+        match ($sort) {
+            'newest' => $queryBuilder->orderBy('c.createdAt', 'DESC'),
+            'oldest' => $queryBuilder->orderBy('c.createdAt', 'ASC'),
+            'name' => $queryBuilder->orderBy('c.name', 'ASC'),
+            default => $queryBuilder->orderBy('c.sortOrder', 'ASC')->addOrderBy('c.name', 'ASC'),
+        };
+
+        $categories = $paginator->paginate(
+            $queryBuilder,
+            $request->query->getInt('page', 1),
+            10
+        );
+
         $this->auditLogger->logAuthAction('CATEGORIES_VIEW');
 
         return $this->render('admin/categories.html.twig', [
             'categories' => $categories,
+            'search' => $search,
+            'status_filter' => $statusFilter,
+            'sort_filter' => $sort,
         ]);
     }
 
@@ -404,17 +545,18 @@ final class AdminController extends AbstractController
     }
 
     #[Route('/users/command-hub', name: 'app_admin_user_command_hub')]
-    public function userCommandHub(EntityManagerInterface $em, Request $request): Response
+    public function userCommandHub(EntityManagerInterface $em, PaginatorInterface $paginator, Request $request): Response
     {
-        $search = $request->query->get('search');
+        $search = trim((string) $request->query->get('search', ''));
         $roleFilter = $request->query->get('role');
         $statusFilter = $request->query->get('status');
+        $sort = $request->query->get('sort', 'newest');
 
         $qb = $em->createQueryBuilder()
             ->select('u')
             ->from(User::class, 'u');
 
-        if ($search) {
+        if ($search !== '') {
             $qb->andWhere('u.email LIKE :search OR u.fullName LIKE :search OR u.mobile LIKE :search')
                ->setParameter('search', '%' . $search . '%');
         }
@@ -429,14 +571,18 @@ final class AdminController extends AbstractController
                ->setParameter('status', $statusFilter === 'active');
         }
 
-        $qb->orderBy('u.createdAt', 'DESC');
-        $users = $qb->getQuery()->getResult();
+        $qb->orderBy('u.createdAt', $sort === 'oldest' ? 'ASC' : 'DESC');
+        $users = $paginator->paginate(
+            $qb,
+            $request->query->getInt('page', 1),
+            12
+        );
 
         $stats = [
             'total' => $em->getRepository(User::class)->count([]),
             'verified' => $em->getRepository(User::class)->count(['isVerified' => true]),
-            'providers' => count(array_filter($em->getRepository(User::class)->findAll(), fn($u) => in_array('ROLE_PROVIDER', $u->getRoles()))),
-            'admins' => count(array_filter($em->getRepository(User::class)->findAll(), fn($u) => in_array('ROLE_ADMIN', $u->getRoles()))),
+            'providers' => (int) $em->createQueryBuilder()->select('COUNT(u.id)')->from(User::class, 'u')->where('u.roles LIKE :role')->setParameter('role', '%ROLE_PROVIDER%')->getQuery()->getSingleScalarResult(),
+            'admins' => (int) $em->createQueryBuilder()->select('COUNT(u.id)')->from(User::class, 'u')->where('u.roles LIKE :role')->setParameter('role', '%ROLE_ADMIN%')->getQuery()->getSingleScalarResult(),
             'suspended' => $em->getRepository(User::class)->count(['isActive' => false]),
         ];
 
@@ -448,6 +594,7 @@ final class AdminController extends AbstractController
             'search' => $search,
             'role_filter' => $roleFilter,
             'status_filter' => $statusFilter,
+            'sort_filter' => $sort,
         ]);
     }
 
@@ -522,10 +669,13 @@ final class AdminController extends AbstractController
     }
 
     #[Route('/audit-logs', name: 'app_admin_audit_logs')]
-    public function viewAuditLogs(): Response
+    public function viewAuditLogs(PaginatorInterface $paginator, Request $request): Response
     {
         $logFile = $this->getParameter('kernel.logs_dir') . '/admin_actions.log';
         $logs = [];
+        $search = trim((string) $request->query->get('search', ''));
+        $actionFilter = $request->query->get('action');
+        $sort = $request->query->get('sort', 'newest');
 
         if (file_exists($logFile)) {
             $lines = array_filter(array_map('trim', file($logFile)));
@@ -537,17 +687,45 @@ final class AdminController extends AbstractController
                     $jsonStart = strpos($line, '{');
                     if ($jsonStart !== false) {
                         $jsonData = substr($line, $jsonStart);
-                        $data = json_decode($jsonData, true);
-                        if ($data) {
-                            $logs[] = $data;
+                            $data = json_decode($jsonData, true);
+                            if ($data) {
+                                $logs[] = $data;
                         }
                     }
                 }
             }
         }
 
+        if ($search !== '') {
+            $logs = array_values(array_filter($logs, function (array $log) use ($search): bool {
+                $haystack = strtolower(json_encode($log));
+                return str_contains($haystack, strtolower($search));
+            }));
+        }
+
+        $actions = array_values(array_unique(array_filter(array_map(fn(array $log): ?string => $log['action'] ?? null, $logs))));
+        sort($actions);
+
+        if ($actionFilter) {
+            $logs = array_values(array_filter($logs, fn(array $log): bool => ($log['action'] ?? '') === $actionFilter));
+        }
+
+        if ($sort === 'oldest') {
+            $logs = array_reverse($logs);
+        }
+
+        $pagination = $paginator->paginate(
+            $logs,
+            $request->query->getInt('page', 1),
+            12
+        );
+
         return $this->render('admin/audit_logs.html.twig', [
-            'logs' => $logs,
+            'logs' => $pagination,
+            'actions' => $actions,
+            'search' => $search,
+            'action_filter' => $actionFilter,
+            'sort_filter' => $sort,
         ]);
     }
 }

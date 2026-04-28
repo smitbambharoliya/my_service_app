@@ -11,13 +11,41 @@
             <span class="text-xxs fw-800 letter-spacing-2 text-teal d-block mb-1">UNIT OVERVIEW</span>
             <h2 class="luxury-serif text-pure mb-0">Active Artisan Fleet</h2>
             <p class="text-dim text-xs mt-2">
-                Operational Units: <strong class="text-white">{{ providers|length }} Verified Partners</strong>
+                Operational Units: <strong class="text-white">{{ providers.getTotalItemCount() }} Verified Partners</strong>
             </p>
         </div>
         <div class="glass-card px-4 py-2 border-0 d-flex align-items-center gap-3">
             <i class="fas fa-microchip text-teal animate-pulse"></i>
             <span class="text-xxs fw-800 letter-spacing-1 text-dim">FLEET STATUS: OPTIMAL</span>
         </div>
+    </div>
+
+    <div class="admin-filter-console">
+        <form method="GET" class="row g-3 align-items-end">
+            <div class="col-lg-5">
+                <label for="provider-search">Search</label>
+                <input id="provider-search" type="text" name="search" class="form-control" placeholder="Provider name, email, mobile..." value="{{ search|default('') }}">
+            </div>
+            <div class="col-md-3 col-lg-3">
+                <label for="provider-status">Status</label>
+                <select id="provider-status" name="status" class="form-select">
+                    <option value="">All status</option>
+                    <option value="active" {{ status_filter|default('') == 'active' ? 'selected' : '' }}>Active</option>
+                    <option value="inactive" {{ status_filter|default('') == 'inactive' ? 'selected' : '' }}>Suspended</option>
+                </select>
+            </div>
+            <div class="col-md-3 col-lg-2">
+                <label for="provider-sort">Sort</label>
+                <select id="provider-sort" name="sort" class="form-select">
+                    <option value="newest" {{ sort_filter|default('newest') == 'newest' ? 'selected' : '' }}>Newest first</option>
+                    <option value="oldest" {{ sort_filter|default('newest') == 'oldest' ? 'selected' : '' }}>Oldest first</option>
+                </select>
+            </div>
+            <div class="col-md-3 col-lg-2 admin-filter-actions">
+                <button type="submit" class="btn-luxury w-100 py-2">FILTER</button>
+                <a href="{{ path('app_admin_providers') }}" class="btn-outline-luxury py-2 px-3" title="Clear filters"><i class="fas fa-rotate-left"></i></a>
+            </div>
+        </form>
     </div>
 
     {# ── ARTISAN GRID ── #}
@@ -92,6 +120,12 @@
                 </div>
             </div>
         {% endfor %}
+    </div>
+
+    <div class="d-flex justify-content-center mt-5">
+        <div class="glass-card p-2 border-0 shadow-none">
+            {{ knp_pagination_render(providers) }}
+        </div>
     </div>
 </div>
 

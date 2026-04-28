@@ -24,6 +24,43 @@
         </div>
     </div>
 
+    <div class="admin-filter-console">
+        <form method="GET" class="row g-3 align-items-end">
+            <div class="col-lg-4">
+                <label for="user-search">Search</label>
+                <input id="user-search" type="text" name="search" class="form-control" placeholder="Name, email, mobile..." value="{{ search|default('') }}">
+            </div>
+            <div class="col-md-3 col-lg-2">
+                <label for="user-role">Role</label>
+                <select id="user-role" name="role" class="form-select">
+                    <option value="">All roles</option>
+                    <option value="ROLE_ADMIN" {{ role_filter|default('') == 'ROLE_ADMIN' ? 'selected' : '' }}>Admins</option>
+                    <option value="ROLE_PROVIDER" {{ role_filter|default('') == 'ROLE_PROVIDER' ? 'selected' : '' }}>Providers</option>
+                    <option value="ROLE_USER" {{ role_filter|default('') == 'ROLE_USER' ? 'selected' : '' }}>Customers</option>
+                </select>
+            </div>
+            <div class="col-md-3 col-lg-2">
+                <label for="user-status">Status</label>
+                <select id="user-status" name="status" class="form-select">
+                    <option value="">All status</option>
+                    <option value="active" {{ status_filter|default('') == 'active' ? 'selected' : '' }}>Active</option>
+                    <option value="inactive" {{ status_filter|default('') == 'inactive' ? 'selected' : '' }}>Suspended</option>
+                </select>
+            </div>
+            <div class="col-md-3 col-lg-2">
+                <label for="user-sort">Sort</label>
+                <select id="user-sort" name="sort" class="form-select">
+                    <option value="newest" {{ sort_filter|default('newest') == 'newest' ? 'selected' : '' }}>Newest first</option>
+                    <option value="oldest" {{ sort_filter|default('newest') == 'oldest' ? 'selected' : '' }}>Oldest first</option>
+                </select>
+            </div>
+            <div class="col-md-3 col-lg-2 admin-filter-actions">
+                <button type="submit" class="btn-luxury w-100 py-2">FILTER</button>
+                <a href="{{ path('app_admin_users') }}" class="btn-outline-luxury py-2 px-3" title="Clear filters"><i class="fas fa-rotate-left"></i></a>
+            </div>
+        </form>
+    </div>
+
     {# ── IDENTITY GRID ── #}
     <div class="row g-4">
         {% for user in users %}

@@ -4,68 +4,284 @@
 {% block page_title %}Manage Services{% endblock %}
 {% block breadcrumb %}<li class="breadcrumb-item active">Services</li>{% endblock %}
 
-{% block body %}
-<div class="d-flex align-items-center justify-content-between mb-4">
-    <div>
-        <h4 style="color:var(--admin-text);font-weight:700;margin:0;">All Platform Services</h4>
-        <p style="color:var(--admin-text-muted);font-size:0.85rem;margin:4px 0 0;">Total: <strong style="color:var(--admin-text);">{{ services.getTotalItemCount() }}</strong> services listed</p>
-    </div>
-</div>
+{% block stylesheets %}
+<style>
+    .services-panel {
+        padding: 0;
+        overflow: hidden;
+    }
+    .services-panel-header {
+        padding: 24px 28px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .services-panel-title {
+        font-size: 1.15rem;
+        font-weight: 800;
+        color: #fff;
+        margin: 0;
+    }
+    .services-panel-subtitle {
+        color: var(--text-dim);
+        font-size: 0.78rem;
+        margin: 6px 0 0;
+    }
+    .services-table-wrap {
+        overflow-x: auto;
+    }
+    .services-table {
+        width: 100%;
+        min-width: 920px;
+        table-layout: fixed;
+        border-collapse: collapse;
+    }
+    .services-table th,
+    .services-table td {
+        padding: 16px 18px;
+        vertical-align: middle;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        line-height: 1.35;
+    }
+    .services-table th {
+        color: rgba(247, 251, 255, 0.78);
+        font-size: 0.7rem;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        white-space: nowrap;
+    }
+    .services-table tbody tr:last-child td {
+        border-bottom: 0;
+    }
+    .services-table tbody tr:hover {
+        background: rgba(255, 255, 255, 0.03);
+    }
+    .service-id-col { width: 7%; }
+    .service-name-col { width: 22%; }
+    .service-provider-col { width: 22%; }
+    .service-category-col { width: 18%; }
+    .service-price-col { width: 10%; }
+    .service-status-col { width: 11%; }
+    .service-actions-col { width: 10%; }
+    .service-title,
+    .provider-name,
+    .provider-email,
+    .service-category-pill {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .service-title {
+        max-width: 180px;
+        color: #fff;
+        font-weight: 800;
+        font-size: 0.88rem;
+    }
+    .provider-name {
+        max-width: 190px;
+        color: #fff;
+        font-size: 0.82rem;
+        font-weight: 700;
+    }
+    .provider-email {
+        max-width: 190px;
+        color: var(--text-dim);
+        font-size: 0.7rem;
+    }
+    .service-category-pill,
+    .service-badge {
+        display: inline-flex;
+        align-items: center;
+        max-width: 150px;
+        border-radius: 999px;
+        padding: 5px 10px;
+        font-size: 0.66rem;
+        font-weight: 800;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        border: 1px solid rgba(76, 167, 255, 0.25);
+        background: rgba(76, 167, 255, 0.1);
+        color: var(--accent-blue);
+    }
+    .service-badge.premium {
+        margin-top: 8px;
+        border-color: rgba(255, 209, 102, 0.3);
+        background: rgba(255, 209, 102, 0.12);
+        color: #ffd166;
+    }
+    .service-badge.visible {
+        border-color: rgba(0, 255, 213, 0.25);
+        background: rgba(0, 255, 213, 0.1);
+        color: var(--accent-cyan);
+    }
+    .service-badge.hidden {
+        border-color: rgba(255, 93, 115, 0.25);
+        background: rgba(255, 93, 115, 0.1);
+        color: var(--accent-red);
+    }
+    .service-price {
+        color: var(--accent-cyan);
+        font-weight: 900;
+        font-size: 1rem;
+        white-space: nowrap;
+    }
+    .service-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+        flex-wrap: nowrap;
+    }
+    .service-action-btn {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: all 0.25s var(--ease-spatial);
+        cursor: pointer;
+        padding: 0;
+        flex: 0 0 38px;
+    }
+    .service-action-btn:hover {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: currentColor;
+        transform: translateY(-1px);
+    }
+    .service-empty-state {
+        padding: 56px 24px;
+        text-align: center;
+        color: var(--text-dim);
+    }
+    .service-empty-state i {
+        display: block;
+        font-size: 2rem;
+        margin-bottom: 14px;
+        opacity: 0.5;
+    }
 
-<div class="admin-card">
-    <div class="table-responsive">
-        <table class="admin-table">
+    @media (max-width: 1199px) {
+        .service-provider-col { width: 20%; }
+        .service-actions-col { width: 12%; }
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="glass-card services-panel reveal-3d">
+    <div class="services-panel-header">
+        <div>
+            <h4 class="services-panel-title luxury-serif">All Platform Services</h4>
+            <p class="services-panel-subtitle">Total: <strong class="text-white">{{ services.getTotalItemCount() }}</strong> services listed</p>
+        </div>
+    </div>
+
+    <div class="admin-filter-console m-4">
+        <form method="GET" class="row g-3 align-items-end">
+            <div class="col-lg-4">
+                <label for="service-search">Search</label>
+                <input id="service-search" type="text" name="search" class="form-control" placeholder="Service, provider, category..." value="{{ search|default('') }}">
+            </div>
+            <div class="col-md-3 col-lg-2">
+                <label for="service-status">Status</label>
+                <select id="service-status" name="status" class="form-select">
+                    <option value="">All status</option>
+                    <option value="active" {{ status_filter|default('') == 'active' ? 'selected' : '' }}>Visible</option>
+                    <option value="inactive" {{ status_filter|default('') == 'inactive' ? 'selected' : '' }}>Hidden</option>
+                </select>
+            </div>
+            <div class="col-md-3 col-lg-2">
+                <label for="service-premium">Tier</label>
+                <select id="service-premium" name="premium" class="form-select">
+                    <option value="">All tiers</option>
+                    <option value="premium" {{ premium_filter|default('') == 'premium' ? 'selected' : '' }}>Premium</option>
+                    <option value="standard" {{ premium_filter|default('') == 'standard' ? 'selected' : '' }}>Standard</option>
+                </select>
+            </div>
+            <div class="col-md-3 col-lg-2">
+                <label for="service-sort">Sort</label>
+                <select id="service-sort" name="sort" class="form-select">
+                    <option value="newest" {{ sort_filter|default('newest') == 'newest' ? 'selected' : '' }}>Newest first</option>
+                    <option value="oldest" {{ sort_filter|default('newest') == 'oldest' ? 'selected' : '' }}>Oldest first</option>
+                </select>
+            </div>
+            <div class="col-md-3 col-lg-2 admin-filter-actions">
+                <button type="submit" class="btn-luxury w-100 py-2">FILTER</button>
+                <a href="{{ path('app_admin_services') }}" class="btn-outline-luxury py-2 px-3" title="Clear filters"><i class="fas fa-rotate-left"></i></a>
+            </div>
+        </form>
+    </div>
+
+    <div class="services-table-wrap">
+        <table class="services-table">
+            <colgroup>
+                <col class="service-id-col">
+                <col class="service-name-col">
+                <col class="service-provider-col">
+                <col class="service-category-col">
+                <col class="service-price-col">
+                <col class="service-status-col">
+                <col class="service-actions-col">
+            </colgroup>
             <thead>
                 <tr>
-                    <th style="width:60px;">ID</th>
+                    <th>ID</th>
                     <th>Service</th>
                     <th>Provider</th>
                     <th>Category</th>
                     <th>Price</th>
                     <th>Status</th>
-                    <th style="text-align:right;">Actions</th>
+                    <th class="text-end">Actions</th>
                 </tr>
             </thead>
             <tbody>
                 {% for service in services %}
                 <tr>
-                    <td style="color:var(--admin-text-muted);font-size:0.8rem;">{{ service.id }}</td>
+                    <td class="text-dim small">#{{ service.id }}</td>
                     <td>
-                        <div style="font-weight:600;color:var(--admin-text);font-size:0.875rem;">{{ service.title }}</div>
-                        {% if service.isPremium %}<span class="badge-admin badge-admin-yellow" style="font-size:0.6rem;padding:1px 6px;">PREMIUM</span>{% endif %}
-                    </td>
-                    <td>
-                        <div style="font-size:0.8rem;color:var(--admin-text);">{{ service.provider.fullName|default('N/A') }}</div>
-                        <div style="font-size:0.7rem;color:var(--admin-text-muted);">{{ service.provider.email }}</div>
-                    </td>
-                    <td>
-                        <span class="badge-admin badge-admin-blue" style="font-size:0.7rem;">{{ service.category.name }}</span>
-                    </td>
-                    <td style="font-weight:700;color:var(--admin-accent);">₹{{ service.price }}</td>
-                    <td>
-                        {% if service.isActive %}
-                            <span class="badge-admin badge-admin-green" style="font-size:0.7rem;"><i class="fas fa-eye me-1"></i>Visible</span>
-                        {% else %}
-                            <span class="badge-admin badge-admin-red" style="font-size:0.7rem;background:rgba(239,68,68,0.1) !important;"><i class="fas fa-eye-slash me-1"></i>Hidden</span>
+                        <div class="service-title">{{ service.title }}</div>
+                        {% if service.isPremium %}
+                            <span class="service-badge premium">Premium</span>
                         {% endif %}
                     </td>
-                    <td style="text-align:right;">
-                        <div style="display:flex;justify-content:flex-end;gap:8px;">
-                            <form action="{{ path('app_admin_service_toggle_status', {id: service.id}) }}" method="POST" style="display:inline;">
-                                <button type="submit" class="btn-admin {{ service.isActive ? 'btn-admin-outline' : 'btn-admin-green' }}" title="{{ service.isActive ? 'Hide Service' : 'Show Service' }}" style="padding:6px 10px;font-size:0.75rem;">
+                    <td>
+                        <div class="provider-name">{{ service.provider ? service.provider.fullName|default('N/A') : 'N/A' }}</div>
+                        <div class="provider-email">{{ service.provider ? service.provider.email : 'No provider assigned' }}</div>
+                    </td>
+                    <td>
+                        <span class="service-category-pill">{{ service.category.name }}</span>
+                    </td>
+                    <td><span class="service-price">₹{{ service.price|number_format }}</span></td>
+                    <td>
+                        {% if service.isActive %}
+                            <span class="service-badge visible"><i class="fas fa-eye me-1"></i>Visible</span>
+                        {% else %}
+                            <span class="service-badge hidden"><i class="fas fa-eye-slash me-1"></i>Hidden</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-end">
+                        <div class="service-actions">
+                            <form action="{{ path('app_admin_service_toggle_status', {id: service.id}) }}" method="POST" class="m-0">
+                                <button type="submit" class="service-action-btn {{ service.isActive ? 'text-red' : 'text-teal' }}" title="{{ service.isActive ? 'Hide Service' : 'Show Service' }}">
                                     <i class="fas {{ service.isActive ? 'fa-eye-slash text-danger' : 'fa-eye' }}"></i>
                                 </button>
                             </form>
 
-                            <form action="{{ path('app_admin_service_toggle_premium', {id: service.id}) }}" method="POST" style="display:inline;">
-                                <button type="submit" class="btn-admin {{ service.isPremium ? 'btn-admin-outline' : 'btn-admin-yellow' }}" title="Toggle Premium" style="padding:6px 10px;font-size:0.75rem;">
+                            <form action="{{ path('app_admin_service_toggle_premium', {id: service.id}) }}" method="POST" class="m-0">
+                                <input type="hidden" name="_token" value="{{ csrf_token('toggle_premium' ~ service.id) }}">
+                                <button type="submit" class="service-action-btn {{ service.isPremium ? 'text-gold' : 'text-dim' }}" title="Toggle Premium">
                                     <i class="fas fa-star {{ service.isPremium ? 'text-warning' : '' }}"></i>
                                 </button>
                             </form>
                             
-                            <form action="{{ path('app_admin_service_delete', {id: service.id}) }}" method="POST" style="display:inline;" onsubmit="return confirm('Delete this service permanently?');">
+                            <form action="{{ path('app_admin_service_delete', {id: service.id}) }}" method="POST" class="m-0" onsubmit="return confirm('Delete this service permanently?');">
                                 <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ service.id) }}">
-                                <button type="submit" class="btn-admin btn-admin-outline" title="Delete" style="padding:6px 10px;font-size:0.75rem;">
+                                <button type="submit" class="service-action-btn text-red" title="Delete">
                                     <i class="fas fa-trash-alt text-danger"></i>
                                 </button>
                             </form>
@@ -75,7 +291,7 @@
                 {% else %}
                 <tr>
                     <td colspan="7">
-                        <div class="empty-state">
+                        <div class="service-empty-state">
                             <i class="fas fa-cogs"></i>
                             <p>No services have been created yet.</p>
                         </div>
@@ -86,7 +302,7 @@
         </table>
     </div>
     
-    <div class="d-flex justify-content-center mt-4">
+    <div class="d-flex justify-content-center p-4 border-top border-white border-opacity-10">
         {{ knp_pagination_render(services) }}
     </div>
 </div>

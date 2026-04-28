@@ -21,14 +21,15 @@ final class RevenueCalculationService
     public function calculateTotalRevenue(): float
     {
         $qb = $this->em->createQueryBuilder();
-        $totalAmount = $qb->select('SUM(b.totalAmount) as total')
+        $totalAmount = $qb->select('SUM(COALESCE(b.estimatedCost, s.price)) as total')
             ->from(Booking::class, 'b')
+            ->join('b.service', 's')
             ->where('b.status = :status')
             ->setParameter('status', AppConstants::BOOKING_STATUS_COMPLETED)
             ->getQuery()
             ->getSingleScalarResult();
 
-        $commission = (float)$totalAmount * AppConstants::PLATFORM_COMMISSION_PERCENTAGE;
+        $commission = (float)($totalAmount ?? 0) * AppConstants::PLATFORM_COMMISSION_PERCENTAGE;
         return round($commission, 2);
     }
 
@@ -38,8 +39,9 @@ final class RevenueCalculationService
     public function calculateRevenueForPeriod(\DateTimeInterface $startDate, \DateTimeInterface $endDate): float
     {
         $qb = $this->em->createQueryBuilder();
-        $totalAmount = $qb->select('SUM(b.totalAmount) as total')
+        $totalAmount = $qb->select('SUM(COALESCE(b.estimatedCost, s.price)) as total')
             ->from(Booking::class, 'b')
+            ->join('b.service', 's')
             ->where('b.status = :status')
             ->andWhere('b.bookingDate BETWEEN :start AND :end')
             ->setParameter('status', AppConstants::BOOKING_STATUS_COMPLETED)

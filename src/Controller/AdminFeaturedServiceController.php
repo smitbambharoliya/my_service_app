@@ -6,6 +6,7 @@ use App\Entity\FeaturedService;
 use App\Entity\Service;
 use App\Repository\FeaturedServiceRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -17,11 +18,55 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class AdminFeaturedServiceController extends AbstractController
 {
     #[Route('/', name: 'app_admin_featured_services', methods: ['GET'])]
-    public function index(FeaturedServiceRepository $repo): Response
+    public function index(FeaturedServiceRepository $repo, PaginatorInterface $paginator, Request $request): Response
     {
-        $features = $repo->findBy([], ['section' => 'ASC', 'displayOrder' => 'ASC']);
+        $search = trim((string) $request->query->get('search', ''));
+        $sectionFilter = $request->query->get('section');
+        $statusFilter = $request->query->get('status');
+        $sort = $request->query->get('sort', 'display_order');
+
+        $queryBuilder = $repo->createQueryBuilder('f')
+            ->join('f.service', 's')
+            ->leftJoin('s.provider', 'p')
+            ->leftJoin('s.category', 'c')
+            ->addSelect('s', 'p', 'c');
+
+        if ($search !== '') {
+            $queryBuilder
+                ->andWhere('s.title LIKE :search OR p.email LIKE :search OR p.fullName LIKE :search OR c.name LIKE :search')
+                ->setParameter('search', '%' . $search . '%');
+        }
+
+        if ($sectionFilter) {
+            $queryBuilder
+                ->andWhere('f.section = :section')
+                ->setParameter('section', $sectionFilter);
+        }
+
+        if ($statusFilter !== null && $statusFilter !== '') {
+            $queryBuilder
+                ->andWhere('f.isActive = :status')
+                ->setParameter('status', $statusFilter === 'active');
+        }
+
+        match ($sort) {
+            'newest' => $queryBuilder->orderBy('f.createdAt', 'DESC'),
+            'oldest' => $queryBuilder->orderBy('f.createdAt', 'ASC'),
+            default => $queryBuilder->orderBy('f.section', 'ASC')->addOrderBy('f.displayOrder', 'ASC'),
+        };
+
+        $features = $paginator->paginate(
+            $queryBuilder,
+            $request->query->getInt('page', 1),
+            12
+        );
+
         return $this->render('admin/featured_services/manager.html.twig', [
             'features' => $features,
+            'search' => $search,
+            'section_filter' => $sectionFilter,
+            'status_filter' => $statusFilter,
+            'sort_filter' => $sort,
         ]);
     }
 
@@ -99,7 +144,8 @@ class AdminFeaturedServiceController extends AbstractController
     {
         $query = $request->query->get('q', '');
         $services = $em->getRepository(Service::class)->createQueryBuilder('s')
-            ->where('s.title LIKE :query OR s.category LIKE :query')
+            ->join('s.category', 'c')
+            ->where('s.title LIKE :query OR c.name LIKE :query')
             ->setParameter('query', '%' . $query . '%')
             ->setMaxResults(10)
             ->getQuery()
