@@ -1,160 +1,131 @@
 {% extends 'admin/admin_base.html.twig' %}
 
-{% block title %}Audit Logs - Admin{% endblock %}
-{% block page_title %}Admin Audit Logs{% endblock %}
-{% block breadcrumb %}
-    <li class="breadcrumb-item active">Audit Logs</li>
-{% endblock %}
+{% block title %}Telemetry Logs — ServiceHub Admin{% endblock %}
+{% block page_title %}System Telemetry{% endblock %}
 
 {% block body %}
-<div class="aurora-card">
-    <div class="card-header-custom">
-        <span class="title"><i class="fas fa-history me-2" style="color: var(--aurora-violet);"></i>System Audit Trail</span>
-        <div class="d-flex gap-2">
-            <span class="badge-aurora badge-aurora-violet">{{ logs|length }} Entries</span>
-            <a href="{{ path('app_admin_audit_logs') }}" class="btn-aurora btn-aurora-blue">
-                <i class="fas fa-sync-alt"></i> Refresh
-            </a>
+<div class="reveal-3d">
+    {# ── TOP CONTROL BAR ── #}
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="glass-card px-4 py-2 border-0 d-flex align-items-center gap-3">
+            <div class="pulse-indicator"></div>
+            <span class="text-xxs fw-800 letter-spacing-1 text-dim">LIVE AUDIT STREAM</span>
+            <span class="badge-status status-active">{{ logs|length }} NODES</span>
         </div>
+        <a href="{{ path('app_admin_audit_logs') }}" class="btn-luxury py-2 px-4" style="font-size: 0.7rem;">
+            <i class="fas fa-sync-alt me-2"></i> RESYNC FEED
+        </a>
     </div>
-    <div class="table-responsive">
-        <table class="aurora-table">
-            <thead>
-                <tr>
-                    <th>Timestamp</th>
-                    <th>Admin</th>
-                    <th>Action</th>
-                    <th>Entity Type</th>
-                    <th>Entity ID</th>
-                    <th>Details</th>
-                    <th>IP Address</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for log in logs %}
-                    <tr>
-                        <td>
-                            <span style="font-family: monospace; font-size: 0.85rem; color: var(--aurora-text-secondary);">
-                                {{ log.timestamp }}
-                            </span>
-                        </td>
-                        <td>
-                            <div class="d-flex align-items-center gap-2">
-                                <div class="user-avatar" style="width: 32px; height: 32px; font-size: 0.8rem;">
-                                    {{ log.admin_email|slice(0,1)|upper }}
-                                </div>
-                                <div>
-                                    <div style="font-weight: 600; font-size: 0.85rem;">{{ log.admin_email }}</div>
-                                    <small style="color: var(--aurora-text-muted);">ID: {{ log.admin_id|default('N/A') }}</small>
-                                </div>
+
+    {# ── SPATIAL LOG GRID ── #}
+    <div class="row g-4">
+        {% for log in logs %}
+            <div class="col-xl-6 col-xxl-4">
+                <div class="glass-card p-4 h-100 border-glow-hover">
+                    <div class="d-flex justify-content-between align-items-start mb-4">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="user-orb" style="width: 38px; height: 38px; font-size: 0.8rem;">
+                                {{ log.admin_email|slice(0,1)|upper }}
                             </div>
-                        </td>
-                        <td>
-                            {% set actionColors = {
-                                'DASHBOARD_VIEW': 'blue',
-                                'CATEGORIES_VIEW': 'blue',
-                                'USER_COMMAND_HUB_VIEW': 'blue',
-                                'CATEGORY_CREATE': 'emerald',
-                                'CATEGORY_EDIT': 'amber',
-                                'CATEGORY_TOGGLE': 'amber',
-                                'CATEGORY_DELETE': 'pink',
-                                'USER_VERIFY': 'emerald',
-                                'USER_PROMOTE_PROVIDER': 'violet',
-                                'USER_DEMOTE_PROVIDER': 'amber',
-                                'USER_PROMOTE_ADMIN': 'violet',
-                                'USER_PASSWORD_RESET': 'amber',
-                                'USER_TOGGLE_STATUS': 'amber',
-                                'USER_DELETE': 'pink'
-                            } %}
-                            <span class="badge-aurora badge-aurora-{{ actionColors[log.action]|default('gray') }}">
-                                {{ log.action }}
-                            </span>
-                        </td>
-                        <td>
-                            <span style="font-weight: 600; color: var(--aurora-text-secondary);">{{ log.entity_type|default('-') }}</span>
-                        </td>
-                        <td>
-                            {% if log.entity_id %}
-                                <code style="background: var(--aurora-bg); padding: 4px 8px; border-radius: 6px; font-size: 0.8rem;">{{ log.entity_id }}</code>
-                            {% else %}
-                                <span style="color: var(--aurora-text-muted);">-</span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if log.details %}
-                                <div style="max-width: 300px;">
-                                    {% for key, value in log.details %}
-                                        <small class="d-block" style="color: var(--aurora-text-secondary);">
-                                            <strong>{{ key }}:</strong> {{ value }}
-                                        </small>
-                                    {% endfor %}
-                                </div>
-                            {% else %}
-                                <span style="color: var(--aurora-text-muted);">-</span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            <code style="background: var(--aurora-bg); padding: 4px 8px; border-radius: 6px; font-size: 0.8rem; color: var(--aurora-text-muted);">
-                                {{ log.ip_address }}
-                            </code>
-                        </td>
-                    </tr>
-                {% else %}
-                    <tr>
-                        <td colspan="7">
-                            <div class="empty-state">
-                                <i class="fas fa-history"></i>
-                                <p>No audit logs found.</p>
-                                <small style="color: var(--aurora-text-muted);">Logs are written to var/logs/admin_actions.log</small>
+                            <div>
+                                <div class="fw-bold text-white small">{{ log.admin_email }}</div>
+                                <div class="text-dim" style="font-size: 0.65rem; font-family: monospace;">IP: {{ log.ip_address }}</div>
                             </div>
-                        </td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                        </div>
+                        
+                        {% set actionColors = {
+                            'CATEGORY_DELETE': 'status-alert',
+                            'USER_DELETE': 'status-alert',
+                            'CATEGORY_CREATE': 'status-active',
+                            'USER_VERIFY': 'status-active'
+                        } %}
+                        <span class="badge-status {{ actionColors[log.action]|default('status-pending') }}" style="font-size: 0.6rem;">
+                            {{ log.action|replace({'_': ' '}) }}
+                        </span>
+                    </div>
+
+                    <div class="p-3 rounded-4 mb-3" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05);">
+                        <div class="row g-2">
+                            <div class="col-5">
+                                <span class="text-xxs text-dim fw-800 d-block mb-1">ENTITY TYPE</span>
+                                <span class="text-teal small fw-bold">{{ log.entity_type|default('SYSTEM') }}</span>
+                            </div>
+                            <div class="col-7 text-end">
+                                <span class="text-xxs text-dim fw-800 d-block mb-1">ENTITY ID</span>
+                                <code class="text-white small" style="background: rgba(0,255,213,0.1); padding: 2px 6px; border-radius: 4px;">
+                                    {{ log.entity_id|default('N/A')|slice(0,12) }}
+                                </code>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if log.details %}
+                        <div class="mb-3">
+                            <span class="text-xxs text-dim fw-800 d-block mb-2">TELEMETRY DATA</span>
+                            <div class="p-2 rounded-3 text-xxs" style="background: rgba(0,0,0,0.2); font-family: monospace; color: #a9b7c8;">
+                                {% for key, value in log.details %}
+                                    <div class="mb-1"><span class="text-teal">> {{ key }}:</span> {{ value }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    <div class="d-flex justify-content-between align-items-center pt-3 border-top border-white border-opacity-10">
+                        <span class="text-xxs text-dim fw-800"><i class="far fa-clock me-1"></i> {{ log.timestamp }}</span>
+                        <i class="fas fa-fingerprint text-dim opacity-30"></i>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="col-12">
+                <div class="glass-card py-5 text-center border-dashed">
+                    <i class="fas fa-satellite-dish fs-1 text-dim mb-4"></i>
+                    <h4 class="luxury-serif">Silence in the Aether</h4>
+                    <p class="text-dim small">No telemetry logs have been recorded in the current cycle.</p>
+                </div>
+            </div>
+        {% endfor %}
     </div>
 </div>
 
-<div class="mt-4">
-    <div class="aurora-card p-4">
-        <h6 style="font-weight: 700; color: var(--aurora-text); margin-bottom: 16px;">
-            <i class="fas fa-info-circle me-2" style="color: var(--aurora-blue);"></i>About Audit Logging
-        </h6>
-        <div class="row">
-            <div class="col-md-4">
-                <div class="d-flex align-items-start gap-3">
-                    <div style="width: 40px; height: 40px; border-radius: 10px; background: var(--aurora-emerald-light); display: flex; align-items: center; justify-content: center; color: var(--aurora-emerald);">
-                        <i class="fas fa-shield-alt"></i>
-                    </div>
-                    <div>
-                        <h6 style="font-weight: 700; font-size: 0.9rem;">Security</h6>
-                        <p style="font-size: 0.85rem; color: var(--aurora-text-secondary);">All admin actions are logged for security review and compliance.</p>
-                    </div>
+{# ── LOGIC INFO SECTION ── #}
+<div class="row g-4 mt-5">
+    <div class="col-md-12">
+        <div class="glass-card p-4 border-0" style="background: linear-gradient(135deg, rgba(76, 167, 255, 0.05), transparent);">
+            <div class="row align-items-center">
+                <div class="col-lg-8">
+                    <h5 class="luxury-serif text-white mb-2">Archive Retention Protocol</h5>
+                    <p class="text-dim small mb-0">Logs are cryptographically signed and stored at <code>var/logs/admin_actions.log</code>. 
+                    The dashboard displays the last 500 state transitions for security compliance.</p>
                 </div>
-            </div>
-            <div class="col-md-4">
-                <div class="d-flex align-items-start gap-3">
-                    <div style="width: 40px; height: 40px; border-radius: 10px; background: var(--aurora-blue-light); display: flex; align-items: center; justify-content: center; color: var(--aurora-blue);">
-                        <i class="fas fa-file-alt"></i>
-                    </div>
-                    <div>
-                        <h6 style="font-weight: 700; font-size: 0.9rem;">Log Location</h6>
-                        <p style="font-size: 0.85rem; color: var(--aurora-text-secondary);">Logs are stored in <code>var/logs/admin_actions.log</code></p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="d-flex align-items-start gap-3">
-                    <div style="width: 40px; height: 40px; border-radius: 10px; background: var(--aurora-violet-light); display: flex; align-items: center; justify-content: center; color: var(--aurora-violet);">
-                        <i class="fas fa-clock"></i>
-                    </div>
-                    <div>
-                        <h6 style="font-weight: 700; font-size: 0.9rem;">Retention</h6>
-                        <p style="font-size: 0.85rem; color: var(--aurora-text-secondary);">Last 500 entries are displayed. Archive older logs periodically.</p>
+                <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
+                    <div class="d-inline-flex gap-2">
+                        <div class="p-3 rounded-4 bg-surface"><i class="fas fa-shield-halved text-teal"></i></div>
+                        <div class="p-3 rounded-4 bg-surface"><i class="fas fa-server text-blue"></i></div>
+                        <div class="p-3 rounded-4 bg-surface"><i class="fas fa-vault text-purple"></i></div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+    .pulse-indicator {
+        width: 8px; height: 8px;
+        background: var(--accent-cyan);
+        border-radius: 50%;
+        box-shadow: 0 0 10px var(--accent-cyan);
+        animation: pulse-ring 2s infinite;
+    }
+    @keyframes pulse-ring {
+        0% { transform: scale(1); opacity: 1; }
+        100% { transform: scale(2.5); opacity: 0; }
+    }
+    .border-glow-hover:hover {
+        border-color: rgba(0, 255, 213, 0.3) !important;
+        box-shadow: 0 0 30px rgba(0, 255, 213, 0.05) !important;
+    }
+    .bg-surface { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); }
+</style>
 {% endblock %}

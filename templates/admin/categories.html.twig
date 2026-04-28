@@ -1,154 +1,193 @@
 {% extends 'admin/admin_base.html.twig' %}
 
-{% block title %}Category Manager - Admin{% endblock %}
-{% block page_title %}Category Manager{% endblock %}
-{% block breadcrumb %}
-    <li class="breadcrumb-item active">Categories</li>
+{% block title %}Spheres Management — ServiceHub Admin{% endblock %}
+{% block page_title %}Service Spheres{% endblock %}
+
+{% block stylesheets %}
+<style>
+    /* ── ICON GRID STYLING ── */
+    .category-icon-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(45px, 1fr));
+        gap: 10px;
+        max-height: 200px;
+        overflow-y: auto;
+        padding: 10px;
+        background: rgba(0,0,0,0.2);
+        border-radius: 12px;
+        border: 1px solid var(--glass-border);
+    }
+    .category-icon-option {
+        width: 40px; height: 40px;
+        display: flex; align-items: center; justify-content: center;
+        background: rgba(255,255,255,0.03);
+        border: 1px solid transparent;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.3s var(--ease-spatial);
+        color: var(--text-muted);
+    }
+    .category-icon-option:hover { background: rgba(255,255,255,0.08); color: #fff; }
+    .category-icon-option.selected {
+        border-color: var(--accent-cyan);
+        background: rgba(0, 255, 213, 0.1);
+        color: var(--accent-cyan);
+        box-shadow: 0 0 15px rgba(0, 255, 213, 0.2);
+    }
+
+    /* ── COLOR SELECTOR ── */
+    .color-options { display: flex; gap: 8px; flex-wrap: wrap; }
+    .color-option {
+        width: 24px; height: 24px;
+        border-radius: 50%;
+        cursor: pointer;
+        border: 2px solid transparent;
+        transition: transform 0.2s;
+    }
+    .color-option.selected { transform: scale(1.3); border-color: #fff; box-shadow: 0 0 10px rgba(255,255,255,0.3); }
+
+    /* ── SPATIAL OVERRIDES ── */
+    .btn-admin-gradient {
+        background: var(--gradient-aurora);
+        color: #000; font-weight: 800; border: none;
+        box-shadow: 0 0 20px rgba(0, 255, 213, 0.2);
+    }
+    .btn-admin-gradient:hover { transform: translateY(-2px); box-shadow: 0 0 30px rgba(0, 255, 213, 0.4); }
+</style>
 {% endblock %}
 
 {% block body %}
-<div class="row g-4">
-    <!-- Add New Category -->
+<div class="row g-4 reveal-3d">
     <div class="col-lg-4">
-        <div class="admin-card">
-            <div class="card-header-custom">
-                <span class="title"><i class="fas fa-plus-circle me-2" style="color: var(--accent-blue);"></i>Add Category</span>
+        <div class="glass-card p-4 h-100 border-glow-hover">
+            <div class="d-flex align-items-center gap-3 mb-4">
+                <div class="p-2 rounded-3 bg-surface border-glass"><i class="fas fa-plus-circle text-teal"></i></div>
+                <h4 class="luxury-serif text-white m-0">Initialize Sphere</h4>
             </div>
-            <div class="p-4">
-                <form method="POST" action="{{ path('app_admin_category_new') }}">
-                    <input type="hidden" name="_token" value="{{ csrf_token('category_new') }}">
 
-                    <div class="mb-3">
-                        <label class="form-label" style="font-weight: 600; color: var(--text-main); font-size: 0.85rem;">Category Name</label>
-                        <input type="text" name="name" class="form-control" placeholder="e.g., Home Cleaning" required>
-                    </div>
+            <form method="POST" action="{{ path('app_admin_category_new') }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('category_new') }}">
 
-                    <div class="mb-3">
-                        <label class="form-label" style="font-weight: 600; color: var(--text-main); font-size: 0.85rem;">Description</label>
-                        <textarea name="description" class="form-control" rows="3" placeholder="Brief description..."></textarea>
-                    </div>
+                <div class="mb-4">
+                    <label class="text-xxs text-dim fw-800 letter-spacing-1 d-block mb-2">SPHERE DESIGNATION</label>
+                    <input type="text" name="name" class="form-control" placeholder="e.g. Molecular Hygiene" required>
+                </div>
 
-                    <div class="mb-3">
-                        <label class="form-label" style="font-weight: 600; color: var(--text-main); font-size: 0.85rem;">Sort Order</label>
+                <div class="mb-4">
+                    <label class="text-xxs text-dim fw-800 letter-spacing-1 d-block mb-2">TECHNICAL SCOPE</label>
+                    <textarea name="description" class="form-control" rows="3" placeholder="Define operational parameters..."></textarea>
+                </div>
+
+                <div class="row mb-4">
+                    <div class="col-6">
+                        <label class="text-xxs text-dim fw-800 letter-spacing-1 d-block mb-2">INDEX ORDER</label>
                         <input type="number" name="sortOrder" class="form-control" value="0" min="0">
                     </div>
+                </div>
 
-                    <div class="mb-3">
-                        <label class="form-label" style="font-weight: 600; color: var(--text-main); font-size: 0.85rem;">Select Icon</label>
-                        <div class="category-icon-grid" id="iconGrid">
-                            {% set icons = ['fa-home', 'fa-broom', 'fa-wrench', 'fa-paint-roller', 'fa-truck-moving', 'fa-laptop', 'fa-camera', 'fa-spa',
-                                           'fa-cut', 'fa-car', 'fa-dog', 'fa-baby', 'fa-utensils', 'fa-tshirt', 'fa-tools', 'fa-bolt',
-                                           'fa-tree', 'fa-lock', 'fa-music', 'fa-dumbbell', 'fa-graduation-cap', 'fa-heart', 'fa-plane', 'fa-gift'] %}
-                            {% for icon in icons %}
-                                <div class="category-icon-option" data-icon="{{ icon }}" onclick="selectIcon(this)">
-                                    <i class="fas {{ icon }}"></i>
-                                </div>
-                            {% endfor %}
-                        </div>
-                        <input type="hidden" name="icon" id="selectedIcon" value="fa-tag">
+                <div class="mb-4">
+                    <label class="text-xxs text-dim fw-800 letter-spacing-1 d-block mb-2">VISUAL IDENTIFIER (ICON)</label>
+                    <div class="category-icon-grid" id="iconGrid">
+                        {% set icons = ['fa-home', 'fa-broom', 'fa-wrench', 'fa-paint-roller', 'fa-laptop', 'fa-spa', 'fa-car', 'fa-tools', 'fa-bolt', 'fa-lock', 'fa-microchip', 'fa-satellite'] %}
+                        {% for icon in icons %}
+                            <div class="category-icon-option" data-icon="{{ icon }}" onclick="selectIcon(this)">
+                                <i class="fas {{ icon }}"></i>
+                            </div>
+                        {% endfor %}
                     </div>
+                    <input type="hidden" name="icon" id="selectedIcon" value="fa-tag">
+                </div>
 
-                    <div class="mb-4">
-                        <label class="form-label" style="font-weight: 600; color: var(--text-main); font-size: 0.85rem;">Theme Color</label>
-                        <div class="color-options">
-                            {% set colors = [
-                                {name: 'violet', hex: '#8B5CF6'},
-                                {name: 'blue', hex: '#3B82F6'},
-                                {name: 'pink', hex: '#EC4899'},
-                                {name: 'cyan', hex: '#06B6D4'},
-                                {name: 'emerald', hex: '#10B981'},
-                                {name: 'amber', hex: '#F59E0B'},
-                                {name: 'red', hex: '#EF4444'},
-                                {name: 'indigo', hex: '#6366F1'}
-                            ] %}
-                            {% for color in colors %}
-                                <div class="color-option color-{{ color.name }} {{ loop.first ? 'selected' : '' }}" data-color="{{ color.name }}" onclick="selectColor(this)"></div>
-                            {% endfor %}
-                        </div>
-                        <input type="hidden" name="color" id="selectedColor" value="violet">
+                <div class="mb-5">
+                    <label class="text-xxs text-dim fw-800 letter-spacing-1 d-block mb-3">SPECTRUM TINT</label>
+                    <div class="color-options">
+                        {% set colors = [
+                            {name: 'cyan', hex: '#00ffd5'},
+                            {name: 'violet', hex: '#8B5CF6'},
+                            {name: 'pink', hex: '#EC4899'},
+                            {name: 'emerald', hex: '#10B981'},
+                            {name: 'amber', hex: '#F59E0B'}
+                        ] %}
+                        {% for color in colors %}
+                            <div class="color-option {{ loop.first ? 'selected' : '' }}" 
+                                 style="background: {{ color.hex }};" 
+                                 data-color="{{ color.name }}" 
+                                 onclick="selectColor(this)"></div>
+                        {% endfor %}
                     </div>
+                    <input type="hidden" name="color" id="selectedColor" value="cyan">
+                </div>
 
-                    <button type="submit" class="btn-admin btn-admin-gradient w-100">
-                        <i class="fas fa-plus"></i> Create Category
-                    </button>
-                </form>
-            </div>
+                <button type="submit" class="btn-luxury w-100 py-3">
+                    <i class="fas fa-plus me-2"></i> DEPLOY SPHERE
+                </button>
+            </form>
         </div>
     </div>
 
-    <!-- Categories List -->
     <div class="col-lg-8">
-        <div class="admin-card">
-            <div class="card-header-custom">
-                <span class="title"><i class="fas fa-tags me-2" style="color: var(--accent-blue);"></i>All Categories</span>
-                <span class="badge-admin badge-admin-violet">{{ categories|length }} Total</span>
+        <div class="glass-card p-0 overflow-hidden border-glow-hover">
+            <div class="p-4 d-flex justify-content-between align-items-center border-bottom border-white border-opacity-5">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="p-2 rounded-3 bg-surface border-glass"><i class="fas fa-layer-group text-teal"></i></div>
+                    <h4 class="luxury-serif text-white m-0">Synchronized Spheres</h4>
+                </div>
+                <span class="badge-status status-active">{{ categories|length }} ACTIVE UNITS</span>
             </div>
+
             <div class="table-responsive">
-                <table class="admin-table">
+                <table class="admin-table m-0">
                     <thead>
                         <tr>
-                            <th>Category</th>
-                            <th>Icon</th>
-                            <th>Services</th>
-                            <th>Status</th>
-                            <th>Order</th>
-                            <th>Actions</th>
+                            <th class="ps-4">SPHERE IDENTITY</th>
+                            <th>ENCODING</th>
+                            <th>LOAD</th>
+                            <th>STATUS</th>
+                            <th class="pe-4 text-end">ACTIONS</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for category in categories %}
-                            <tr>
-                                <td>
+                            <tr class="reveal-3d">
+                                <td class="ps-4">
                                     <div class="d-flex align-items-center gap-3">
-                                        <div style="width: 44px; height: 44px; border-radius: 12px; background: linear-gradient(135deg, var(--aurora-{{ category.color }}), var(--aurora-{{ category.color }})); display: flex; align-items: center; justify-content: center; color: white; font-size: 1.1rem;">
+                                        <div style="width: 40px; height: 40px; border-radius: 10px; background: rgba(0,255,213,0.1); border: 1px solid rgba(0,255,213,0.2); display: flex; align-items: center; justify-content: center; color: var(--accent-cyan);">
                                             <i class="fas {{ category.icon }}"></i>
                                         </div>
                                         <div>
-                                            <div style="font-weight: 700; color: var(--text-main);">{{ category.name }}</div>
-                                            <div style="font-size: 0.8rem; color: var(--text-main-muted);">{{ category.slug }}</div>
+                                            <div class="fw-bold text-white small">{{ category.name }}</div>
+                                            <div class="text-dim" style="font-size: 0.65rem;">{{ category.slug }}</div>
                                         </div>
                                     </div>
                                 </td>
-                                <td><code style="background: var(--admin-bg); padding: 4px 8px; border-radius: 6px; font-size: 0.8rem;">{{ category.icon }}</code></td>
-                                <td>
-                                    <span class="badge-admin badge-admin-blue">{{ category.serviceCount }} services</span>
-                                </td>
+                                <td><code class="text-teal" style="font-size: 0.7rem;">{{ category.icon }}</code></td>
+                                <td><span class="text-white fw-bold">{{ category.serviceCount }}</span> <span class="text-dim text-xxs">UNITS</span></td>
                                 <td>
                                     {% if category.isActive %}
-                                        <span class="badge-admin badge-admin-emerald"><i class="fas fa-check me-1"></i> Active</span>
+                                        <span class="text-teal text-xxs fw-800"><i class="fas fa-circle me-1" style="font-size: 6px;"></i> ONLINE</span>
                                     {% else %}
-                                        <span class="badge-admin badge-admin-gray"><i class="fas fa-pause me-1"></i> Inactive</span>
+                                        <span class="text-dim text-xxs fw-800"><i class="fas fa-circle me-1" style="font-size: 6px;"></i> DORMANT</span>
                                     {% endif %}
                                 </td>
-                                <td>{{ category.sortOrder }}</td>
-                                <td>
-                                    <div class="d-flex gap-2">
-                                        <button type="button" class="btn-admin btn-admin-blue" data-bs-toggle="modal" data-bs-target="#editModal{{ category.id }}">
+                                <td class="pe-4 text-end">
+                                    <div class="d-flex justify-content-end gap-2">
+                                        <button class="btn-action-spatial text-blue" data-bs-toggle="modal" data-bs-target="#editModal{{ category.id }}">
                                             <i class="fas fa-edit"></i>
                                         </button>
-                                        <form method="POST" action="{{ path('app_admin_category_toggle', {id: category.id}) }}" class="d-inline">
+                                        <form method="POST" action="{{ path('app_admin_category_toggle', {id: category.id}) }}" class="m-0">
                                             <input type="hidden" name="_token" value="{{ csrf_token('category_toggle' ~ category.id) }}">
-                                            <button type="submit" class="btn-admin {{ category.isActive ? 'btn-admin-amber' : 'btn-admin-emerald' }}">
+                                            <button type="submit" class="btn-action-spatial {{ category.isActive ? 'text-amber' : 'text-teal' }}">
                                                 <i class="fas {{ category.isActive ? 'fa-pause' : 'fa-play' }}"></i>
                                             </button>
                                         </form>
                                         {% if category.serviceCount == 0 %}
-                                            <form method="POST" action="{{ path('app_admin_category_delete', {id: category.id}) }}" class="d-inline" onsubmit="return confirm('Delete this category?')">
+                                            <form method="POST" action="{{ path('app_admin_category_delete', {id: category.id}) }}" class="m-0" onsubmit="return confirm('Purge this sphere?')">
                                                 <input type="hidden" name="_token" value="{{ csrf_token('category_delete' ~ category.id) }}">
-                                                <button type="submit" class="btn-admin btn-admin-pink">
+                                                <button type="submit" class="btn-action-spatial text-red">
                                                     <i class="fas fa-trash"></i>
                                                 </button>
                                             </form>
                                         {% endif %}
-                                    </div>
-                                </td>
-                            </tr>
-                        {% else %}
-                            <tr>
-                                <td colspan="6">
-                                    <div class="empty-state">
-                                        <i class="fas fa-tags"></i>
-                                        <p>No categories found. Create your first category!</p>
                                     </div>
                                 </td>
                             </tr>
@@ -160,57 +199,26 @@
     </div>
 </div>
 
-<!-- Edit Modals -->
 {% for category in categories %}
 <div class="modal fade" id="editModal{{ category.id }}" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content" style="border-radius: 20px; border: 1px solid var(--text-muted); background: var(--glass-bg); backdrop-filter: blur(20px);">
-            <div class="modal-header" style="border-bottom: 1px solid var(--text-muted); padding: 20px 24px;">
-                <h5 class="modal-title" style="font-weight: 700; color: var(--text-main);">
-                    <i class="fas fa-edit me-2" style="color: var(--accent-blue);"></i>Edit Category
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <div class="modal-content glass-card border-glow" style="background: rgba(8,10,15,0.95);">
+            <div class="modal-header border-bottom border-white border-opacity-10 p-4">
+                <h5 class="modal-title luxury-serif text-white">Calibrate Sphere #{{ category.id }}</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body" style="padding: 24px;">
+            <div class="modal-body p-4">
                 <form method="POST" action="{{ path('app_admin_category_edit', {id: category.id}) }}">
                     <input type="hidden" name="_token" value="{{ csrf_token('category_edit' ~ category.id) }}">
-
-                    <div class="mb-3">
-                        <label class="form-label" style="font-weight: 600; font-size: 0.85rem;">Category Name</label>
+                    
+                    <div class="mb-4">
+                        <label class="text-xxs text-dim fw-800 letter-spacing-1 d-block mb-2">DESIGNATION</label>
                         <input type="text" name="name" class="form-control" value="{{ category.name }}" required>
                     </div>
 
-                    <div class="mb-3">
-                        <label class="form-label" style="font-weight: 600; font-size: 0.85rem;">Description</label>
-                        <textarea name="description" class="form-control" rows="2">{{ category.description }}</textarea>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label" style="font-weight: 600; font-size: 0.85rem;">Sort Order</label>
-                        <input type="number" name="sortOrder" class="form-control" value="{{ category.sortOrder }}" min="0">
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label" style="font-weight: 600; font-size: 0.85rem;">Icon Class</label>
-                        <input type="text" name="icon" class="form-control" value="{{ category.icon }}" placeholder="fa-tag">
-                        <small class="text-muted">Font Awesome icon class (e.g., fa-home, fa-broom)</small>
-                    </div>
-
-                    <div class="mb-4">
-                        <label class="form-label" style="font-weight: 600; font-size: 0.85rem;">Theme Color</label>
-                        <select name="color" class="form-control">
-                            {% set colorOptions = ['violet', 'blue', 'pink', 'cyan', 'emerald', 'amber', 'red', 'indigo'] %}
-                            {% for color in colorOptions %}
-                                <option value="{{ color }}" {{ category.color == color ? 'selected' : '' }}>{{ color|capitalize }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-
-                    <div class="d-flex gap-2">
-                        <button type="button" class="btn-admin btn-admin-gray flex-fill" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn-admin btn-admin-gradient flex-fill">
-                            <i class="fas fa-save"></i> Save Changes
-                        </button>
+                    <div class="d-flex gap-3">
+                        <button type="button" class="btn-outline-luxury flex-fill py-3" data-bs-dismiss="modal">ABORT</button>
+                        <button type="submit" class="btn-luxury flex-fill py-3">SAVE CHANGES</button>
                     </div>
                 </form>
             </div>
@@ -231,8 +239,5 @@ function selectColor(element) {
     element.classList.add('selected');
     document.getElementById('selectedColor').value = element.dataset.color;
 }
-
-// Select first icon by default
-document.querySelector('.category-icon-option').classList.add('selected');
 </script>
 {% endblock %}

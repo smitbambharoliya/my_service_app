@@ -1,0 +1,99 @@
+{# 1. Update the Navigation Badge Node #}
+<turbo-stream action="replace" target="notification-badge">
+    <template>
+        <span id="notification-badge" class="spatial-notification-pill animate-flicker">
+            {{ notification_count }}
+        </span>
+    </template>
+</turbo-stream>
+
+{# 2. Prepend the Log Entry to the Manifest #}
+<turbo-stream action="prepend" target="notification-list">
+    <template>
+        <div class="notification-log-wrapper animate-spatial-entry">
+            <a href="{{ path('app_notification_show', {'id': notification.id}) }}" class="notification-log-node unread">
+                <div class="d-flex justify-content-between align-items-start gap-4 mb-2">
+                    <div class="notification-meta">
+                        <div class="text-xxs text-teal fw-900 letter-spacing-2 mb-1">NEW TRANSMISSION</div>
+                        <div class="fw-800 text-white small letter-spacing-1">{{ notification.title|upper }}</div>
+                    </div>
+                    <div class="font-monospace text-teal flex-shrink-0" style="font-size: 0.65rem;">
+                        SYNC: NOW
+                    </div>
+                </div>
+                <div class="text-dim" style="font-size: 0.8rem; line-height: 1.6; letter-spacing: 0.01em;">
+                    {{ notification.message }}
+                </div>
+                <div class="unread-glow-bar"></div>
+            </a>
+        </div>
+    </template>
+</turbo-stream>
+
+<style>
+    /* ── SPATIAL NOTIFICATION STYLES ── */
+    .spatial-notification-pill {
+        background: var(--accent-teal, #00ffd5);
+        color: #05070a;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-weight: 900;
+        font-size: 0.6rem;
+        padding: 2px 8px;
+        border-radius: 6px;
+        box-shadow: 0 0 15px rgba(0, 255, 213, 0.4);
+        position: relative;
+    }
+
+    .notification-log-node {
+        display: block;
+        padding: 20px 24px;
+        background: rgba(255, 255, 255, 0.02);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        text-decoration: none;
+        position: relative;
+        transition: all 0.3s var(--ease-spatial);
+    }
+
+    .notification-log-node:hover {
+        background: rgba(255, 255, 255, 0.04);
+        transform: translateX(5px);
+    }
+
+    .notification-log-node.unread .unread-glow-bar {
+        position: absolute;
+        left: 0; top: 15%; bottom: 15%;
+        width: 2px;
+        background: var(--accent-teal);
+        box-shadow: 0 0 10px var(--accent-teal);
+    }
+
+    /* Entry Animation */
+    .animate-spatial-entry {
+        animation: notificationSlideIn 0.6s var(--ease-spatial) forwards;
+        transform-origin: top;
+    }
+
+    @keyframes notificationSlideIn {
+        from { 
+            opacity: 0; 
+            transform: translateY(-20px) scaleY(0.8); 
+            filter: blur(10px);
+            background: rgba(0, 255, 213, 0.1); 
+        }
+        to { 
+            opacity: 1; 
+            transform: translateY(0) scaleY(1); 
+            filter: blur(0);
+            background: rgba(255, 255, 255, 0.02);
+        }
+    }
+
+    .animate-flicker {
+        animation: badgePulse 2s infinite;
+    }
+
+    @keyframes badgePulse {
+        0%, 100% { transform: scale(1); box-shadow: 0 0 15px rgba(0, 255, 213, 0.4); }
+        50% { transform: scale(1.1); box-shadow: 0 0 25px rgba(0, 255, 213, 0.6); }
+    }
+</style>

@@ -1,94 +1,149 @@
 {% extends 'dashboard_base.html.twig' %}
 
-{% block title %}Draft Ledger — ServiceHub Luxury Dashboard{% endblock %}
-{% block page_title %}Draft Ledger{% endblock %}
+{% block title %}Draft Ledger — ServiceHub Atelier{% endblock %}
+{% block page_title %}Exchequer Constructor{% endblock %}
 
 {% block body %}
-<div class="animate-fade-in" style="max-width: 900px; margin: 0 auto;">
+<div class="reveal-3d">
+    {# ── 1. BIOMETRIC CLIENT SELECTOR ── #}
     <div class="mb-5">
-        <h2 class="luxury-serif text-pure mb-2">Protocol Settlement</h2>
-        <p class="text-silver">Generate a refined ledger for a client with custom line-item specificity.</p>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <span class="text-xxs text-teal fw-900 letter-spacing-3">RECOGNIZED IDENTITY NODES</span>
+            <span class="text-xxs text-dim fw-800">{{ customers|length }} NODES SYNCED</span>
+        </div>
+        <div class="client-nodes-scroller pb-2">
+            {% for customer in customers %}
+                <div class="client-identity-node" onclick="selectIdentity('{{ customer.id }}', this)">
+                    <div class="identity-orb">{{ customer.fullName|slice(0,1)|upper }}</div>
+                    <div class="identity-meta">
+                        <div class="fw-bold text-white text-xxs">{{ customer.fullName|upper }}</div>
+                        <div class="text-dim" style="font-size: 0.55rem;">{{ customer.tier|upper }} RANK</div>
+                    </div>
+                    <div class="node-check"><i class="fas fa-check"></i></div>
+                </div>
+            {% endfor %}
+        </div>
     </div>
 
-    <div class="glass-card p-5">
-        <form action="{{ path('app_provider_billing_new') }}" method="post">
-            <input type="hidden" name="_token" value="{{ csrf_token('create_bill') }}">
+    <form action="{{ path('app_provider_billing_new') }}" method="post" class="spatial-form" id="constructor-form">
+        <input type="hidden" name="_token" value="{{ csrf_token('create_bill') }}">
+        <input type="hidden" name="customer_id" id="target-identity-input" required>
 
-            <div class="mb-5">
-                <label class="stat-label mb-3">CLIENT SELECTION</label>
-                <select name="customer_id" class="luxury-input" required>
-                    <option value="">-- Choose a recognized client --</option>
-                    {% for customer in customers %}
-                        <option value="{{ customer.id }}">{{ customer.fullName }} ({{ customer.email }})</option>
-                    {% else %}
-                        <option value="" disabled>No active clients available in this sector.</option>
-                    {% endfor %}
-                </select>
-                <div class="text-xs text-dim mt-2"><i class="fas fa-crown me-2"></i> Only clients with previous protocol history are listed.</div>
-            </div>
+        <div class="row g-4">
+            {# ── 2. CONSTRUCTOR PANEL ── #}
+            <div class="col-lg-8">
+                <div class="glass-card p-5 border-glow-hover h-100">
+                    <div class="mb-5">
+                        <label class="text-xxs text-dim fw-900 letter-spacing-1 d-block mb-3">PROTOCOL SPHERE</label>
+                        <input type="text" name="category" class="cyber-input" placeholder="e.g. Structural Restoration" required>
+                    </div>
 
-            <div class="mb-5">
-                <label class="stat-label mb-3">SPHERE OF INFLUENCE (CATEGORY)</label>
-                <input type="text" name="category" class="luxury-input" placeholder="e.g. Structural Restoration" required>
-            </div>
-
-            <div class="mb-5">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <label class="stat-label mb-0">ARTIFACT LINE ITEMS</label>
-                    <button type="button" class="btn-outline py-1 px-3" style="font-size:0.7rem;" onclick="addLineItem()">
-                        <i class="fas fa-plus me-2"></i> Add Item
-                    </button>
-                </div>
-                
-                <div id="line-items-container">
-                    <div class="row g-3 mb-3 line-item animate-fade-in">
-                        <div class="col-md-8">
-                            <input type="text" name="item_name[]" class="luxury-input mb-0" placeholder="Artifact Description" required>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="position-relative">
-                                <span class="position-absolute start-0 top-50 translate-middle-y ps-3 text-gold">₹</span>
-                                <input type="number" name="item_amount[]" class="luxury-input mb-0 ps-5 item-amount" placeholder="Capital" min="1" step="0.01" required oninput="updateTotal()">
-                            </div>
-                        </div>
-                        <div class="col-md-1">
-                            <button type="button" class="bg-transparent border-0 text-danger w-100 h-100 delete-btn" onclick="removeLineItem(this)" disabled>
-                                <i class="fas fa-trash-can"></i>
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <label class="text-xxs text-teal fw-900 letter-spacing-2">ARTIFACT COMPONENTS</label>
+                            <button type="button" class="btn-outline-luxury py-1 px-3" style="font-size:0.65rem;" onclick="addLineItem()">
+                                <i class="fas fa-plus me-2"></i> APPEND ITEM
                             </button>
                         </div>
+                        
+                        <div id="line-items-container" class="d-grid gap-3">
+                            <div class="row g-3 line-item align-items-center reveal-3d">
+                                <div class="col-md-8">
+                                    <input type="text" name="item_name[]" class="cyber-input" placeholder="Artifact Description" required>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="position-relative">
+                                        <span class="position-absolute start-0 top-50 translate-middle-y ps-3 text-teal fw-bold">₹</span>
+                                        <input type="number" name="item_amount[]" class="cyber-input ps-5 item-amount" placeholder="0.00" min="1" step="0.01" required oninput="updateTotal()">
+                                    </div>
+                                </div>
+                                <div class="col-md-1 text-center">
+                                    <button type="button" class="btn-action-spatial text-red delete-btn" onclick="removeLineItem(this)" disabled>
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-0 pt-4">
+                        <label class="text-xxs text-dim fw-900 letter-spacing-1 d-block mb-3">EDITORIAL LOG</label>
+                        <textarea name="description" class="cyber-input" rows="3" placeholder="Append technical insights for the client..."></textarea>
                     </div>
                 </div>
-                
-                <div class="d-flex justify-content-end align-items-center mt-4 pt-4" style="border-top: 1px solid var(--glass-border);">
-                    <span class="stat-label me-4">TOTAL SETTLEMENT:</span>
-                    <h2 class="luxury-serif text-gold mb-0">₹<span id="total-amount-display">0.00</span></h2>
+            </div>
+
+            {# ── 3. LIVE HUD SIDEBAR ── #}
+            <div class="col-lg-4">
+                <div class="glass-card p-4 h-100 d-flex flex-column border-teal-glow">
+                    <div class="text-xxs text-dim fw-900 letter-spacing-2 mb-4">SETTLEMENT HUD</div>
+                    
+                    <div class="p-4 rounded-4 bg-surface-dark border-glass mb-4 text-center">
+                        <div class="text-xxs text-dim fw-800 mb-2">ALLOCATED CAPITAL</div>
+                        <div class="h1 luxury-serif text-white fw-900 mb-0">
+                            <span class="text-teal">₹</span><span id="total-amount-display">0.00</span>
+                        </div>
+                    </div>
+
+                    <div class="flex-grow-1">
+                        <div class="p-3 rounded-4 bg-surface border-glass mb-3">
+                            <div class="text-xxxs text-dim fw-900 mb-2">TARGET IDENTITY</div>
+                            <div id="selected-client-display" class="text-white small fw-bold">AWAITING SELECTION...</div>
+                        </div>
+                        <div class="insight-spatial p-3" style="background: rgba(0, 255, 213, 0.03);">
+                            <p class="text-xxs text-dim mb-0 italic">Initial settlement transmission triggers a real-time notification to the client's Neural Dashboard.</p>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2 pt-4">
+                        <button type="submit" class="btn-luxury py-3">
+                            EXECUTE SETTLEMENT
+                        </button>
+                        <a href="{{ path('app_provider_dashboard') }}" class="btn-outline-luxury py-3 text-center">
+                            ABORT DRAFT
+                        </a>
+                    </div>
                 </div>
             </div>
-
-            <div class="mb-5">
-                <label class="stat-label mb-3">EDITORIAL NOTES</label>
-                <textarea name="description" class="luxury-input" rows="3" placeholder="Additional sensory notes or specific details for the client..."></textarea>
-            </div>
-
-            <div class="d-flex justify-content-end gap-3 pt-4" style="border-top: 1px solid var(--glass-border);">
-                <a href="{{ path('app_provider_dashboard') }}" class="btn-outline py-2 px-4 shadow-none">Retire Draft</a>
-                <button type="submit" class="btn-luxury py-2 px-5 shadow-none" {% if customers is empty %}disabled{% endif %}>
-                    Generate Ledger <i class="fas fa-arrow-right ms-2"></i>
-                </button>
-            </div>
-        </form>
-    </div>
+        </div>
+    </form>
 </div>
 
+<style>
+    /* ── CLIENT SELECTOR STYLES ── */
+    .client-nodes-scroller { display: flex; gap: 15px; overflow-x: auto; scroll-behavior: smooth; }
+    .client-identity-node {
+        min-width: 140px; padding: 15px; border-radius: 20px;
+        background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08);
+        text-align: center; cursor: pointer; transition: 0.4s var(--ease-spatial);
+        position: relative;
+    }
+    .client-identity-node:hover { background: rgba(255,255,255,0.05); border-color: rgba(0,255,213,0.2); }
+    .client-identity-node.active { background: rgba(0,255,213,0.1); border-color: var(--accent-teal); }
+    
+    .identity-orb { width: 40px; height: 40px; border-radius: 12px; background: var(--bg-obsidian); border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; color: var(--accent-teal); font-weight: 900; }
+    
+    .node-check { position: absolute; top: 10px; right: 10px; font-size: 0.6rem; color: var(--accent-teal); opacity: 0; transform: scale(0); transition: 0.3s; }
+    .client-identity-node.active .node-check { opacity: 1; transform: scale(1); }
+
+    .bg-surface-dark { background: rgba(0, 0, 0, 0.3); }
+    .border-teal-glow { border-color: rgba(0, 255, 213, 0.2) !important; }
+</style>
+
 <script>
+    function selectIdentity(id, el) {
+        document.querySelectorAll('.client-identity-node').forEach(n => n.classList.remove('active'));
+        el.classList.add('active');
+        document.getElementById('target-identity-input').value = id;
+        document.getElementById('selected-client-display').innerText = el.querySelector('.identity-meta .fw-bold').innerText;
+    }
+
     function addLineItem() {
         const container = document.getElementById('line-items-container');
         const firstItem = container.querySelector('.line-item');
         const newItem = firstItem.cloneNode(true);
-        
         newItem.querySelector('input').value = '';
         newItem.querySelector('.item-amount').value = '';
-        
         container.appendChild(newItem);
         updateItemButtons();
     }
@@ -104,7 +159,7 @@
     
     function updateItemButtons() {
         const items = document.querySelectorAll('.line-item');
-        items.forEach((item, index) => {
+        items.forEach((item) => {
             const btn = item.querySelector('.delete-btn');
             btn.disabled = items.length === 1;
         });
@@ -116,7 +171,7 @@
             const val = parseFloat(input.value);
             if (!isNaN(val)) total += val;
         });
-        document.getElementById('total-amount-display').textContent = total.toFixed(2);
+        document.getElementById('total-amount-display').textContent = total.toLocaleString('en-IN', { minimumFractionDigits: 2 });
     }
 </script>
 {% endblock %}

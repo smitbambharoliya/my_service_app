@@ -1,59 +1,138 @@
 {% extends 'dashboard_base.html.twig' %}
 
-{% block title %}Start Providing — ServiceHub{% endblock %}
-{% block page_title %}Get ready to list services{% endblock %}
+{% block title %}Initialize Artisan Profile — ServiceHub{% endblock %}
+{% block page_title %}Onboarding Protocol{% endblock %}
 
 {% block body %}
-<div class="animate-fade-in">
-    <div class="glass-card mb-5 p-5">
-        <span class="font-label text-primary text-xxs fw-800 letter-spacing-2 mb-3 d-block text-uppercase">NEW PROVIDER CHECKLIST</span>
-        <h2 class="h1 mb-3">Welcome, {{ app.user.fullName }}.</h2>
-        <p class="text-on-surface-variant mb-4 opacity-70" style="max-width:620px; line-height: 1.8;">
-            Before your first service goes live, please complete these quick steps so customers get a clear, trusted view of who you are and what you offer.
+<div class="reveal-3d">
+    {# ── 1. SYNC PROGRESS BAR ── #}
+    <div class="glass-card p-4 mb-4 border-0 bg-surface">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <span class="text-xxs text-teal fw-900 letter-spacing-2">IDENTITY SYNC STATUS</span>
+            <span class="text-xxs text-dim fw-800 font-monospace">33% COMPLETE</span>
+        </div>
+        <div class="progress rounded-pill bg-dark-2" style="height: 6px;">
+            <div class="progress-bar bg-teal shadow-teal" style="width: 33%;"></div>
+        </div>
+    </div>
+
+    {# ── 2. CORE ONBOARDING MODULE ── #}
+    <div class="glass-card mb-5 p-5 border-glow-hover overflow-hidden position-relative">
+        <div class="position-absolute top-0 end-0 p-5 opacity-10">
+            <i class="fas fa-fingerprint" style="font-size: 12rem; color: var(--accent-teal);"></i>
+        </div>
+
+        <span class="text-xxs text-teal fw-900 letter-spacing-3 mb-3 d-block">BOOT SEQUENCE</span>
+        <h2 class="luxury-serif text-white display-5 mb-3">Welcome, {{ app.user.fullName|upper }}<span class="text-teal">.</span></h2>
+        <p class="text-dim mb-5" style="max-width:680px; line-height: 2;">
+            Your units are currently **OFFLINE**. To broadcast your artisan profile to the public ledger, complete the following mandatory synchronization protocols.
         </p>
 
-        <ol class="list-unstyled mb-5">
-            <li class="mb-4 d-flex gap-4">
-                <div class="user-orb d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; min-width: 48px; font-size: 0.8rem;">1</div>
-                <div>
-                    <div class="fw-bold text-pure h5 mb-1">Complete your profile details</div>
-                    <div class="text-sm text-dim">Add address, city and contact details so bookings can be routed correctly.</div>
+        <div class="protocol-steps d-grid gap-4 mb-5">
+            {# Protocol 1: Profile #}
+            <a href="{{ path('app_profile') }}" class="onboarding-node p-4 text-decoration-none">
+                <div class="d-flex gap-4 align-items-center">
+                    <div class="step-orb">01</div>
+                    <div class="flex-grow-1">
+                        <h4 class="text-white fw-bold h6 mb-1">CALIBRATE COORDINATES</h4>
+                        <p class="text-dim text-xs mb-0">Address and comm-link verification required for mission routing.</p>
+                    </div>
+                    <div class="status-indicator">
+                        <span class="badge-status status-active"><i class="fas fa-check me-1"></i> SYNCED</span>
+                    </div>
                 </div>
-            </li>
-            <li class="mb-4 d-flex gap-4">
-                <div class="user-orb d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; min-width: 48px; font-size: 0.8rem;">2</div>
-                <div>
-                    <div class="fw-bold text-pure h5 mb-1">Review quality expectations</div>
-                    <div class="text-sm text-dim">Services should have clear titles, honest descriptions and realistic pricing.</div>
-                </div>
-            </li>
-            <li class="mb-0 d-flex gap-4">
-                <div class="user-orb d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; min-width: 48px; font-size: 0.8rem;">3</div>
-                <div>
-                    <div class="fw-bold text-pure h5 mb-1">Create your first service</div>
-                    <div class="text-sm text-dim">After you publish, your service becomes visible to customers in the listings.</div>
-                </div>
-            </li>
-        </ol>
-
-        <div class="d-flex flex-wrap gap-3">
-            <a href="{{ path('app_profile') }}" class="btn-outline-luxury px-4 py-2">
-                <i class="fas fa-user-edit me-2"></i> GO TO PROFILE
             </a>
-            <a href="{{ path('app_service_new') }}" class="btn-luxury px-4 py-2">
-                <i class="fas fa-plus me-2"></i> CREATE FIRST SERVICE
+
+            {# Protocol 2: Quality #}
+            <div class="onboarding-node p-4 opacity-75">
+                <div class="d-flex gap-4 align-items-center">
+                    <div class="step-orb inactive">02</div>
+                    <div class="flex-grow-1">
+                        <h4 class="text-white fw-bold h6 mb-1 text-dim">VALIDATE ARTIFACTS</h4>
+                        <p class="text-dim text-xs mb-0">Pricing and service descriptions must meet heritage standards.</p>
+                    </div>
+                    <div class="status-indicator">
+                        <span class="badge-status status-pending">AWAITING</span>
+                    </div>
+                </div>
+            </div>
+
+            {# Protocol 3: Deployment #}
+            <a href="{{ path('app_service_new') }}" class="onboarding-node p-4 border-teal-soft text-decoration-none">
+                <div class="d-flex gap-4 align-items-center">
+                    <div class="step-orb current">03</div>
+                    <div class="flex-grow-1">
+                        <h4 class="text-white fw-bold h6 mb-1">INITIALIZE DEPLOYMENT</h4>
+                        <p class="text-dim text-xs mb-0">Commit your primary service to the live public archive.</p>
+                    </div>
+                    <div class="ms-auto">
+                        <i class="fas fa-chevron-right text-teal animate-flicker"></i>
+                    </div>
+                </div>
             </a>
         </div>
     </div>
 
-    <div class="glass-card p-4 border-0" style="background: rgba(0, 107, 90, 0.05);">
-        <h3 class="h5 mb-3 text-primary"><i class="fas fa-lightbulb me-2"></i>Professional Insights</h3>
-        <ul class="text-sm text-dim mb-0 ps-3">
-            <li class="mb-2">Use high-resolution imagery to represent your technical artifacts.</li>
-            <li class="mb-2">Maintain absolute transparency in pricing and delivery protocols.</li>
-            <li>Promptly synchronize your availability to maintain heritage reputation.</li>
-        </ul>
+    {# ── 3. SYSTEM INTELLIGENCE ── #}
+    <div class="glass-card p-4 border-gold-soft bg-surface-gold">
+        <div class="d-flex align-items-center gap-3 mb-4">
+            <div class="p-2 rounded-3 bg-surface border-glass text-gold"><i class="fas fa-brain"></i></div>
+            <h3 class="h6 m-0 text-white fw-800 letter-spacing-1">SYSTEM INTELLIGENCE</h3>
+        </div>
+        <div class="row g-4">
+            {% set insights = [
+                {t: 'VISUAL FIDELITY', d: 'High-res imagery increases conversion by 40%.'},
+                {t: 'PROTOCOL TRUST', d: 'Transparent pricing builds heritage reputation.'},
+                {t: 'SYNC DISCIPLINE', d: 'Frequent updates grant search priority.'}
+            ] %}
+            {% for insight in insights %}
+                <div class="col-md-4">
+                    <div class="text-xxs text-gold fw-900 mb-1">{{ insight.t }}</div>
+                    <p class="text-dim text-xs mb-0">{{ insight.d }}</p>
+                </div>
+            {% endfor %}
+        </div>
     </div>
 </div>
-{% endblock %}
 
+<style>
+    .shadow-teal { box-shadow: 0 0 15px var(--accent-teal); }
+    .bg-dark-2 { background: rgba(0,0,0,0.3); }
+    .bg-surface-gold { background: linear-gradient(135deg, rgba(245, 158, 11, 0.05), transparent); }
+    .border-gold-soft { border: 1px solid rgba(245, 158, 11, 0.2) !important; }
+    
+    .onboarding-node {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 20px;
+        transition: all 0.4s var(--ease-spatial);
+        cursor: pointer;
+    }
+    .onboarding-node:hover {
+        background: rgba(255, 255, 255, 0.05);
+        border-color: var(--accent-teal);
+        transform: translateX(10px);
+    }
+
+    .step-orb {
+        width: 44px; height: 44px;
+        border-radius: 12px;
+        background: var(--bg-obsidian);
+        border: 2px solid var(--accent-teal);
+        display: flex; align-items: center; justify-content: center;
+        font-family: monospace; font-weight: 900; color: var(--accent-teal);
+        box-shadow: 0 0 15px rgba(0, 255, 213, 0.2);
+    }
+    .step-orb.inactive { border-color: #334155; color: #334155; box-shadow: none; }
+    .step-orb.current { border-color: var(--accent-teal); animation: pulse-border 2s infinite; }
+
+    @keyframes pulse-border {
+        0% { box-shadow: 0 0 0 0 rgba(0, 255, 213, 0.4); }
+        70% { box-shadow: 0 0 0 10px rgba(0, 255, 213, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(0, 255, 213, 0); }
+    }
+    
+    .animate-flicker { animation: flicker 1.5s infinite; }
+    @keyframes flicker { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+</style>
+{% endblock %}

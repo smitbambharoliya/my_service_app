@@ -1,37 +1,48 @@
-<div style="background-color: #f4f7f6; padding: 50px 0; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #333;">
-    <table align="center" border="0" cellpadding="0" cellspacing="0" width="600" style="background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+<div style="background-color: #05070a; padding: 60px 20px; font-family: 'Plus Jakarta Sans', Helvetica, Arial, sans-serif; color: #ffffff;">
+    <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; background-color: #0b111a; border-radius: 16px; border: 1px solid #1a2636; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.5);">
+        
         <tr>
-            <td bgcolor="#28a745" style="padding: 40px 0; text-align: center;">
-                <h1 style="color: #ffffff; margin: 0; font-size: 28px; letter-spacing: 1px;">Confirm Your Email</h1>
+            <td style="padding: 40px 40px 30px; text-align: center; border-bottom: 1px solid #1a2636; background: radial-gradient(circle at top, rgba(0, 255, 213, 0.05), transparent 80%);">
+                <div style="color: #00ffd5; font-family: 'Fira Code', 'Courier New', Courier, monospace; font-size: 11px; font-weight: 800; letter-spacing: 4px; margin-bottom: 12px;">SYSTEM ALERT</div>
+                <h1 style="color: #ffffff; margin: 0; font-size: 26px; font-weight: 800; letter-spacing: 1px;">VERIFY COMM-LINK</h1>
             </td>
         </tr>
 
         <tr>
-            <td style="padding: 40px 30px;">
-                <p style="font-size: 18px; margin-bottom: 20px;">Hi there!</p>
-                <p style="line-height: 1.6; color: #666; font-size: 16px;">
-                    Thank you for joining <strong>ServiceHub</strong>. We're excited to have you on board! Before we get started, we just need to verify that this is your email address.
+            <td style="padding: 40px 40px 30px;">
+                <p style="font-size: 16px; margin-bottom: 24px; font-weight: 700; color: #ffffff;">
+                    Greetings, Operator.
+                </p>
+                <p style="line-height: 1.8; color: #94a3b8; font-size: 15px; margin-bottom: 40px;">
+                    An uplink request has been detected for the <strong>ServiceHub</strong> archive. To deploy your identity node and access the spatial dashboard, we require immediate verification of this communication channel.
                 </p>
                 
-                <div style="text-align: center; margin: 40px 0;">
-                    <a href="{{ signedUrl|raw }}" style="background-color: #28a745; color: #ffffff; padding: 15px 30px; text-decoration: none; border-radius: 50px; font-weight: bold; font-size: 16px; display: inline-block; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-                        Confirm My Email Address
+                <div style="text-align: center; margin: 0 0 40px 0;">
+                    <a href="{{ signedUrl|raw }}" style="background-color: #00ffd5; color: #05070a; padding: 18px 40px; text-decoration: none; border-radius: 8px; font-weight: 900; font-size: 13px; letter-spacing: 2px; display: inline-block; font-family: 'Fira Code', 'Courier New', Courier, monospace; border: 1px solid #00ffd5;">
+                        INITIALIZE UPLINK
                     </a>
                 </div>
 
-                <p style="line-height: 1.6; color: #666; font-size: 14px;">
-                    This link will expire in <strong>{{ expiresAtMessageKey|trans(expiresAtMessageData, 'VerifyEmailBundle') }}</strong>.
-                </p>
-                <p style="line-height: 1.6; color: #999; font-size: 12px;">
-                    If you didn't create an account, you can safely ignore this email.
+                <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #05070a; border-radius: 8px; border: 1px solid #1a2636; margin-bottom: 30px;">
+                    <tr>
+                        <td style="padding: 16px; text-align: center;">
+                            <p style="margin: 0; color: #64748b; font-size: 12px; font-family: 'Fira Code', 'Courier New', Courier, monospace; letter-spacing: 1px;">
+                                TIMEOUT WINDOW: <strong style="color: #00ffd5;">{{ expiresAtMessageKey|trans(expiresAtMessageData, 'VerifyEmailBundle') }}</strong>
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+
+                <p style="line-height: 1.6; color: #475569; font-size: 12px; text-align: center; margin: 0;">
+                    If you did not initiate this sequence, sever this connection immediately by deleting this transmission.
                 </p>
             </td>
         </tr>
 
         <tr>
-            <td bgcolor="#f8f9fa" style="padding: 20px 30px; text-align: center; border-top: 1px solid #eeeeee;">
-                <p style="margin: 0; color: #999; font-size: 12px;">
-                    &copy; 2026 ServiceHub Project. All rights reserved.
+            <td style="padding: 24px 40px; text-align: center; border-top: 1px solid #1a2636; background-color: #05070a;">
+                <p style="margin: 0; color: #334155; font-size: 10px; font-family: 'Fira Code', 'Courier New', Courier, monospace; letter-spacing: 2px; text-transform: uppercase;">
+                    &copy; 2026 ServiceHub Obsidian X
                 </p>
             </td>
         </tr>

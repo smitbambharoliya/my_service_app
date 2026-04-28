@@ -1,82 +1,189 @@
 {% extends 'dashboard_base.html.twig' %}
 
-{% block page_title %}Chat with {{ contact.email|split('@')[0] }}{% endblock %}
+{% block page_title %}Secure Uplink: {{ contact.email|split('@')[0]|upper }}{% endblock %}
 
 {% block stylesheets %}
 <style>
-/* ── MIDNIGHT AURORA - REAL-TIME CHAT ── */
-.chat-wrapper { max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; height: calc(100vh - 120px); background: var(--bg-primary); border-radius: var(--r-lg); border: 1px solid var(--border-light); overflow: hidden; }
+/* ── SPATIAL CHAT INTERFACE ── */
+.chat-wrapper { 
+    max-width: 1000px; 
+    margin: 0 auto; 
+    display: flex; 
+    flex-direction: column; 
+    height: calc(100vh - 140px); 
+    background: rgba(10, 15, 25, 0.6); 
+    backdrop-filter: blur(30px);
+    border-radius: 32px; 
+    border: 1px solid rgba(255, 255, 255, 0.08); 
+    overflow: hidden; 
+    box-shadow: 0 40px 100px rgba(0,0,0,0.5);
+}
 
 .chat-header {
-    background: var(--bg-secondary); border-bottom: 1px solid var(--border-light);
-    padding: 20px 24px; display: flex; align-items: center; justify-content: space-between; z-index: 10;
+    background: rgba(255, 255, 255, 0.02); 
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 24px 32px; 
+    display: flex; 
+    align-items: center; 
+    justify-content: space-between; 
+    z-index: 10;
 }
-.chat-contact { display: flex; align-items: center; gap: 16px; }
-.c-avatar-small { width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, var(--aurora-cyan), var(--aurora-purple)); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 800; }
-.c-name { color: var(--text-primary); font-size: 1.1rem; font-weight: 700; margin-bottom: 2px; }
-.c-status { color: var(--aurora-cyan); font-size: 0.75rem; font-weight: 600; display: flex; align-items: center; gap: 6px; }
-.c-status i { font-size: 0.6rem; animation: pulse 2s infinite; }
-@keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
 
-.chat-body { flex: 1; min-height: 0; padding: 32px; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; background: rgba(0,0,0,0.2); }
-.msg-bubble { max-width: 75%; padding: 16px 20px; border-radius: 20px; font-size: 0.95rem; line-height: 1.5; position: relative; }
-.msg-sent { background: linear-gradient(135deg, var(--aurora-purple), rgba(139, 92, 246, 0.7)); color: #fff; align-self: flex-end; border-bottom-right-radius: 4px; box-shadow: var(--glow-purple); }
-.msg-rcvd { background: var(--bg-tertiary); color: var(--text-primary); align-self: flex-start; border-bottom-left-radius: 4px; border: 1px solid var(--border-light); }
-.msg-time { font-size: 0.7rem; opacity: 0.7; margin-top: 8px; text-align: right; }
+.chat-contact { display: flex; align-items: center; gap: 20px; }
+.c-avatar-spatial { 
+    width: 48px; height: 48px; 
+    border-radius: 16px; 
+    background: linear-gradient(135deg, var(--accent-teal), var(--accent-purple)); 
+    display: flex; align-items: center; justify-content: center; 
+    color: #000; font-weight: 900; font-size: 1.2rem;
+    box-shadow: 0 0 20px rgba(0, 255, 213, 0.2);
+}
+
+.c-name { color: #fff; font-size: 1.1rem; font-weight: 800; letter-spacing: 1px; }
+.c-status { 
+    color: var(--accent-teal); 
+    font-size: 0.65rem; 
+    font-weight: 800; 
+    letter-spacing: 2px;
+    display: flex; align-items: center; gap: 8px; 
+    text-transform: uppercase;
+}
+.status-dot-pulse { 
+    width: 6px; height: 6px; 
+    background: var(--accent-teal); 
+    border-radius: 50%; 
+    box-shadow: 0 0 10px var(--accent-teal);
+    animation: spatial-flicker 2s infinite; 
+}
+
+.chat-body { 
+    flex: 1; 
+    min-height: 0; 
+    padding: 40px; 
+    overflow-y: auto; 
+    display: flex; 
+    flex-direction: column; 
+    gap: 20px; 
+    background: radial-gradient(circle at center, rgba(157, 124, 255, 0.03), transparent);
+}
+
+/* ── SPATIAL BUBBLES ── */
+.msg-spatial { max-width: 70%; padding: 16px 24px; border-radius: 20px; font-size: 0.95rem; line-height: 1.6; position: relative; transition: 0.3s var(--ease-spatial); }
+
+.msg-sent { 
+    background: linear-gradient(135deg, rgba(157, 124, 255, 0.2), rgba(157, 124, 255, 0.1)); 
+    border: 1px solid rgba(157, 124, 255, 0.3);
+    color: #fff; 
+    align-self: flex-end; 
+    border-bottom-right-radius: 4px;
+}
+.msg-sent:hover { transform: translateX(-5px); background: rgba(157, 124, 255, 0.25); }
+
+.msg-rcvd { 
+    background: rgba(255, 255, 255, 0.03); 
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: rgba(255,255,255,0.9); 
+    align-self: flex-start; 
+    border-bottom-left-radius: 4px; 
+}
+.msg-rcvd:hover { transform: translateX(5px); background: rgba(255, 255, 255, 0.05); }
+
+.msg-time { font-family: monospace; font-size: 0.65rem; font-weight: 800; margin-top: 8px; opacity: 0.4; }
 
 .chat-footer {
-    background: var(--bg-secondary); border-top: 1px solid var(--border-light);
-    padding: 24px;
+    background: rgba(0,0,0,0.2); 
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 32px;
 }
-.chat-form { display: flex; gap: 12px; }
-.chat-input { flex: 1; background: rgba(255,255,255,0.03); border: 1px solid var(--border-light); border-radius: var(--r-pill); padding: 16px 24px; color: #fff; outline: none; transition: all var(--dur-base); }
-.chat-input:focus { border-color: var(--aurora-cyan); box-shadow: var(--glow-cyan); background: rgba(255,255,255,0.06); }
-.send-btn { background: var(--aurora-cyan); color: #000; border: none; width: 56px; height: 56px; border-radius: 50%; font-size: 1.2rem; cursor: pointer; transition: all 0.2s; box-shadow: var(--glow-cyan); display: flex; align-items: center; justify-content: center; }
-.send-btn:hover { background: #fff; transform: scale(1.05); }
+
+.terminal-form { display: flex; gap: 16px; align-items: center; }
+.cyber-input { 
+    flex: 1; 
+    background: rgba(255,255,255,0.03); 
+    border: 1px solid rgba(255,255,255,0.1); 
+    border-radius: 16px; 
+    padding: 18px 28px; 
+    color: #fff; 
+    outline: none; 
+    transition: 0.3s; 
+}
+.cyber-input:focus { 
+    border-color: var(--accent-teal); 
+    background: rgba(0, 255, 213, 0.02);
+    box-shadow: 0 0 20px rgba(0, 255, 213, 0.1);
+}
+
+.send-node { 
+    background: var(--accent-teal); 
+    color: #05070a; 
+    border: none; 
+    width: 60px; height: 60px; 
+    border-radius: 18px; 
+    font-size: 1.2rem; 
+    cursor: pointer; 
+    transition: all 0.4s var(--ease-spatial); 
+    display: flex; align-items: center; justify-content: center; 
+}
+.send-node:hover { transform: scale(1.1) rotate(5deg); box-shadow: 0 0 30px var(--accent-teal); }
+
+@keyframes spatial-flicker { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
 </style>
 {% endblock %}
 
 {% block body %}
-<div class="chat-wrapper fade-up">
+<div class="chat-wrapper reveal-3d">
     
+    {# ── CHAT HEADER ── #}
     <div class="chat-header">
         <div class="chat-contact">
-            <a href="{{ path('app_message_inbox') }}" class="btn btn-sm btn-ghost me-2 py-2 px-3"><i class="fas fa-arrow-left"></i></a>
-            <div class="c-avatar-small">{{ contact.email|slice(0,1)|upper }}</div>
+            <a href="{{ path('app_message_inbox') }}" class="btn-action-spatial text-white me-2">
+                <i class="fas fa-chevron-left"></i>
+            </a>
+            <div class="c-avatar-spatial">{{ contact.email|slice(0,1)|upper }}</div>
             <div>
-                <div class="c-name">{{ contact.email|split('@')[0]|capitalize }}</div>
-                <div class="c-status"><i class="fas fa-circle"></i> Connected via SmartMatch</div>
+                <div class="c-name">{{ contact.email|split('@')[0]|upper }}</div>
+                <div class="c-status">
+                    <span class="status-dot-pulse"></span> 
+                    Secure Node Link Active
+                </div>
             </div>
         </div>
-        <div class="badge-aurora">End-to-end Encrypted</div>
+        <span class="badge-status status-active" style="font-size: 0.6rem; letter-spacing: 2px;">
+            <i class="fas fa-lock me-2"></i> E2E ENCRYPTED
+        </span>
     </div>
 
+    {# ── MESSAGE FEED ── #}
     <div class="chat-body" id="chatContainer">
-        <div class="text-center text-muted mb-4 font-inter" style="font-size:0.8rem;">
-            Conversation directly with {{ contact.email }} started. Messages are actively monitored for safety.
+        <div class="text-center opacity-30 mb-5">
+            <div class="text-xxs fw-900 letter-spacing-2">UPLINK ESTABLISHED: {{ "now"|date('d.m.Y') }}</div>
+            <div class="text-xxs mt-1">TRANSMISSIONS ARE LOGGED FOR MISSION AUDIT</div>
         </div>
-        <div id="chatMessages">
+
+        <div id="chatMessages" class="d-flex flex-column gap-3">
             {% for msg in conversation %}
-                {% if msg.sender.id == app.user.id %}
-                    <div class="msg-bubble msg-sent">
+                <div class="msg-spatial {{ msg.sender.id == app.user.id ? 'msg-sent' : 'msg-rcvd' }} reveal-3d">
+                    <div class="msg-content">
                         {{ msg.content|nl2br }}
-                        <div class="msg-time">{{ msg.createdAt|date('H:i') }} <i class="fas fa-check-double ms-1 {{ msg.isRead ? 'text-white' : 'opacity-50' }}"></i></div>
                     </div>
-                {% else %}
-                    <div class="msg-bubble msg-rcvd">
-                        {{ msg.content|nl2br }}
-                        <div class="msg-time">{{ msg.createdAt|date('H:i') }}</div>
+                    <div class="msg-time d-flex align-items-center justify-content-end gap-2">
+                        {{ msg.createdAt|date('H:i') }}
+                        {% if msg.sender.id == app.user.id %}
+                            <i class="fas fa-check-double {{ msg.isRead ? 'text-teal' : '' }}" style="font-size: 0.6rem;"></i>
+                        {% endif %}
                     </div>
-                {% endif %}
+                </div>
             {% endfor %}
         </div>
     </div>
 
+    {# ── COMMAND TERMINAL ── #}
     <div class="chat-footer">
-        <form class="chat-form" id="msgForm" method="post" action="{{ path('app_message_chat', {'id': contact.id}) }}">
-            <input type="hidden" name="_token" value="{{ csrf_token('send_message' ~ contact.id) }}">
-            <input type="text" id="msgInput" class="chat-input" placeholder="Type a message..." autocomplete="off">
-            <button type="submit" class="send-btn" id="sendBtn" title="Send (Enter)"><i class="fas fa-paper-plane"></i></button>
+        <form class="terminal-form" id="msgForm" autocomplete="off">
+            <input type="text" id="msgInput" class="cyber-input" placeholder="Enter transmission..." required>
+            <button type="submit" class="send-node" id="sendBtn" title="Transmit (Enter)">
+                <i class="fas fa-paper-plane"></i>
+            </button>
         </form>
     </div>
 
@@ -95,85 +202,69 @@ document.addEventListener('DOMContentLoaded', () => {
     const currentUserId = '{{ app.user.id }}';
     const csrfToken = '{{ csrf_token('send_message' ~ contact.id) }}';
 
-    // Auto-scroll to bottom on load
     chatContainer.scrollTop = chatContainer.scrollHeight;
 
-    // Smart AJAX Polling for real-time messages
-    let pollingInterval = null;
-
     function escapeHtml(value) {
-        return value
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#039;');
+        return value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
     }
 
     function renderConversation(messages) {
+        const atBottom = chatContainer.scrollHeight - chatContainer.scrollTop <= chatContainer.clientHeight + 100;
+        
         chatMessages.innerHTML = messages.map((msg) => {
-            const sentByCurrentUser = String(msg.senderId) === String(currentUserId);
-            const bubbleClass = sentByCurrentUser ? 'msg-bubble msg-sent' : 'msg-bubble msg-rcvd';
-            const checkIcon = sentByCurrentUser ? `<i class="fas fa-check-double ms-1 ${msg.isRead ? 'text-white' : 'opacity-50'}"></i>` : '';
+            const isSent = String(msg.senderId) === String(currentUserId);
+            const statusIcon = isSent ? `<i class="fas fa-check-double ms-1 ${msg.isRead ? 'text-teal' : ''}" style="font-size: 0.6rem;"></i>` : '';
 
             return `
-                <div class="${bubbleClass}">
-                    ${escapeHtml(msg.content).replace(/\n/g, '<br>')}
-                    <div class="msg-time">${escapeHtml(msg.time)} ${checkIcon}</div>
+                <div class="msg-spatial ${isSent ? 'msg-sent' : 'msg-rcvd'} reveal-3d">
+                    <div class="msg-content">${escapeHtml(msg.content).replace(/\n/g, '<br>')}</div>
+                    <div class="msg-time d-flex align-items-center justify-content-end gap-2">
+                        ${escapeHtml(msg.time)} ${statusIcon}
+                    </div>
                 </div>
             `;
         }).join('');
 
-        chatContainer.scrollTop = chatContainer.scrollHeight;
+        if (atBottom) {
+            chatContainer.scrollTo({ top: chatContainer.scrollHeight, behavior: 'smooth' });
+        }
     }
 
     function pollMessages() {
         fetch(`{{ path('api_message_poll', {'id': contact.id}) }}`)
             .then(res => res.json())
-            .then(data => {
-                renderConversation(data.messages || []);
-            })
-            .catch(err => console.error("Poll Error:", err));
+            .then(data => renderConversation(data.messages || []))
+            .catch(err => console.error("Poll Latency Error:", err));
     }
 
-    // Start polling every 3 seconds
-    pollingInterval = setInterval(pollMessages, 3000);
+    let polling = setInterval(pollMessages, 3000);
 
-    // Stop polling when away
     document.addEventListener("visibilitychange", () => {
-        if (document.hidden) clearInterval(pollingInterval);
-        else pollingInterval = setInterval(pollMessages, 3000);
+        if (document.hidden) clearInterval(polling);
+        else polling = setInterval(pollMessages, 3000);
     });
 
-    // Handle Send
-    msgForm.addEventListener('submit', (e) => {
+    msgForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const content = msgInput.value.trim();
         if(!content) return;
+
+        msgInput.value = '';
         sendBtn.disabled = true;
 
-        // Send via API
-        fetch(`{{ path('api_message_send', {'id': contact.id}) }}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': csrfToken
-            },
-            body: JSON.stringify({ content: content })
-        })
-            .then((response) => {
-                if (!response.ok) {
-                    throw new Error('Unable to send message');
-                }
-
-                msgInput.value = '';
-                msgInput.focus();
-                return pollMessages();
-            })
-            .catch((error) => console.error('Send Error:', error))
-            .finally(() => {
-                sendBtn.disabled = false;
+        try {
+            const response = await fetch(`{{ path('api_message_send', {'id': contact.id}) }}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+                body: JSON.stringify({ content: content })
             });
+            if (response.ok) pollMessages();
+        } catch (error) {
+            console.error('Transmission Failed:', error);
+        } finally {
+            sendBtn.disabled = false;
+            msgInput.focus();
+        }
     });
 });
 </script>

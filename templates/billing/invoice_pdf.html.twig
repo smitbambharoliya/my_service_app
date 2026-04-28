@@ -3,61 +3,101 @@
 <head>
     <meta charset="UTF-8">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700&family=Playfair+Display:wght@700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=Playfair+Display:wght@700&display=swap');
         
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            color: #07080F;
+            color: #080A0F; /* Obsidian Base */
             margin: 0;
-            padding: 40px;
+            padding: 50px;
             background: #FFF;
+            line-height: 1.5;
         }
 
+        /* ── SPATIAL HEADER ── */
         .header {
-            border-bottom: 2px solid #D4AF37;
-            padding-bottom: 20px;
-            margin-bottom: 40px;
-            overflow: hidden;
+            border-bottom: 1px solid #E2E8F0;
+            padding-bottom: 30px;
+            margin-bottom: 50px;
         }
 
         .logo {
-            font-family: 'Playfair Display', serif;
-            font-size: 24px;
-            font-weight: 700;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 26px;
+            font-weight: 800;
+            letter-spacing: -1px;
+            color: #080A0F;
             float: left;
         }
 
-        .logo span { color: #D4AF37; }
+        .logo span { color: #00FFD5; } /* Electric Teal Accent */
 
         .invoice-details {
             float: right;
             text-align: right;
+        }
+
+        .protocol-id {
+            font-size: 10px;
+            font-weight: 800;
+            color: #94A3B8;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .protocol-val {
+            font-size: 14px;
+            font-weight: 600;
+            color: #080A0F;
+        }
+
+        .content-wrapper {
+            clear: both;
+        }
+
+        /* ── IDENTITY NODES ── */
+        .identity-container {
+            margin-bottom: 60px;
+            overflow: hidden;
+        }
+
+        .bill-to {
+            float: left;
+            width: 50%;
+        }
+
+        .label-sm {
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: #94A3B8;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+
+        .identity-name {
+            font-family: 'Playfair Display', serif;
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .identity-sub {
             font-size: 12px;
             color: #64748B;
         }
 
+        /* ── SETTLEMENT TABLE ── */
         .section-title {
-            font-family: 'Playfair Display', serif;
-            font-size: 18px;
-            margin-bottom: 20px;
-            color: #07080F;
-        }
-
-        .bill-to {
-            margin-bottom: 40px;
-        }
-
-        .bill-to-label {
-            font-size: 10px;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 2px;
+            color: #080A0F;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #94A3B8;
-            margin-bottom: 5px;
-        }
-
-        .bill-to-name {
-            font-size: 16px;
-            font-weight: 700;
+            border-bottom: 2px solid #080A0F;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
         }
 
         table {
@@ -73,105 +113,150 @@
             letter-spacing: 1px;
             color: #94A3B8;
             padding: 15px 0;
-            border-bottom: 1px solid #E2E8F0;
+            border-bottom: 1px solid #F1F5F9;
         }
 
         td {
             padding: 20px 0;
             border-bottom: 1px solid #F1F5F9;
-            font-size: 14px;
+            font-size: 13px;
+            color: #1E293B;
         }
 
+        .amount-col {
+            text-align: right;
+            font-weight: 600;
+        }
+
+        /* ── TOTALS ── */
         .total-row td {
             border-bottom: none;
-            padding-top: 40px;
+            padding-top: 30px;
         }
 
         .total-label {
-            font-size: 12px;
-            font-weight: 700;
+            font-size: 11px;
+            font-weight: 800;
             text-align: right;
             padding-right: 20px;
+            color: #94A3B8;
         }
 
         .total-amount {
-            font-family: 'Playfair Display', serif;
-            font-size: 24px;
-            font-weight: 700;
-            color: #D4AF37;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 28px;
+            font-weight: 800;
+            color: #080A0F;
+            text-align: right;
+        }
+
+        /* ── FOOTER STAMPS ── */
+        .badge {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            background: #F1F5F9;
+            color: #475569;
+            border: 1px solid #E2E8F0;
+        }
+        
+        .badge-settled {
+            background: #ECFDF5;
+            color: #065F46;
+            border-color: #A7F3D0;
         }
 
         .footer {
-            margin-top: 100px;
-            font-size: 10px;
-            color: #94A3B8;
-            text-align: center;
+            margin-top: 80px;
+            padding-top: 30px;
             border-top: 1px solid #F1F5F9;
-            padding-top: 20px;
+            text-align: center;
         }
 
-        .badge {
-            display: inline-block;
-            padding: 4px 10px;
-            border-radius: 20px;
+        .footer p {
             font-size: 10px;
-            font-weight: 700;
+            color: #94A3B8;
+            margin: 4px 0;
+        }
+
+        .digital-signature {
+            font-family: monospace;
+            font-size: 9px;
+            color: #CBD5E1;
+            margin-top: 20px;
             text-transform: uppercase;
         }
-        .badge-paid { background: #DCFCE7; color: #166534; }
     </style>
 </head>
 <body>
     <div class="header">
         <div class="logo">Service<span>Hub</span></div>
         <div class="invoice-details">
-            <div>INVOICE PROTOCOL #{{ billing.transactionId }}</div>
-            <div>DATED: {{ billing.createdAt|date('d F Y') }}</div>
+            <div class="protocol-id">PROTOCOL REFERENCE</div>
+            <div class="protocol-val">#{{ billing.transactionId|upper }}</div>
+            <div class="protocol-val" style="font-size: 12px; color: #64748B; margin-top: 5px;">
+                SYNCED: {{ billing.createdAt|date('d . m . Y') }}
+            </div>
         </div>
     </div>
 
-    <div class="bill-to">
-        <div class="bill-to-label">ESTATE OF</div>
-        <div class="bill-to-name">{{ billing.user.fullName }}</div>
-        <div style="font-size: 12px; color: #64748B;">{{ billing.user.email }}</div>
-    </div>
+    <div class="content-wrapper">
+        <div class="identity-container">
+            <div class="bill-to">
+                <div class="label-sm">PRIMARY RECIPIENT</div>
+                <div class="identity-name">{{ billing.user.fullName }}</div>
+                <div class="identity-sub">{{ billing.user.email }}</div>
+            </div>
+            <div style="float: right; text-align: right;">
+                <div class="label-sm">SETTLEMENT METHOD</div>
+                <div class="protocol-val">{{ billing.paymentStatus|upper }} GATEWAY</div>
+            </div>
+        </div>
 
-    <h2 class="section-title">Protocol Details</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Service Description</th>
-                <th style="text-align: right;">Amount</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% if billing.items %}
-                {% for item in billing.items %}
-                    <tr>
-                        <td>{{ item.name }}</td>
-                        <td style="text-align: right;">₹{{ item.amount|number_format }}</td>
-                    </tr>
-                {% endfor %}
-            {% else %}
+        <div class="section-title">Settlement Manifest</div>
+        <table>
+            <thead>
                 <tr>
-                    <td>{{ billing.serviceName }} - {{ billing.category }}</td>
-                    <td style="text-align: right;">₹{{ billing.amount|number_format }}</td>
+                    <th>Description of Artifact / Service</th>
+                    <th style="text-align: right;">Allocated Capital</th>
                 </tr>
-            {% endif %}
-            <tr class="total-row">
-                <td class="total-label">SETTLEMENT TOTAL</td>
-                <td class="total-amount" style="text-align: right;">₹{{ billing.amount|number_format }}</td>
-            </tr>
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                {% if billing.items %}
+                    {% for item in billing.items %}
+                        <tr>
+                            <td style="font-weight: 600;">{{ item.name }}</td>
+                            <td class="amount-col">₹{{ item.amount|number_format(2) }}</td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td style="font-weight: 600;">{{ billing.serviceName }}</td>
+                        <td class="amount-col">₹{{ billing.amount|number_format(2) }}</td>
+                    </tr>
+                {% endif %}
+                <tr class="total-row">
+                    <td class="total-label">TOTAL CAPITAL DEPLOYED</td>
+                    <td class="total-amount">₹{{ billing.amount|number_format(2) }}</td>
+                </tr>
+            </tbody>
+        </table>
 
-    <div style="margin-top: 20px;">
-        <span class="badge badge-paid">Settled via {{ billing.paymentStatus|upper }} Protocol</span>
-    </div>
+        <div style="margin-top: 10px;">
+            <span class="badge badge-settled">Verified Settlement Complete</span>
+        </div>
 
-    <div class="footer">
-        <p>This is a digitally verified luxury heritage invoice from ServiceHub Concierge.</p>
-        <p>&copy; {{ "now"|date("Y") }} ServiceHub Obsidian X. All Rights Reserved.</p>
+        <div class="footer">
+            <p>This document is a high-fidelity digital artifact issued by ServiceHub.</p>
+            <p>Authenticity verified via Obsidian X Distributed Ledger.</p>
+            <div class="digital-signature">
+                SIG_AUTH_TOKEN_{{ billing.transactionId|slice(0,8)|upper }}_{{ "now"|date('Ymd') }}
+            </div>
+        </div>
     </div>
 </body>
 </html>

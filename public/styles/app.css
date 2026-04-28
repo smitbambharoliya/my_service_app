@@ -645,3 +645,114 @@ h1, h2, h3, .luxury-serif {
 @media (max-width: 480px) {
     .widget-grid { grid-template-columns: 1fr; }
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   ServiceHub 2026 Spatial Overrides (Global)
+   ═══════════════════════════════════════════════════════════════ */
+
+:root {
+    --neon-glow: 0 0 15px rgba(0, 255, 213, 0.4);
+    --glass-blur: blur(25px);
+    --font-cyber: "Plus Jakarta Sans", sans-serif;
+    --transition-warp: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    --border-beam: linear-gradient(90deg, transparent, var(--accent-teal), transparent);
+}
+
+.glass-card {
+    background: rgba(255, 255, 255, 0.05) !important;
+    backdrop-filter: blur(40px) saturate(145%) !important;
+    -webkit-backdrop-filter: blur(40px) saturate(145%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    box-shadow:
+        0 30px 80px rgba(1, 7, 15, 0.48),
+        0 10px 30px rgba(0, 0, 0, 0.24),
+        inset 0 1px 0 rgba(255, 255, 255, 0.18) !important;
+    transform: translateZ(0);
+}
+
+.glass-card:hover {
+    transform: translate3d(0, -10px, 0) scale(1.015);
+    box-shadow:
+        0 40px 95px rgba(1, 7, 15, 0.56),
+        0 0 28px rgba(0, 255, 213, 0.16),
+        inset 0 1px 0 rgba(255, 255, 255, 0.22) !important;
+}
+
+.floating-nav,
+.luxury-navbar {
+    background: rgba(8, 12, 20, 0.55) !important;
+    backdrop-filter: blur(34px) saturate(150%);
+    -webkit-backdrop-filter: blur(34px) saturate(150%);
+    border-radius: 28px !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+}
+
+.btn-luxury {
+    transition: var(--transition-warp);
+    transform-origin: center;
+}
+
+.btn-luxury:hover {
+    box-shadow: 0 0 20px var(--accent-teal), 0 14px 34px rgba(0, 255, 213, 0.22) !important;
+    transform: translateY(-3px) scale(1.055);
+}
+
+.btn-luxury:active {
+    transform: translateY(-1px) scale(1.015);
+}
+
+.border-beam {
+    position: relative;
+    overflow: hidden;
+}
+
+.border-beam::before {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    padding: 1px;
+    background: var(--border-beam);
+    background-size: 200% 100%;
+    animation: borderBeamTravel 2.4s linear infinite;
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+}
+
+@keyframes borderBeamTravel {
+    from { background-position: 200% 0; }
+    to { background-position: -200% 0; }
+}
+
+.reveal-3d {
+    opacity: 0;
+    transform: translate3d(0, 26px, -44px) rotateX(7deg) scale(0.97);
+    transform-origin: center top;
+    transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.reveal-3d.is-visible {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) rotateX(0) scale(1);
+}
+
+@supports (animation-timeline: view()) {
+    .reveal-3d {
+        animation: revealIn 1s both;
+        animation-timeline: view();
+        animation-range: entry 15% cover 45%;
+    }
+}
+
+@keyframes revealIn {
+    from {
+        opacity: 0;
+        transform: translate3d(0, 28px, -44px) rotateX(8deg) scale(0.97);
+    }
+    to {
+        opacity: 1;
+        transform: translate3d(0, 0, 0) rotateX(0) scale(1);
+    }
+}

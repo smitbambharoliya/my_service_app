@@ -1,120 +1,105 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Billing & Subscription History{% endblock %}
+{% block title %}Exchequer Ledger — ServiceHub{% endblock %}
 
 {% block body %}
-<div class="container py-5">
-    <div class="row mb-4 align-items-center">
+<div class="container py-5 reveal-3d">
+    {# ── SPATIAL HEADER ── #}
+    <div class="row mb-5 align-items-end">
+        <div class="col-md-7">
+            <span class="text-xxs fw-800 letter-spacing-3 text-teal d-block mb-2">FINANCIAL TELEMETRY</span>
+            <h1 class="luxury-serif text-pure mb-0" style="font-size: 3rem;">Exchequer Ledger</h1>
+            <p class="text-dim mt-2 mb-0">Audit your capital deployment and subscription fidelity.</p>
+        </div>
+        <div class="col-md-5 text-md-end mt-4 mt-md-0">
+            <div class="glass-card d-inline-flex align-items-center gap-3 px-4 py-2 border-0">
+                <div class="pulse-indicator {{ app.user.isVerified ? 'bg-teal' : 'bg-dim' }}"></div>
+                <div class="text-start">
+                    <div class="text-xxs text-dim fw-800">IDENTITY STATUS</div>
+                    <div class="text-pure small fw-bold">{{ app.user.isVerified ? 'VERIFIED NODE' : 'STANDARD ACCESS' }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# ── BENTO METRICS ── #}
+    <div class="row g-4 mb-5">
         <div class="col-md-6">
-            <h1 class="fw-bold text-dark"><i class="fas fa-file-invoice-dollar me-2 text-primary"></i>Billing History</h1>
-            <p class="text-muted">Manage your premium subscriptions and track all payments.</p>
-        </div>
-        <div class="col-md-6 text-md-end">
-            <div class="card d-inline-block border-0 shadow-sm p-3 bg-light">
-                <span class="text-muted d-block small text-uppercase fw-bold">Current Status</span>
-                {% if app.user.isVerified %}
-                    <span class="badge bg-success-soft text-success rounded-pill px-3 mt-1">
-                        <i class="fas fa-check-circle me-1"></i> Active Member
-                    </span>
-                {% else %}
-                    <span class="badge bg-secondary-soft text-secondary rounded-pill px-3 mt-1">Standard Account</span>
-                {% endif %}
-            </div>
-        </div>
-    </div>
-
-    <div class="row mb-5">
-        <div class="col-md-4">
-            <div class="card border-0 shadow-sm rounded-4 p-4 mb-3 mb-md-0 card-hover">
-                <div class="d-flex align-items-center">
-                    <div class="icon-shape bg-primary-soft text-primary rounded-3 me-3">
-                        <i class="fas fa-wallet fa-lg"></i>
-                    </div>
-                    <div>
-                        <h6 class="text-muted mb-1 small fw-bold">Total Spent</h6>
-                        <h3 class="mb-0 fw-bold">₹{{ total_spent|default('0.00') }}</h3>
-                    </div>
+            <div class="glass-card p-4 h-100 d-flex align-items-center justify-content-between border-teal-soft">
+                <div>
+                    <div class="text-xxs text-dim fw-800 letter-spacing-1 mb-2">TOTAL CAPITAL DEPLOYED</div>
+                    <div class="h1 fw-900 text-pure mb-0">₹{{ total_spent|default('0.00') }}</div>
+                </div>
+                <div class="p-4 rounded-circle bg-surface border-glass">
+                    <i class="fas fa-vault text-teal fs-3"></i>
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="card border-0 shadow-sm rounded-4 p-4 mb-3 mb-md-0 card-hover">
-                <div class="d-flex align-items-center">
-                    <div class="icon-shape bg-warning-soft text-warning rounded-3 me-3">
-                        <i class="fas fa-crown fa-lg"></i>
-                    </div>
-                    <div>
-                        <h6 class="text-muted mb-1 small fw-bold">Active Plan</h6>
-                        <h3 class="mb-0 fw-bold">Premium</h3>
-                    </div>
+        <div class="col-md-6">
+            <div class="glass-card p-4 h-100 d-flex align-items-center justify-content-between border-purple-soft">
+                <div>
+                    <div class="text-xxs text-dim fw-800 letter-spacing-1 mb-2">ACTIVE FIDELITY PLAN</div>
+                    <div class="h1 fw-900 text-purple mb-0">Premium</div>
+                </div>
+                <div class="p-4 rounded-circle bg-surface border-glass">
+                    <i class="fas fa-crown text-purple fs-3"></i>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
-        <div class="card-header bg-white py-4 border-0">
-            <h5 class="mb-0 fw-bold">Recent Transactions</h5>
+    {# ── TRANSACTION NODE LIST ── #}
+    <div class="glass-card p-0 overflow-hidden">
+        <div class="p-4 border-bottom border-white border-opacity-5 d-flex justify-content-between align-items-center">
+            <h5 class="luxury-serif text-white m-0">Recent Artifact Settlements</h5>
+            <span class="text-xxs text-dim fw-800">{{ billings|length }} RECORDS SYNCED</span>
         </div>
+        
         <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead class="bg-light text-muted small text-uppercase">
-                    <tr>
-                        <th class="ps-4">Transaction ID</th>
-                        <th>Date</th>
-                        <th>Details</th>
-                        <th>Amount</th>
-                        <th>Status</th>
-                        <th class="text-end pe-4">Receipt</th>
+            <table class="table mb-0 align-middle" style="--bs-table-bg: transparent; --bs-table-color: #f7fbff;">
+                <thead>
+                    <tr class="text-xxs text-dim fw-800 letter-spacing-1 border-0">
+                        <th class="ps-4 py-4">TRANSACTION ID</th>
+                        <th class="py-4">ARTIFACT DETAILS</th>
+                        <th class="py-4">CAPITAL</th>
+                        <th class="py-4">STATUS</th>
+                        <th class="pe-4 py-4 text-end">ARCHIVE</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for bill in billings %}
-                    <tr>
+                    <tr class="border-top border-white border-opacity-5 hover-bright">
                         <td class="ps-4">
-                            <span class="fw-bold text-dark">#{{ bill.transactionId }}</span>
+                            <code class="text-teal small">#{{ bill.transactionId }}</code>
+                            <div class="text-xxs text-dim mt-1">{{ bill.createdAt|date('M d, Y') }}</div>
                         </td>
-                        <td>{{ bill.createdAt|date('M d, Y') }}</td>
                         <td>
-                            <div class="fw-bold text-dark" style="font-size: 0.95rem;">{{ bill.serviceName|default('Service Payment') }}</div>
-                            <div class="small text-muted" style="font-weight: 500;">
-                                <i class="fas fa-tag me-1" style="font-size:0.75rem;"></i>{{ bill.category|default('General') }}
+                            <div class="fw-bold text-white small">{{ bill.serviceName|default('Service Protocol') }}</div>
+                            <div class="text-xxs text-dim mt-1">
+                                <span class="badge-status py-0 px-2" style="font-size: 0.6rem; background: rgba(255,255,255,0.05);">{{ bill.category|default('General')|upper }}</span>
                             </div>
-                            {% if bill.description %}
-                                <div class="small text-muted fst-italic mt-1" style="max-width:220px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="{{ bill.description|e }}">
-                                    {{ bill.description }}
-                                </div>
-                            {% endif %}
-                            {% if bill.items %}
-                                <div class="mt-2" style="max-width: 250px; background:#f8fafc; padding:8px; border-radius:6px; font-size:0.75rem;">
-                                    {% for item in bill.items %}
-                                        <div class="d-flex justify-content-between align-items-center {% if not loop.last %}border-bottom pb-1 mb-1{% endif %}">
-                                            <span class="text-truncate me-2" style="color:#475569;" title="{{ item.name|e }}">{{ item.name }}</span>
-                                            <span class="fw-bold" style="color:#0f172a;">₹{{ item.amount }}</span>
-                                        </div>
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
                         </td>
-                        <td class="fw-bold text-dark">₹{{ bill.amount }}</td>
+                        <td>
+                            <span class="fw-900 text-white">₹{{ bill.amount }}</span>
+                        </td>
                         <td>
                             {% if bill.paymentStatus == 'success' %}
-                                <span class="badge bg-success-soft text-success rounded-pill">Completed</span>
+                                <span class="badge-status status-active">SETTLED</span>
                             {% else %}
-                                <span class="badge bg-danger-soft text-danger rounded-pill">Failed</span>
+                                <span class="badge-status status-alert">FAILED</span>
                             {% endif %}
                         </td>
                         <td class="text-end pe-4">
-                            <button class="btn btn-sm btn-outline-primary rounded-pill px-3">
-                                <i class="fas fa-download me-1"></i> PDF
+                            <button class="btn-action-spatial text-teal" title="Download PDF">
+                                <i class="fas fa-file-pdf"></i>
                             </button>
                         </td>
                     </tr>
                     {% else %}
                     <tr>
-                        <td colspan="6" class="text-center py-5">
-                            <img src="https://cdn-icons-png.flaticon.com/512/4076/4076549.png" width="80" class="mb-3 opacity-50" alt="No data">
-                            <p class="text-muted mb-0">Haji sudhi koi payment history nathi.</p>
+                        <td colspan="5" class="text-center py-5">
+                            <i class="fas fa-receipt text-dim fs-1 mb-3 opacity-20"></i>
+                            <p class="text-dim small mb-0">No transaction telemetry found.</p>
                         </td>
                     </tr>
                     {% endfor %}
@@ -125,37 +110,66 @@
 </div>
 
 <style>
-    /* Professional Soft UI Colors */
-    .bg-primary-soft { background-color: rgba(13, 110, 253, 0.1); }
-    .bg-success-soft { background-color: rgba(25, 135, 84, 0.1); }
-    .bg-warning-soft { background-color: rgba(255, 193, 7, 0.1); }
-    .bg-danger-soft { background-color: rgba(220, 53, 69, 0.1); }
-    .bg-secondary-soft { background-color: rgba(108, 117, 125, 0.1); }
-    
-    .icon-shape {
-        width: 50px;
-        height: 50px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+    :root {
+        --text-pure: #ffffff;
+        --text-dim: #94a3b8;
+        --accent-teal: #00ffd5;
+        --accent-purple: #9d7cff;
+        --glass-border: rgba(255, 255, 255, 0.12);
+        --bg-surface: rgba(255, 255, 255, 0.03);
     }
 
-    .card-hover {
-        transition: all 0.3s ease;
-    }
-    .card-hover:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+    .border-teal-soft { border-color: rgba(0, 255, 213, 0.2) !important; }
+    .border-purple-soft { border-color: rgba(157, 124, 255, 0.2) !important; }
+    .bg-surface { background: var(--bg-surface); }
+    .border-glass { border: 1px solid var(--glass-border); }
+
+    .hover-bright:hover {
+        background: rgba(255, 255, 255, 0.02) !important;
     }
 
-    .table thead th {
-        font-weight: 600;
-        letter-spacing: 0.5px;
-        border-bottom: none;
+    .pulse-indicator {
+        width: 8px; height: 8px;
+        border-radius: 50%;
+        position: relative;
+    }
+    .bg-teal { background: var(--accent-teal); box-shadow: 0 0 10px var(--accent-teal); }
+    .bg-teal::after {
+        content: ''; position: absolute; inset: -4px; border-radius: 50%;
+        border: 1px solid var(--accent-teal); animation: pulse-ring 2s infinite;
     }
     
-    .table tbody tr {
-        transition: background-color 0.2s;
+    @keyframes pulse-ring {
+        0% { transform: scale(1); opacity: 1; }
+        100% { transform: scale(2.5); opacity: 0; }
     }
+
+    .btn-action-spatial {
+        width: 38px; height: 38px;
+        border-radius: 10px;
+        display: inline-flex; align-items: center; justify-content: center;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--glass-border);
+        transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+        cursor: pointer;
+        color: inherit;
+    }
+    .btn-action-spatial:hover {
+        background: rgba(255, 255, 255, 0.1);
+        transform: scale(1.1);
+        border-color: var(--accent-teal);
+    }
+
+    .badge-status {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-weight: 800;
+        letter-spacing: 1px;
+        padding: 4px 12px;
+        border-radius: 8px;
+        font-size: 0.65rem;
+        border: 1px solid transparent;
+    }
+    .status-active { background: rgba(0, 255, 213, 0.1); color: var(--accent-teal); border-color: rgba(0, 255, 213, 0.2); }
+    .status-alert { background: rgba(255, 93, 115, 0.1); color: #ff5d73; border-color: rgba(255, 93, 115, 0.2); }
 </style>
 {% endblock %}

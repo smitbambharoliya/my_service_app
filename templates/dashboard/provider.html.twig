@@ -46,29 +46,29 @@
     </div>
 
     {# ── KPI ANALYTICS ── #}
-    <div class="row g-4 mb-5">
-        <div class="col-md-3">
-            <div class="glass-card p-4 border-0" style="background: var(--theme-bg);">
+    <div class="bento-grid mb-5">
+        <div class="bento-card bento-span-3">
+            <div class="glass-card p-4 border-0 h-100" style="background: var(--theme-bg);">
                 <div class="font-label text-xxs text-dim fw-800 mb-2">ACTIVE BOOKINGS</div>
                 <div class="h2 text-pure fw-700 mb-0">{{ bookings|filter(b => b.status in ['Pending', 'Confirmed', 'on-the-way', 'Accepted'])|length }}</div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="glass-card p-4 border-0" style="background: var(--theme-bg);">
+        <div class="bento-card bento-span-3">
+            <div class="glass-card p-4 border-0 h-100" style="background: var(--theme-bg);">
                 <div class="font-label text-xxs text-dim fw-800 mb-2">TOTAL EARNINGS</div>
                 {% set totalRev = 0 %}
                 {% for b in bookings|filter(b => b.status == 'Completed') %}{% set totalRev = totalRev + (b.estimatedCost|default(b.service.price)) %}{% endfor %}
                 <div class="h2 text-pure fw-700 mb-0">₹{{ totalRev|number_format(0) }}</div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="glass-card p-4 border-0" style="background: var(--theme-bg);">
+        <div class="bento-card bento-span-3">
+            <div class="glass-card p-4 border-0 h-100" style="background: var(--theme-bg);">
                 <div class="font-label text-xxs text-dim fw-800 mb-2">QUALITY SCORE</div>
                 <div class="h2 text-primary fw-700 mb-0">9.8<span class="text-xxs text-dim">/10</span></div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="glass-card p-4 border-0" style="background: var(--theme-bg);">
+        <div class="bento-card bento-span-3">
+            <div class="glass-card p-4 border-0 h-100" style="background: var(--theme-bg);">
                 <div class="font-label text-xxs text-dim fw-800 mb-2">PENDING QUOTES</div>
                 <div class="h2 text-primary fw-700 mb-0">{{ bookings|filter(b => b.bookingType == 'visit' and b.estimatedCost is empty)|length }}</div>
             </div>

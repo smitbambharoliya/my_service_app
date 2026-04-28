@@ -4,25 +4,97 @@
   text (string)
   url (string|null)
   type (string) => 'submit' | 'button'
-  style (string) => 'luxury' | 'outline' | 'aurora'
+  style (string) => 'luxury' | 'outline' | 'spatial' | 'void'
   icon (string|null) => FontAwesome class
+  class (string|null) => Additional custom classes
 #}
+
 {% set c_type = type|default('button') %}
 {% set c_style = style|default('luxury') %}
+
+{# ── 2026 SPATIAL STYLE MAPPING ── #}
 {% set base_class = 
-    c_style == 'luxury' ? 'px-10 py-4 bg-gradient-to-r from-primary to-primary-container text-on-primary rounded-full font-label font-bold tracking-widest uppercase text-xs transition-transform hover:scale-105 active:scale-95' 
-    : (c_style == 'outline' ? 'px-8 py-3 border border-outline-variant text-on-surface-variant rounded-full font-label font-bold tracking-widest uppercase text-xs transition-all hover:border-primary hover:text-primary' 
-    : 'btn-aurora btn-aurora-gradient') 
+    c_style == 'luxury' ? 'btn-spatial-primary' 
+    : (c_style == 'outline' ? 'btn-spatial-outline' 
+    : (c_style == 'spatial' ? 'btn-spatial-glass' 
+    : (c_style == 'void' ? 'btn-spatial-void' 
+    : 'btn-spatial-primary'))) 
 %}
 
+{% set common_attr = 'class="' ~ base_class ~ ' ' ~ class|default('') ~ ' d-inline-flex align-items-center justify-content-center"' %}
+
 {% if url is defined and url %}
-    <a href="{{ url }}" class="{{ base_class }} {{ class|default('') }} d-inline-flex align-items-center justify-content-center text-decoration-none">
-        {% if icon is defined and icon %}<i class="fa-solid {{ icon }} me-2"></i>{% endif %}
-        {{ text }}
+    <a href="{{ url }}" {{ common_attr|raw }} style="text-decoration: none;">
+        {% if icon is defined and icon %}<i class="fas {{ icon }} me-2"></i>{% endif %}
+        <span>{{ text|upper }}</span>
     </a>
 {% else %}
-    <button type="{{ c_type }}" class="{{ base_class }} {{ class|default('') }} d-inline-flex align-items-center justify-content-center">
-        {% if icon is defined and icon %}<i class="fa-solid {{ icon }} me-2"></i>{% endif %}
-        {{ text }}
+    <button type="{{ c_type }}" {{ common_attr|raw }}>
+        {% if icon is defined and icon %}<i class="fas {{ icon }} me-2"></i>{% endif %}
+        <span>{{ text|upper }}</span>
     </button>
 {% endif %}
+
+{# ── COMPONENT STYLES (Add to app.css or keep here) ── #}
+<style>
+    /* Global Spatial Button Transitions */
+    .btn-spatial-primary, .btn-spatial-outline, .btn-spatial-glass, .btn-spatial-void {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-weight: 800;
+        font-size: 0.7rem;
+        letter-spacing: 2px;
+        padding: 12px 28px;
+        border-radius: 12px;
+        transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        text-transform: uppercase;
+        border: 1px solid transparent;
+        cursor: pointer;
+    }
+
+    /* 1. Primary Luxury (Teal Glow) */
+    .btn-spatial-primary {
+        background: var(--accent-teal, #00ffd5);
+        color: #05070a !important;
+        box-shadow: 0 0 20px rgba(0, 255, 213, 0.3);
+    }
+    .btn-spatial-primary:hover {
+        transform: translateY(-2px) scale(1.02);
+        box-shadow: 0 0 35px rgba(0, 255, 213, 0.5);
+    }
+
+    /* 2. Outline (Minimalist) */
+    .btn-spatial-outline {
+        background: transparent;
+        border-color: rgba(255, 255, 255, 0.1);
+        color: #f7fbff !important;
+    }
+    .btn-spatial-outline:hover {
+        background: rgba(255, 255, 255, 0.05);
+        border-color: var(--accent-teal, #00ffd5);
+        color: var(--accent-teal, #00ffd5) !important;
+    }
+
+    /* 3. Glass (Holographic) */
+    .btn-spatial-glass {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(10px);
+        border-color: rgba(255, 255, 255, 0.1);
+        color: #fff !important;
+    }
+    .btn-spatial-glass:hover {
+        background: rgba(255, 255, 255, 0.08);
+        border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    /* 4. Void (Destructive Actions) */
+    .btn-spatial-void {
+        background: rgba(255, 93, 115, 0.1);
+        border-color: rgba(255, 93, 115, 0.2);
+        color: #ff5d73 !important;
+    }
+    .btn-spatial-void:hover {
+        background: #ff5d73;
+        color: #fff !important;
+        box-shadow: 0 0 25px rgba(255, 93, 115, 0.4);
+    }
+</style>

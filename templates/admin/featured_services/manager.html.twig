@@ -1,123 +1,237 @@
 {% extends 'dashboard_base.html.twig' %}
 
-{% block page_title %}Homepage Manager (CMS){% endblock %}
+{% block page_title %}Homepage Intelligence (CMS){% endblock %}
 
 {% block stylesheets %}
 <style>
-/* Aurora Internal Dashboard Styles for CMS */
-.cms-grid {
-    display: grid;
-    grid-template-columns: 1fr 350px;
-    gap: 32px;
-}
-@media (max-width: 1200px) {
-    .cms-grid { grid-template-columns: 1fr; }
-}
+    /* ── 2026 SPATIAL CMS GRID ── */
+    .cms-grid {
+        display: grid;
+        grid-template-columns: 1fr 380px;
+        gap: 24px;
+        align-items: start;
+    }
 
-.cms-section {
-    background: var(--bg-tertiary);
-    border: 1px solid var(--border-light);
-    border-radius: var(--r-lg);
-    padding: 24px;
-    margin-bottom: 24px;
-}
-.cms-section-header {
-    display: flex; justify-content: space-between; align-items: center;
-    margin-bottom: 20px; border-bottom: 1px solid var(--border-light);
-    padding-bottom: 16px;
-}
-.cms-section-title {
-    font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 1.2rem;
-    color: var(--text-primary); text-transform: uppercase; letter-spacing: 0.05em;
-    display: flex; align-items: center; gap: 8px;
-}
-.cms-section-title i { color: var(--aurora-cyan); }
+    @media (max-width: 1200px) {
+        .cms-grid { grid-template-columns: 1fr; }
+    }
 
-/* Draggable Items Preview */
-.f-item {
-    background: rgba(255,255,255,0.03);
-    border: 1px solid var(--border-hover);
-    border-radius: var(--r-md);
-    padding: 16px; margin-bottom: 12px;
-    display: flex; align-items: center; justify-content: space-between;
-    transition: all var(--dur-base);
-}
-.f-item:hover { background: rgba(255,255,255,0.06); border-color: var(--aurora-cyan); }
-.f-item.inactive { opacity: 0.5; border-color: rgba(255,0,0,0.3); }
+    /* ── BENTO SECTIONS ── */
+    .cms-section {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 28px;
+        padding: 24px;
+        margin-bottom: 30px;
+        transition: all 0.4s var(--ease-spatial);
+    }
 
-/* Search Sidebar */
-.search-sidebar {
-    background: var(--bg-secondary);
-    border: 1px solid var(--border-light);
-    border-radius: var(--r-lg);
-    padding: 24px;
-    position: sticky; top: 100px;
-}
-#searchResults { max-height: 400px; overflow-y: auto; margin-top: 16px; gap: 8px; display: flex; flex-direction: column; }
-.search-result-card {
-    background: var(--bg-tertiary); border: 1px solid var(--border-hover);
-    padding: 12px; border-radius: var(--r-sm); cursor: pointer;
-    transition: all 0.2s;
-}
-.search-result-card:hover { border-color: var(--aurora-purple); background: rgba(139, 92, 246, 0.1); }
-.search-result-card.selected { border-color: var(--aurora-pink); background: rgba(236, 72, 153, 0.1); }
+    .cms-section:hover {
+        border-color: var(--accent-teal);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .cms-section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .cms-section-title {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-weight: 800;
+        font-size: 0.9rem;
+        color: #fff;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .cms-section-title i { 
+        color: var(--accent-teal);
+        filter: drop-shadow(0 0 8px var(--accent-teal));
+    }
+
+    /* ── FEATURED ITEMS (DRAGGABLE STYLE) ── */
+    .f-item {
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 18px;
+        padding: 16px;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        transition: all 0.3s var(--ease-spatial);
+    }
+
+    .f-item:hover {
+        background: rgba(255, 255, 255, 0.08);
+        transform: scale(1.01) translateX(5px);
+        border-color: var(--accent-teal);
+    }
+
+    .f-item.inactive { 
+        opacity: 0.4; 
+        filter: grayscale(1);
+    }
+
+    .artifact-thumb {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, rgba(0,255,213,0.1), rgba(157,124,255,0.1));
+        border: 1px solid rgba(255,255,255,0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--accent-teal);
+    }
+
+    /* ── MAGNETIC SEARCH SIDEBAR ── */
+    .search-sidebar {
+        background: rgba(13, 17, 23, 0.8);
+        backdrop-filter: blur(40px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 32px;
+        padding: 28px;
+        position: sticky;
+        top: 100px;
+        box-shadow: 0 30px 60px rgba(0,0,0,0.4);
+    }
+
+    .cyber-input {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 14px;
+        color: #fff;
+        padding: 14px 20px;
+        font-size: 0.9rem;
+        width: 100%;
+        transition: all 0.3s;
+    }
+
+    .cyber-input:focus {
+        border-color: var(--accent-teal);
+        background: rgba(0, 255, 213, 0.05);
+        outline: none;
+        box-shadow: 0 0 20px rgba(0, 255, 213, 0.1);
+    }
+
+    #searchResults {
+        max-height: 350px;
+        overflow-y: auto;
+        margin: 20px 0;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .search-result-card {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        padding: 14px;
+        border-radius: 16px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .search-result-card:hover, .search-result-card.selected {
+        border-color: var(--accent-teal);
+        background: rgba(0, 255, 213, 0.08);
+    }
+
+    /* ── ACTION BUTTONS ── */
+    .btn-action {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: none;
+        transition: 0.2s;
+    }
+
+    .btn-power { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+    .btn-delete { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+    
+    .btn-power:hover { background: #10b981; color: #fff; }
+    .btn-delete:hover { background: #ef4444; color: #fff; }
+
 </style>
 {% endblock %}
 
 {% block body %}
-<div class="cms-grid fade-up">
+<div class="cms-grid reveal-3d">
     
-    {# ── LEFT: CURRENT HOMEPAGE LAYOUT ── #}
+    {# ── LEFT: BENTO SECTIONS ── #}
     <div class="cms-layout-builder">
         
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2 class="heading-section m-0" style="font-size:1.5rem;">Live Layout</h2>
-            <a href="{{ path('app_home') }}" target="_blank" class="btn-ghost" style="padding:8px 16px;font-size:0.8rem;"><i class="fas fa-external-link-alt me-2"></i> Preview</a>
+        <div class="d-flex justify-content-between align-items-center mb-5">
+            <div>
+                <h2 class="luxury-serif text-pure mb-1">Live Manifest</h2>
+                <p class="text-dim text-xs">MANAGING GLOBAL HOMEPAGE NODES</p>
+            </div>
+            <a href="{{ path('app_home') }}" target="_blank" class="btn-outline-luxury py-2 px-4">
+                <i class="fas fa-eye me-2"></i> PREVIEW PORTAL
+            </a>
         </div>
 
-        {# Group features by section via logic #}
         {% set sections = ['hero', 'trending', 'premium', 'seasonal'] %}
-        {% set icons = {'hero':'fa-star', 'trending':'fa-fire', 'premium':'fa-crown', 'seasonal':'fa-snowflake'} %}
+        {% set icons = {'hero':'fa-rocket', 'trending':'fa-bolt', 'premium':'fa-crown', 'seasonal':'fa-calendar-star'} %}
 
         {% for sec in sections %}
             <div class="cms-section">
                 <div class="cms-section-header">
-                    <div class="cms-section-title"><i class="fas {{ icons[sec] }}"></i> {{ sec|upper }} SECTION</div>
-                    <span class="badge-aurora">{{ features|filter(f => f.section == sec)|length }} Services</span>
+                    <div class="cms-section-title">
+                        <i class="fas {{ icons[sec] }}"></i> {{ sec|upper }} ARCHIVE
+                    </div>
+                    <span class="badge-status status-active" style="font-size: 0.6rem;">
+                        {{ features|filter(f => f.section == sec)|length }} ACTIVE NODES
+                    </span>
                 </div>
                 
                 <div class="f-list">
                     {% for f in features|filter(f => f.section == sec) %}
                         <div class="f-item {{ not f.isActive ? 'inactive' : '' }}">
                             <div class="d-flex align-items-center gap-3">
-                                <span class="text-muted"><i class="fas fa-grip-vertical"></i></span>
-                                <div style="width:40px;height:40px;border-radius:8px;background:var(--border-light);display:flex;align-items:center;justify-content:center;color:var(--text-muted);"><i class="fas fa-image"></i></div>
+                                <span class="text-dim" style="cursor: grab;"><i class="fas fa-grip-vertical"></i></span>
+                                <div class="artifact-thumb">
+                                    <i class="fas fa-cube"></i>
+                                </div>
                                 <div>
-                                    <h4 class="m-0 fs-6 text-white">{{ f.service.title }}</h4>
-                                    <div class="text-muted" style="font-size:0.75rem;">{{ f.service.provider.email }} • ₹{{ f.service.price }}</div>
+                                    <h4 class="m-0 fw-bold" style="font-size: 0.9rem; color: #fff;">{{ f.service.title }}</h4>
+                                    <div class="text-dim" style="font-size: 0.75rem;">{{ f.service.provider.email|split('@')[0] }} • ₹{{ f.service.price }}</div>
                                 </div>
                             </div>
                             
                             <div class="d-flex align-items-center gap-2">
                                 {% if f.startDate %}
-                                    <div class="badge-cyan" style="font-size:0.65rem;"><i class="fas fa-clock"></i> Scheduled</div>
+                                    <span class="text-xxs text-teal fw-800 me-2"><i class="fas fa-clock"></i> SCHEDULED</span>
                                 {% endif %}
                                 
                                 <form action="{{ path('app_admin_featured_services_toggle', {'id': f.id}) }}" method="post" class="m-0">
-                                    <button type="submit" class="btn btn-sm btn-{{ f.isActive ? 'success' : 'secondary' }}" title="{{ f.isActive ? 'Deactivate' : 'Activate' }}">
+                                    <button type="submit" class="btn-action btn-power" title="Toggle Status">
                                         <i class="fas fa-power-off"></i>
                                     </button>
                                 </form>
-                                <form action="{{ path('app_admin_featured_services_delete', {'id': f.id}) }}" method="post" class="m-0" onsubmit="return confirm('Remove this service from homepage?');">
+                                <form action="{{ path('app_admin_featured_services_delete', {'id': f.id}) }}" method="post" class="m-0" onsubmit="return confirm('Disconnect this node?');">
                                     <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ f.id) }}">
-                                    <button type="submit" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
+                                    <button type="submit" class="btn-action btn-delete"><i class="fas fa-trash-alt"></i></button>
                                 </form>
                             </div>
                         </div>
                     {% else %}
-                        <div class="text-center py-4 text-muted" style="border:1px dashed var(--border-hover);border-radius:var(--r-md);">
-                            <i class="fas fa-plus-circle mb-2 fs-4 opacity-50"></i><br>
-                            No services featured in {{ sec }} section
+                        <div class="text-center py-5 rounded-4" style="border: 1px dashed rgba(255,255,255,0.1);">
+                            <i class="fas fa-plus-circle mb-2 text-dim fs-3"></i>
+                            <p class="text-dim text-xs mb-0">NO ARTIFACTS IN {{ sec|upper }}</p>
                         </div>
                     {% endfor %}
                 </div>
@@ -126,44 +240,43 @@
 
     </div>
 
-    {# ── RIGHT: ADD NEW FEATURED SERVICE ── #}
-    <div class="search-sidebar">
-        <h3 class="font-montserrat text-white fs-5 mb-3 text-uppercase"><i class="fas fa-search text-aurora-pink me-2"></i> Add to Homepage</h3>
+    {# ── RIGHT: MAGNETIC SEARCH ── #}
+    <aside class="search-sidebar">
+        <h3 class="luxury-serif text-pure h5 mb-2">Inject Artifact</h3>
+        <p class="text-dim text-xxs mb-4">SEARCH & ATTACH TO MANIFEST</p>
         
-        <input type="text" id="searchInput" class="form-control border-3 mb-3" placeholder="Search service name...">
-        <div id="searchResults" class="mb-4"></div>
+        <div class="position-relative mb-4">
+            <i class="fas fa-search position-absolute top-50 translate-middle-y ms-3 text-teal"></i>
+            <input type="text" id="searchInput" class="cyber-input ps-5" placeholder="Scanning archives...">
+        </div>
+
+        <div id="searchResults">
+            <div class="text-center py-4 text-dim text-xxs">INITIALIZE SEARCH PARAMETERS</div>
+        </div>
 
         <form action="{{ path('app_admin_featured_services_add') }}" method="post" id="addFeatureForm">
             <input type="hidden" name="service_id" id="selectedServiceId" required>
             
-            <div class="mb-3">
-                <label class="form-label">Target Section</label>
-                <select name="section" class="form-select border-2">
-                    <option value="hero">Hero Banner (Top)</option>
-                    <option value="trending" selected>Trending Now Grid</option>
-                    <option value="premium">Premium Picks Row</option>
-                    <option value="seasonal">Seasonal Offers</option>
+            <div class="mb-4">
+                <label class="text-xxs text-dim fw-800 letter-spacing-1 mb-2 d-block">TARGET ZONE</label>
+                <select name="section" class="cyber-input">
+                    <option value="hero">Hero Primary</option>
+                    <option value="trending" selected>Trending Matrix</option>
+                    <option value="premium">Premium Cluster</option>
+                    <option value="seasonal">Seasonal Pulse</option>
                 </select>
             </div>
             
-            <div class="mb-3">
-                <label class="form-label">Display Order (1 = First)</label>
-                <input type="number" name="display_order" class="form-control border-2" value="1" min="1" max="10">
+            <div class="mb-4">
+                <label class="text-xxs text-dim fw-800 letter-spacing-1 mb-2 d-block">PRIORITY LEVEL (1-10)</label>
+                <input type="number" name="display_order" class="cyber-input" value="1" min="1" max="10">
             </div>
 
-            <div class="mb-3">
-                <label class="form-label text-aurora-cyan"><i class="fas fa-calendar-alt me-1"></i> Quick Schedule (Optional)</label>
-                <div class="row g-2">
-                    <div class="col-6"><input type="date" name="start_date" class="form-control border-2" placeholder="Start"></div>
-                    <div class="col-6"><input type="date" name="end_date" class="form-control border-2" placeholder="End"></div>
-                </div>
-            </div>
-
-            <button type="submit" class="btn-primary-brand w-100" id="submitBtn" disabled>
-                <i class="fas fa-th-umbtack me-2"></i> Add to Homepage
+            <button type="submit" class="btn-luxury w-100 py-3" id="submitBtn" disabled>
+                <i class="fas fa-plug me-2"></i> CONNECT TO FEED
             </button>
         </form>
-    </div>
+    </aside>
 
 </div>
 {% endblock %}
@@ -173,7 +286,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     const searchInput = document.getElementById('searchInput');
     const resultsContainer = document.getElementById('searchResults');
-    const addForm = document.getElementById('addFeatureForm');
     const selectedInput = document.getElementById('selectedServiceId');
     const submitBtn = document.getElementById('submitBtn');
 
@@ -184,11 +296,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const q = e.target.value.trim();
         
         if (q.length < 2) {
-            resultsContainer.innerHTML = '<div class="text-muted p-2" style="font-size:0.8rem;">Type at least 2 characters...</div>';
+            resultsContainer.innerHTML = '<div class="text-center text-dim text-xxs py-3">TYPE TO SCAN...</div>';
             return;
         }
 
-        resultsContainer.innerHTML = '<div class="text-aurora-cyan p-2"><i class="fas fa-circle-notch fa-spin me-2"></i> Searching...</div>';
+        resultsContainer.innerHTML = '<div class="text-center text-teal text-xxs py-3"><i class="fas fa-sync fa-spin me-2"></i> SCANNING...</div>';
 
         debounceTimer = setTimeout(() => {
             fetch(`{{ path('api_admin_search_services') }}?q=${encodeURIComponent(q)}`)
@@ -196,7 +308,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 .then(data => {
                     resultsContainer.innerHTML = '';
                     if (data.length === 0) {
-                        resultsContainer.innerHTML = '<div class="text-danger p-2" style="font-size:0.85rem;"><i class="fas fa-times me-1"></i> No matching services found.</div>';
+                        resultsContainer.innerHTML = '<div class="text-center text-danger text-xxs py-3">NO MATCHES FOUND</div>';
                         return;
                     }
 
@@ -204,25 +316,25 @@ document.addEventListener('DOMContentLoaded', () => {
                         const div = document.createElement('div');
                         div.className = 'search-result-card';
                         div.innerHTML = `
-                            <div class="d-flex justify-content-between align-items-start">
+                            <div class="d-flex justify-content-between align-items-center">
                                 <div>
-                                    <div class="fw-bold text-white mb-1" style="font-size:0.9rem;">${service.title}</div>
-                                    <div class="text-muted" style="font-size:0.75rem;">${service.category}</div>
+                                    <div class="fw-bold text-white small">${service.title}</div>
+                                    <div class="text-dim" style="font-size:0.65rem;">${service.category}</div>
                                 </div>
-                                <div class="badge-aurora" style="font-size:0.6rem;">₹${service.price}</div>
+                                <div class="text-teal fw-bold" style="font-size:0.7rem;">₹${service.price}</div>
                             </div>
                         `;
                         div.addEventListener('click', () => {
-                            // Deselect others
                             document.querySelectorAll('.search-result-card').forEach(el => el.classList.remove('selected'));
                             div.classList.add('selected');
                             selectedInput.value = service.id;
                             submitBtn.disabled = false;
+                            submitBtn.style.boxShadow = "0 0 20px rgba(0, 255, 213, 0.4)";
                         });
                         resultsContainer.appendChild(div);
                     });
                 });
-        }, 500);
+        }, 400);
     });
 });
 </script>

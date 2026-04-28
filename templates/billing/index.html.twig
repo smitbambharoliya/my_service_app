@@ -1,52 +1,58 @@
 {% extends 'dashboard_base.html.twig' %}
 {% import 'partials/_components.html.twig' as ui %}
 
-{% block page_title %}Operational Billing & Protocols{% endblock %}
+{% block page_title %}Exchequer & Settlements{% endblock %}
 
 {% block body %}
-<div class="row g-4 mb-5 fade-up">
+{# ── BENTO KPI NODES ── #}
+<div class="row g-4 mb-5 reveal-3d">
     <div class="col-md-4">
         {{ ui.glass_card({
-            title: 'Current Matrix Status',
-            body: '<div class="h2 fw-900 text-white mb-0">AURORA ELITE</div><div class="text-xxs text-cyan fw-bold mt-1">SECURE ACCESS GRANTED</div>'
+            title: 'Network Status',
+            body: '<div class="h2 fw-900 text-white mb-0">UPLINK ACTIVE</div><div class="text-xxs text-cyan fw-bold mt-1 letter-spacing-1">ENCRYPTED SETTLEMENTS ENABLED</div>'
         }) }}
     </div>
     <div class="col-md-4">
         {{ ui.glass_card({
-            title: 'Total Protocols',
-            body: '<div class="h2 fw-900 text-white mb-0">' ~ billings|length ~ '</div><div class="text-xxs text-muted fw-bold mt-1">ALL SESSIONS RECORDED</div>'
+            title: 'Archived Logs',
+            body: '<div class="h2 fw-900 text-white mb-0">' ~ billings|length ~ ' Units</div><div class="text-xxs text-muted fw-bold mt-1 letter-spacing-1">VERIFIED TRANSACTIONAL NODES</div>'
         }) }}
     </div>
     <div class="col-md-4">
         {{ ui.glass_card({
             title: 'Settled Capital',
-            body: '<div class="h2 fw-900 text-violet mb-0">₹' ~ (billings|reduce((carry, b) => b.paymentStatus == 'paid' or b.paymentStatus == 'success' ? carry + b.amount : carry, 0))|number_format(0) ~ '</div><div class="text-xxs text-muted fw-bold mt-1">VERIFIED VIA STRIPE</div>'
+            body: '<div class="h2 fw-900 text-violet mb-0">₹' ~ (billings|reduce((carry, b) => b.paymentStatus == 'paid' or b.paymentStatus == 'success' ? carry + b.amount : carry, 0))|number_format(0) ~ '</div><div class="text-xxs text-muted fw-bold mt-1 letter-spacing-1">SECURED VIA STRIPE PROTOCOL</div>'
         }) }}
     </div>
 </div>
 
-<div class="glass-card border-subtle overflow-hidden fade-up" style="transition-delay: 100ms;">
-    <div class="p-4 border-bottom border-subtle d-flex justify-content-between align-items-center bg-surface-2">
-        <h5 class="text-xs text-muted fw-900 mb-0">TRANSACTION LEDGER</h5>
-        <div class="badge-pill badge-confirmed px-3 py-1">ENCRYPTED</div>
+{# ── TRANSACTION LEDGER ── #}
+<div class="glass-card border-subtle overflow-hidden reveal-3d" style="transition-delay: 100ms;">
+    <div class="p-4 border-bottom border-white border-opacity-5 d-flex justify-content-between align-items-center bg-surface-2">
+        <div>
+            <h5 class="text-xs text-muted fw-900 mb-0 letter-spacing-2">TRANSACTIONAL LEDGER</h5>
+            <p class="text-xxs text-dim mt-1 mb-0">REAL-TIME SETTLEMENT TRACKING</p>
+        </div>
+        <div class="badge-pill badge-confirmed px-3 py-1" style="font-size: 0.6rem; letter-spacing: 1px;">SSL-SECURED</div>
     </div>
+
     <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
+        <table class="table table-hover align-middle mb-0" style="--bs-table-bg: transparent;">
             <thead class="bg-surface-3">
                 <tr class="border-0">
-                    <th class="ps-4 py-3 text-xxs text-muted fw-900">REFERENCE ID</th>
-                    <th class="py-3 text-xxs text-muted fw-900">DEPLOYMENT DATE</th>
-                    <th class="py-3 text-xxs text-muted fw-900">PROTOCOL DETAILS</th>
-                    <th class="py-3 text-xxs text-muted fw-900">CAPITAL</th>
-                    <th class="py-3 text-xxs text-muted fw-900">VERIFICATION</th>
-                    <th class="pe-4 py-3 text-end text-xxs text-muted fw-900">ACTIONS</th>
+                    <th class="ps-4 py-3 text-xxs text-muted fw-900 letter-spacing-1">REFERENCE ID</th>
+                    <th class="py-3 text-xxs text-muted fw-900 letter-spacing-1">TIMESTAMP</th>
+                    <th class="py-3 text-xxs text-muted fw-900 letter-spacing-1">PROTOCOL DETAILS</th>
+                    <th class="py-3 text-xxs text-muted fw-900 letter-spacing-1">CAPITAL</th>
+                    <th class="py-3 text-xxs text-muted fw-900 letter-spacing-1">STATE</th>
+                    <th class="pe-4 py-3 text-end text-xxs text-muted fw-900 letter-spacing-1">COMMANDS</th>
                 </tr>
             </thead>
             <tbody class="border-0">
                 {% for bill in billings %}
-                    <tr class="border-subtle">
+                    <tr class="border-subtle hover-bright">
                         <td class="ps-4">
-                            <span class="text-xs fw-bold text-cyan">#{{ bill.transactionId }}</span>
+                            <span class="text-xs fw-bold text-cyan font-monospace">#{{ bill.transactionId|slice(0,12) }}</span>
                         </td>
                         <td>
                             <span class="text-xs text-muted fw-bold">{{ bill.createdAt|date('d M, Y') }}</span>
@@ -54,9 +60,9 @@
                         <td>
                             <div class="text-xs text-white fw-bold mb-1">{{ bill.serviceName|default('Service Protocol') }}</div>
                             <div class="d-flex align-items-center gap-2">
-                                <span class="badge-pill bg-dark-2 text-muted px-2 py-0 fw-900" style="font-size: 0.6rem;">{{ bill.category|upper }}</span>
+                                <span class="badge-pill bg-dark-2 text-dim px-2 py-0 fw-900" style="font-size: 0.55rem; border: 1px solid rgba(255,255,255,0.05);">{{ bill.category|upper }}</span>
                                 {% if bill.items %}
-                                    <span class="text-xxs text-violet fw-bold"><i class="fas fa-layer-group"></i> {{ bill.items|length }} ELEMENTS</span>
+                                    <span class="text-xxs text-violet fw-bold opacity-75"><i class="fas fa-layer-group me-1"></i> {{ bill.items|length }} COMPONENTS</span>
                                 {% endif %}
                             </div>
                         </td>
@@ -65,32 +71,32 @@
                         </td>
                         <td>
                             {% if bill.paymentStatus == 'paid' or bill.paymentStatus == 'success' %}
-                                <div class="badge-pill badge-confirmed px-2 py-1"><i class="fas fa-check-circle me-1"></i> SETTLED</div>
+                                <div class="badge-status-spatial status-settled"><i class="fas fa-check-circle me-1"></i> SETTLED</div>
                             {% elseif bill.paymentStatus == 'unpaid' %}
-                                <div class="badge-pill badge-pending px-2 py-1"><i class="fas fa-clock me-1"></i> PENDING</div>
+                                <div class="badge-status-spatial status-pending"><i class="fas fa-clock me-1"></i> PENDING</div>
                             {% elseif bill.paymentStatus == 'estimate' %}
-                                <div class="badge-pill bg-amber text-dark px-2 py-1 fw-bold" style="font-size: 0.65rem;"><i class="fas fa-file-invoice me-1"></i> ESTIMATE</div>
+                                <div class="badge-status-spatial status-estimate"><i class="fas fa-file-invoice me-1"></i> ESTIMATE</div>
                             {% else %}
-                                <div class="badge-pill bg-dark-3 text-muted px-2 py-1 fw-bold" style="font-size: 0.65rem;">{{ bill.paymentStatus|upper }}</div>
+                                <div class="badge-status-spatial status-other">{{ bill.paymentStatus|upper }}</div>
                             {% endif %}
                         </td>
                         <td class="pe-4 text-end">
-                            <div class="btn-group gap-2">
+                            <div class="d-flex justify-content-end gap-2">
                                 {% if bill.paymentStatus == 'unpaid' %}
-                                    <a href="{{ path('app_billing_checkout', {id: bill.id}) }}" class="btn-violet px-3 py-1 text-xxs fw-900">
-                                        SETTLE NOW
+                                    <a href="{{ path('app_billing_checkout', {id: bill.id}) }}" class="btn-spatial-action btn-cyan-glow">
+                                        EXECUTE PAYMENT
                                     </a>
                                 {% endif %}
                                 
                                 {% if bill.paymentStatus == 'paid' or bill.paymentStatus == 'success' %}
-                                    <a href="{{ path('app_billing_download', {id: bill.id}) }}" class="btn-ghost border-subtle px-3 py-1 text-xxs fw-900">
-                                        <i class="fas fa-download me-1"></i> DOCUMENT
+                                    <a href="{{ path('app_billing_download', {id: bill.id}) }}" class="btn-spatial-action border-glass text-white" title="Download Log">
+                                        <i class="fas fa-download"></i>
                                     </a>
                                 {% endif %}
 
                                 {% if bill.paymentStatus == 'estimate' %}
-                                    <a href="{{ path('app_customer_dashboard') }}" class="btn-ghost border-subtle px-3 py-1 text-xxs fw-900">
-                                        VIEW TERMS
+                                    <a href="{{ path('app_customer_dashboard') }}" class="btn-spatial-action border-glass text-dim" title="Review Terms">
+                                        <i class="fas fa-eye"></i>
                                     </a>
                                 {% endif %}
                             </div>
@@ -99,9 +105,9 @@
                 {% else %}
                     <tr>
                         <td colspan="6" class="text-center py-5">
-                            <div class="text-muted opacity-50">
+                            <div class="opacity-20 py-4">
                                 <i class="fas fa-receipt fa-3x mb-3 text-violet"></i>
-                                <p class="text-xs fw-bold">NO PROTOCOL LOGS DETECTED</p>
+                                <p class="text-xs fw-bold letter-spacing-2">NO ARCHIVAL DATA DETECTED</p>
                             </div>
                         </td>
                     </tr>
@@ -114,13 +120,57 @@
 
 {% block stylesheets %}
 <style>
+    /* ── TERMINAL TABLE STYLING ── */
     .table > :not(caption) > * > * { 
         background-color: transparent !important; 
-        border-bottom-color: var(--border-subtle) !important;
-        padding-top: 1.25rem;
-        padding-bottom: 1.25rem;
+        border-bottom-color: rgba(255,255,255,0.05) !important;
+        padding-top: 1.1rem;
+        padding-bottom: 1.1rem;
     }
-    .table tbody tr:hover { background-color: rgba(255, 255, 255, 0.02) !important; }
-    .bg-amber { background-color: #F59E0B; }
+    .hover-bright:hover { 
+        background-color: rgba(255, 255, 255, 0.03) !important; 
+    }
+
+    /* ── SPATIAL BADGES ── */
+    .badge-status-spatial {
+        font-size: 0.6rem;
+        font-weight: 800;
+        padding: 4px 10px;
+        border-radius: 6px;
+        display: inline-flex;
+        align-items: center;
+        border: 1px solid transparent;
+        letter-spacing: 0.5px;
+    }
+    .status-settled { background: rgba(0, 255, 213, 0.1); color: #00ffd5; border-color: rgba(0, 255, 213, 0.2); }
+    .status-pending { background: rgba(255, 165, 0, 0.1); color: #ffa500; border-color: rgba(255, 165, 0, 0.2); }
+    .status-estimate { background: rgba(157, 124, 255, 0.1); color: #9d7cff; border-color: rgba(157, 124, 255, 0.2); }
+    .status-other { background: rgba(255, 255, 255, 0.05); color: #a9b7c8; }
+
+    /* ── SPATIAL ACTIONS ── */
+    .btn-spatial-action {
+        text-decoration: none;
+        font-size: 0.65rem;
+        font-weight: 900;
+        padding: 8px 16px;
+        border-radius: 8px;
+        transition: all 0.4s var(--ease-spatial);
+        display: inline-flex;
+        align-items: center;
+    }
+    .btn-cyan-glow {
+        background: #00ffd5;
+        color: #080a0f !important;
+        box-shadow: 0 0 20px rgba(0, 255, 213, 0.3);
+    }
+    .btn-cyan-glow:hover {
+        transform: translateY(-2px) scale(1.05);
+        box-shadow: 0 0 30px rgba(0, 255, 213, 0.5);
+    }
+    .btn-spatial-action.border-glass:hover {
+        background: rgba(255,255,255,0.1);
+        border-color: #00ffd5;
+        color: #00ffd5 !important;
+    }
 </style>
 {% endblock %}

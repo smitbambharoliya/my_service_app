@@ -1,103 +1,173 @@
 {% extends 'admin/admin_base.html.twig' %}
 
-{% block title %}Manage Bookings - Admin{% endblock %}
-{% block page_title %}Manage Bookings{% endblock %}
-{% block breadcrumb %}<li class="breadcrumb-item active">Bookings</li>{% endblock %}
+{% block title %}Mission Logs — ServiceHub Admin{% endblock %}
+{% block page_title %}Mission Control{% endblock %}
+{% block breadcrumb %}<li class="breadcrumb-item active text-teal">Mission Logs</li>{% endblock %}
 
 {% block body %}
-<div class="d-flex align-items-center justify-content-between mb-4">
-    <div>
-        <h4 style="color:var(--admin-text);font-weight:700;margin:0;">All Bookings</h4>
-        <p style="color:var(--admin-text-muted);font-size:0.85rem;margin:4px 0 0;">Total: <strong style="color:var(--admin-text);">{{ bookings.getTotalItemCount() }}</strong> bookings on platform</p>
+<div class="reveal-3d">
+    {# ── ANALYTICS HEADER ── #}
+    <div class="d-flex align-items-center justify-content-between mb-5">
+        <div>
+            <span class="text-xxs fw-800 letter-spacing-2 text-teal d-block mb-1">GLOBAL LEDGER</span>
+            <h2 class="luxury-serif text-pure mb-0">Platform Expeditions</h2>
+            <p class="text-dim text-xs mt-2">
+                Total synchronized nodes: <strong class="text-white">{{ bookings.getTotalItemCount() }}</strong>
+            </p>
+        </div>
+        <div class="d-flex gap-3">
+            <a href="{{ path('app_admin_bookings_export') }}" class="btn-luxury py-2 px-4" style="font-size: 0.75rem; background: rgba(0,255,213,0.1); border-color: var(--accent-cyan); color: var(--accent-cyan) !important;">
+                <i class="fas fa-file-export me-2"></i> EXPORT DATA
+            </a>
+        </div>
     </div>
-    <a href="{{ path('app_admin_bookings_export') }}" class="btn-admin btn-admin-outline" style="font-size:0.85rem;padding:8px 16px;">
-        <i class="fas fa-file-export me-1"></i> Export to CSV
-    </a>
+
+    {# ── MISSION GRID ── #}
+    <div class="row g-4">
+        {% for booking in bookings %}
+            <div class="col-xl-6 col-xxl-4">
+                <div class="glass-card p-0 overflow-hidden border-glow-hover h-100 d-flex flex-column">
+                    {# Card Header #}
+                    <div class="p-4 d-flex justify-content-between align-items-start border-bottom border-white border-opacity-5">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="p-2 rounded-3 bg-surface border-glass">
+                                <i class="fas fa-satellite text-teal"></i>
+                            </div>
+                            <div>
+                                <div class="text-xxs text-dim fw-800">NODE ID</div>
+                                <code class="text-white small">#{{ booking.id|slice(0,8) }}</code>
+                            </div>
+                        </div>
+                        {% if booking.status == 'pending' %}
+                            <span class="badge-status status-pending">PENDING</span>
+                        {% elseif booking.status == 'confirmed' %}
+                            <span class="badge-status status-active">ACTIVE</span>
+                        {% else %}
+                            <span class="badge-status status-confirmed">CONCLUDED</span>
+                        {% endif %}
+                    </div>
+
+                    {# Card Body #}
+                    <div class="p-4 flex-grow-1">
+                        <div class="mb-4">
+                            <h4 class="luxury-serif text-white h5 mb-1">{{ booking.service.title }}</h4>
+                            <span class="text-teal fw-bold" style="font-size: 0.9rem;">₹{{ booking.service.price|number_format }}</span>
+                        </div>
+
+                        <div class="d-flex align-items-center gap-3 p-3 rounded-4 bg-surface mb-3">
+                            <div class="user-avatar" style="width: 38px; height: 38px; font-size: 0.8rem; background: linear-gradient(135deg, #4ca7ff, #00ffd5);">
+                                {{ booking.customer.email|slice(0,1)|upper }}
+                            </div>
+                            <div class="overflow-hidden">
+                                <div class="text-xxs text-dim fw-800">CLIENT IDENTITY</div>
+                                <div class="text-white text-truncate small fw-600">{{ booking.customer.email }}</div>
+                            </div>
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-6">
+                                <div class="text-xxs text-dim fw-800 mb-1">STAMP</div>
+                                <div class="text-white small fw-bold"><i class="far fa-calendar me-2"></i>{{ booking.bookingDate|date('d M, Y') }}</div>
+                            </div>
+                            <div class="col-6 text-end">
+                                <div class="text-xxs text-dim fw-800 mb-1">TELEMETRY</div>
+                                <div class="text-white small fw-bold"><i class="far fa-clock me-2"></i>{{ booking.bookingDate|date('H:i') }}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {# Card Footer / Actions #}
+                    <div class="p-3 bg-surface border-top border-white border-opacity-5 mt-auto">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="d-flex gap-2">
+                                {# Status Transition Controls #}
+                                {% if booking.status == 'pending' %}
+                                    <form action="{{ path('app_admin_booking_status', {'id': booking.id}) }}" method="post" class="m-0">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('status' ~ booking.id) }}">
+                                        <input type="hidden" name="status" value="confirmed">
+                                        <button class="btn-action-spatial text-teal" title="Confirm Link">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                    </form>
+                                {% elseif booking.status == 'confirmed' %}
+                                    <form action="{{ path('app_admin_booking_status', {'id': booking.id}) }}" method="post" class="m-0">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('status' ~ booking.id) }}">
+                                        <input type="hidden" name="status" value="completed">
+                                        <button class="btn-action-spatial text-blue" title="Finalize Mission">
+                                            <i class="fas fa-check-double"></i>
+                                        </button>
+                                    </form>
+                                {% endif %}
+                                
+                                <form action="{{ path('app_admin_booking_delete', {'id': booking.id}) }}" method="post" class="m-0" onsubmit="return confirm('Terminate this mission log?');">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ booking.id) }}">
+                                    <button class="btn-action-spatial text-red" title="Decommission">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </form>
+                            </div>
+                            <span class="text-xxs text-dim italic">SECURE LOG ACTIVE</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="col-12">
+                <div class="glass-card py-5 text-center border-dashed">
+                    <i class="fas fa-inbox fs-1 text-dim mb-4"></i>
+                    <h4 class="luxury-serif">Void detected</h4>
+                    <p class="text-dim small">No mission protocols have been initialized on the platform.</p>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    {# ── PAGINATION ── #}
+    <div class="d-flex justify-content-center mt-5">
+        <div class="glass-card p-2 border-0 shadow-none">
+            {{ knp_pagination_render(bookings) }}
+        </div>
+    </div>
 </div>
 
-<div class="admin-card">
-    <div class="table-responsive">
-        <table class="admin-table">
-            <thead>
-                <tr>
-                    <th>Booking ID</th>
-                    <th>Service</th>
-                    <th>Customer</th>
-                    <th>Date</th>
-                    <th>Status</th>
-                    <th style="text-align:right;padding-right:24px;">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for booking in bookings %}
-                <tr>
-                    <td style="color:var(--admin-text-muted);font-size:0.8rem;">#{{ booking.id }}</td>
-                    <td>
-                        <div style="font-weight:600;color:var(--admin-text);font-size:0.875rem;">{{ booking.service.title }}</div>
-                        <div style="font-size:0.78rem;color:var(--admin-text-muted);">₹{{ booking.service.price }}</div>
-                    </td>
-                    <td>
-                        <div style="display:flex;align-items:center;gap:10px;">
-                            <div class="user-avatar" style="background:linear-gradient(135deg,#22c55e,#15803d);">{{ booking.customer.email|slice(0,1)|upper }}</div>
-                            <div style="font-size:0.82rem;color:var(--admin-text);">{{ booking.customer.email }}</div>
-                        </div>
-                    </td>
-                    <td style="color:var(--admin-text-muted);font-size:0.82rem;">{{ booking.bookingDate|date('d M, Y') }}</td>
-                    <td>
-                        {% if booking.status == 'pending' %}
-                            <span class="badge-admin badge-admin-yellow"><i class="fas fa-clock me-1"></i>Pending</span>
-                        {% elseif booking.status == 'confirmed' %}
-                            <span class="badge-admin badge-admin-blue"><i class="fas fa-check me-1"></i>Confirmed</span>
-                        {% else %}
-                            <span class="badge-admin badge-admin-green"><i class="fas fa-check-double me-1"></i>Completed</span>
-                        {% endif %}
-                    </td>
-                    <td style="text-align:right;padding-right:20px;">
-                        <div style="display:flex;align-items:center;justify-content:flex-end;gap:6px;flex-wrap:wrap;">
-                            {# Status Update #}
-                            {% if booking.status == 'pending' %}
-                                <form action="{{ path('app_admin_booking_status', {'id': booking.id}) }}" method="post">
-                                    <input type="hidden" name="_token" value="{{ csrf_token('status' ~ booking.id) }}">
-                                    <input type="hidden" name="status" value="confirmed">
-                                    <button class="btn-admin btn-admin-blue" title="Confirm Booking">
-                                        <i class="fas fa-check"></i> Confirm
-                                    </button>
-                                </form>
-                            {% elseif booking.status == 'confirmed' %}
-                                <form action="{{ path('app_admin_booking_status', {'id': booking.id}) }}" method="post">
-                                    <input type="hidden" name="_token" value="{{ csrf_token('status' ~ booking.id) }}">
-                                    <input type="hidden" name="status" value="completed">
-                                    <button class="btn-admin btn-admin-green" title="Mark as Completed">
-                                        <i class="fas fa-check-double"></i> Complete
-                                    </button>
-                                </form>
-                            {% endif %}
-                            {# Delete #}
-                            <form action="{{ path('app_admin_booking_delete', {'id': booking.id}) }}" method="post" onsubmit="return confirm('Remove this booking from the platform?');">
-                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ booking.id) }}">
-                                <button class="btn-admin btn-admin-red" title="Delete">
-                                    <i class="fas fa-times"></i>
-                                </button>
-                            </form>
-                        </div>
-                    </td>
-                </tr>
-                {% else %}
-                <tr>
-                    <td colspan="6">
-                        <div class="empty-state">
-                            <i class="fas fa-calendar-alt"></i>
-                            <p>No bookings found on the platform yet.</p>
-                        </div>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-    
-    <div class="d-flex justify-content-center mt-4">
-        {{ knp_pagination_render(bookings) }}
-    </div>
-</div>
+<style>
+    .border-glow-hover:hover {
+        border-color: rgba(0, 255, 213, 0.3) !important;
+        box-shadow: 0 0 40px rgba(0, 255, 213, 0.08) !important;
+        transform: translateY(-5px);
+    }
+    .bg-surface { 
+        background: rgba(255, 255, 255, 0.03); 
+    }
+    .btn-action-spatial {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: all 0.3s var(--ease-spatial);
+        cursor: pointer;
+    }
+    .btn-action-spatial:hover {
+        background: rgba(255, 255, 255, 0.1);
+        transform: scale(1.1);
+        border-color: currentColor;
+    }
+    /* Pagination Overrides to match theme */
+    .pagination .page-link {
+        background: transparent;
+        border: none;
+        color: var(--theme-muted);
+        margin: 0 5px;
+        border-radius: 8px;
+    }
+    .pagination .active .page-link {
+        background: var(--theme-primary-soft);
+        color: var(--accent-cyan);
+        font-weight: 800;
+    }
+</style>
 {% endblock %}

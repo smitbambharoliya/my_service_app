@@ -3,11 +3,11 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>{% block title %}Atelier — ServiceHub Dashboard{% endblock %}</title>
+        <title>{% block title %}ServiceHub Dashboard{% endblock %}</title>
         
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;500;600;700&family=Public+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
         
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -17,334 +17,285 @@
 
         <style>
             :root {
-                --sb-w: 280px;
-                --tb-h: 70px;
-                --theme-bg: #faf9fa;
-                --theme-surface: #ffffff;
-                --theme-border: #e2e8f0;
-                --theme-text: #1b1c1d;
-                --theme-muted: #3c4a45;
-                --theme-primary: #006b5a;
-                --theme-primary-soft: rgba(0, 107, 90, 0.05);
-
-                /* Dashboard Tokens */
-                --bg-glass: #ffffff;
-                --glass-border: #e2e8f0;
-                --shadow-elevated: 0 10px 30px rgba(0, 0, 0, 0.03), 0 0 0 1px rgba(0, 0, 0, 0.02);
-            }
-
-            h1, h2, h3, h4, h5, h6, .luxury-serif, .text-pure { 
-                font-family: 'Noto Serif', serif;
-                color: var(--theme-text) !important; 
-            }
-            .text-silver { color: #475569 !important; }
-            .text-dim { color: var(--theme-muted) !important; }
-            
-            .btn-luxury {
-                background: linear-gradient(135deg, #006b5a 0%, #33ccaf 100%);
-                color: #ffffff !important;
-                border: none;
-                border-radius: 50px;
-                font-family: 'Public Sans', sans-serif;
-                font-weight: 700;
-                font-size: 0.75rem;
-                letter-spacing: 0.1em;
-                text-transform: uppercase;
-                transition: all 0.3s var(--ease-luxury);
-                box-shadow: 0 4px 15px rgba(0, 107, 90, 0.2);
-            }
-            .btn-luxury:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 8px 25px rgba(0, 107, 90, 0.3);
-                color: #ffffff;
-            }
-            .btn-outline-luxury {
-                background: transparent;
-                color: var(--theme-primary) !important;
-                border: 1px solid rgba(0, 107, 90, 0.3);
-                border-radius: 50px;
-                font-family: 'Public Sans', sans-serif;
-                font-weight: 700;
-                font-size: 0.75rem;
-                letter-spacing: 0.1em;
-                text-transform: uppercase;
-                transition: all 0.3s var(--ease-luxury);
-            }
-            .btn-outline-luxury:hover {
-                border-color: var(--theme-primary);
-                background: rgba(0, 107, 90, 0.05);
+                --accent-teal: #00ffd5;
+                --accent-purple: #9d7cff;
+                --bg-obsidian: #080a0f;
+                --glass-border: rgba(255, 255, 255, 0.12);
+                --sb-w: 284px;
+                --tb-h: 74px;
+                --ease-spatial: cubic-bezier(0.23, 1, 0.32, 1);
             }
 
             body {
-                background: var(--theme-bg);
-                color: var(--theme-text);
+                background: var(--bg-obsidian);
+                background-image: 
+                    radial-gradient(at 0% 0%, rgba(0, 255, 213, 0.05) 0px, transparent 50%),
+                    radial-gradient(at 100% 100%, rgba(157, 124, 255, 0.05) 0px, transparent 50%);
+                color: #f7fbff;
                 display: flex;
                 min-height: 100vh;
                 overflow-x: hidden;
-                font-family: 'Inter', sans-serif;
+                font-family: 'Plus Jakarta Sans', sans-serif;
             }
 
-            /* ── SIDEBAR (Alexandria Style) ── */
+            /* ── FLOATING SIDEBAR ── */
             #sidebar {
                 width: var(--sb-w);
-                background: #ffffff;
-                border-right: 1px solid var(--theme-border);
+                background: rgba(13, 17, 23, 0.72);
+                backdrop-filter: blur(40px) saturate(160%);
+                -webkit-backdrop-filter: blur(40px) saturate(160%);
+                border: 1px solid var(--glass-border);
+                border-radius: 28px;
+                margin: 18px;
+                height: calc(100vh - 36px);
+                position: fixed;
+                left: 0; top: 0;
+                z-index: 1000;
                 display: flex;
                 flex-direction: column;
-                position: fixed; top: 0; left: 0; bottom: 0;
-                z-index: 1000;
-                transition: transform 0.4s var(--ease-luxury);
+                box-shadow: 0 30px 60px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.1);
+                transition: transform 0.5s var(--ease-spatial);
             }
 
             .sb-brand {
-                height: var(--tb-h);
-                display: flex; align-items: center; padding: 0 30px;
-                font-family: 'Noto Serif', serif;
-                font-weight: 700; font-size: 1.5rem; color: var(--theme-text);
-                border-bottom: 1px solid var(--theme-border);
-                letter-spacing: -0.02em;
+                padding: 30px;
+                font-family: 'Playfair Display', serif;
+                font-weight: 800;
+                font-size: 1.6rem;
+                border-bottom: 1px solid var(--glass-border);
             }
-            .sb-brand span { color: var(--theme-primary); font-style: italic; }
+            .sb-brand span { color: var(--accent-teal); text-shadow: 0 0 15px rgba(0,255,213,0.5); }
 
             .sb-user-card {
-                padding: 30px;
-                background: #faf9fa;
-                border-bottom: 1px solid var(--theme-border);
+                padding: 24px;
+                margin: 15px;
+                background: rgba(255,255,255,0.03);
+                border: 1px solid var(--glass-border);
+                border-radius: 20px;
             }
             
             .sb-user-orb {
-                width: 60px; height: 60px;
-                border-radius: 50%;
-                background: linear-gradient(135deg, #006b5a, #33ccaf);
-                margin-bottom: 20px;
+                width: 52px; height: 52px;
+                border-radius: 14px;
+                background: linear-gradient(135deg, var(--accent-teal), var(--accent-purple));
                 display: flex; align-items: center; justify-content: center;
-                font-family: 'Noto Serif', serif;
-                font-weight: 700; color: #ffffff; font-size: 1.8rem;
-                border: 2px solid #ffffff;
-                box-shadow: 0 4px 15px rgba(0, 107, 90, 0.1);
-            }
-            .sb-user-info .name { color: var(--theme-text); font-weight: 700; font-size: 1.1rem; margin-bottom: 2px; }
-            .sb-user-info .tier-label { 
-                font-family: 'Public Sans', sans-serif;
-                font-size: 0.6rem; color: var(--theme-muted); 
-                text-transform: uppercase; letter-spacing: 0.15em; font-weight: 800; 
+                font-weight: 800; color: #000; font-size: 1.4rem;
+                margin-bottom: 16px;
+                box-shadow: 0 0 20px rgba(0, 255, 213, 0.2);
             }
 
-            /* Gamification Tracker (Alexandria Emerald) */
-            .gamify-mini {
-                margin-top: 24px;
-                background: #ffffff;
-                padding: 15px;
-                border-radius: 12px;
-                border: 1px solid var(--theme-border);
+            .sb-nav-label {
+                font-size: 0.65rem; font-weight: 800; color: #64748b;
+                letter-spacing: 0.2em; margin: 25px 0 12px 25px;
             }
-            .gamify-progress-bar {
-                height: 4px;
-                background: #f1f5f9;
-                border-radius: 4px;
-                margin: 10px 0;
-                overflow: hidden;
+            .sb-nav {
+                flex: 1;
+                overflow-y: auto;
+                padding-bottom: 20px;
             }
-            .gamify-progress-fill {
-                height: 100%;
-                background: linear-gradient(90deg, #006b5a, #33ccaf);
-                border-radius: 4px;
-            }
-
-            /* Navigation Links */
-            .sb-nav { flex: 1; padding: 25px 15px; overflow-y: auto; }
             .sb-nav::-webkit-scrollbar { width: 4px; }
-            .sb-nav::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 5px; }
+            .sb-nav::-webkit-scrollbar-thumb { background: rgba(0,255,213,0.22); border-radius: 999px; }
 
-            .sb-nav-label { 
-                font-family: 'Public Sans', sans-serif;
-                font-size: 0.6rem; font-weight: 800; color: #94a3b8; 
-                text-transform: uppercase; letter-spacing: 0.2em; margin: 30px 0 10px 15px; 
-            }
-            
             .sb-link {
-                display: flex; align-items: center; gap: 15px;
-                padding: 12px 15px; border-radius: 12px;
-                color: var(--theme-muted); font-weight: 500; font-size: 0.9rem;
-                transition: all 0.2s;
-                margin-bottom: 5px;
+                margin: 4px 15px;
+                padding: 12px 16px;
+                border-radius: 14px;
+                color: rgba(255,255,255,0.65);
+                font-weight: 600; font-size: 0.88rem;
+                transition: all 0.3s var(--ease-spatial);
+                display: flex; align-items: center; gap: 14px;
                 text-decoration: none;
             }
-            .sb-link i { font-size: 1rem; width: 22px; color: #94a3b8; transition: all 0.2s; text-align: center; }
-            .sb-link:hover { 
-                background: #faf9fa;
-                color: var(--theme-text);
-            }
-            .sb-link:hover i { color: var(--theme-primary); }
-            
-            .sb-link.active {
-                background: var(--theme-primary-soft);
-                color: var(--theme-primary);
-                font-weight: 700;
-                border-left: 3px solid var(--theme-primary);
-                border-radius: 0 12px 12px 0;
-            }
-            .sb-link.active i { color: var(--theme-primary); }
-            
-            .text-red { color: #dc2626 !important; }
-            .text-red:hover { background: #fef2f2 !important; }
-            .text-red:hover { background: #fef2f2 !important; color: #dc2626 !important; }
-            .text-red:hover i { color: #ef4444 !important; }
 
-            /* ── MAIN CONTENT OVERRIDES ── */
+            .sb-link i { color: #475569; transition: inherit; }
+
+            .sb-link:hover {
+                background: rgba(255,255,255,0.05);
+                color: #fff;
+            }
+
+            .sb-link.active {
+                background: rgba(0, 255, 213, 0.1);
+                color: var(--accent-teal);
+                border: 1px solid rgba(0, 255, 213, 0.2);
+                box-shadow: 0 0 20px rgba(0, 255, 213, 0.05);
+            }
+            .sb-link.active i { color: var(--accent-teal); }
+            .sb-link.danger-link,
+            .sb-link.danger-link i {
+                color: #ff5d73;
+            }
+
+            /* ── MAIN CONTENT ISLAND ── */
             #main-wrapper {
-                margin-left: var(--sb-w);
-                flex: 1; display: flex; flex-direction: column;
+                margin-left: calc(var(--sb-w) + 36px);
+                flex: 1;
+                display: flex;
+                flex-direction: column;
                 min-width: 0;
             }
 
             .dashboard-topbar {
-                height: var(--tb-h);
-                background: rgba(255, 255, 255, 0.8);
-                backdrop-filter: blur(15px);
-                border-bottom: 1px solid var(--theme-border);
-                display: flex; align-items: center; justify-content: space-between;
-                padding: 0 40px;
-                position: sticky; top: 0; z-index: 100;
-            }
-            
-            .page-title-luxury { 
-                font-family: 'Plus Jakarta Sans', sans-serif; 
-                font-weight: 800; font-size: 1.25rem; color: var(--theme-text); 
+                margin: 18px 18px 0 0;
+                padding: 14px 28px;
+                background: rgba(8, 10, 15, 0.65);
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                border: 1px solid var(--glass-border);
+                border-radius: 22px;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                box-shadow: 0 15px 40px rgba(0,0,0,0.2);
             }
 
-            .content-area { padding: 40px; flex: 1; max-width: 1400px; width: 100%; margin: 0 auto; color: var(--theme-text); }
-            
-            /* Typography helpers overriding base dark theme texts if any */
-            .text-pure { color: var(--theme-text) !important; }
-            .text-silver { color: var(--theme-text) !important; }
-            .text-dim { color: var(--theme-muted) !important; }
-            .text-gradient {
-                background: linear-gradient(135deg, var(--theme-primary) 0%, #8b5cf6 100%) !important;
-                -webkit-background-clip: text !important;
-                background-clip: text !important;
-                -webkit-text-fill-color: transparent !important;
+            .content-area { 
+                padding: 30px 40px 60px 0; 
+                animation: spatialUp 0.8s var(--ease-spatial) forwards;
+                max-width: 1600px;
+                width: 100%;
             }
+
+            @keyframes spatialUp {
+                from { opacity: 0; transform: translateY(20px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+
+            .gamify-progress-bar { background: rgba(255,255,255,0.05); height: 5px; border-radius: 10px; overflow: hidden; margin-top: 10px;}
+            .gamify-progress-fill { background: var(--accent-teal); box-shadow: 0 0 15px var(--accent-teal); }
 
             @media (max-width: 1100px) {
-                #sidebar { transform: translateX(-100%); }
-                #sidebar.open { transform: translateX(0); box-shadow: 20px 0 60px rgba(0,0,0,0.1); }
+                #sidebar { transform: translateX(-120%); margin: 10px; }
+                #sidebar.open { transform: translateX(0); }
                 #main-wrapper { margin-left: 0; }
-                .dashboard-topbar { padding: 0 20px; }
+                .dashboard-topbar { margin: 10px; }
+                .content-area { padding: 20px; }
             }
         </style>
         {% block stylesheets %}{% endblock %}
     </head>
     <body class="{{ is_granted('ROLE_PROVIDER') ? 'provider-accent' : 'customer-accent' }}">
 
-    {# ── SIDEBAR ── #}
+    {# ── FLOATING SIDEBAR ── #}
     <aside id="sidebar">
         <div class="sb-brand">
             ServiceHub<span>.</span>
         </div>
 
-        <div class="sb-user-card">
-            <div class="sb-user-orb">
-                {{ app.user.fullName|slice(0,1)|upper }}
-            </div>
-            <div class="sb-user-info">
-                <div class="name">{{ app.user.fullName }}</div>
-                <div class="tier-label">{{ app.user.tier|upper }} MEMBER</div>
-            </div>
+        {% if app.user %}
+            <div class="sb-user-card">
+                <div class="sb-user-orb">
+                    {{ app.user.fullName|default(app.user.email)|slice(0,1)|upper }}
+                </div>
+                <div class="sb-user-info">
+                    <div class="name" style="font-weight: 800;">{{ app.user.fullName|default(app.user.email) }}</div>
+                    <div class="tier-label" style="color: var(--accent-teal);">{{ app.user.tier|default('Member')|upper }} ACTIVE</div>
+                </div>
 
-            {% set pts = app.user.reputationPoints %}
-            {% set tier = app.user.tier %}
-            {% if tier == 'Bronze' %}
-                {% set nextTier = 'Silver' %}{% set pct = (pts / 500 * 100)|round %}{% set level = 1 %}
-            {% elseif tier == 'Silver' %}
-                {% set nextTier = 'Gold' %}{% set pct = ((pts - 500) / 500 * 100)|round %}{% set level = 2 %}
-            {% elseif tier == 'Gold' %}
-                {% set nextTier = 'Platinum' %}{% set pct = ((pts - 1000) / 1500 * 100)|round %}{% set level = 3 %}
-            {% elseif tier == 'Platinum' %}
-                {% set nextTier = 'Aurora Elite' %}{% set pct = ((pts - 2500) / 2500 * 100)|round %}{% set level = 4 %}
-            {% else %}
-                {% set nextTier = 'Elite' %}{% set pct = 100 %}{% set level = 5 %}
-            {% endif %}
-            {% if pct > 100 %}{% set pct = 100 %}{% endif %}
-            {% if pct < 0 %}{% set pct = 0 %}{% endif %}
-            <div class="gamify-mini">
-                <div class="d-flex justify-content-between text-xxs fw-800 text-dim" style="font-size: 0.65rem;">
-                    <span>TO {{ nextTier|upper }}</span>
-                    <span class="text-pure">{{ pts }} PTS</span>
+                {% set pts = app.user.reputationPoints|default(0) %}
+                <div class="gamify-mini mt-3 pt-2 border-top border-secondary border-opacity-10">
+                    <div class="d-flex justify-content-between" style="font-size: 0.6rem; font-weight: 800;">
+                        <span class="text-muted">TIER PROGRESS</span>
+                        <span class="text-white">{{ pts }} PTS</span>
+                    </div>
+                    <div class="gamify-progress-bar">
+                        <div class="gamify-progress-fill" style="width: 65%;"></div>
+                    </div>
                 </div>
-                <div class="gamify-progress-bar">
-                    <div class="gamify-progress-fill" style="width: {{ pct }}%;"></div>
-                </div>
-                <div class="text-xxs text-dim" style="font-size: 0.65rem;">Level {{ level }} — {{ tier }} Member</div>
             </div>
-        </div>
+        {% endif %}
 
         <nav class="sb-nav">
-            <div class="sb-nav-label">MAIN MENU</div>
+            <div class="sb-nav-label">MAIN</div>
             {% set homeUrl = is_granted('ROLE_PROVIDER') ? path('app_provider_home') : path('app_home') %}
-            <a href="{{ homeUrl }}" class="sb-link">
+            <a href="{{ homeUrl }}" class="sb-link {{ app.request.get('_route') in ['app_home', 'app_provider_home'] ? 'active' : '' }}">
                 <i class="fa-solid fa-house-chimney"></i> Home
             </a>
             
-            {% if not is_granted('ROLE_PROVIDER') %}
-                <a href="{{ path('app_service_list') }}" class="sb-link">
-                    <i class="fa-solid fa-book-journal-whills"></i> All Services
-                </a>
-            {% endif %}
-            
             {% if is_granted('ROLE_PROVIDER') %}
+                <a href="{{ path('app_provider_dashboard') }}" class="sb-link {{ app.request.get('_route') == 'app_provider_dashboard' ? 'active' : '' }}">
+                    <i class="fa-solid fa-chart-line"></i> Dashboard
+                </a>
                 <a href="{{ path('app_provider_my_services') }}" class="sb-link {{ app.request.get('_route') == 'app_provider_my_services' ? 'active' : '' }}">
                     <i class="fa-solid fa-layer-group"></i> My Services
                 </a>
-                <a href="{{ path('app_provider_dashboard') }}" class="sb-link {{ app.request.get('_route') == 'app_provider_dashboard' ? 'active' : '' }}">
-                    <i class="fa-solid fa-book-open"></i> Dashboard
+                <a href="{{ path('app_service_new') }}" class="sb-link {{ app.request.get('_route') == 'app_service_new' ? 'active' : '' }}">
+                    <i class="fa-solid fa-circle-plus"></i> Add Service
+                </a>
+                <a href="{{ path('app_booking_provider_bookings') }}" class="sb-link {{ app.request.get('_route') == 'app_booking_provider_bookings' ? 'active' : '' }}">
+                    <i class="fa-solid fa-calendar-check"></i> Provider Bookings
+                </a>
+                <a href="{{ path('app_provider_billing_new') }}" class="sb-link {{ app.request.get('_route') == 'app_provider_billing_new' ? 'active' : '' }}">
+                    <i class="fa-solid fa-file-invoice"></i> Create Bill
                 </a>
             {% else %}
-                <a href="{{ path('app_booking_my_bookings') }}" class="sb-link {{ app.request.get('_route') == 'app_booking_my_bookings' ? 'active' : '' }}">
-                    <i class="fa-solid fa-layer-group"></i> My Bookings
+                <a href="{{ path('app_service_list') }}" class="sb-link {{ app.request.get('_route') == 'app_service_list' ? 'active' : '' }}">
+                    <i class="fa-solid fa-magnifying-glass"></i> Browse Services
                 </a>
                 <a href="{{ path('app_customer_dashboard') }}" class="sb-link {{ app.request.get('_route') == 'app_customer_dashboard' ? 'active' : '' }}">
-                    <i class="fa-solid fa-book-open"></i> My Dashboard
+                    <i class="fa-solid fa-gauge-high"></i> Dashboard
+                </a>
+                <a href="{{ path('app_booking_my_bookings') }}" class="sb-link {{ app.request.get('_route') == 'app_booking_my_bookings' ? 'active' : '' }}">
+                    <i class="fa-solid fa-calendar-days"></i> My Bookings
                 </a>
             {% endif %}
 
+            <div class="sb-nav-label">COMMUNICATION</div>
             <a href="{{ path('app_message_inbox') }}" class="sb-link {{ app.request.get('_route') starts with 'app_message_' ? 'active' : '' }}">
-                <i class="fa-regular fa-message"></i> Messages
+                <i class="fa-solid fa-comments"></i> Messages
             </a>
-
             <a href="{{ path('app_notification_index') }}" class="sb-link {{ app.request.get('_route') starts with 'app_notification_' ? 'active' : '' }}">
-                <i class="fa-regular fa-bell"></i> Alerts
-            </a>
-
-            <div class="sb-nav-label">MY PROFILE</div>
-            <a href="{{ path('app_profile') }}" class="sb-link {{ app.request.get('_route') == 'app_profile' ? 'active' : '' }}">
-                <i class="fa-regular fa-id-badge"></i> Profile Settings
-            </a>
-            <a href="{{ path('app_billing_index') }}" class="sb-link {{ app.request.get('_route') == 'app_billing_index' ? 'active' : '' }}">
-                <i class="fa-solid fa-vault"></i> Billing & Payments
+                <i class="fa-solid fa-bell"></i> Notifications
             </a>
 
             <div class="sb-nav-label">ACCOUNT</div>
-            <a href="{{ path('app_logout') }}" class="sb-link text-red">
-                <i class="fa-solid fa-power-off"></i> Sign Out
+            <a href="{{ path('app_profile') }}" class="sb-link {{ app.request.get('_route') == 'app_profile' ? 'active' : '' }}">
+                <i class="fa-solid fa-user"></i> Profile
             </a>
+            <a href="{{ path('app_profile_edit') }}" class="sb-link {{ app.request.get('_route') == 'app_profile_edit' ? 'active' : '' }}">
+                <i class="fa-solid fa-pen-to-square"></i> Edit Profile
+            </a>
+            <a href="{{ path('app_billing_index') }}" class="sb-link {{ app.request.get('_route') starts with 'app_billing_' ? 'active' : '' }}">
+                <i class="fa-solid fa-credit-card"></i> Billing
+            </a>
+            {% if is_granted('ROLE_PROVIDER') %}
+                <a href="{{ path('app_provider_onboarding') }}" class="sb-link {{ app.request.get('_route') == 'app_provider_onboarding' ? 'active' : '' }}">
+                    <i class="fa-solid fa-list-check"></i> Provider Setup
+                </a>
+            {% endif %}
+            {% if is_granted('ROLE_ADMIN') %}
+                <div class="sb-nav-label">ADMIN</div>
+                <a href="{{ path('app_admin_dashboard') }}" class="sb-link {{ app.request.get('_route') starts with 'app_admin_' ? 'active' : '' }}">
+                    <i class="fa-solid fa-shield-halved"></i> Admin Panel
+                </a>
+            {% endif %}
+            <div class="sb-nav-label">SESSION</div>
+            {% if app.user %}
+                <a href="{{ path('app_logout') }}" class="sb-link danger-link">
+                    <i class="fa-solid fa-power-off"></i> Sign Out
+                </a>
+            {% else %}
+                <a href="{{ path('app_login') }}" class="sb-link">
+                    <i class="fa-solid fa-right-to-bracket"></i> Sign In
+                </a>
+            {% endif %}
         </nav>
     </aside>
 
     <div id="main-wrapper">
         <header class="dashboard-topbar">
             <div class="d-flex align-items-center gap-3">
-                <button class="bg-transparent border-0 text-teal d-xl-none fs-4" style="color:var(--theme-primary);" onclick="document.getElementById('sidebar').classList.toggle('open')">
+                <button class="bg-transparent border-0 text-teal d-xl-none fs-4" onclick="document.getElementById('sidebar').classList.toggle('open')">
                     <i class="fa-solid fa-bars-staggered"></i>
                 </button>
-                <div class="page-title-luxury">{% block page_title %}Dashboard{% endblock %}</div>
+                <div class="page-title-luxury">{% block page_title %}Operational Intelligence{% endblock %}</div>
             </div>
             <div class="d-flex align-items-center gap-4">
                 {% if app.user %}
                     {% include 'partials/_notification_bell.html.twig' %}
                 {% endif %}
-                <div class="d-flex align-items-center gap-2 text-dim fw-bold" style="font-size: 0.65rem; letter-spacing: 0.1em;">
-                    <i class="fa-solid fa-fingerprint"></i> PROTOCOL v2.4
+                <div class="d-none d-md-flex align-items-center gap-2 text-dim fw-bold" style="font-size: 0.6rem; letter-spacing: 0.15em;">
+                    <i class="fa-solid fa-satellite-dish text-teal"></i> LINK ACTIVE
                 </div>
             </div>
         </header>
@@ -355,20 +306,6 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const widgets = document.querySelectorAll('.glass-card, .prof-card, .designer-profile-wrap > div');
-            widgets.forEach((w, i) => {
-                w.style.opacity = '0';
-                w.style.transform = 'translateY(15px)';
-                setTimeout(() => {
-                    w.style.transition = 'all 0.6s ease';
-                    w.style.opacity = '1';
-                    w.style.transform = 'translateY(0)';
-                }, i * 60);
-            });
-        });
-    </script>
     {% block javascripts %}{% endblock %}
     </body>
 </html>

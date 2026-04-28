@@ -3,54 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Your ServiceHub OTP</title>
+    <title>ServiceHub Authorization Cipher</title>
 </head>
-<body style="margin:0;padding:0;background-color:#f4f7fb;font-family:'Segoe UI',Arial,sans-serif;">
-    <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f7fb;padding:40px 0;">
+<body style="margin:0;padding:0;background-color:#05070a;font-family:'Plus Jakarta Sans',Helvetica,Arial,sans-serif;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#05070a;padding:60px 20px;">
         <tr>
             <td align="center">
-                <table width="580" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
+                <table width="100%" cellpadding="0" cellspacing="0" style="max-width:580px;background:#0b111a;border-radius:16px;border:1px solid #1a2636;overflow:hidden;box-shadow:0 20px 40px rgba(0,0,0,0.5);">
                     
-                    <!-- Header -->
                     <tr>
-                        <td style="background:linear-gradient(135deg,#4f46e5,#7c3aed);padding:40px 40px 36px;text-align:center;">
-                            <h1 style="color:#ffffff;margin:0;font-size:28px;font-weight:700;letter-spacing:-0.5px;">ServiceHub</h1>
-                            <p style="color:rgba(255,255,255,0.8);margin:6px 0 0;font-size:14px;">Email Verification</p>
+                        <td style="background:radial-gradient(circle at top, rgba(0, 255, 213, 0.05), transparent 80%);padding:40px 40px 30px;text-align:center;border-bottom:1px solid #1a2636;">
+                            <div style="color:#00ffd5;font-family:'Fira Code','Courier New',Courier,monospace;font-size:11px;font-weight:900;letter-spacing:4px;margin-bottom:12px;">SECURITY PROTOCOL</div>
+                            <h1 style="color:#ffffff;margin:0;font-size:24px;font-weight:900;letter-spacing:1px;text-transform:uppercase;">Identity Verification</h1>
                         </td>
                     </tr>
 
-                    <!-- Body -->
                     <tr>
                         <td style="padding:40px;">
-                            <h2 style="color:#1e293b;font-size:22px;margin:0 0 12px;">Hello, {{ name }}! 👋</h2>
-                            <p style="color:#64748b;font-size:15px;line-height:1.6;margin:0 0 28px;">
-                                Welcome to <strong>ServiceHub</strong>! Your account has been created successfully.<br>
-                                Use the verification code below to complete your registration:
+                            <h2 style="color:#ffffff;font-size:18px;margin:0 0 16px;font-weight:800;">Greetings, {{ name|upper }}<span style="color:#00ffd5;">.</span></h2>
+                            <p style="color:#94a3b8;font-size:15px;line-height:1.7;margin:0 0 32px;">
+                                Your node has been registered on the <strong>ServiceHub</strong> network. To finalize your access clearance, input the authorization cipher provided below.
                             </p>
 
-                            <!-- OTP Box -->
-                            <div style="background:linear-gradient(135deg,#eff6ff,#f0fdf4);border:2px dashed #6366f1;border-radius:12px;text-align:center;padding:28px;">
-                                <p style="color:#64748b;font-size:13px;margin:0 0 10px;text-transform:uppercase;letter-spacing:2px;font-weight:600;">Your OTP Code</p>
-                                <h1 style="color:#4f46e5;font-size:48px;font-weight:700;margin:0;letter-spacing:10px;font-family:'Courier New',monospace;">{{ otp }}</h1>
-                                <p style="color:#94a3b8;font-size:12px;margin:12px 0 0;">Valid for 10 minutes only</p>
+                            <div style="background-color:#05070a;border:1px dashed #00ffd5;border-radius:12px;text-align:center;padding:32px;margin-bottom:32px;">
+                                <p style="color:#64748b;font-size:11px;margin:0 0 12px;text-transform:uppercase;letter-spacing:3px;font-weight:800;font-family:'Fira Code','Courier New',Courier,monospace;">ONE-TIME CIPHER</p>
+                                <h1 style="color:#00ffd5;font-size:42px;font-weight:900;margin:0;letter-spacing:12px;font-family:'Fira Code','Courier New',Courier,monospace;text-shadow:0 0 15px rgba(0,255,213,0.3);">{{ otp }}</h1>
                             </div>
 
-                            <p style="color:#64748b;font-size:14px;line-height:1.6;margin:28px 0 0;">
-                                ⚠️ <strong>Security Notice:</strong> Never share this OTP with anyone. ServiceHub will never ask for your OTP via phone or chat.
-                            </p>
+                            <table width="100%" cellpadding="0" cellspacing="0">
+                                <tr>
+                                    <td style="padding:16px;background:rgba(255,93,115,0.05);border:1px solid rgba(255,93,115,0.2);border-radius:8px;margin-bottom:20px;display:block;">
+                                        <p style="color:#ff5d73;font-size:12px;line-height:1.6;margin:0;font-weight:700;">
+                                            <strong style="letter-spacing:1px;">CRITICAL:</strong> Never transmit this cipher over unsecured channels. ServiceHub will never request this code via external comms.
+                                        </p>
+                                    </td>
+                                </tr>
+                            </table>
 
-                            <p style="color:#94a3b8;font-size:13px;margin:20px 0 0;">
-                                If you didn't create an account on ServiceHub, please ignore this email.
+                            <p style="color:#475569;font-size:12px;line-height:1.6;margin:20px 0 0;text-align:center;">
+                                Cipher expires in <strong style="color:#ffffff;">10 minutes</strong>.<br>
+                                If you did not initiate this sequence, delete this transmission immediately.
                             </p>
                         </td>
                     </tr>
 
-                    <!-- Footer -->
                     <tr>
-                        <td style="background:#f8fafc;padding:24px 40px;border-top:1px solid #e2e8f0;text-align:center;">
-                            <p style="color:#94a3b8;font-size:12px;margin:0;">
-                                © {{ "now"|date("Y") }} ServiceHub. All rights reserved.<br>
-                                This is an automated message, please do not reply.
+                        <td style="background-color:#05070a;padding:24px 40px;border-top:1px solid #1a2636;text-align:center;">
+                            <p style="color:#334155;font-size:10px;margin:0;font-family:'Fira Code','Courier New',Courier,monospace;letter-spacing:2px;text-transform:uppercase;">
+                                &copy; {{ "now"|date("Y") }} ServiceHub Obsidian X<br>
+                                AUTOMATED SYSTEM TRANSMISSION
                             </p>
                         </td>
                     </tr>

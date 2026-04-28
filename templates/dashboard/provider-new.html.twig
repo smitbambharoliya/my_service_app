@@ -1,452 +1,202 @@
-{% extends 'base-new.html.twig' %}
+{% extends 'dashboard_base.html.twig' %}
 
-{% block title %}Atelier — ServiceHub Provider Dashboard{% endblock %}
-
-{% block stylesheets %}
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-<style>
-    .dashboard-container {
-        padding: 3rem 2rem;
-        background: linear-gradient(135deg, 
-            rgba(239, 68, 68, 0.02) 0%, 
-            rgba(245, 158, 11, 0.01) 50%, 
-            rgba(139, 92, 246, 0.02) 100%);
-    }
-
-    .dashboard-header {
-        margin-bottom: 3rem;
-    }
-
-    .dashboard-header h1 {
-        font-size: 3rem;
-        margin-bottom: 0.5rem;
-    }
-
-    .dashboard-header p {
-        color: var(--text-muted);
-        font-size: 1rem;
-    }
-
-    .dashboard-widgets {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 1.5rem;
-        margin-bottom: 3rem;
-    }
-
-    .widget {
-        padding: 2rem;
-        border-radius: var(--r-lg);
-        backdrop-filter: blur(20px);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        background: rgba(36, 48, 68, 0.52);
-    }
-
-    .widget.red { 
-        background: rgba(239, 68, 68, 0.03); 
-        border: 1px solid rgba(239, 68, 68, 0.2); 
-    }
-
-    .widget.gold { 
-        background: rgba(245, 158, 11, 0.03); 
-        border: 1px solid rgba(245, 158, 11, 0.2); 
-    }
-
-    .widget.violet { 
-        background: rgba(139, 92, 246, 0.03); 
-        border: 1px solid rgba(139, 92, 246, 0.2); 
-    }
-
-    .widget-label {
-        font-size: 0.65rem;
-        font-weight: 800;
-        color: var(--text-muted);
-        text-transform: uppercase;
-        letter-spacing: 0.15em;
-        margin-bottom: 1rem;
-    }
-
-    .widget-value {
-        font-size: 2.5rem;
-        font-family: 'Playfair Display', serif;
-        font-weight: 700;
-        margin-bottom: 0.5rem;
-        line-height: 1;
-    }
-
-    .widget-value.red { color: var(--accent-red); }
-    .widget-value.gold { color: var(--accent-gold); }
-    .widget-value.violet { color: var(--accent-violet); }
-
-    .widget-subtext {
-        font-size: 0.75rem;
-        color: var(--text-dim);
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-    }
-
-    .widget-trend {
-        font-size: 0.8rem;
-        margin-top: 0.5rem;
-        color: var(--accent-teal);
-    }
-
-    .dashboard-row {
-        display: grid;
-        grid-template-columns: 2fr 1fr;
-        gap: 1.5rem;
-        margin-bottom: 3rem;
-    }
-
-    @media (max-width: 1024px) {
-        .dashboard-row {
-            grid-template-columns: 1fr;
-        }
-    }
-
-    .chart-card {
-        padding: 2rem;
-        border-radius: var(--r-lg);
-        background: rgba(36, 48, 68, 0.52);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        backdrop-filter: blur(20px);
-    }
-
-    .chart-title {
-        font-family: 'Playfair Display', serif;
-        font-size: 1.5rem;
-        margin-bottom: 0.5rem;
-    }
-
-    .chart-subtitle {
-        font-size: 0.7rem;
-        color: var(--text-dim);
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        margin-bottom: 1.5rem;
-    }
-
-    .chart-container {
-        position: relative;
-        height: 350px;
-        margin-bottom: 2rem;
-    }
-
-    .performance-metrics {
-        display: grid;
-        gap: 1rem;
-    }
-
-    .metric-item {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        padding: 1rem;
-        border-radius: var(--r-md);
-        background: rgba(255, 255, 255, 0.02);
-    }
-
-    .metric-icon {
-        width: 40px;
-        height: 40px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 8px;
-        background: rgba(245, 158, 11, 0.1);
-        color: var(--accent-gold);
-    }
-
-    .metric-info {
-        flex: 1;
-    }
-
-    .metric-label {
-        font-size: 0.8rem;
-        color: var(--text-muted);
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-    }
-
-    .metric-value {
-        font-weight: 600;
-        font-size: 1.1rem;
-        color: var(--text-pure);
-    }
-
-    .booking-cards-container {
-        display: grid;
-        gap: 1.5rem;
-    }
-
-    .booking-card {
-        padding: 1.5rem;
-        padding-left: 2rem;
-        border-radius: var(--r-lg);
-        background: rgba(36, 48, 68, 0.52);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-left: 4px solid;
-        backdrop-filter: blur(20px);
-        transition: all 0.3s;
-    }
-
-    .booking-card.pending { border-left-color: rgba(245, 158, 11, 0.6); }
-    .booking-card.confirmed { border-left-color: rgba(139, 92, 246, 0.6); }
-    .booking-card.completed { border-left-color: rgba(16, 185, 129, 0.6); }
-
-    .booking-card:hover {
-        transform: translateX(4px);
-        box-shadow: 0 0 30px rgba(0, 0, 0, 0.2);
-    }
-
-    .booking-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 1rem;
-    }
-
-    .booking-title {
-        font-weight: 600;
-        color: var(--text-pure);
-    }
-
-    .booking-body {
-        font-size: 0.9rem;
-        color: var(--text-silver);
-        margin-bottom: 1rem;
-        line-height: 1.6;
-    }
-
-    .booking-footer {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        font-size: 0.8rem;
-        color: var(--text-muted);
-    }
-
-    .action-buttons {
-        display: flex;
-        gap: 0.75rem;
-    }
-
-    .action-btn {
-        padding: 0.5rem 1rem;
-        border-radius: 8px;
-        background: rgba(245, 158, 11, 0.1);
-        border: 1px solid rgba(245, 158, 11, 0.2);
-        color: var(--accent-gold);
-        font-size: 0.75rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s;
-        text-decoration: none;
-    }
-
-    .action-btn:hover {
-        background: rgba(245, 158, 11, 0.2);
-        border-color: rgba(245, 158, 11, 0.4);
-    }
-
-    .action-btn.accept {
-        background: rgba(16, 185, 129, 0.1);
-        border-color: rgba(16, 185, 129, 0.2);
-        color: var(--accent-teal);
-    }
-
-    .action-btn.accept:hover {
-        background: rgba(16, 185, 129, 0.2);
-        border-color: rgba(16, 185, 129, 0.4);
-    }
-</style>
-{% endblock %}
+{% block title %}Atelier — ServiceHub Tactical Command{% endblock %}
+{% block page_title %}Atelier Command{% endblock %}
 
 {% block body %}
-<div class="dashboard-container">
-    {# ── HEADER ── #}
-    <div class="dashboard-header animate-slide-up">
-        <h1 class="text-gradient">Atelier</h1>
-        <p>Your service provisioning command center and earnings intelligence</p>
-    </div>
-
-    {# ── KPI WIDGETS ── #}
-    <div class="dashboard-widgets">
-        <div class="widget red liquid-glass">
-            <div class="widget-label">Active Bookings</div>
-            <div class="widget-value red">
-                {{ bookings|filter(b => b.status|lower in ['confirmed', 'pending', 'accepted'])|length }}
-            </div>
-            <div class="widget-subtext">Awaiting Completion</div>
-            <div class="widget-trend">↑ 12% from last month</div>
-        </div>
-
-        <div class="widget gold liquid-glass">
-            <div class="widget-label">Total Earnings</div>
-            {% set totalEarnings = 0 %}
-            {% for b in bookings|filter(b => b.status|lower == 'completed') %}
-                {% set totalEarnings = totalEarnings + (b.estimatedCost|default(b.service.price) * 0.8) %}
-            {% endfor %}
-            <div class="widget-value gold">₹{{ (totalEarnings / 100000)|round(1) }}L</div>
-            <div class="widget-subtext">Lifetime Revenue</div>
-            <div class="widget-trend">↑ 8% from last month</div>
-        </div>
-
-        <div class="widget violet liquid-glass">
-            <div class="widget-label">Completion Rate</div>
-            {% set completed = bookings|filter(b => b.status|lower == 'completed')|length %}
-            {% set total = bookings|length %}
-            <div class="widget-value violet">
-                {% if total > 0 %}{{ ((completed / total) * 100)|round(0) }}%{% else %}0%{% endif %}
-            </div>
-            <div class="widget-subtext">Service Success</div>
-        </div>
-    </div>
-
-    {# ── EARNINGS CHART & METRICS ── #}
-    <div class="dashboard-row">
-        <div class="chart-card">
-            <h3 class="chart-title">Earnings Trajectory</h3>
-            <p class="chart-subtitle">Monthly Revenue Pattern</p>
-            <div class="chart-container">
-                <canvas id="earningsChart"></canvas>
-            </div>
-        </div>
-
-        <div class="chart-card">
-            <h3 class="chart-title">Performance Metrics</h3>
-            <div class="performance-metrics">
-                <div class="metric-item">
-                    <div class="metric-icon">
-                        <i class="fas fa-star"></i>
-                    </div>
-                    <div class="metric-info">
-                        <div class="metric-label">Avg Rating</div>
-                        <div class="metric-value">4.8 / 5.0</div>
+<div class="reveal-3d">
+    {# ── BENTO OPERATIONAL NODES ── #}
+    <div class="row g-4 mb-5">
+        <div class="col-md-4">
+            <div class="glass-card p-4 border-glow-hover h-100 d-flex flex-column justify-content-between border-red-soft">
+                <div>
+                    <div class="text-xxs text-red fw-900 letter-spacing-2 mb-3">ACTIVE MISSIONS</div>
+                    <div class="h1 fw-900 text-white mb-0">
+                        {{ bookings|filter(b => b.status|lower in ['confirmed', 'pending', 'accepted'])|length }}
                     </div>
                 </div>
-
-                <div class="metric-item">
-                    <div class="metric-icon" style="background: rgba(16, 185, 129, 0.1); color: var(--accent-teal);">
-                        <i class="fas fa-check-circle"></i>
-                    </div>
-                    <div class="metric-info">
-                        <div class="metric-label">Response Time</div>
-                        <div class="metric-value">&lt; 2 hours</div>
+                <div class="text-xxs text-dim mt-3">↑ 12% VELOCITY INCREASE</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="glass-card p-4 border-glow-hover h-100 d-flex flex-column justify-content-between border-gold-soft">
+                <div>
+                    <div class="text-xxs text-gold fw-900 letter-spacing-2 mb-3">NET YIELD (80%)</div>
+                    {% set totalEarnings = 0 %}
+                    {% for b in bookings|filter(b => b.status|lower == 'completed') %}
+                        {% set totalEarnings = totalEarnings + (b.estimatedCost|default(b.service.price) * 0.8) %}
+                    {% endfor %}
+                    <div class="h1 fw-900 text-white mb-0">₹{{ (totalEarnings / 1000)|round(1) }}k</div>
+                </div>
+                <div class="text-xxs text-dim mt-3">LIFETIME REVENUE ARCHIVE</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="glass-card p-4 border-glow-hover h-100 d-flex flex-column justify-content-between border-purple-soft">
+                <div>
+                    <div class="text-xxs text-purple fw-900 letter-spacing-2 mb-3">SUCCESS FIDELITY</div>
+                    {% set completed = bookings|filter(b => b.status|lower == 'completed')|length %}
+                    {% set total = bookings|length %}
+                    <div class="h1 fw-900 text-white mb-0">
+                        {% if total > 0 %}{{ ((completed / total) * 100)|round(0) }}%{% else %}0%{% endif %}
                     </div>
                 </div>
-
-                <div class="metric-item">
-                    <div class="metric-icon" style="background: rgba(139, 92, 246, 0.1); color: var(--accent-violet);">
-                        <i class="fas fa-users"></i>
-                    </div>
-                    <div class="metric-info">
-                        <div class="metric-label">Repeat Clients</div>
-                        <div class="metric-value">42 customers</div>
-                    </div>
-                </div>
+                <div class="text-xxs text-dim mt-3">MISSION COMPLETION RATE</div>
             </div>
         </div>
     </div>
 
-    {# ── PENDING BOOKINGS ── #}
-    <div>
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-            <h2 class="luxury-serif" style="margin: 0;">Booking Requests</h2>
-            <a href="{{ path('app_admin_service_new') }}" class="btn-premium gold">Add New Service</a>
+    <div class="row g-4 mb-5">
+        {# ── EARNINGS TRAJECTORY CORE ── #}
+        <div class="col-xl-8">
+            <div class="glass-card p-4 h-100">
+                <div class="d-flex justify-content-between align-items-center mb-5">
+                    <div>
+                        <h3 class="luxury-serif text-white h4 mb-1">Yield Trajectory</h3>
+                        <span class="text-xxs text-dim fw-800">MONTHLY REVENUE ANALYTICS</span>
+                    </div>
+                    <div class="badge-status status-active" style="font-size: 0.55rem;">LIVE FEED</div>
+                </div>
+                <div style="height: 320px;">
+                    <canvas id="earningsChart"></canvas>
+                </div>
+            </div>
         </div>
 
-        <div class="booking-cards-container">
-            {% if bookings|length > 0 %}
-                {% for booking in bookings|slice(0, 10) %}
-                    <div class="booking-card {{ booking.status|lower }}">
-                        <div class="booking-header">
-                            <div>
-                                <div class="booking-title">{{ booking.customer.fullName }} - {{ booking.service.name }}</div>
+        {# ── PERFORMANCE TELEMETRY ── #}
+        <div class="col-xl-4">
+            <div class="glass-card h-100 p-4 bg-surface-dark">
+                <h3 class="luxury-serif text-white h5 mb-4">Performance Metrics</h3>
+                <div class="d-grid gap-3">
+                    <div class="metric-node-spatial">
+                        <div class="node-icon bg-gold-soft text-gold"><i class="fas fa-star"></i></div>
+                        <div class="flex-grow-1">
+                            <div class="text-xxs text-dim fw-800">AVERAGE RATING</div>
+                            <div class="text-white fw-bold">4.8 <span class="text-dim">/ 5.0</span></div>
+                        </div>
+                    </div>
+                    <div class="metric-node-spatial">
+                        <div class="node-icon bg-teal-soft text-teal"><i class="fas fa-bolt-lightning"></i></div>
+                        <div class="flex-grow-1">
+                            <div class="text-xxs text-dim fw-800">RESPONSE LATENCY</div>
+                            <div class="text-white fw-bold">&lt; 2 HOURS</div>
+                        </div>
+                    </div>
+                    <div class="metric-node-spatial">
+                        <div class="node-icon bg-purple-soft text-purple"><i class="fas fa-user-check"></i></div>
+                        <div class="flex-grow-1">
+                            <div class="text-xxs text-dim fw-800">REPEAT IDENTITIES</div>
+                            <div class="text-white fw-bold">42 NODES</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-4 pt-4 border-top border-white border-opacity-5">
+                    <a href="{{ path('app_service_new') }}" class="btn-luxury w-100 py-3">DEPLOY NEW UNIT</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# ── MISSION INTERCEPT (Requests) ── #}
+    <div class="mb-5">
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <h2 class="luxury-serif text-white">Mission Intercepts</h2>
+            <div class="text-xxs text-dim fw-800 letter-spacing-1">PENDING AUTHORIZATION</div>
+        </div>
+
+        <div class="row g-4">
+            {% for booking in bookings|slice(0, 4) %}
+                <div class="col-xl-6">
+                    <div class="glass-card p-0 border-glow-hover overflow-hidden h-100">
+                        <div class="p-4 d-flex justify-content-between align-items-start">
+                            <div class="d-flex gap-4">
+                                <div class="user-orb" style="width: 48px; height: 48px; border-color: var(--accent-gold);">
+                                    {{ booking.customer.fullName|slice(0,1)|upper }}
+                                </div>
+                                <div>
+                                    <h4 class="mb-1 fw-bold text-white small">{{ booking.customer.fullName|upper }}</h4>
+                                    <div class="text-xxs text-teal fw-900 letter-spacing-1">{{ booking.service.title|upper }}</div>
+                                </div>
                             </div>
-                            <span class="badge-premium {{ booking.status|lower }}">{{ booking.status }}</span>
+                            <div class="text-end">
+                                <span class="badge-status {{ booking.status|lower == 'pending' ? 'status-pending' : 'status-active' }}">
+                                    {{ booking.status|upper }}
+                                </span>
+                                <div class="text-xxs text-dim mt-2 font-monospace">{{ booking.bookingDate|date('d . m . y') }}</div>
+                            </div>
                         </div>
-                        <div class="booking-body">
-                            <strong>Booking Date:</strong> {{ booking.bookingDate|date('M d, Y H:i') }}<br>
-                            <strong>Estimated Price:</strong> ₹{{ (booking.estimatedCost|default(booking.service.price))|number_format(0) }}<br>
-                            <strong>Your Earnings:</strong> <span style="color: var(--accent-gold); font-weight: 600;">₹{{ ((booking.estimatedCost|default(booking.service.price)) * 0.8)|number_format(0) }}</span>
+
+                        <div class="px-4 py-3 bg-surface-dark border-top border-white border-opacity-5">
+                            <div class="row text-center g-0">
+                                <div class="col-6 border-end border-white border-opacity-10">
+                                    <div class="text-xxxs text-dim fw-800">GROSS ALLOCATION</div>
+                                    <div class="text-white small fw-bold">₹{{ (booking.estimatedCost|default(booking.service.price))|number_format }}</div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="text-xxxs text-gold fw-900">NET YIELD</div>
+                                    <div class="text-gold small fw-bold">₹{{ ((booking.estimatedCost|default(booking.service.price)) * 0.8)|number_format }}</div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="booking-footer">
-                            <span>Request ID: #{{ booking.id|slice(0, 8) }}</span>
-                            <div class="action-buttons">
+
+                        <div class="p-4 border-top border-white border-opacity-5 mt-auto">
+                            <div class="d-flex justify-content-end gap-2">
+                                <a href="{{ path('app_booking_detail', {id: booking.id}) }}" class="btn-spatial-mini">VIEW LOG</a>
                                 {% if booking.status|lower == 'pending' %}
-                                    <form method="POST" style="display: inline;">
-                                        <button type="submit" class="action-btn accept">Accept Booking</button>
-                                    </form>
-                                    <button class="action-btn">Decline</button>
-                                {% elseif booking.status|lower == 'confirmed' %}
-                                    <a href="{{ path('app_booking_update', {id: booking.id}) }}" class="action-btn accept">Mark Complete</a>
-                                {% else %}
-                                    <a href="{{ path('app_booking_show', {id: booking.id}) }}" class="action-btn">View Details</a>
+                                    <button class="btn-spatial-mini text-teal border-teal">ACCEPT MISSION</button>
+                                    <button class="btn-spatial-mini text-red border-red">DECLINE</button>
                                 {% endif %}
                             </div>
                         </div>
                     </div>
-                {% endfor %}
-            {% else %}
-                <div class="chart-card" style="text-align: center; padding: 3rem;">
-                    <p style="color: var(--text-muted); margin: 0;">No active bookings. Your services are ready for customers!</p>
                 </div>
-            {% endif %}
+            {% endfor %}
         </div>
     </div>
 </div>
 
+<style>
+    .border-red-soft { border-color: rgba(255, 93, 115, 0.2) !important; }
+    .bg-surface-dark { background: rgba(0, 0, 0, 0.2); }
+    .metric-node-spatial {
+        display: flex; align-items: center; gap: 15px; padding: 15px;
+        border-radius: 16px; background: rgba(255,255,255,0.02);
+        border: 1px solid rgba(255,255,255,0.05); transition: 0.3s;
+    }
+    .metric-node-spatial:hover { background: rgba(255,255,255,0.05); transform: translateX(5px); }
+    .node-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+    .btn-spatial-mini { font-size: 0.55rem; font-weight: 900; letter-spacing: 1px; padding: 6px 14px; border-radius: 8px; background: rgba(255,255,255,0.03); color: #94a3b8; text-decoration: none; border: 1px solid rgba(255,255,255,0.05); transition: 0.3s; }
+    .btn-spatial-mini:hover { color: #fff; background: rgba(255,255,255,0.1); }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    // Earnings Chart (Bar Chart)
-    const earningsCtx = document.getElementById('earningsChart').getContext('2d');
-    new Chart(earningsCtx, {
-        type: 'bar',
-        data: {
-            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-            datasets: [{
-                label: 'Monthly Earnings',
-                data: [45000, 52000, 48000, 61000, 75000, 68000],
-                backgroundColor: [
-                    'rgba(245, 158, 11, 0.8)',
-                    'rgba(245, 158, 11, 0.7)',
-                    'rgba(245, 158, 11, 0.8)',
-                    'rgba(245, 158, 11, 0.9)',
-                    'rgba(245, 158, 11, 1)',
-                    'rgba(245, 158, 11, 0.85)'
-                ],
-                borderColor: 'var(--accent-gold)',
-                borderWidth: 1,
-                borderRadius: 8,
-            }]
-        },
-        options: {
-            indexAxis: 'x',
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { display: false }
+    document.addEventListener('DOMContentLoaded', function() {
+        const ctx = document.getElementById('earningsChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN'],
+                datasets: [{
+                    data: [45000, 52000, 48000, 61000, 75000, 68000],
+                    backgroundColor: 'rgba(212, 175, 55, 0.2)',
+                    borderColor: '#ffd166',
+                    borderWidth: 2,
+                    borderRadius: 12,
+                    hoverBackgroundColor: '#ffd166'
+                }]
             },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    grid: {
-                        color: 'rgba(255, 255, 255, 0.05)',
-                        drawBorder: false
-                    },
-                    ticks: { 
-                        color: 'var(--text-muted)',
-                        callback: function(value) {
-                            return '₹' + (value/1000).toFixed(0) + 'K';
-                        }
-                    }
-                },
-                x: {
-                    grid: { display: false },
-                    ticks: { color: 'var(--text-muted)' }
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { color: '#64748B', font: { size: 10 } } },
+                    x: { grid: { display: false }, ticks: { color: '#64748B', font: { size: 10, weight: '800' } } }
                 }
             }
-        }
+        });
     });
 </script>
 {% endblock %}

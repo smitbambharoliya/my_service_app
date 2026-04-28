@@ -2,20 +2,111 @@
 {# 
   Props:
   title (string|null)
-  content (block)
-  style (string) => 'glass' | 'aurora'
+  style (string) => 'glass' | 'aurora' | 'mission'
+  class (string|null) => Additional classes for bento sizing
+  icon (string|null) => FontAwesome icon for header
 #}
-{% set c_style = style|default('glass') %}
-{% set base_class = c_style == 'glass' ? 'bg-white rounded-xl shadow-editorial border border-outline-variant/15 overflow-hidden' : 'aurora-card' %}
 
-<div class="{{ base_class }} {{ class|default('') }}">
+{% set c_style = style|default('glass') %}
+
+{# ── 2026 SPATIAL CLASS MAPPING ── #}
+{% set base_class = 
+    c_style == 'glass' ? 'spatial-card-glass' 
+    : (c_style == 'aurora' ? 'spatial-card-aurora' 
+    : 'spatial-card-mission') 
+%}
+
+<div class="{{ base_class }} {{ class|default('') }} reveal-3d">
     {% if title is defined and title %}
-        <div class="px-6 py-4 bg-surface-low border-b border-outline-variant/10">
-            <h3 class="font-serif text-xl m-0 p-0 text-on-surface">{{ title }}</h3>
+        <div class="spatial-card-header">
+            <div class="d-flex align-items-center gap-3">
+                {% if icon is defined and icon %}
+                    <div class="header-icon-mini">
+                        <i class="fas {{ icon }}"></i>
+                    </div>
+                {% endif %}
+                <h3 class="spatial-card-title">{{ title|upper }}</h3>
+            </div>
+            <div class="header-decoration"></div>
         </div>
     {% endif %}
     
-    <div class="px-6 py-5">
+    <div class="spatial-card-body">
         {% block content %}{% endblock %}
     </div>
 </div>
+
+{# ── COMPONENT STYLES ── #}
+<style>
+    /* 1. Glass Style (Standard Bento Unit) */
+    .spatial-card-glass {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(25px) saturate(120%);
+        -webkit-backdrop-filter: blur(25px) saturate(120%);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 24px;
+        overflow: hidden;
+        transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+    }
+
+    /* 2. Aurora Style (High Visibility Unit) */
+    .spatial-card-aurora {
+        background: linear-gradient(145deg, rgba(0, 255, 213, 0.05), rgba(157, 124, 255, 0.05));
+        border: 1px solid rgba(0, 255, 213, 0.2);
+        border-radius: 28px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        overflow: hidden;
+    }
+
+    /* 3. Mission Style (Operational Table/Data Unit) */
+    .spatial-card-mission {
+        background: rgba(10, 15, 25, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 24px;
+        overflow: hidden;
+    }
+
+    /* Header Components */
+    .spatial-card-header {
+        padding: 20px 24px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: relative;
+    }
+
+    .spatial-card-title {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-weight: 800;
+        font-size: 0.75rem;
+        letter-spacing: 2px;
+        color: rgba(255, 255, 255, 0.9);
+        margin: 0;
+    }
+
+    .header-icon-mini {
+        color: var(--accent-teal, #00ffd5);
+        font-size: 0.9rem;
+        filter: drop-shadow(0 0 5px rgba(0, 255, 213, 0.4));
+    }
+
+    .header-decoration {
+        width: 40px; height: 2px;
+        background: var(--accent-teal, #00ffd5);
+        position: absolute; bottom: -1px; left: 24px;
+        box-shadow: 0 0 10px var(--accent-teal);
+    }
+
+    .spatial-card-body {
+        padding: 24px;
+        color: #a9b7c8;
+    }
+
+    /* Interactive Elevate */
+    .spatial-card-glass:hover {
+        transform: translateY(-5px) scale(1.01);
+        border-color: rgba(0, 255, 213, 0.3);
+        box-shadow: 0 30px 60px rgba(0,0,0,0.4);
+    }
+</style>

@@ -1,272 +1,196 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Elevate Your Craft — Alexandria Collective{% endblock %}
+{% block title %}Scale Your Influence — ServiceHub Atelier Collective{% endblock %}
 
 {% block stylesheets %}
 <style>
-    :root {
-        --color-gold: #d4af37;
-        --color-emerald-deep: #004d41;
-        --color-emerald-light: #33ccaf;
-    }
-
-    /* ── PROVIDER HOME: ALEXANDRIA GOLD UPGRADE ── */
+    /* ── ATELIER COLLECTIVE SPATIAL UI ── */
     .expert-hero {
-        min-height: 90vh;
-        background: radial-gradient(circle at 0% 0%, rgba(0, 107, 90, 0.05) 0%, #faf9fa 50%);
+        min-height: 100vh;
+        background: radial-gradient(circle at 100% 0%, rgba(0, 255, 213, 0.05) 0%, transparent 50%);
         position: relative;
-        overflow: hidden;
         display: flex;
         align-items: center;
-        padding: 5rem 0;
+        padding: 100px 0;
     }
-    .expert-hero-visual {
+    
+    .hero-visual-orb {
         position: absolute;
-        right: -5%;
+        right: -10%;
         top: 50%;
         transform: translateY(-50%);
-        width: 55%;
+        width: 50vw;
+        height: 50vw;
+        background: radial-gradient(circle, rgba(0, 255, 213, 0.03) 0%, transparent 70%);
         z-index: 0;
+        pointer-events: none;
     }
-    .expert-hero-visual img {
-        width: 100%;
-        border-radius: 60px 0 0 60px;
-        box-shadow: -60px 60px 120px rgba(0, 107, 90, 0.15);
-        border-left: 1px solid rgba(212, 175, 55, 0.3);
-    }
-    .expert-hero-content {
-        position: relative;
-        z-index: 10;
-        max-width: 700px;
-    }
+
     .expert-title {
-        font-size: clamp(3.5rem, 7.5vw, 5.5rem);
-        line-height: 1.05;
+        font-size: clamp(3rem, 6vw, 5rem);
+        line-height: 0.95;
         margin-bottom: 2rem;
-        color: #1a1a1a;
-        letter-spacing: -0.03em;
-    }
-    .expert-title span.gold-accent {
-        color: var(--color-gold);
-        position: relative;
-        display: inline-block;
-    }
-    .expert-title span.gold-accent::after {
-        content: '';
-        position: absolute;
-        bottom: 10px; left: 0; width: 100%; height: 2px;
-        background: var(--color-gold);
-        opacity: 0.6;
+        color: #fff;
     }
 
-    /* Benefits Grid */
-    .benefit-card {
-        padding: 3rem 2rem;
-        background: #ffffff;
-        border-radius: 24px;
-        border: 1px solid rgba(0, 107, 90, 0.08);
-        transition: all 0.4s var(--ease-luxury);
-        height: 100%;
-    }
-    .benefit-card:hover {
-        transform: translateY(-12px);
-        box-shadow: 0 30px 60px rgba(0, 107, 90, 0.05);
-        border-color: var(--color-gold);
-    }
-    .benefit-icon {
-        width: 60px; height: 60px;
-        background: linear-gradient(135deg, rgba(117, 235, 239, 0.1), rgba(137, 229, 101, 0.05));
-        border-radius: 16px;
-        display: flex; align-items: center; justify-content: center;
-        color: var(--color-gold);
-        font-size: 1.5rem;
-        margin-bottom: 2rem;
+    /* ── BENTO BENEFITS ── */
+    .benefit-grid {
+        display: grid;
+        grid-template-columns: repeat(12, 1fr);
+        gap: 20px;
     }
 
-    /* Assembly of Minds */
-    .assembly-section { background: #fdfdfd; }
-    .expert-portrait-sm {
-        width: 280px;
-        aspect-ratio: 1/1;
-        border-radius: 30px;
-        overflow: hidden;
-        border: 4px solid #ffffff;
-        box-shadow: 0 20px 50px rgba(0,0,0,0.1);
-        position: relative;
-    }
-    .expert-portrait-sm::after {
-        content: '';
-        position: absolute;
-        inset: 20px;
-        border: 1px solid rgba(212, 175, 55, 0.4);
-        border-radius: 15px;
-        pointer-events: none;
-    }
-    .expert-portrait-sm img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(1); transition: 0.8s; }
-    .expert-portrait-sm:hover img { filter: grayscale(0); transform: scale(1.05); }
-
-    .name-gold { color: var(--color-gold); font-family: var(--font-label); font-weight: 800; letter-spacing: 0.1em; font-size: 0.8rem; }
-
-    /* Step System */
-    .step-circle {
-        width: 64px; height: 64px;
-        border-radius: 50%;
-        background: #6b3f89ff;
-        border: 1px solid var(--color-gold);
-        display: flex; align-items: center; justify-content: center;
-        font-family: var(--font-label);
-        font-size: 0.85rem;
-        font-weight: 800;
-        color: var(--color-primary);
-        margin: 0 auto 1.5rem;
-        box-shadow: 0 10px 25px rgba(212, 175, 55, 0.15);
+    .benefit-node {
+        grid-column: span 4;
+        padding: 40px;
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 32px;
+        transition: all 0.5s var(--ease-spatial);
     }
 
-    /* CTA Section: THE COLOR POP */
-    .credentials-cta {
-        background: linear-gradient(135deg, var(--color-primary), var(--color-emerald-deep));
-        border-radius: 50px;
-        padding: 8rem 4rem;
-        position: relative;
-        overflow: hidden;
-        color: #ffffff;
-    }
-    .credentials-cta .container-inner { position: relative; z-index: 10; }
-    .cta-light-sweep {
-        position: absolute;
-        top: -50%; right: -20%;
-        width: 80%; height: 200%;
-        background: radial-gradient(circle at center, rgba(51, 204, 175, 0.2) 0%, transparent 60%);
-        transform: rotate(-15deg);
-        pointer-events: none;
+    .benefit-node:hover {
+        transform: translateY(-10px);
+        border-color: var(--accent-teal);
+        box-shadow: 0 30px 60px rgba(0,0,0,0.4);
     }
 
-    .btn-gold {
-        background: var(--color-gold);
-        color: #1a1a1a;
-        border: none;
-        padding: 1.25rem 3rem;
+    .benefit-icon-spatial {
+        width: 50px; height: 50px;
+        background: rgba(0, 255, 213, 0.1);
         border-radius: 12px;
-        font-family: var(--font-label);
-        font-size: 0.75rem;
-        font-weight: 800;
-        letter-spacing: 0.2em;
-        transition: all 0.3s;
-        box-shadow: 0 20px 40px rgba(212, 175, 55, 0.3);
+        display: flex; align-items: center; justify-content: center;
+        color: var(--accent-teal);
+        font-size: 1.2rem;
+        margin-bottom: 30px;
+        box-shadow: 0 0 20px rgba(0, 255, 213, 0.2);
     }
-    .btn-gold:hover { transform: translateY(-5px); box-shadow: 0 25px 50px rgba(212, 175, 55, 0.4); background: #c5a02e; }
 
-    h1, h2, h3, h4, h5, .display-3, .display-4, .display-5 {
-        color: #1a1a1a !important;
-        font-weight: 700 !important;
+    /* ── ARTISAN EXHIBITS ── */
+    .artisan-orb-portrait {
+        width: 240px;
+        height: 240px;
+        border-radius: 40px;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        position: relative;
+        transition: 0.6s var(--ease-spatial);
     }
-    .text-secondary {
-        color: #374151 !important; /* Darker slate gray */
+    .artisan-orb-portrait::after {
+        content: ''; position: absolute; inset: 0;
+        border: 2px solid var(--accent-teal);
+        border-radius: 38px; opacity: 0; transition: 0.4s;
     }
-    .opacity-70 {
-        opacity: 1 !important; /* Remove transparency for legibility */
+    .artisan-orb-portrait:hover { transform: scale(1.05) rotate(2deg); }
+    .artisan-orb-portrait:hover::after { opacity: 0.4; }
+    .artisan-orb-portrait img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(1); transition: 0.6s; }
+    .artisan-orb-portrait:hover img { filter: grayscale(0); }
+
+    /* ── INITIALIZATION STEPS ── */
+    .step-node-mini {
+        width: 48px; height: 48px;
+        border-radius: 14px;
+        background: rgba(0, 255, 213, 0.1);
+        border: 1px solid var(--accent-teal);
+        display: flex; align-items: center; justify-content: center;
+        font-family: monospace; font-weight: 900; color: var(--accent-teal);
+        margin: 0 auto 20px;
     }
-    .benefit-card p, .step-circle + h5 + p {
-        color: #4b5563 !important;
-        font-weight: 500;
-    }
-    .text-dim {
-        color: #6b7280 !important;
+
+    /* ── CTA SECTOR ── */
+    .collective-cta {
+        background: radial-gradient(circle at center, rgba(157, 124, 255, 0.15) 0%, #080a0f 100%);
+        border: 1px solid rgba(157, 124, 255, 0.2);
+        border-radius: 60px;
+        padding: 100px 40px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
     }
 
     @media (max-width: 992px) {
-        .expert-hero-visual { display: none; }
-        .credentials-cta { padding: 4rem 1.5rem; border-radius: 30px; }
+        .benefit-node { grid-column: span 12; }
     }
 </style>
 {% endblock %}
 
 {% block body %}
-<main>
+<main class="reveal-3d">
     {# ── 1. HERO ── #}
-    <section class="expert-hero px-4 px-md-5">
-        <div class="expert-hero-visual d-none d-lg-block reveal">
-            <img src="https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=2069&auto=format&fit=crop" alt="Premium Workspace">
-        </div>
+    <section class="expert-hero">
+        <div class="hero-visual-orb"></div>
         <div class="container">
-            <div class="expert-hero-content reveal active">
-                <span class="font-label text-xxs text-primary tracking-widest mb-4 d-block fw-800">MEMBERSHIP: BY INVITATION</span>
-                <h1 class="expert-title italic">Elevate Your Craft. Join the World's Most <span class="gold-accent">Distinguished</span> Collective.</h1>
-                <p class="text-xl text-secondary mb-5 opacity-70" style="max-width: 550px; line-height: 1.8;">
-                    Alexandria is a protected ecosystem for elite professionals. We provide the archival infrastructure to scale your influence across the most discerning global interests.
-                </p>
-                <div class="d-flex align-items-center flex-wrap gap-4">
-                    {% include 'components/button.html.twig' with {'text': 'Enter the Selection Process', 'url': path('app_register'), 'style': 'luxury'} %}
-                    <a href="#charter" class="font-label text-xxs tracking-widest text-decoration-none text-dim hover-primary border-bottom border-light pb-1">CONSULT THE CHARTER →</a>
+            <div class="row align-items-center">
+                <div class="col-lg-7">
+                    <span class="text-xxs text-teal fw-900 letter-spacing-4 mb-4 d-block">ATELIER ACCESS: BY SELECTION</span>
+                    <h1 class="expert-title luxury-serif">Scale Your <span class="text-teal">Mastery.</span> Join the Global Archive.</h1>
+                    <p class="text-dim fs-5 mb-5" style="max-width: 600px; line-height: 1.8;">
+                        ServiceHub Atelier is a protected ecosystem for elite artisans. We provide the digital infrastructure to synchronize your craft with the world's most discerning patrons.
+                    </p>
+                    <div class="d-flex align-items-center flex-wrap gap-4">
+                        {% include 'components/button.html.twig' with {'text': 'Enter Selection Process', 'url': path('app_register'), 'style': 'luxury'} %}
+                        <a href="#charter" class="text-xxs text-white fw-800 letter-spacing-2 text-decoration-none opacity-50 hover-100 transition-all">CONSULT THE CHARTER <i class="fas fa-arrow-down ms-2"></i></a>
+                    </div>
                 </div>
             </div>
         </div>
     </section>
 
-    {# ── 2. WHY CHOOSE ALEXANDRIA? ── #}
-    <section class="alex-section-lg bg-white" id="charter">
-        <div class="container text-center mb-5 reveal">
-            <h2 class="display-4 mb-4">The Professional Standard</h2>
-            <p class="text-secondary text-lg max-w-2xl mx-auto" style="max-width: 700px; margin: 0 auto; line-height: 1.8;">
-                We reject the noise of the open market. Alexandria is designed strictly for high-fidelity consulting, where technical mastery meets editorial precision.
-            </p>
-        </div>
-        <div class="container">
-            <div class="row g-4 mt-4">
-                <div class="col-md-4 reveal">
-                    <div class="benefit-card">
-                        <div class="benefit-icon"><i class="fas fa-gem"></i></div>
-                        <h4 class="h5 mb-4 fw-bold">Global Presence</h4>
-                        <p class="text-sm text-secondary opacity-70 leading-relaxed">Represent your craft to institutional leaders and high-net-worth patrons across six continents from a unified dashboard.</p>
-                    </div>
+    {# ── 2. BENTO ARCHIVE ── #}
+    <section class="py-5" id="charter">
+        <div class="container mb-5">
+            <div class="text-center">
+                <h2 class="luxury-serif text-white display-4 mb-4">Operational Standards</h2>
+                <p class="text-dim mx-auto" style="max-width: 700px;">We reject the friction of legacy marketplaces. Our environment is designed strictly for high-fidelity service deployment.</p>
+            </div>
+            
+            <div class="benefit-grid mt-5">
+                <div class="benefit-node">
+                    <div class="benefit-icon-spatial"><i class="fas fa-globe"></i></div>
+                    <h4 class="text-white fw-900 small letter-spacing-1 mb-3">GLOBAL TELEMETRY</h4>
+                    <p class="text-dim text-sm mb-0">Represent your craft to institutional leaders and high-fidelity patrons across six continents via our live dashboard.</p>
                 </div>
-                <div class="col-md-4 reveal">
-                    <div class="benefit-card">
-                        <div class="benefit-icon"><i class="fas fa-feather-alt"></i></div>
-                        <h4 class="h5 mb-4 fw-bold">Editorial Support</h4>
-                        <p class="text-sm text-secondary opacity-70 leading-relaxed">Collaborate with our digital curators to refine your service listings and ensure your expertise is presented with reverence.</p>
-                    </div>
+                <div class="benefit-node">
+                    <div class="benefit-icon-spatial"><i class="fas fa-pen-nib"></i></div>
+                    <h4 class="text-white fw-900 small letter-spacing-1 mb-3">EDITORIAL Curation</h4>
+                    <p class="text-dim text-sm mb-0">Collaborate with our digital curators to refine your artifact listings and ensure your expertise is presented with reverence.</p>
                 </div>
-                <div class="col-md-4 reveal">
-                    <div class="benefit-card">
-                        <div class="benefit-icon"><i class="fas fa-coins"></i></div>
-                        <h4 class="h5 mb-4 fw-bold">Premier Returns</h4>
-                        <p class="text-sm text-secondary opacity-70 leading-relaxed">Custom invoicing, multi-currency custody, and instant payouts through our secure, high-latency financial network.</p>
-                    </div>
+                <div class="benefit-node">
+                    <div class="benefit-icon-spatial"><i class="fas fa-vault"></i></div>
+                    <h4 class="text-white fw-900 small letter-spacing-1 mb-3">EXCHEQUER SYSTEM</h4>
+                    <p class="text-dim text-sm mb-0">Custom protocol ledgers, multi-currency custody, and instant capital settlement through our secure financial network.</p>
                 </div>
             </div>
         </div>
     </section>
 
     {# ── 3. AN ASSEMBLY OF MINDS ── #}
-    <section class="alex-section-lg assembly-section">
-        <div class="container text-center mb-5 reveal">
-            <span class="font-label text-xxxs text-primary tracking-widest mb-3 d-block fw-800">THE FELLOWSHIP</span>
-            <h2 class="display-5">An Assembly of Minds</h2>
+    <section class="py-5" style="background: rgba(255,255,255,0.01);">
+        <div class="container text-center mb-5">
+            <span class="text-xxs text-teal fw-900 letter-spacing-3 d-block mb-3">THE FELLOWSHIP</span>
+            <h2 class="luxury-serif text-white h2">Active Collective Nodes</h2>
         </div>
         <div class="container">
-            <div class="row g-5 align-items-center">
-                <div class="col-lg-6 reveal">
-                    <div class="d-flex gap-5 flex-column flex-md-row align-items-center">
-                        <div class="expert-portrait-sm">
+            <div class="row g-5">
+                <div class="col-lg-6">
+                    <div class="glass-card p-4 d-flex gap-4 align-items-center border-0 bg-surface">
+                        <div class="artisan-orb-portrait">
                             <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=400&auto=format&fit=crop" alt="Dr Alistair Thorne">
                         </div>
-                        <div class="flex-1">
-                            <span class="name-gold">DR. ALISTAIR THORNE</span>
-                            <i class="fas fa-quote-left text-primary opacity-10 fs-1 my-3 d-block"></i>
-                            <p class="text-xl italic mb-0" style="line-height: 1.6; color: #4b5563;">"Alexandria treats expertise as an artifact to be preserved, not just a service to be sold."</p>
+                        <div>
+                            <span class="text-teal fw-900 text-xxs letter-spacing-2">DR. ALISTAIR THORNE</span>
+                            <p class="text-white text-sm italic mt-3 mb-0">"The system treats expertise as an artifact to be preserved, not just a service to be sold."</p>
                         </div>
                     </div>
                 </div>
-                <div class="col-lg-6 reveal">
-                    <div class="d-flex gap-5 flex-column flex-md-row-reverse align-items-center">
-                        <div class="expert-portrait-sm">
+                <div class="col-lg-6">
+                    <div class="glass-card p-4 d-flex gap-4 align-items-center border-0 bg-surface">
+                        <div class="artisan-orb-portrait">
                             <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=400&auto=format&fit=crop" alt="Elena Vance">
                         </div>
-                        <div class="flex-1 text-md-end">
-                            <span class="name-gold">ELENA VANCE</span>
-                            <i class="fas fa-quote-right text-primary opacity-10 fs-1 my-3 d-block ml-auto"></i>
-                            <p class="text-xl italic mb-0" style="line-height: 1.6; color: #4b5563;">"The caliber of the network is unparalleled. It is where true business legacies are curated."</p>
+                        <div>
+                            <span class="text-teal fw-900 text-xxs letter-spacing-2">ELENA VANCE</span>
+                            <p class="text-white text-sm italic mt-3 mb-0">"The caliber of the network is unparalleled. It is where true technical legacies are curated."</p>
                         </div>
                     </div>
                 </div>
@@ -274,67 +198,47 @@
         </div>
     </section>
 
-    {# ── 4. THE PATH TO MEMBERSHIP ── #}
-    <section class="alex-section-lg bg-white">
-        <div class="container text-center mb-5 reveal">
-            <h2 class="display-4">The Path to Selection</h2>
+    {# ── 4. PATH TO MEMBERSHIP ── #}
+    <section class="py-5">
+        <div class="container text-center mb-5">
+            <h2 class="luxury-serif text-white display-5">Initialization Sequence</h2>
         </div>
         <div class="container">
-            <div class="row g-5 text-center px-lg-5">
-                <div class="col-md-4 reveal">
-                    <div class="step-circle">01</div>
-                    <h5 class="fw-bold mb-3">Submission</h5>
-                    <p class="text-sm text-secondary opacity-70">Submit your professional portfolio and technical artifacts for algorithmic review.</p>
+            <div class="row g-4 text-center">
+                <div class="col-md-4">
+                    <div class="step-node-mini">01</div>
+                    <h5 class="text-white fw-bold mb-3 small">Submission</h5>
+                    <p class="text-dim text-xs">Submit your professional portfolio and technical artifacts for algorithmic review.</p>
                 </div>
-                <div class="col-md-4 reveal">
-                    <div class="step-circle">02</div>
-                    <h5 class="fw-bold mb-3">Curation Audit</h5>
-                    <p class="text-sm text-secondary opacity-70">Our peer board evaluates your specialty against our current category cohorts.</p>
+                <div class="col-md-4">
+                    <div class="step-node-mini">02</div>
+                    <h5 class="text-white fw-bold mb-3 small">Curation Audit</h5>
+                    <p class="text-dim text-xs">Our peer board evaluates your specialty against current collective cohorts.</p>
                 </div>
-                <div class="col-md-4 reveal">
-                    <div class="step-circle">03</div>
-                    <h5 class="fw-bold mb-3">Begin Your Legacy</h5>
-                    <p class="text-sm text-secondary opacity-70">Initialize your professional workspace and engage with high-fidelity patrons.</p>
+                <div class="col-md-4">
+                    <div class="step-node-mini">03</div>
+                    <h5 class="text-white fw-bold mb-3 small">Uplink</h5>
+                    <p class="text-dim text-xs">Initialize your workspace and engage with high-fidelity service patrons.</p>
                 </div>
             </div>
         </div>
     </section>
 
-    {# ── 5. SUBMIT CREDENTIALS: COLOR POP ── #}
-    <section class="alex-section px-4">
-        <div class="container">
-            <div class="credentials-cta reveal">
-                <div class="cta-light-sweep"></div>
-                <div class="container-inner text-center">
-                    <span class="font-label text-xxxs text-white opacity-60 tracking-widest mb-4 d-block fw-800">WINTER COHORT OPEN</span>
-                    <h2 class="display-3 mb-4 text-white">Join the Collective.</h2>
-                    <p class="text-xl text-white opacity-80 mb-5 mx-auto" style="max-width: 650px; line-height: 1.8;">
-                        We are actively reviewing credentials for the next cohort of Distinguished Fellows. Secure your place among the world's most elite practitioners.
-                    </p>
-                    <div class="d-flex justify-content-center gap-3 flex-wrap">
-                        <a href="{{ path('app_register') }}" class="btn-gold px-5 py-3 text-decoration-none">BEGIN APPLICATION</a>
-                        <button class="bg-transparent border border-white text-white px-5 py-3 rounded-luxury font-label text-xxs tracking-widest hover-bg-white hover-text-primary transition-all">CONSULT ADMISSIONS</button>
-                    </div>
+    {# ── 5. FINAL CALL ── #}
+    <section class="container py-5">
+        <div class="collective-cta">
+            <div class="position-relative z-index-10">
+                <span class="text-xxs text-white opacity-50 fw-900 letter-spacing-3 mb-4 d-block">WINTER COHORT OPEN</span>
+                <h2 class="luxury-serif text-white display-4 mb-4">Initialize Your Legacy.</h2>
+                <p class="text-dim fs-6 mb-5 mx-auto" style="max-width: 600px;">
+                    Reviewing credentials for the next cohort of Distinguished Fellows. Secure your node in the network.
+                </p>
+                <div class="d-flex justify-content-center gap-3">
+                    <a href="{{ path('app_register') }}" class="btn-luxury py-3 px-5">BEGIN APPLICATION</a>
+                    <button class="btn-outline-luxury py-3 px-5">CONSULT ADMISSIONS</button>
                 </div>
             </div>
         </div>
     </section>
 </main>
-{% endblock %}
-
-{% block javascripts %}
-{{ parent() }}
-<script>
-    document.addEventListener("DOMContentLoaded", () => {
-        const revealObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if(entry.isIntersecting) {
-                    entry.target.classList.add('active');
-                    revealObserver.unobserve(entry.target);
-                }
-            });
-        }, { threshold: 0.1 });
-        document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
-    });
-</script>
 {% endblock %}

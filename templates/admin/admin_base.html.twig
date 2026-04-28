@@ -3,352 +3,279 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>{% block title %}Admin Panel - ServiceHub{% endblock %}</title>
+        <title>{% block title %}System Command — ServiceHub Admin{% endblock %}</title>
+        
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+        
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-        <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="{{ asset('styles/app.css') }}">
+
         <style>
             :root {
-                --theme-bg: #eab4a8; /* Dribbble presentation peach */
-                --admin-sidebar: #f5eee9; /* Soft cream */
-                --admin-surface: #ffffff;
-                --text-main: #1a1a1a;
-                --text-muted: #8e8e8e;
-                --accent-red: #ef4444;
-                --accent-blue: #3b82f6;
-                --accent-cyan: #79cec5;
-                --radius-app: 32px;
-
-                /* Legacy mapping for other pages */
-                --admin-text: var(--text-main);
-                --admin-text-muted: var(--text-muted);
+                --accent-cyan: #00ffd5;
+                --accent-blue: #4ca7ff;
+                --accent-red: #ff5d73;
+                --bg-obsidian: #05070a;
+                --glass-border: rgba(255, 255, 255, 0.12);
+                --radius-cyber: 28px;
+                --ease-spatial: cubic-bezier(0.23, 1, 0.32, 1);
             }
 
-            * { box-sizing: border-box; }
-
             body {
-                font-family: 'Plus Jakarta Sans', sans-serif;
-                background-color: var(--theme-bg); /* The peach backdrop */
-                color: var(--text-main);
-                overflow: hidden; /* Hide outer scroll to let inner container scroll */
-                margin: 0; padding: 0;
-                display: flex;
-                align-items: center;
-                justify-content: center;
+                background: var(--bg-obsidian);
+                /* Cyber Grid & Ambient Glows */
+                background-image: 
+                    radial-gradient(at 0% 0%, rgba(0, 255, 213, 0.07) 0px, transparent 40%),
+                    radial-gradient(at 100% 100%, rgba(255, 93, 115, 0.05) 0px, transparent 40%),
+                    linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+                background-size: 100% 100%, 100% 100%, 60px 60px, 60px 60px;
+                color: #f7fbff;
                 height: 100vh;
+                margin: 0; padding: 0;
+                display: flex; align-items: center; justify-content: center;
+                overflow: hidden;
             }
 
             .app-container {
-                width: calc(100% - 60px);
-                max-width: 1600px;
-                height: calc(100vh - 60px);
-                background: var(--admin-surface);
-                border-radius: var(--radius-app);
-                overflow: hidden;
+                width: calc(100% - 40px);
+                height: calc(100vh - 40px);
+                max-width: 1720px;
                 display: flex;
-                box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+                gap: 20px;
             }
 
-            /* ── Sidebar ── */
+            /* ── SPATIAL SIDEBAR ── */
             #admin-sidebar {
-                width: 250px;
-                background: var(--admin-sidebar);
+                width: 280px;
+                background: rgba(10, 15, 25, 0.75);
+                backdrop-filter: blur(40px) saturate(150%);
+                -webkit-backdrop-filter: blur(40px) saturate(150%);
+                border: 1px solid var(--glass-border);
+                border-radius: var(--radius-cyber);
                 display: flex;
                 flex-direction: column;
                 flex-shrink: 0;
+                box-shadow: 0 30px 60px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.1);
             }
 
             .sidebar-brand {
-                padding: 40px 30px 20px;
-                display: flex;
-                align-items: center;
-                gap: 12px;
+                padding: 35px 30px;
+                border-bottom: 1px solid var(--glass-border);
             }
-            .sidebar-brand .logo-dots {
-                display: flex;
-                gap: 3px;
-                flex-wrap: wrap;
-                width: 12px;
+            .brand-logo {
+                font-family: 'Playfair Display', serif;
+                font-weight: 800; font-size: 1.5rem;
+                color: #fff;
             }
-            .sidebar-brand .logo-dots div { width: 4px; height: 4px; border-radius: 50%; }
-            .sidebar-brand .logo-dots .d1 { background: #3b82f6; }
-            .sidebar-brand .logo-dots .d2 { background: #f59e0b; }
-            .sidebar-brand .logo-dots .d3 { background: #ef4444; }
-            .sidebar-brand .logo-dots .d4 { background: #10b981; }
-
-            .sidebar-brand .brand-logo {
-                font-size: 1.2rem;
-                font-weight: 800;
-                color: var(--text-main);
-            }
+            .brand-logo span { color: var(--accent-cyan); text-shadow: 0 0 15px rgba(0,255,213,0.4); }
 
             .admin-profile {
-                padding: 10px 30px 30px;
-                display: flex;
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 10px;
-            }
-            .admin-avatar-wrap {
-                width: 60px; height: 60px;
-                border-radius: 50%;
-                background: #f7dac4;
-                padding: 3px;
-                margin: 0 auto 5px 0;
+                padding: 25px 30px;
+                background: rgba(255,255,255,0.03);
+                border-bottom: 1px solid var(--glass-border);
             }
             .admin-avatar {
-                width: 100%; height: 100%;
-                border-radius: 50%;
-                background: linear-gradient(135deg, var(--accent-red), #b91c1c);
+                width: 50px; height: 50px;
+                border-radius: 14px;
+                background: linear-gradient(135deg, #4ca7ff, var(--accent-cyan));
                 display: flex; align-items: center; justify-content: center;
-                font-weight: 800; color: white; font-size: 1.2rem;
+                font-weight: 800; color: #000; font-size: 1.3rem;
+                box-shadow: 0 0 20px rgba(0, 255, 213, 0.2);
             }
-            .admin-info .name { font-size: 0.95rem; font-weight: 800; color: var(--text-main); }
-            .admin-info .role { font-size: 0.7rem; color: var(--text-muted); font-weight: 500; }
 
-            /* Nav Menu */
-            .sidebar-nav {
-                flex: 1;
-                padding: 10px 0;
-                overflow-y: auto;
-            }
-            .sidebar-nav::-webkit-scrollbar { display: none; }
-            
             .nav-item-link {
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                padding: 14px 30px;
-                color: var(--text-muted);
+                margin: 4px 15px;
+                padding: 13px 18px;
+                border-radius: 14px;
+                color: rgba(247,251,255,0.65);
+                font-weight: 600; font-size: 0.88rem;
+                transition: all 0.3s var(--ease-spatial);
+                display: flex; align-items: center; gap: 14px;
                 text-decoration: none;
-                font-size: 0.85rem;
-                font-weight: 600;
-                transition: all 0.2s;
             }
-            .nav-text { display: flex; align-items: center; gap: 12px; }
-            .nav-item-link i { font-size: 1rem; }
-            
-            .nav-item-link:hover { color: var(--text-main); }
-            .nav-item-link.active { color: var(--text-main); font-weight: 800; }
-            .badge-dot {
-                width: 20px; height: 20px;
-                background: var(--accent-red);
-                color: white;
-                font-size: 0.6rem;
-                border-radius: 50%;
-                display: flex; align-items: center; justify-content: center;
-                font-weight: 800;
+            .nav-item-link i { font-size: 1.1rem; color: #475569; transition: inherit; }
+
+            .nav-item-link:hover {
+                background: rgba(255,255,255,0.05);
+                color: #fff;
+                transform: translateX(5px);
             }
 
-            .sidebar-footer {
-                padding: 20px 30px 40px;
-                margin-top: auto;
-                display: flex; flex-direction: column; gap: 15px;
+            .nav-item-link.active {
+                background: rgba(0, 255, 213, 0.1);
+                color: var(--accent-cyan);
+                border: 1px solid rgba(0, 255, 213, 0.2);
+                box-shadow: 0 0 25px rgba(0, 255, 213, 0.05);
             }
-            .sidebar-footer a {
-                color: var(--text-main);
-                font-weight: 800;
-                font-size: 0.85rem;
-                text-decoration: none;
-                display: flex; align-items: center; gap: 10px;
-            }
-            .sidebar-footer a i {
-                background: #e2e8f0;
-                width: 24px; height: 24px;
-                border-radius: 50%;
-                display: flex; align-items: center; justify-content: center;
-                font-size: 0.6rem;
-            }
+            .nav-item-link.active i { color: var(--accent-cyan); }
 
-            /* ── Main Content ── */
+            /* ── MAIN COMMAND AREA ── */
             #admin-content {
                 flex: 1;
+                background: rgba(10, 15, 25, 0.55);
+                backdrop-filter: blur(34px);
+                -webkit-backdrop-filter: blur(34px);
+                border: 1px solid var(--glass-border);
+                border-radius: var(--radius-cyber);
                 display: flex;
                 flex-direction: column;
-                background: var(--admin-surface);
                 overflow-y: auto;
-                position: relative;
-                padding: 40px 60px;
+                padding: 40px;
+                box-shadow: 0 24px 70px rgba(0,0,0,0.3);
             }
+
             #admin-content::-webkit-scrollbar { width: 6px; }
-            #admin-content::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+            #admin-content::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
 
-            /* Top Bar */
             .admin-topbar {
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
+                display: flex; align-items: center; justify-content: space-between;
                 margin-bottom: 40px;
+                padding-bottom: 20px;
+                border-bottom: 1px solid var(--glass-border);
             }
-            .admin-topbar .page-title {
-                font-size: 1.8rem;
-                font-weight: 800;
-                color: var(--text-main);
-                margin: 0;
-            }
+            .page-title { font-weight: 800; font-size: 1.75rem; letter-spacing: -0.5px; }
 
-            .top-actions { display: flex; align-items: center; gap: 15px; }
-            .notif-badge { 
-                width: 32px; height: 32px; 
-                display: flex; align-items: center; justify-content: center; 
-                color: var(--accent-red); background: rgba(239, 68, 68, 0.1); 
-                border-radius: 50%; font-size: 0.8rem; font-weight: 800; 
-                text-decoration: none;
-            }
-            .setting-icon { color: var(--text-muted); font-size: 1.2rem; }
-
-            /* Flash Messages */
-            .alert-admin {
+            .notif-badge {
+                width: 38px; height: 38px;
                 border-radius: 12px;
-                padding: 12px 16px;
-                font-size: 0.875rem;
-                font-weight: 600;
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                margin-bottom: 20px;
-                background: #f1f5f9; color: var(--text-main);
+                background: rgba(0, 255, 213, 0.1);
+                color: var(--accent-cyan);
+                display: flex; align-items: center; justify-content: center;
+                text-decoration: none; font-weight: 800;
+                border: 1px solid rgba(0, 255, 213, 0.2);
             }
-            .alert-admin-success { background: #dcfce7; color: #166534; }
-            .alert-admin-danger { background: #fee2e2; color: #991b1b; }
 
-            /* Form elements */
-            .form-control, .form-select { border-radius: 12px; border: 1px solid #e2e8f0; padding: 10px 15px; font-size: 0.85rem; box-shadow: none; }
-            .form-control:focus, .form-select:focus { border-color: var(--accent-cyan); box-shadow: 0 0 0 3px rgba(121, 206, 197, 0.2); }
+            /* ── SHARED SPATIAL COMPONENTS ── */
+            .alert-admin {
+                background: rgba(255,255,255,0.05);
+                border: 1px solid var(--glass-border);
+                border-radius: 16px;
+                padding: 16px 20px;
+                color: #fff;
+                margin-bottom: 25px;
+                backdrop-filter: blur(10px);
+            }
+            .alert-admin-success { border-left: 4px solid #10b981; color: #86efac; }
+            .alert-admin-danger { border-left: 4px solid var(--accent-red); color: #fca5a5; }
 
-            /* Buttons */
-            .btn-admin { padding: 8px 16px; border-radius: 12px; font-size: 0.8rem; font-weight: 700; border: none; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s; cursor: pointer; text-decoration: none; }
-            .btn-admin-red { background: #fee2e2; color: #b91c1c; }
-            .btn-admin-red:hover { background: #fca5a5; }
-            .btn-admin-blue { background: #dbeafe; color: #1d4ed8; }
-            .btn-admin-blue:hover { background: #bfdbfe; }
-            .btn-admin-green { background: #dcfce7; color: #15803d; }
-            .btn-admin-green:hover { background: #bbf7d0; }
-            .btn-admin-yellow { background: #fef9c3; color: #a16207; }
-            .btn-admin-outline { background: transparent; border: 1px solid #e2e8f0; color: var(--text-main); }
-            .btn-admin-outline:hover { background: #f1f5f9; }
+            .reveal-3d {
+                opacity: 0;
+                transform: translateY(20px) scale(0.98);
+                transition: all 0.6s var(--ease-spatial);
+            }
+            .reveal-3d.is-visible {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
 
-            /* Cards */
-            .admin-card { background: #ffffff; border-radius: 24px; padding: 30px; box-shadow: 0 5px 15px rgba(0,0,0,0.02); border: 1px solid #f1f5f9; margin-bottom: 24px; }
-            
-            /* Tables */
-            .admin-table { width: 100%; border-collapse: separate; border-spacing: 0; }
-            .admin-table thead th { padding: 15px 20px; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); font-weight: 800; border-bottom: 2px solid #f1f5f9; text-align: left; }
-            .admin-table tbody tr { transition: background 0.2s; }
-            .admin-table tbody tr:hover { background: #f8fafc; }
-            .admin-table tbody td { padding: 15px 20px; font-size: 0.85rem; color: var(--text-main); font-weight: 500; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
-
-            /* Badges */
-            .badge-admin { padding: 4px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 800; display: inline-flex; align-items: center; }
-            .badge-admin-red { background: #fee2e2; color: #b91c1c; }
-            .badge-admin-green { background: #dcfce7; color: #15803d; }
-            .badge-admin-blue { background: #dbeafe; color: #1d4ed8; }
-            .badge-admin-yellow { background: #fef9c3; color: #a16207; }
-            .badge-admin-gray { background: #f1f5f9; color: #64748b; }
-
-            /* Avatar generic */
-            .user-avatar { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; color: white; flex-shrink: 0; font-size: 1rem; }
-
-            /* Empty state */
-            .empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); }
-            .empty-state i { font-size: 2.5rem; opacity: 0.2; margin-bottom: 15px; display: block; }
-            .empty-state p { font-size: 0.9rem; margin: 0; font-weight: 600; }
-
-            @media (max-width: 900px) {
-                body { align-items: stretch; justify-content: stretch; padding: 0; }
-                .app-container { width: 100%; height: 100vh; max-width: 100%; border-radius: 0; flex-direction: column; }
-                #admin-sidebar { width: 100%; flex-direction: row; align-items: center; justify-content: space-between; padding: 10px 20px; height: 70px; border-bottom: 1px solid #e2e8f0; }
-                .sidebar-brand { padding: 0; }
-                .admin-profile, .sidebar-footer { display: none; }
-                .sidebar-nav { display: flex; align-items: center; gap: 15px; padding: 0; overflow-y: visible; overflow-x: auto; }
-                .nav-item-link { padding: 5px 10px; }
-                #admin-content { padding: 20px; }
+            @media (max-width: 1024px) {
+                body { overflow: auto; height: auto; padding: 20px 0; }
+                .app-container { flex-direction: column; height: auto; }
+                #admin-sidebar { width: 100%; height: auto; }
+                #admin-content { height: auto; padding: 25px; }
             }
         </style>
         {% block stylesheets %}{% endblock %}
     </head>
     <body>
         <div class="app-container">
-            {# ── Sidebar ── #}
+            {# ── COMMAND SIDEBAR ── #}
             <nav id="admin-sidebar">
                 <div class="sidebar-brand">
-                    <div class="logo-dots">
-                        <div class="d1"></div><div class="d2"></div><div class="d3"></div><div class="d4"></div>
-                    </div>
-                    <div class="brand-logo">Crowz<span style="font-weight:400;color:var(--text-muted);font-size:0.9rem;"> / Admin</span></div>
+                    <div class="brand-logo">Service<span>Hub</span></div>
                 </div>
 
-                <div class="admin-profile">
-                    <div class="admin-avatar-wrap">
-                        <div class="admin-avatar">{{ app.user.email|slice(0,1)|upper }}</div>
-                    </div>
-                    <div class="admin-info">
-                        <div class="name">{{ app.user.fullName|default('Admin') }}</div>
-                        <div class="role">Marketing Director</div>
+                <div class="admin-profile d-flex align-items-center gap-3">
+                    <div class="admin-avatar">{{ app.user.email|slice(0,1)|upper }}</div>
+                    <div>
+                        <div class="fw-bold" style="font-size: 0.9rem;">{{ app.user.fullName|default('Admin') }}</div>
+                        <div class="text-dim" style="font-size: 0.7rem; font-weight: 700; letter-spacing: 1px;">SYSTEM OVERSEER</div>
                     </div>
                 </div>
 
-                <div class="sidebar-nav">
+                <div class="sidebar-nav mt-3">
                     <a href="{{ path('app_admin_dashboard') }}" class="nav-item-link {{ app.request.get('_route') == 'app_admin_dashboard' ? 'active' : '' }}">
-                        <span class="nav-text">Dashboard</span>
-                        {% if app.request.get('_route') == 'app_admin_dashboard' %}<div class="badge-dot">4</div>{% endif %}
+                        <i class="fas fa-terminal"></i> <span>Telemetry</span>
                     </a>
                     <a href="{{ path('app_admin_users') }}" class="nav-item-link {{ 'user' in app.request.get('_route') ? 'active' : '' }}">
-                        <span class="nav-text">Users</span>
+                        <i class="fas fa-user-astronaut"></i> <span>Identity Index</span>
                     </a>
                     <a href="{{ path('app_admin_providers') }}" class="nav-item-link {{ 'provider' in app.request.get('_route') ? 'active' : '' }}">
-                        <span class="nav-text">Providers</span>
+                        <i class="fas fa-user-tie"></i> <span>Artisan Fleet</span>
                     </a>
                     <a href="{{ path('app_admin_services') }}" class="nav-item-link {{ 'service' in app.request.get('_route') ? 'active' : '' }}">
-                        <span class="nav-text">Services</span>
+                        <i class="fas fa-microchip"></i> <span>Archive Units</span>
                     </a>
                     <a href="{{ path('app_admin_categories') }}" class="nav-item-link {{ 'category' in app.request.get('_route') ? 'active' : '' }}">
-                        <span class="nav-text">Categories</span>
+                        <i class="fas fa-layer-group"></i> <span>Spheres</span>
                     </a>
                     <a href="{{ path('app_admin_bookings') }}" class="nav-item-link {{ 'booking' in app.request.get('_route') ? 'active' : '' }}">
-                        <span class="nav-text">Bookings</span>
+                        <i class="fas fa-satellite"></i> <span>Mission Logs</span>
                     </a>
                 </div>
 
-                <div class="sidebar-footer">
-                    <a href="{{ path('app_home') }}">
-                        <i class="fas fa-home"></i> Back to Home
+                <div class="sidebar-footer mt-auto p-4 border-top border-white border-opacity-10">
+                    <a href="{{ path('app_home') }}" class="nav-item-link m-0 mb-2">
+                        <i class="fas fa-door-open"></i> Return to Portal
                     </a>
-                    <a href="{{ path('app_logout') }}" style="color: var(--accent-red);">
-                        <i class="fas fa-arrow-right-from-bracket" style="background: rgba(239, 68, 68, 0.1); color: var(--accent-red);"></i> Log out
+                    <a href="{{ path('app_logout') }}" class="nav-item-link m-0 text-red" style="background: rgba(255,93,115,0.05);">
+                        <i class="fas fa-power-off"></i> Terminate Session
                     </a>
                 </div>
             </nav>
 
-            {# ── Main Content ── #}
+            {# ── COMMAND CONTENT AREA ── #}
             <div id="admin-content">
-                {# Top Bar #}
-                <div class="admin-topbar">
-                    <h1 class="page-title">{% block page_title %}Dashboard{% endblock %}</h1>
-                    <div class="top-actions">
+                <header class="admin-topbar">
+                    <h1 class="page-title">{% block page_title %}Operational Overview{% endblock %}</h1>
+                    <div class="top-actions d-flex gap-3 align-items-center">
+                        <div class="d-none d-md-block text-xxs fw-bold text-dim letter-spacing-2"><i class="fas fa-wifi text-teal me-2"></i>SECURE UPLINK</div>
                         <a href="#" class="notif-badge">1</a>
-                        <a href="{{ path('app_home') }}" class="setting-icon"><i class="fas fa-cog"></i></a>
                     </div>
-                </div>
+                </header>
 
-                {# Flash Messages #}
-                <div>
+                {# Flash Messenger #}
+                <div class="reveal-3d is-visible">
                     {% for label, messages in app.flashes %}
                         {% for message in messages %}
                             {% set alertClass = label == 'success' ? 'alert-admin-success' : (label == 'danger' ? 'alert-admin-danger' : '') %}
-                            <div class="alert-admin {{ alertClass }}">
+                            <div class="alert-admin {{ alertClass }} d-flex align-items-center gap-3">
+                                <i class="fas {{ label == 'success' ? 'fa-circle-check' : 'fa-triangle-exclamation' }}"></i>
                                 {{ message }}
                             </div>
                         {% endfor %}
                     {% endfor %}
                 </div>
 
-                {# Page Content #}
-                {% block body %}{% endblock %}
+                <div class="spatial-grid">
+                    {% block body %}{% endblock %}
+                </div>
             </div>
         </div>
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const revealObserver = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('is-visible');
+                            revealObserver.unobserve(entry.target);
+                        }
+                    });
+                }, { threshold: 0.1 });
+
+                document.querySelectorAll('.admin-card, .metric-box, .upgrade-widget, .performer-row, .reveal-3d').forEach((el, i) => {
+                    el.classList.add('reveal-3d');
+                    el.style.transitionDelay = `${Math.min(i * 50, 400)}ms`;
+                    revealObserver.observe(el);
+                });
+            });
+        </script>
         {% block javascripts %}{% endblock %}
     </body>
 </html>

@@ -1,62 +1,176 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Verify Your Account - ServiceHub{% endblock %}
+{% block title %}Verify Identity - ServiceHub{% endblock %}
+
+{% block stylesheets %}
+<style>
+    :root {
+        --accent-teal: #00ffd5;
+        --aurora-violet: #8B5CF6;
+        --aurora-pink: #EC4899;
+        --aurora-amber: #F59E0B;
+        --bg-obsidian: #080a0f;
+        --glass-frost: rgba(255, 255, 255, 0.04);
+        --ease-spatial: cubic-bezier(0.23, 1, 0.32, 1);
+    }
+    
+    /* ── SPATIAL SECURITY TERMINAL ── */
+    html, body { min-height: 100vh; background-color: #05070a; }
+
+    .portal-wrapper {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        padding: 2rem 1rem;
+        box-sizing: border-box;
+    }
+
+    .cyber-grid-bg {
+        position: absolute; inset: 0;
+        background: radial-gradient(circle at center, rgba(0, 255, 213, 0.05) 0%, #05070a 100%);
+        z-index: 0;
+    }
+    
+    .cyber-grid-bg::after {
+        content: ''; position: absolute; inset: 0;
+        background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiPgo8cmVjdCB3aWR0aD0iNCIgaGVpZ2h0PSI0IiBmaWxsPSIjZmZmIiBmaWxsLW9wYWNpdHk9IjAuMDIiLz4KPC9zdmc+') repeat;
+        mix-blend-mode: overlay;
+    }
+
+    .security-card {
+        width: 100%;
+        max-width: 480px;
+        background: rgba(10, 15, 25, 0.6);
+        backdrop-filter: blur(30px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 32px;
+        padding: 50px 40px;
+        position: relative;
+        z-index: 10;
+        box-shadow: 0 40px 100px rgba(0,0,0,0.6);
+        text-align: center;
+    }
+
+    .icon-node {
+        width: 72px; height: 72px;
+        border-radius: 20px;
+        background: rgba(0, 255, 213, 0.05);
+        border: 1px solid rgba(0, 255, 213, 0.2);
+        display: flex; align-items: center; justify-content: center;
+        color: var(--accent-teal);
+        font-size: 2rem;
+        margin: 0 auto 30px;
+        box-shadow: 0 0 30px rgba(0, 255, 213, 0.1);
+    }
+
+    /* ── TELEMETRY ALERTS ── */
+    .alert-spatial {
+        display: flex; align-items: flex-start; gap: 12px;
+        padding: 16px; border-radius: 12px;
+        font-size: 0.8rem; font-weight: 600;
+        margin-bottom: 24px; text-align: left;
+        background: rgba(255,255,255,0.02);
+        position: relative;
+        overflow: hidden;
+    }
+    .alert-spatial::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; }
+    
+    .alert-warning { border: 1px solid rgba(255, 209, 102, 0.1); color: #ffd166; }
+    .alert-warning::before { background: #ffd166; box-shadow: 0 0 15px #ffd166; }
+    
+    .alert-success { border: 1px solid rgba(0, 255, 213, 0.1); color: var(--accent-teal); }
+    .alert-success::before { background: var(--accent-teal); box-shadow: 0 0 15px var(--accent-teal); }
+    
+    .alert-error { border: 1px solid rgba(255, 93, 115, 0.1); color: #ff5d73; }
+    .alert-error::before { background: #ff5d73; box-shadow: 0 0 15px #ff5d73; }
+
+    /* ── CIPHER INPUT ── */
+    .cipher-input {
+        width: 100%;
+        background: rgba(0, 0, 0, 0.3) !important;
+        border: 1px dashed rgba(255, 255, 255, 0.2) !important;
+        border-radius: 16px !important;
+        color: var(--accent-teal) !important;
+        font-size: 2.5rem !important;
+        font-family: 'Fira Code', 'Courier New', monospace !important;
+        font-weight: 900 !important;
+        letter-spacing: 15px !important;
+        text-align: center !important;
+        padding: 20px !important;
+        outline: none;
+        transition: all 0.3s var(--ease-spatial);
+        margin-bottom: 30px;
+    }
+    .cipher-input::placeholder { color: rgba(255,255,255,0.05) !important; }
+    .cipher-input:focus {
+        border-color: var(--accent-teal) !important;
+        border-style: solid !important;
+        background: rgba(0, 255, 213, 0.02) !important;
+        box-shadow: 0 0 30px rgba(0, 255, 213, 0.1) !important;
+        text-shadow: 0 0 15px rgba(0, 255, 213, 0.4);
+    }
+</style>
+{% endblock %}
 
 {% block body %}
-<div class="otp-page">
-    <div class="otp-container">
-        <!-- Lock Icon -->
-        <div class="otp-icon">
-            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect x="5" y="11" width="14" height="10" rx="2" fill="currentColor" opacity="0.15"/>
-                <path d="M8 11V7a4 4 0 0 1 8 0v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                <circle cx="12" cy="16" r="1.5" fill="currentColor"/>
-            </svg>
+<div class="portal-wrapper reveal-3d">
+    <div class="cyber-grid-bg"></div>
+
+    <div class="security-card border-glow-hover">
+        
+        {# ── ICON & HEADER ── #}
+        <div class="icon-node">
+            <i class="fas fa-shield-halved"></i>
         </div>
 
-        <h1 class="otp-title">Verify Your Account</h1>
+        <div class="text-xxs text-teal fw-900 letter-spacing-4 mb-2">SECURITY PROTOCOL</div>
+        <h1 class="luxury-serif text-white mb-3" style="font-size: 2.2rem;">Identity Verification</h1>
+        
+        <p class="text-dim text-sm mb-4" style="line-height: 1.6;">
+            A one-time authorization cipher has been transmitted to your comm-link at<br>
+            <strong class="text-teal font-monospace mt-2 d-block">{{ email }}</strong>
+        </p>
 
+        {# ── TELEMETRY ALERTS ── #}
         {% if app.session.get('login_unverified_flash') %}
             {% do app.session.remove('login_unverified_flash') %}
-            <div class="otp-alert otp-alert-warning">
-                <svg viewBox="0 0 24 24" fill="none"><path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                Your email is not verified yet. Please enter the OTP to activate your account.
+            <div class="alert-spatial alert-warning">
+                <i class="fas fa-triangle-exclamation mt-1"></i>
+                <span>Node unverified. Input cipher to activate your account.</span>
             </div>
         {% endif %}
 
         {% for message in app.flashes('success') %}
-            <div class="otp-alert otp-alert-success">
-                <svg viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                {{ message|raw }}
+            <div class="alert-spatial alert-success">
+                <i class="fas fa-check-circle mt-1"></i>
+                <span>{{ message|raw }}</span>
             </div>
         {% endfor %}
 
         {% for message in app.flashes('error') %}
-            <div class="otp-alert otp-alert-error">
-                <svg viewBox="0 0 24 24" fill="none"><path d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                {{ message }}
+            <div class="alert-spatial alert-error">
+                <i class="fas fa-circle-xmark mt-1"></i>
+                <span>{{ message }}</span>
             </div>
         {% endfor %}
 
         {% for message in app.flashes('warning') %}
-            <div class="otp-alert otp-alert-warning">
-                <svg viewBox="0 0 24 24" fill="none"><path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                {{ message|raw }}
+            <div class="alert-spatial alert-warning">
+                <i class="fas fa-triangle-exclamation mt-1"></i>
+                <span>{{ message|raw }}</span>
             </div>
         {% endfor %}
 
-        <p class="otp-subtitle">
-            We've sent a 6-digit verification code to<br>
-            <strong class="otp-email">{{ email }}</strong>
-        </p>
-
-        <form method="post" class="otp-form">
-            <label class="otp-label">Verification Code</label>
+        {# ── AUTHORIZATION FORM ── #}
+        <form method="post" class="spatial-form mt-4">
+            <label class="text-xxs text-dim fw-900 letter-spacing-2 d-block mb-3">INPUT CIPHER CODE</label>
             <input 
                 type="text" 
                 name="otp" 
                 id="otp" 
-                class="otp-input" 
+                class="cipher-input" 
                 placeholder="000000" 
                 maxlength="6" 
                 pattern="\d{6}" 
@@ -65,192 +179,23 @@
                 autocomplete="one-time-code"
                 inputmode="numeric"
             >
-            <button type="submit" class="otp-btn">
-                <svg viewBox="0 0 24 24" fill="none" style="width:20px;height:20px;"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                Verify Account
+            
+            <button type="submit" class="btn-luxury w-100 py-3" style="font-size: 0.85rem;">
+                AUTHORIZE ACCESS <i class="fas fa-unlock ms-2"></i>
             </button>
         </form>
 
-        <div class="otp-footer">
-            <p>Didn't receive the code?</p>
-            <a href="{{ path('app_resend_otp') }}" class="otp-resend">
-                <svg viewBox="0 0 24 24" fill="none" style="width:16px;height:16px;"><path d="M1 4v6h6M23 20v-6h-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M20.49 9A9 9 0 005.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 013.51 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                Resend New Code
+        {# ── FALLBACK ACTIONS ── #}
+        <div class="mt-4 pt-4 border-top border-white border-opacity-5">
+            <p class="text-xxs text-dim fw-800 letter-spacing-1 mb-2">CIPHER NOT RECEIVED?</p>
+            <a href="{{ path('app_resend_otp') }}" class="text-teal text-xs fw-900 text-decoration-none d-block mb-3" style="transition: 0.3s; text-shadow: 0 0 10px rgba(0,255,213,0); hover: text-shadow: 0 0 10px rgba(0,255,213,0.5);">
+                REQUEST NEW TRANSMISSION
             </a>
-            <a href="{{ path('app_login') }}" class="otp-back">← Back to Login</a>
+            <a href="{{ path('app_login') }}" class="text-dim text-xxs fw-800 text-decoration-none" style="transition: 0.3s;">
+                ← ABORT & RETURN
+            </a>
         </div>
+
     </div>
 </div>
-
-<style>
-    body { background: linear-gradient(135deg, #0f0c29, #302b63, #24243e); min-height: 100vh; }
-    
-    .otp-page {
-        min-height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 24px;
-    }
-
-    .otp-container {
-        background: rgba(255, 255, 255, 0.05);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        border-radius: 24px;
-        padding: 48px 40px;
-        width: 100%;
-        max-width: 440px;
-        text-align: center;
-        box-shadow: 0 25px 60px rgba(0,0,0,0.4);
-    }
-
-    .otp-icon {
-        width: 72px;
-        height: 72px;
-        background: linear-gradient(135deg, #6366f1, #8b5cf6);
-        border-radius: 20px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto 24px;
-        color: white;
-        box-shadow: 0 8px 24px rgba(99, 102, 241, 0.4);
-    }
-
-    .otp-icon svg { width: 36px; height: 36px; color: white; }
-
-    .otp-title {
-        color: #f1f5f9;
-        font-size: 26px;
-        font-weight: 700;
-        margin: 0 0 8px;
-    }
-
-    .otp-subtitle {
-        color: #94a3b8;
-        font-size: 14px;
-        line-height: 1.7;
-        margin: 0 0 28px;
-    }
-
-    .otp-email {
-        color: #a5b4fc;
-        font-weight: 600;
-    }
-
-    .otp-alert {
-        display: flex;
-        align-items: flex-start;
-        gap: 10px;
-        padding: 14px 16px;
-        border-radius: 12px;
-        font-size: 13px;
-        margin-bottom: 20px;
-        text-align: left;
-    }
-
-    .otp-alert svg { width: 18px; height: 18px; flex-shrink: 0; margin-top: 1px; }
-
-    .otp-alert-success { background: rgba(34, 197, 94, 0.12); border: 1px solid rgba(34, 197, 94, 0.3); color: #86efac; }
-    .otp-alert-success svg { color: #4ade80; }
-    .otp-alert-error { background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.3); color: #fca5a5; }
-    .otp-alert-error svg { color: #f87171; }
-    .otp-alert-warning { background: rgba(234, 179, 8, 0.12); border: 1px solid rgba(234, 179, 8, 0.3); color: #fde68a; }
-    .otp-alert-warning svg { color: #facc15; }
-
-    .otp-form { margin-bottom: 24px; }
-
-    .otp-label {
-        display: block;
-        color: #94a3b8;
-        font-size: 11px;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 2px;
-        margin-bottom: 12px;
-    }
-
-    .otp-input {
-        width: 100%;
-        background: rgba(255,255,255,0.06);
-        border: 2px solid rgba(255,255,255,0.1);
-        border-radius: 14px;
-        color: #f1f5f9;
-        font-size: 32px;
-        font-weight: 700;
-        letter-spacing: 12px;
-        text-align: center;
-        padding: 18px;
-        outline: none;
-        transition: all 0.3s ease;
-        box-sizing: border-box;
-        font-family: 'Courier New', monospace;
-    }
-
-    .otp-input::placeholder { color: rgba(255,255,255,0.2); letter-spacing: 8px; }
-    .otp-input:focus {
-        border-color: #6366f1;
-        background: rgba(99, 102, 241, 0.08);
-        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
-    }
-
-    .otp-btn {
-        width: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 10px;
-        background: linear-gradient(135deg, #6366f1, #8b5cf6);
-        color: white;
-        border: none;
-        border-radius: 14px;
-        padding: 16px;
-        font-size: 16px;
-        font-weight: 600;
-        cursor: pointer;
-        margin-top: 16px;
-        transition: all 0.3s ease;
-        box-shadow: 0 8px 24px rgba(99, 102, 241, 0.35);
-    }
-
-    .otp-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 12px 32px rgba(99, 102, 241, 0.5);
-    }
-
-    .otp-footer {
-        border-top: 1px solid rgba(255,255,255,0.08);
-        padding-top: 24px;
-    }
-
-    .otp-footer p { color: #64748b; font-size: 13px; margin: 0 0 10px; }
-
-    .otp-resend {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        color: #818cf8;
-        font-size: 14px;
-        font-weight: 600;
-        text-decoration: none;
-        transition: color 0.2s;
-        margin-bottom: 12px;
-    }
-
-    .otp-resend:hover { color: #a5b4fc; }
-
-    .otp-back {
-        display: block;
-        color: #475569;
-        font-size: 13px;
-        text-decoration: none;
-        margin-top: 8px;
-        transition: color 0.2s;
-    }
-
-    .otp-back:hover { color: #94a3b8; }
-</style>
 {% endblock %}
-

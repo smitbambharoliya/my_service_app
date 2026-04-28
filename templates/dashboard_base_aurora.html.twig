@@ -3,516 +3,384 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>{% block title %}Dashboard — ServiceHub{% endblock %}</title>
+        <title>{% block title %}Command Center — ServiceHub Aurora{% endblock %}</title>
 
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&family=Playfair+Display:ital,wght@0,600;1,600&display=swap" rel="stylesheet">
 
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
         <style>
-            /* ── AURORA GLASSY LIGHT THEME ── */
+            /* ── 2026 AURORA SPATIAL SYSTEM ── */
             :root {
-                --aurora-white: #FFFFFF;
-                --aurora-bg: #F8FAFC;
-                --aurora-surface: rgba(255, 255, 255, 0.8);
-                --aurora-border: rgba(139, 92, 246, 0.15);
-
+                --aurora-bg: #F9FAFB;
                 --aurora-violet: #8B5CF6;
-                --aurora-violet-light: rgba(139, 92, 246, 0.1);
-                --aurora-blue: #3B82F6;
-                --aurora-blue-light: rgba(59, 130, 246, 0.1);
-                --aurora-pink: #EC4899;
-                --aurora-pink-light: rgba(236, 72, 153, 0.1);
                 --aurora-cyan: #06B6D4;
-                --aurora-cyan-light: rgba(6, 182, 212, 0.1);
+                --aurora-pink: #EC4899;
                 --aurora-emerald: #10B981;
-                --aurora-emerald-light: rgba(16, 185, 129, 0.1);
-                --aurora-amber: #F59E0B;
-                --aurora-amber-light: rgba(245, 158, 11, 0.1);
-
                 --aurora-text: #0F172A;
-                --aurora-text-secondary: #475569;
-                --aurora-text-muted: #94A3B8;
-
-                --gradient-violet: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);
-                --gradient-blue: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
-                --gradient-aurora: linear-gradient(135deg, #8B5CF6 0%, #3B82F6 50%, #06B6D4 100%);
-
-                --glass-bg: rgba(255, 255, 255, 0.7);
-                --glass-border: rgba(255, 255, 255, 0.5);
-                --glass-shadow: 0 8px 32px rgba(139, 92, 246, 0.1);
-
-                --sb-w: 280px;
-                --tb-h: 70px;
+                --glass-frost: rgba(255, 255, 255, 0.65);
+                --glass-border: rgba(139, 92, 246, 0.25);
+                --sb-w: 260px;
+                --tb-h: 80px;
+                --ease-spatial: cubic-bezier(0.23, 1, 0.32, 1);
+                --gradient-violet-cyan: linear-gradient(135deg, var(--aurora-violet) 0%, var(--aurora-cyan) 100%);
+                --gradient-pink-amber: linear-gradient(135deg, var(--aurora-pink) 0%, #F59E0B 100%);
             }
-
-            * { box-sizing: border-box; }
 
             body {
                 font-family: 'Plus Jakarta Sans', sans-serif;
-                background: var(--aurora-bg);
+                background: linear-gradient(135deg, var(--aurora-bg) 0%, #F3F4F6 100%);
                 color: var(--aurora-text);
-                display: flex;
                 min-height: 100vh;
+                display: flex;
                 overflow-x: hidden;
             }
 
-            h1, h2, h3, h4, h5, h6 {
-                font-family: 'Playfair Display', serif;
-                font-weight: 600;
-            }
-
-            /* ── Aurora Background ── */
+            /* ── Animated Aurora Blobs Background ── */
             .aurora-bg {
                 position: fixed;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
+                inset: 0;
                 z-index: -1;
-                overflow: hidden;
+                filter: blur(120px);
+                opacity: 0.7;
                 pointer-events: none;
             }
 
             .aurora-blob {
                 position: absolute;
                 border-radius: 50%;
-                filter: blur(80px);
-                opacity: 0.4;
-                animation: aurora-float 20s ease-in-out infinite;
+                animation: spatial-float 25s infinite alternate ease-in-out;
             }
 
-            .aurora-blob-1 {
-                width: 600px;
-                height: 600px;
-                background: linear-gradient(135deg, var(--aurora-violet), var(--aurora-pink));
-                top: -200px;
-                right: -100px;
+            .blob-1 { 
+                width: 600px; height: 600px; 
+                background: radial-gradient(circle, rgba(139, 92, 246, 0.3) 0%, transparent 70%);
+                top: -10%; right: -5%;
             }
 
-            .aurora-blob-2 {
-                width: 500px;
-                height: 500px;
-                background: linear-gradient(135deg, var(--aurora-blue), var(--aurora-cyan));
-                bottom: -150px;
-                left: -100px;
-                animation-delay: -5s;
+            .blob-2 { 
+                width: 500px; height: 500px; 
+                background: radial-gradient(circle, rgba(236, 72, 153, 0.25) 0%, transparent 70%);
+                bottom: -5%; left: -5%; 
+                animation-delay: -5s; 
             }
 
-            .aurora-blob-3 {
-                width: 400px;
-                height: 400px;
-                background: linear-gradient(135deg, var(--aurora-cyan), var(--aurora-emerald));
-                top: 50%;
-                left: 50%;
+            .blob-3 {
+                width: 400px; height: 400px;
+                background: radial-gradient(circle, rgba(6, 182, 212, 0.2) 0%, transparent 70%);
+                top: 50%; right: 10%;
                 animation-delay: -10s;
             }
 
-            @keyframes aurora-float {
-                0%, 100% { transform: translate(0, 0) scale(1); }
-                25% { transform: translate(50px, -50px) scale(1.1); }
-                50% { transform: translate(-30px, 30px) scale(0.95); }
-                75% { transform: translate(30px, 50px) scale(1.05); }
+            @keyframes spatial-float {
+                0% { transform: translate(0, 0) rotate(0deg); }
+                100% { transform: translate(80px, 60px) rotate(20deg); }
             }
 
-            /* ── SIDEBAR ── */
+            /* ── Floating Sidebar ── */
             #sidebar-aurora {
                 width: var(--sb-w);
-                background: var(--glass-bg);
-                backdrop-filter: blur(20px);
-                -webkit-backdrop-filter: blur(20px);
-                border-right: 1px solid var(--aurora-border);
+                background: var(--glass-frost);
+                backdrop-filter: blur(40px) saturate(200%);
+                -webkit-backdrop-filter: blur(40px) saturate(200%);
+                border: 2px solid var(--glass-border);
+                border-radius: 28px;
+                margin: 16px;
+                height: calc(100vh - 32px);
+                position: fixed;
+                z-index: 1000;
                 display: flex;
                 flex-direction: column;
-                position: fixed;
-                top: 0;
-                left: 0;
-                bottom: 0;
-                z-index: 1000;
-                transition: transform 0.3s ease;
-            }
-
-            .sb-brand-aurora {
-                height: var(--tb-h);
-                display: flex;
-                align-items: center;
-                padding: 0 24px;
-                border-bottom: 1px solid var(--aurora-border);
-            }
-
-            .sb-brand-aurora .brand-logo {
-                font-family: 'Playfair Display', serif;
-                font-size: 1.5rem;
-                font-weight: 700;
-                background: var(--gradient-aurora);
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
-            }
-
-            .sb-user-card-aurora {
-                padding: 24px;
-                border-bottom: 1px solid var(--aurora-border);
-            }
-
-            .sb-user-avatar {
-                width: 56px;
-                height: 56px;
-                border-radius: 16px;
-                background: var(--gradient-violet);
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                color: white;
-                font-weight: 700;
-                font-size: 1.4rem;
-                margin-bottom: 16px;
-                box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
-            }
-
-            .sb-user-info .name {
-                font-weight: 700;
-                color: var(--aurora-text);
-                font-size: 1rem;
-            }
-
-            .sb-user-info .tier {
-                font-size: 0.75rem;
-                color: var(--aurora-violet);
-                font-weight: 600;
-                text-transform: uppercase;
-                letter-spacing: 0.1em;
-            }
-
-            .sb-nav-aurora {
-                flex: 1;
-                padding: 16px 12px;
+                box-shadow: 0 20px 60px rgba(139, 92, 246, 0.12), inset 0 1px 1px rgba(255,255,255,0.3);
+                transition: all var(--ease-spatial);
                 overflow-y: auto;
             }
 
-            .sb-nav-label {
-                font-size: 0.7rem;
-                font-weight: 700;
-                color: var(--aurora-text-muted);
-                text-transform: uppercase;
-                letter-spacing: 0.15em;
-                margin: 24px 12px 8px;
+            .sb-brand-aurora {
+                padding: 30px 24px;
+                font-family: 'Playfair Display', serif;
+                font-weight: 800;
+                font-size: 1.6rem;
+                background: var(--gradient-violet-cyan);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+                border-bottom: 2px solid var(--glass-border);
+                margin-bottom: 12px;
             }
 
             .sb-link-aurora {
+                margin: 6px 14px;
+                padding: 12px 18px;
+                border-radius: 16px;
+                color: #64748b;
+                font-weight: 600;
+                font-size: 0.9rem;
                 display: flex;
                 align-items: center;
                 gap: 12px;
-                padding: 12px 16px;
-                border-radius: 12px;
-                color: var(--aurora-text-secondary);
-                font-weight: 600;
-                font-size: 0.9rem;
-                transition: all 0.2s ease;
-                margin-bottom: 4px;
                 text-decoration: none;
+                transition: all 0.3s var(--ease-spatial);
+                position: relative;
+                overflow: hidden;
             }
 
-            .sb-link-aurora i {
-                font-size: 1rem;
-                width: 24px;
+            .sb-link-aurora::before {
+                content: '';
+                position: absolute;
+                left: 0;
+                top: 0;
+                height: 100%;
+                width: 4px;
+                background: var(--gradient-violet-cyan);
+                opacity: 0;
+                transition: opacity 0.3s;
+            }
+
+            .sb-link-aurora i { 
+                font-size: 1.1rem; 
                 color: var(--aurora-violet);
+                transition: all 0.3s;
             }
 
-            .sb-link-aurora:hover {
-                background: var(--aurora-violet-light);
+            .sb-link-aurora:hover, .sb-link-aurora.active {
+                background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(6, 182, 212, 0.1));
                 color: var(--aurora-violet);
+                transform: translateX(5px);
+                border: 2px solid rgba(139, 92, 246, 0.2);
             }
 
-            .sb-link-aurora.active {
-                background: var(--aurora-violet-light);
+            .sb-link-aurora:hover::before, .sb-link-aurora.active::before {
+                opacity: 1;
+            }
+
+            .sb-nav-label {
+                font-size: 0.65rem; 
+                font-weight: 800; 
                 color: var(--aurora-violet);
-                border-right: 3px solid var(--aurora-violet);
+                letter-spacing: 0.2em; 
+                margin: 25px 14px 12px 14px;
+                text-transform: uppercase;
             }
 
-            /* ── MAIN CONTENT ── */
-            #main-wrapper {
-                margin-left: var(--sb-w);
+            .sb-nav {
                 flex: 1;
-                display: flex;
-                flex-direction: column;
-                min-width: 0;
+                overflow-y: auto;
+                padding-bottom: 20px;
+            }
+
+            .sb-nav::-webkit-scrollbar { width: 6px; }
+            .sb-nav::-webkit-scrollbar-track { background: transparent; }
+            .sb-nav::-webkit-scrollbar-thumb { 
+                background: var(--aurora-violet);
+                border-radius: 999px;
+                opacity: 0.3;
+            }
+
+            .sb-user-card {
+                padding: 16px 14px;
+                margin: 20px 14px;
+                background: linear-gradient(135deg, rgba(139, 92, 246, 0.08), rgba(6, 182, 212, 0.08));
+                border: 2px solid var(--glass-border);
+                border-radius: 16px;
+                backdrop-filter: blur(10px);
+                transition: all 0.3s;
+            }
+
+            .sb-user-card:hover {
+                background: linear-gradient(135deg, rgba(139, 92, 246, 0.12), rgba(6, 182, 212, 0.12));
+                border-color: rgba(139, 92, 246, 0.4);
+            }
+            
+            .sb-user-orb {
+                width: 52px; height: 52px;
+                border-radius: 14px;
+                background: var(--gradient-violet-cyan);
+                display: flex; align-items: center; justify-content: center;
+                font-weight: 800; color: white; font-size: 1.4rem;
+                margin-bottom: 12px;
+                box-shadow: 0 10px 25px rgba(139, 92, 246, 0.3);
+                border: 2px solid rgba(255, 255, 255, 0.5);
+            }
+
+            /* ── Topbar (Glass Island) ── */
+            #main-wrapper {
+                margin-left: calc(var(--sb-w) + 32px);
+                flex: 1;
+                padding: 16px 32px;
             }
 
             .dashboard-topbar-aurora {
                 height: var(--tb-h);
-                background: var(--glass-bg);
-                backdrop-filter: blur(20px);
-                border-bottom: 1px solid var(--aurora-border);
+                background: var(--glass-frost);
+                backdrop-filter: blur(30px) saturate(180%);
+                -webkit-backdrop-filter: blur(30px) saturate(180%);
+                border: 2px solid var(--glass-border);
+                border-radius: 24px;
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
-                padding: 0 32px;
+                padding: 0 30px;
+                margin-bottom: 30px;
                 position: sticky;
-                top: 0;
-                z-index: 100;
+                top: 16px;
+                z-index: 900;
+                box-shadow: 0 15px 40px rgba(139, 92, 246, 0.08);
             }
 
-            .page-title-aurora {
-                font-family: 'Playfair Display', serif;
-                font-weight: 700;
-                font-size: 1.25rem;
-                color: var(--aurora-text);
-            }
-
-            .content-area-aurora {
-                padding: 32px;
-                flex: 1;
-                max-width: 1400px;
-                width: 100%;
-                margin: 0 auto;
-            }
-
-            /* ── CARDS ── */
+            /* ── Aurora Card Styles ── */
             .aurora-card {
-                background: var(--glass-bg);
-                backdrop-filter: blur(20px);
-                -webkit-backdrop-filter: blur(20px);
-                border: 1px solid var(--aurora-border);
-                border-radius: 20px;
+                background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(255, 255, 255, 0.95));
+                border: 2px solid rgba(139, 92, 246, 0.12);
+                border-radius: 24px;
+                box-shadow: 0 15px 35px rgba(139, 92, 246, 0.08);
+                transition: all 0.4s var(--ease-spatial);
+                padding: 2rem;
+                position: relative;
                 overflow: hidden;
-                box-shadow: var(--glass-shadow);
             }
 
-            .aurora-card .card-header {
-                padding: 20px 24px;
-                border-bottom: 1px solid var(--aurora-border);
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
+            .aurora-card::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 4px;
+                background: var(--gradient-violet-cyan);
+                opacity: 0;
+                transition: opacity 0.3s;
             }
 
-            .aurora-card .card-title {
-                font-family: 'Playfair Display', serif;
-                font-size: 1.1rem;
+            .aurora-card:hover {
+                transform: translateY(-10px) scale(1.02);
+                box-shadow: 0 30px 60px rgba(139, 92, 246, 0.15);
+                border-color: rgba(139, 92, 246, 0.25);
+            }
+
+            .aurora-card:hover::before {
+                opacity: 1;
+            }
+
+            .aurora-card h3, .aurora-card h4 {
+                background: var(--gradient-violet-cyan);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
                 font-weight: 700;
-                color: var(--aurora-text);
-                margin: 0;
             }
 
-            .aurora-card .card-body {
-                padding: 24px;
-            }
-
-            /* ── STAT CARDS ── */
-            .stat-card-aurora {
-                background: var(--glass-bg);
-                backdrop-filter: blur(20px);
-                border: 1px solid var(--aurora-border);
+            /* ── Badge Glow ── */
+            .badge-aurora-violet {
+                background: var(--gradient-violet-cyan);
+                color: white;
+                padding: 8px 16px;
                 border-radius: 20px;
-                padding: 24px;
-                text-align: center;
-                transition: transform 0.2s ease;
-            }
-
-            .stat-card-aurora:hover {
-                transform: translateY(-4px);
-            }
-
-            .stat-icon-aurora {
-                width: 56px;
-                height: 56px;
-                border-radius: 16px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 1.4rem;
-                margin: 0 auto 16px;
-                color: white;
-            }
-
-            .stat-icon-aurora.violet { background: var(--gradient-violet); }
-            .stat-icon-aurora.blue { background: var(--gradient-blue); }
-            .stat-icon-aurora.emerald { background: linear-gradient(135deg, #10B981, #059669); }
-            .stat-icon-aurora.amber { background: linear-gradient(135deg, #F59E0B, #D97706); }
-
-            .stat-value-aurora {
-                font-size: 2rem;
-                font-weight: 800;
-                color: var(--aurora-text);
-                line-height: 1;
-                margin-bottom: 8px;
-            }
-
-            .stat-label-aurora {
-                font-size: 0.85rem;
-                color: var(--aurora-text-muted);
-                font-weight: 600;
-                text-transform: uppercase;
-                letter-spacing: 0.5px;
-            }
-
-            /* ── BUTTONS ── */
-            .btn-aurora {
-                display: inline-flex;
-                align-items: center;
-                justify-content: center;
-                gap: 8px;
-                font-weight: 600;
-                border-radius: 12px;
-                transition: all 0.2s ease;
-                border: none;
-                cursor: pointer;
-                text-decoration: none;
-                padding: 10px 18px;
-                font-size: 0.85rem;
-            }
-
-            .btn-aurora-gradient {
-                background: var(--gradient-violet);
-                color: white;
-                box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
-            }
-
-            .btn-aurora-gradient:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 8px 25px rgba(139, 92, 246, 0.4);
-                color: white;
-            }
-
-            .btn-aurora-outline {
-                background: transparent;
-                color: var(--aurora-violet);
-                border: 2px solid var(--aurora-violet);
-            }
-
-            .btn-aurora-outline:hover {
-                background: var(--aurora-violet);
-                color: white;
-            }
-
-            /* ── BADGES ── */
-            .badge-aurora {
-                padding: 6px 14px;
-                border-radius: 30px;
-                font-size: 0.75rem;
+                box-shadow: 0 6px 20px rgba(139, 92, 246, 0.35);
                 font-weight: 700;
-                border: 1px solid transparent;
-            }
-
-            .badge-aurora-violet { background: var(--aurora-violet-light); color: var(--aurora-violet); border-color: rgba(139, 92, 246, 0.2); }
-            .badge-aurora-blue { background: var(--aurora-blue-light); color: var(--aurora-blue); border-color: rgba(59, 130, 246, 0.2); }
-            .badge-aurora-emerald { background: var(--aurora-emerald-light); color: var(--aurora-emerald); border-color: rgba(16, 185, 129, 0.2); }
-            .badge-aurora-amber { background: var(--aurora-amber-light); color: var(--aurora-amber); border-color: rgba(245, 158, 11, 0.2); }
-
-            /* ── TABLES ── */
-            .aurora-table {
-                width: 100%;
-                margin: 0;
-            }
-
-            .aurora-table thead th {
-                padding: 16px 20px;
                 font-size: 0.75rem;
                 text-transform: uppercase;
-                letter-spacing: 1px;
-                color: var(--aurora-text-muted);
-                font-weight: 700;
-                background: rgba(139, 92, 246, 0.03);
-                border-bottom: 1px solid var(--aurora-border);
+                letter-spacing: 0.05em;
             }
 
-            .aurora-table tbody tr {
-                border-bottom: 1px solid var(--aurora-border);
-                transition: background 0.15s;
-            }
-
-            .aurora-table tbody tr:hover {
-                background: rgba(139, 92, 246, 0.03);
-            }
-
-            .aurora-table tbody td {
-                padding: 16px 20px;
-                font-size: 0.9rem;
-                color: var(--aurora-text);
-                vertical-align: middle;
-            }
-
-            /* ── CHART CONTAINER ── */
-            .chart-container-aurora {
-                background: var(--glass-bg);
-                backdrop-filter: blur(20px);
-                border: 1px solid var(--aurora-border);
+            .badge-emerald {
+                background: linear-gradient(135deg, var(--aurora-emerald), var(--aurora-cyan));
+                color: white;
+                padding: 8px 16px;
                 border-radius: 20px;
-                padding: 24px;
+                box-shadow: 0 6px 20px rgba(16, 185, 129, 0.35);
+                font-weight: 700;
+                font-size: 0.75rem;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
             }
 
-            /* ── MOBILE ── */
+            .badge-pink {
+                background: var(--gradient-pink-amber);
+                color: white;
+                padding: 8px 16px;
+                border-radius: 20px;
+                box-shadow: 0 6px 20px rgba(236, 72, 153, 0.35);
+                font-weight: 700;
+                font-size: 0.75rem;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+            }
+
             @media (max-width: 1100px) {
-                #sidebar-aurora { transform: translateX(-100%); }
-                #sidebar-aurora.open { transform: translateX(0); }
-                #main-wrapper { margin-left: 0; }
-                .dashboard-topbar-aurora { padding: 0 20px; }
+                #sidebar-aurora { transform: translateX(-110%); }
+                #sidebar-aurora.open { transform: translateX(0); margin: 10px; height: calc(100vh - 20px); }
+                #main-wrapper { margin-left: 0; padding: 10px 16px; }
+                .dashboard-topbar-aurora { flex-direction: column; height: auto; gap: 1rem; }
             }
         </style>
         {% block stylesheets %}{% endblock %}
     </head>
     <body>
-        <!-- Aurora Background -->
         <div class="aurora-bg">
-            <div class="aurora-blob aurora-blob-1"></div>
-            <div class="aurora-blob aurora-blob-2"></div>
-            <div class="aurora-blob aurora-blob-3"></div>
+            <div class="aurora-blob blob-1"></div>
+            <div class="aurora-blob blob-2"></div>
+            <div class="aurora-blob blob-3"></div>
         </div>
 
-        {# ── SIDEBAR ── #}
+        {# ── FLOATING SIDEBAR ── #}
         <aside id="sidebar-aurora">
             <div class="sb-brand-aurora">
-                <div class="brand-logo"><i class="fas fa-sparkles me-2"></i>ServiceHub</div>
+                ServiceHub<span style="color: var(--aurora-cyan)">.</span>
             </div>
 
-            <div class="sb-user-card-aurora">
-                <div class="sb-user-avatar">{{ app.user.fullName|slice(0,1)|upper }}</div>
-                <div class="sb-user-info">
-                    <div class="name">{{ app.user.fullName }}</div>
-                    <div class="tier">{{ app.user.tier }} Member</div>
+            <div class="px-4 mb-4">
+                <div class="d-flex align-items-center gap-3 p-3 rounded-4" style="background: rgba(139,92,246,0.05)">
+                    <div class="sb-user-avatar" style="width:44px; height:44px; background: var(--gradient-violet); border-radius:12px; display:flex; align-items:center; justify-content:center; color:white; font-weight:800;">
+                        {{ app.user.fullName|slice(0,1)|upper }}
+                    </div>
+                    <div>
+                        <div style="font-weight:800; font-size:0.85rem;">{{ app.user.fullName }}</div>
+                        <div style="font-size:0.65rem; color:var(--aurora-violet); font-weight:700; letter-spacing:1px;">{{ app.user.tier|upper }} MEMBER</div>
+                    </div>
                 </div>
             </div>
 
             <nav class="sb-nav-aurora">
                 <div class="sb-nav-label">Navigation</div>
                 <a href="{{ path('app_home') }}" class="sb-link-aurora">
-                    <i class="fas fa-home"></i> Home
+                    <i class="fas fa-compass"></i> Portal
                 </a>
 
-                <div class="sb-nav-label">Dashboard</div>
+                <div class="sb-nav-label">Management</div>
                 {% if is_granted('ROLE_PROVIDER') %}
                     <a href="{{ path('app_provider_dashboard') }}" class="sb-link-aurora {{ app.request.get('_route') == 'app_provider_dashboard' ? 'active' : '' }}">
-                        <i class="fas fa-chart-line"></i> Provider Dashboard
+                        <i class="fas fa-terminal"></i> Command
                     </a>
-                    {% set curationUrl = is_granted('ROLE_PROVIDER') ? path('app_provider_my_services') : (is_granted('ROLE_ADMIN') ? path('app_admin_services') : path('app_booking_my_bookings')) %}
-                    <a href="{{ curationUrl }}" class="sb-link-aurora {{ app.request.get('_route') == 'app_provider_my_services' ? 'active' : '' }}">
-                        <i class="fas fa-briefcase"></i> My Services
+                    <a href="{{ path('app_provider_my_services') }}" class="sb-link-aurora {{ app.request.get('_route') == 'app_provider_my_services' ? 'active' : '' }}">
+                        <i class="fas fa-box-archive"></i> Inventory
                     </a>
                 {% else %}
                     <a href="{{ path('app_customer_dashboard') }}" class="sb-link-aurora {{ app.request.get('_route') == 'app_customer_dashboard' ? 'active' : '' }}">
-                        <i class="fas fa-user"></i> Customer Dashboard
+                        <i class="fas fa-user-astronaut"></i> Manifest
                     </a>
                     <a href="{{ path('app_service_list') }}" class="sb-link-aurora">
-                        <i class="fas fa-search"></i> Explore Services
+                        <i class="fas fa-search"></i> Archive
                     </a>
                 {% endif %}
 
-                <div class="sb-nav-label">Account</div>
+                <div class="sb-nav-label">Personal</div>
                 <a href="{{ path('app_profile') }}" class="sb-link-aurora {{ app.request.get('_route') == 'app_profile' ? 'active' : '' }}">
-                    <i class="fas fa-user-circle"></i> Profile
+                    <i class="fas fa-fingerprint"></i> Identity
                 </a>
                 <a href="{{ path('app_billing_index') }}" class="sb-link-aurora {{ app.request.get('_route') == 'app_billing_index' ? 'active' : '' }}">
-                    <i class="fas fa-wallet"></i> Billing
+                    <i class="fas fa-wallet"></i> Exchequer
                 </a>
 
-                <div class="sb-nav-label">Session</div>
-                <a href="{{ path('app_logout') }}" class="sb-link-aurora" style="color: #EF4444;">
-                    <i class="fas fa-sign-out-alt"></i> Logout
-                </a>
+                <div class="mt-auto p-3">
+                    <a href="{{ path('app_logout') }}" class="sb-link-aurora text-danger" style="background: rgba(239,68,68,0.05)">
+                        <i class="fas fa-power-off text-danger"></i> Logout
+                    </a>
+                </div>
             </nav>
         </aside>
 
@@ -520,23 +388,29 @@
             <header class="dashboard-topbar-aurora">
                 <div class="d-flex align-items-center gap-3">
                     <button class="bg-transparent border-0 text-violet d-xl-none fs-4" onclick="document.getElementById('sidebar-aurora').classList.toggle('open')">
-                        <i class="fas fa-bars"></i>
+                        <i class="fas fa-bars-staggered"></i>
                     </button>
                     <div class="page-title-aurora">{% block page_title %}Dashboard{% endblock %}</div>
                 </div>
                 <div class="d-flex align-items-center gap-3">
-                    <span class="badge-aurora badge-aurora-violet">
-                        <i class="fas fa-crown me-1"></i> {{ app.user.tier }}
+                    <span class="badge-aurora-violet">
+                        <i class="fas fa-shield-halved me-1"></i> {{ app.user.tier }}
                     </span>
                 </div>
             </header>
 
-            <main class="content-area-aurora">
+            <main class="content-area-aurora animate-spatial">
                 {% block body %}{% endblock %}
             </main>
         </div>
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <script>
+            // Simple Mobile Toggle
+            document.querySelector('.text-violet').addEventListener('click', function() {
+                document.getElementById('sidebar-aurora').classList.toggle('open');
+            });
+        </script>
         {% block javascripts %}{% endblock %}
     </body>
 </html>

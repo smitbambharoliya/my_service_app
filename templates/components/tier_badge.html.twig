@@ -3,22 +3,96 @@
   Props:
   tier (string) => 'bronze' | 'silver' | 'gold' | 'platinum' | 'aurora elite'
 #}
+
 {% set current_tier = tier|lower %}
-{% set badge_class = 'tier-bronze' %}
-{% set icon = 'fa-medal' %}
+{% set icon = 'fa-certificate' %}
+{% set badge_style = '' %}
 
 {% if current_tier == 'silver' %}
-    {% set badge_class = 'tier-silver' %}
+    {% set badge_style = 'badge-silver' %}
+    {% set icon = 'fa-shield-halved' %}
 {% elseif current_tier == 'gold' %}
-    {% set badge_class = 'tier-gold' %}
+    {% set badge_style = 'badge-gold' %}
+    {% set icon = 'fa-award' %}
 {% elseif current_tier == 'platinum' %}
-    {% set badge_class = 'tier-platinum' %}
+    {% set badge_style = 'badge-platinum' %}
     {% set icon = 'fa-gem' %}
 {% elseif current_tier == 'aurora elite' %}
-    {% set badge_class = 'tier-aurora' %}
+    {% set badge_style = 'badge-aurora-elite' %}
     {% set icon = 'fa-crown' %}
+{% else %}
+    {% set badge_style = 'badge-bronze' %}
 {% endif %}
 
-<span class="tier-badge {{ badge_class }}">
-    <i class="fa-solid {{ icon }}"></i> {{ tier|upper }}
+<span class="fidelity-token {{ badge_style }} reveal-3d">
+    <i class="fas {{ icon }} me-1"></i>
+    <span>{{ tier|upper }}</span>
 </span>
+
+{# ── COMPONENT STYLES ── #}
+<style>
+    .fidelity-token {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 12px;
+        border-radius: 8px;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-weight: 800;
+        font-size: 0.6rem;
+        letter-spacing: 1.5px;
+        border: 1px solid transparent;
+        transition: all 0.4s var(--ease-spatial);
+        cursor: default;
+    }
+
+    /* 1. Bronze: Subtle Copper */
+    .badge-bronze {
+        background: rgba(205, 127, 50, 0.1);
+        color: #cd7f32;
+        border-color: rgba(205, 127, 50, 0.2);
+    }
+
+    /* 2. Silver: Chrome Reflective */
+    .badge-silver {
+        background: rgba(192, 192, 192, 0.1);
+        color: #e2e8f0;
+        border-color: rgba(192, 192, 192, 0.2);
+    }
+
+    /* 3. Gold: Solar Glow */
+    .badge-gold {
+        background: rgba(212, 175, 55, 0.1);
+        color: #ffd166;
+        border-color: rgba(212, 175, 55, 0.3);
+        box-shadow: 0 0 10px rgba(212, 175, 55, 0.1);
+    }
+
+    /* 4. Platinum: Diamond Hardlight */
+    .badge-platinum {
+        background: rgba(76, 167, 255, 0.1);
+        color: #4ca7ff;
+        border-color: rgba(76, 167, 255, 0.4);
+        text-shadow: 0 0 8px rgba(76, 167, 255, 0.5);
+    }
+
+    /* 5. Aurora Elite: Holographic Node */
+    .badge-aurora-elite {
+        background: rgba(0, 255, 213, 0.15);
+        color: #00ffd5;
+        border: 1px solid var(--accent-teal);
+        box-shadow: 0 0 15px rgba(0, 255, 213, 0.3);
+        animation: aurora-pulse 3s infinite;
+        position: relative;
+    }
+
+    @keyframes aurora-pulse {
+        0% { box-shadow: 0 0 10px rgba(0, 255, 213, 0.2); transform: scale(1); }
+        50% { box-shadow: 0 0 25px rgba(0, 255, 213, 0.5); transform: scale(1.05); }
+        100% { box-shadow: 0 0 10px rgba(0, 255, 213, 0.2); transform: scale(1); }
+    }
+
+    .fidelity-token:hover {
+        filter: brightness(1.2);
+        transform: translateY(-2px);
+    }
+</style>

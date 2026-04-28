@@ -1,10 +1,11 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Sign In — ServiceHub Luxury Portal{% endblock %}
+{% block title %}Authenticate Node - ServiceHub{% endblock %}
 
 {% block stylesheets %}
 <style>
-    html { scroll-behavior: smooth; }
+    /* ── SPATIAL AUTHENTICATION TERMINAL ── */
+    html { scroll-behavior: smooth; background-color: #05070a; }
 
     .portal-wrapper {
         min-height: 100vh;
@@ -12,167 +13,189 @@
         align-items: center;
         justify-content: center;
         position: relative;
-        padding: clamp(1.5rem, 4vw, 2.5rem);
+        padding: 2rem 1rem;
         box-sizing: border-box;
+    }
+
+    .cyber-grid-bg {
+        position: absolute; inset: 0;
+        background: radial-gradient(circle at bottom left, rgba(157, 124, 255, 0.05) 0%, #05070a 100%);
+        z-index: 0;
     }
 
     .portal-card {
         width: 100%;
-        max-width: 1050px;
+        max-width: 1100px;
         display: grid;
         grid-template-columns: 1.2fr 1fr;
-        background: var(--glass-bg);
-        backdrop-filter: blur(var(--glass-blur));
-        -webkit-backdrop-filter: blur(var(--glass-blur));
-        border: 1px solid var(--glass-border);
-        border-radius: 28px;
+        background: rgba(10, 15, 25, 0.6);
+        backdrop-filter: blur(30px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 32px;
         overflow: hidden;
         position: relative;
         z-index: 10;
-        box-shadow: var(--shadow-elevated);
+        box-shadow: 0 40px 100px rgba(0,0,0,0.6);
     }
 
+    /* ── LEFT: HOLOGRAPHIC VISUAL ── */
     .portal-visual {
+        background: linear-gradient(135deg, rgba(0, 0, 0, 0.8), rgba(10, 15, 25, 0.9)), 
+                    url('https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=1200&auto=format&fit=crop');
         background-size: cover;
         background-position: center;
+        background-blend-mode: overlay;
         position: relative;
         padding: 60px;
         display: flex;
         flex-direction: column;
-        justify-content: flex-end;
-        border-radius: 28px 0 0 28px;
-        overflow: hidden;
+        justify-content: center;
+        border-right: 1px solid rgba(255, 255, 255, 0.05);
     }
-    .portal-visual::after {
+    
+    .portal-visual::before {
         content: ''; position: absolute; inset: 0;
-        background: linear-gradient(to top, rgba(15, 23, 42, 0.9) 0%, rgba(15, 23, 42, 0.3) 60%, transparent 100%);
+        background: radial-gradient(circle at 30% 50%, rgba(0, 255, 213, 0.15) 0%, transparent 60%);
+        pointer-events: none;
     }
-    .visual-content { position: relative; z-index: 10; }
-    .visual-content h2, .visual-content p { color: #ffffff !important; }
-    .visual-content .text-gold { color: #bae6fd !important; }
 
+    /* ── RIGHT: SECURE TERMINAL ── */
     .portal-form-side {
-        padding: 56px 52px;
-        background: rgba(255, 255, 255, 0.7);
-        backdrop-filter: blur(10px);
+        padding: 60px 50px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
     }
 
-    .input-label {
+    .input-label-spatial {
         font-size: 0.65rem;
-        font-weight: 800;
-        color: var(--color-on-surface-variant);
+        font-weight: 900;
+        color: var(--text-dim);
         text-transform: uppercase;
-        letter-spacing: 0.15em;
-        margin-bottom: 8px;
+        letter-spacing: 2px;
+        margin-bottom: 10px;
         display: block;
     }
 
-    .auth-input {
+    .cyber-input {
         width: 100%;
-        background: rgba(255, 255, 255, 0.6);
-        border: 1px solid var(--glass-border);
-        border-radius: 12px;
-        padding: 14px 18px;
-        color: var(--color-on-surface);
-        font-size: 0.9rem;
-        transition: all 0.3s var(--ease-luxury);
-        margin-bottom: 20px;
-        font-family: 'Outfit', sans-serif;
+        background: rgba(255, 255, 255, 0.03) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        border-radius: 12px !important;
+        padding: 16px 20px !important;
+        color: #fff !important;
+        transition: all 0.3s var(--ease-spatial);
+        margin-bottom: 24px;
     }
-    .auth-input:focus {
-        background: rgba(255, 255, 255, 0.9);
-        border-color: var(--color-primary);
+    
+    .cyber-input:focus {
+        border-color: var(--accent-teal) !important;
+        background: rgba(0, 255, 213, 0.02) !important;
+        box-shadow: 0 0 20px rgba(0, 255, 213, 0.1) !important;
         outline: none;
-        box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.12);
     }
-    .auth-input::placeholder { color: #94a3b8; }
+    .cyber-input::placeholder { color: rgba(255,255,255,0.2) !important; }
 
-    .portal-form-side h3, .portal-form-side p, .portal-form-side label {
-        color: var(--color-on-surface) !important;
-    }
-    .link-accent { color: var(--color-primary); font-weight: 700; text-decoration: none; }
-    .link-accent:hover { color: var(--color-secondary); }
-
-    .submit-btn {
-        width: 100%;
-        background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
-        color: #ffffff;
-        border: none;
-        border-radius: 50px;
-        padding: 14px;
-        font-size: 0.85rem;
-        font-weight: 700;
-        letter-spacing: 0.05em;
+    /* Custom Checkbox */
+    .form-check-input {
+        background-color: rgba(255,255,255,0.1);
+        border-color: rgba(255,255,255,0.2);
+        width: 1.2rem; height: 1.2rem;
         cursor: pointer;
-        transition: all 0.3s var(--ease-luxury);
-        box-shadow: 0 8px 25px rgba(14,165,233,0.25);
     }
-    .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(14,165,233,0.35); }
+    .form-check-input:checked {
+        background-color: var(--accent-teal);
+        border-color: var(--accent-teal);
+        box-shadow: 0 0 10px var(--accent-teal);
+    }
+
+    /* Telemetry Error */
+    .alert-spatial-error {
+        display: flex; align-items: flex-start; gap: 12px;
+        padding: 16px; border-radius: 12px;
+        font-size: 0.8rem; font-weight: 600;
+        margin-bottom: 24px;
+        background: rgba(255, 93, 115, 0.05);
+        border: 1px solid rgba(255, 93, 115, 0.2);
+        color: #ff5d73;
+        position: relative;
+        overflow: hidden;
+    }
+    .alert-spatial-error::before {
+        content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+        background: #ff5d73; box-shadow: 0 0 15px #ff5d73;
+    }
 
     @media (max-width: 992px) {
-        .portal-card { grid-template-columns: 1fr; max-width: 480px; }
+        .portal-card { grid-template-columns: 1fr; max-width: 500px; }
         .portal-visual { display: none; }
-        .portal-form-side { padding: 40px 36px; border-radius: 28px; }
+        .portal-form-side { padding: 40px 30px; }
     }
 </style>
 {% endblock %}
 
 {% block body %}
-<div class="portal-wrapper">
+<div class="portal-wrapper reveal-3d">
+    <div class="cyber-grid-bg"></div>
     
-    <div class="portal-card animate-fade-in">
-        {# ── LEFT: VISUAL ── #}
-        <div class="portal-visual" style="background-image: url('https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?q=80&w=1200&auto=format&fit=crop');">
-            <div class="visual-content">
-                <span class="text-gold text-xs fw-800 letter-spacing-2 mb-3 d-block" style="text-shadow: 0 0 10px rgba(56, 189, 248, 0.5);">WELCOME BACK</span>
-                <h2 class="luxury-serif text-pure mb-4" style="font-size: 2.3rem; text-shadow: 0 4px 15px rgba(255, 255, 255, 0.3);">Sign in to<br>continue with ServiceHub.</h2>
-                <p class="text-silver mb-0" style="max-width: 350px;">Access your bookings, services and history in one place.</p>
+    <div class="portal-card border-glow-hover text-start">
+        
+        {# ── LEFT: HOLOGRAPHIC VISUAL ── #}
+        <div class="portal-visual">
+            <div class="position-relative z-index-10">
+                <span class="text-xxs text-teal fw-900 letter-spacing-4 mb-3 d-block">SECURE CONNECTION</span>
+                <h2 class="luxury-serif text-white mb-4" style="font-size: 2.8rem; line-height: 1.1;">Re-establish<br>network uplink.</h2>
+                <p class="text-dim mb-0" style="max-width: 350px; font-size: 0.95rem; line-height: 1.6;">
+                    Access your active missions, secure comms, and telemetry data from your central hub.
+                </p>
             </div>
         </div>
 
         {# ── RIGHT: THE SECURE TERMINAL ── #}
         <div class="portal-form-side">
-            <div class="text-center mb-5">
-                <a href="{{ path('app_home') }}" class="text-decoration-none h3 mb-1 d-block fw-800" style="color: var(--color-on-surface); font-family: Outfit, sans-serif;">Service<span style="color: var(--color-primary); font-style: italic;">Hub</span></a>
-                <p class="text-xs fw-bold letter-spacing-1 mb-1" style="color: var(--color-on-surface-variant);">Sign in to your account</p>
-                <p class="text-xxs mb-0" style="color: #94a3b8;">Use your email and password to continue.</p>
+            <div class="mb-5">
+                <h3 class="luxury-serif text-white h3 mb-1">Authenticate</h3>
+                <p class="text-xxs text-dim fw-900 letter-spacing-2 mb-0">IDENTITY VERIFICATION REQUIRED</p>
             </div>
 
             {% if error %}
-                <div class="glass-card mb-4 p-3 d-flex align-items-center gap-3" style="border-left: 2px solid #ef4444 !important; background: rgba(239, 68, 68, 0.05); box-shadow: none;">
-                    <i class="fas fa-shield-halved text-red fs-5"></i>
-                    <div class="text-xs text-pure fw-bold">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+                <div class="alert-spatial-error">
+                    <i class="fas fa-shield-halved mt-1"></i>
+                    <span>{{ error.messageKey|trans(error.messageData, 'security') }}</span>
                 </div>
             {% endif %}
 
-            <form method="post">
+            <form method="post" class="spatial-form">
                 <div class="mb-4">
-                    <label class="input-label">Identity (Email)</label>
-                    <input type="email" name="email" value="{{ last_username }}" class="auth-input" placeholder="representative@domain.com" required autofocus>
+                    <label class="input-label-spatial">Establishment ID (Email)</label>
+                    <input type="email" name="email" value="{{ last_username }}" class="cyber-input" placeholder="node@server.com" required autofocus>
                 </div>
 
                 <div class="mb-4">
                     <div class="d-flex justify-content-between align-items-center mb-2">
-                        <label class="input-label mb-0">Password</label>
-                        <a href="#" class="text-xxs link-accent">Forgot password?</a>
+                        <label class="input-label-spatial mb-0">Security Cipher (Password)</label>
+                        <a href="#" class="text-xxs text-teal fw-900 text-decoration-none letter-spacing-1" style="transition: 0.3s;">RECOVER CIPHER</a>
                     </div>
-                    <input type="password" name="password" class="auth-input" placeholder="••••••••" required>
+                    <input type="password" name="password" class="cyber-input" placeholder="••••••••" required>
                 </div>
 
                 <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
 
-                <div class="mb-4 d-flex align-items-center gap-3">
-                    <input type="checkbox" name="_remember_me" id="rememberMe" class="form-check-input" style="border-color: #cbd5e1; width:18px; height:18px;">
-                    <label class="text-xs fw-600 cursor-pointer" for="rememberMe" style="color: var(--color-on-surface-variant);">Remember me on this device</label>
+                <div class="mb-5 d-flex align-items-center gap-3 bg-surface p-3 rounded-3 border-glass">
+                    <input type="checkbox" name="_remember_me" id="rememberMe" class="form-check-input m-0">
+                    <label class="text-xxs text-dim fw-900 letter-spacing-1 cursor-pointer m-0" for="rememberMe">
+                        MAINTAIN PERSISTENT UPLINK
+                    </label>
                 </div>
 
-                <button class="submit-btn mb-4" type="submit">
-                    Sign In <i class="fas fa-arrow-right ms-2"></i>
+                <button class="btn-luxury w-100 py-4 mb-4" type="submit" style="font-size: 0.85rem;">
+                    INITIALIZE SESSION <i class="fas fa-arrow-right ms-2"></i>
                 </button>
 
-                <div class="text-center">
-                    <p class="text-xs mb-0" style="color: var(--color-on-surface-variant);">
-                        New here? <a href="{{ path('app_register') }}" class="link-accent">Create an account</a>
+                <div class="text-center pt-4 border-top border-white border-opacity-5">
+                    <p class="text-xs text-dim fw-800 mb-0">
+                        UNREGISTERED NODE? 
+                        <a href="{{ path('app_register') }}" class="text-teal text-decoration-none ms-2 letter-spacing-1">INITIALIZE NEW ACCOUNT</a>
                     </p>
                 </div>
             </form>

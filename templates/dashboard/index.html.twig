@@ -1,20 +1,109 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello DashboardController!{% endblock %}
+{% block title %}System Initialize — ServiceHub Dashboard{% endblock %}
 
 {% block body %}
-<style>
-    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
-</style>
+<div class="reveal-3d" style="min-height: 80vh; display: flex; align-items: center; justify-content: center;">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                
+                {# ── CORE INITIALIZATION MODULE ── #}
+                <div class="glass-card p-5 border-glow-hover text-center">
+                    <div class="mb-4">
+                        <div class="p-4 rounded-circle d-inline-block bg-surface border-glass mb-3">
+                            <i class="fas fa-terminal text-teal fs-2 animate-pulse"></i>
+                        </div>
+                        <h1 class="luxury-serif text-white display-5">Uplink Established<span class="text-teal">.</span></h1>
+                        <p class="text-dim letter-spacing-1 fw-800 text-xxs">CONTROLLER: {{ controller_name|upper }}</p>
+                    </div>
 
-<div class="example-wrapper">
-    <h1>Hello {{ controller_name }}! ✅</h1>
+                    <div class="p-4 rounded-4 bg-surface border-glass text-start mb-5">
+                        <div class="text-xxs text-teal fw-900 letter-spacing-2 mb-3">ACTIVE COORDINATES</div>
+                        <div class="d-grid gap-3">
+                            <div class="d-flex align-items-center gap-3">
+                                <i class="fas fa-microchip text-dim opacity-30"></i>
+                                <code class="text-white small opacity-80">src/Controller/DashboardController.php</code>
+                            </div>
+                            <div class="d-flex align-items-center gap-3">
+                                <i class="fas fa-code text-dim opacity-30"></i>
+                                <code class="text-white small opacity-80">templates/dashboard/index.html.twig</code>
+                            </div>
+                        </div>
+                    </div>
 
-    This friendly message is coming from:
-    <ul>
-        <li>Your controller at <code>D:/xampp/my_service_app/src/Controller/DashboardController.php</code></li>
-        <li>Your template at <code>D:/xampp/my_service_app/templates/dashboard/index.html.twig</code></li>
-    </ul>
+                    {# ── RAPID ACCESS NODES ── #}
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <a href="{{ path('app_service_list') }}" class="node-action">
+                                <i class="fas fa-compass mb-2"></i>
+                                <span>Registry</span>
+                            </a>
+                        </div>
+                        <div class="col-md-6">
+                            <a href="{{ path('app_customer_dashboard') }}" class="node-action">
+                                <i class="fas fa-user-shield mb-2"></i>
+                                <span>Identity</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="mt-5 pt-4 border-top border-white border-opacity-5">
+                        <div class="status-badge-spatial">
+                            <span class="status-dot-sm bg-teal me-2"></span>
+                            <span class="text-xxs fw-800 text-dim">SYSTEM HEARTBEAT: STABLE</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
 </div>
+
+<style>
+    /* ── DASHBOARD INITIALIZE STYLES ── */
+    .bg-surface { background: rgba(255, 255, 255, 0.02); }
+    .border-glass { border: 1px solid rgba(255, 255, 255, 0.08); }
+
+    .node-action {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        color: #fff;
+        text-decoration: none;
+        font-weight: 800;
+        font-size: 0.7rem;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        transition: all 0.4s var(--ease-spatial);
+    }
+
+    .node-action:hover {
+        background: rgba(0, 255, 213, 0.05);
+        border-color: var(--accent-teal);
+        transform: translateY(-5px);
+        color: var(--accent-teal);
+        box-shadow: 0 10px 30px rgba(0, 255, 213, 0.1);
+    }
+
+    .status-badge-spatial {
+        display: inline-flex;
+        align-items: center;
+        padding: 6px 16px;
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 99px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .status-dot-sm {
+        width: 6px; height: 6px;
+        border-radius: 50%;
+        box-shadow: 0 0 10px currentColor;
+    }
+</style>
 {% endblock %}

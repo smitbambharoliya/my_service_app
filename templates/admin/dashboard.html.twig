@@ -1,227 +1,201 @@
 {% extends 'admin/admin_base.html.twig' %}
 
-{% block title %}Dashboard - Crowz Theme{% endblock %}
-{% block page_title %}Dashboard{% endblock %}
+{% block title %}Telemetry Dashboard — ServiceHub Admin{% endblock %}
+{% block page_title %}System Telemetry{% endblock %}
 
 {% block stylesheets %}
 <style>
-    /* Metric Item */
-    .metric-group { display: flex; gap: 40px; margin-bottom: 50px; }
-    .metric-box { display: flex; flex-direction: column; gap: 8px; }
-    .metric-label { font-size: 0.8rem; color: var(--text-muted); font-weight: 600; display: flex; align-items: center; gap: 8px; }
-    .metric-icon { width: 14px; height: 14px; border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-size: 8px; }
-    .metric-val { font-size: 2rem; font-weight: 800; color: var(--text-main); letter-spacing: -1px; }
+    /* ── BENTO GRID SYSTEM ── */
+    .bento-grid {
+        display: grid;
+        grid-template-columns: repeat(12, 1fr);
+        grid-auto-rows: minmax(160px, auto);
+        gap: 20px;
+    }
 
-    /* Upgrade Widget */
-    .upgrade-widget {
-        background: #fdf6ec; /* Soft sandy pastel */
-        border-radius: 24px;
-        padding: 30px;
+    /* ── METRIC NODES ── */
+    .metric-node {
+        grid-column: span 3;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+    .metric-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+    .metric-label { font-size: 0.65rem; font-weight: 800; color: var(--theme-muted); letter-spacing: 1.5px; }
+    .metric-val { font-size: 2.2rem; font-weight: 800; color: #fff; letter-spacing: -1px; line-height: 1; }
+    .metric-trend { font-size: 0.65rem; padding: 4px 8px; border-radius: 6px; font-weight: 700; }
+    .trend-up { background: rgba(0, 255, 213, 0.1); color: var(--accent-cyan); }
+    .trend-down { background: rgba(255, 93, 115, 0.1); color: var(--accent-red); }
+
+    /* ── ACTIVITY CORE (CHART) ── */
+    .activity-core {
+        grid-column: span 8;
+        grid-row: span 2;
+    }
+
+    /* ── REVENUE MODULE ── */
+    .revenue-module {
+        grid-column: span 4;
+        grid-row: span 2;
+        background: linear-gradient(145deg, rgba(212, 175, 55, 0.15), rgba(8, 10, 15, 0.4)) !important;
+        border-color: rgba(212, 175, 55, 0.3) !important;
         position: relative;
         overflow: hidden;
-        display: flex; flex-direction: column; justify-content: center;
-        height: 100%;
-        min-height: 130px;
     }
-    .upgrade-avatar { width: 24px; height: 24px; border-radius: 50%; background: #3b82f6; display: flex; align-items: center; justify-content: center; color: white; font-size: 10px; margin-bottom: 12px; }
-    .upgrade-title { font-size: 1.1rem; font-weight: 800; color: var(--text-main); line-height: 1.2; margin-bottom: 5px; }
-    .upgrade-sub { font-size: 0.75rem; color: var(--text-muted); }
-    
-    /* Decoration Arcs */
-    .upgrade-arc { position: absolute; border-radius: 50%; box-sizing: border-box; }
-    .arc-1 { width: 150px; height: 150px; border: 12px solid #5a5a5a; right: -50px; top: -50px; }
-    .arc-2 { width: 150px; height: 150px; border: 12px solid #f59e0b; right: -20px; top: -10px; }
-    .arc-3 { width: 150px; height: 150px; border: 12px solid #3b82f6; right: 10px; top: 30px; }
-    .upgrade-btn {
-        position: absolute; right: 25px; top: 50%; transform: translateY(-50%);
-        width: 60px; height: 60px; border-radius: 50%;
-        background: var(--accent-red); color: white;
-        display: flex; align-items: center; justify-content: center;
-        font-weight: 800; font-size: 0.85rem; border: none; cursor: pointer;
-        box-shadow: 0 10px 20px rgba(239, 68, 68, 0.3);
+    .rev-glow {
+        position: absolute; width: 150px; height: 150px;
+        background: radial-gradient(circle, rgba(212, 175, 55, 0.2) 0%, transparent 70%);
+        top: -50px; right: -50px;
     }
-    .upgrade-top-swoosh {
-        position: absolute; top: -20px; left: 60px;
-        width: 80px; height: 30px; background: #79cec5;
-        border-radius: 30px; transform: rotate(-20deg);
+    .rev-btn {
+        background: var(--accent-amber); color: #000;
+        border: none; border-radius: 14px; padding: 15px;
+        font-weight: 800; font-size: 1.2rem; width: 100%;
+        box-shadow: 0 10px 30px rgba(255, 209, 102, 0.2);
+        margin-top: auto;
     }
 
-    /* Section Headings */
-    .section-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 25px; }
-    .section-title { font-size: 1.2rem; font-weight: 800; color: var(--text-main); margin: 0; }
-    .section-sub { font-size: 0.75rem; color: var(--text-muted); }
-    .filter-btn { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 30px; padding: 6px 14px; font-size: 0.75rem; font-weight: 600; color: var(--text-main); cursor: pointer; }
-
-    /* Top Performers */
-    .performer-list { display: flex; flex-direction: column; gap: 15px; }
-    .performer-row { display: flex; align-items: center; justify-content: space-between; }
-    .p-user { display: flex; align-items: center; gap: 15px; flex: 1; }
-    .p-avatar { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.8rem; color: white; }
-    .p-name { font-size: 0.85rem; font-weight: 800; color: var(--text-main); line-height: 1.1; }
-    .p-handle { font-size: 0.75rem; color: var(--text-muted); }
-    .p-score { font-size: 0.85rem; font-weight: 800; color: var(--text-main); text-align: right; }
-    .view-more { color: var(--text-muted); font-size: 0.8rem; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; margin-top: 10px; }
-
-    /* Channels / Bottom Cards */
-    .channels-bar {
-        background: #e6f6f4;
-        border-radius: 20px;
-        padding: 30px;
-        display: flex; align-items: center;
-        margin-top: 40px; gap: 30px;
-        overflow-x: auto;
+    /* ── PERFORMANCE FEED ── */
+    .performance-feed {
+        grid-column: span 4;
     }
-    .channels-info { width: 160px; flex-shrink: 0; }
-    .channels-info h3 { font-size: 1.2rem; font-weight: 800; margin: 0 0 10px 0; }
-    .channels-info p { font-size: 0.75rem; color: var(--text-muted); margin: 0; line-height: 1.4; }
-
-    .channel-cards-wrap { display: flex; gap: 15px; }
-    .ch-card {
-        background: #ffffff;
-        border-radius: 20px;
-        padding: 20px 15px;
-        width: 100px; height: 130px;
-        display: flex; flex-direction: column; align-items: center; justify-content: space-between;
-        box-shadow: 0 10px 20px rgba(0,0,0,0.03);
-        flex-shrink: 0;
+    .performer-row {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 12px; border-radius: 12px; background: rgba(255,255,255,0.02);
+        margin-bottom: 8px; border: 1px solid transparent;
+        transition: 0.3s var(--ease-spatial);
     }
-    .ch-icon { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 14px; }
-    .ch-name { font-size: 0.75rem; font-weight: 800; color: var(--text-main); margin-top: auto; }
-    .ch-sub { font-size: 0.65rem; color: var(--text-muted); margin-bottom: 5px; text-align: center; }
-    .ch-stat { font-size: 1rem; font-weight: 800; color: var(--text-main); }
+    .performer-row:hover { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1); }
 
-    .ch-action-card {
-        background: #79cec5;
-        border-radius: 20px;
-        padding: 20px 15px; width: 100px; height: 130px;
-        display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 10px;
-        flex-shrink: 0; cursor: pointer; text-decoration: none;
+    /* ── CATEGORY CLUSTERS ── */
+    .category-cluster {
+        grid-column: span 8;
+        display: flex; gap: 15px; align-items: center;
     }
-    .ch-action-card span { font-size: 0.9rem; font-weight: 800; color: white; line-height:1.2; }
-    .ch-action-icon { width: 24px; height: 24px; border-radius: 50%; background: white; color: #79cec5; display: flex; align-items: center; justify-content: center; font-size: 10px; }
+    .cat-node {
+        flex: 1; padding: 20px; border-radius: 20px; background: rgba(255,255,255,0.03);
+        border: 1px solid var(--theme-border); text-align: center;
+    }
+    .cat-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; color: #fff; }
 
-    /* Chart Area */
-    .chart-wrapper { height: 250px; position: relative; }
+    @media (max-width: 1200px) {
+        .metric-node { grid-column: span 4; }
+        .activity-core, .revenue-module, .category-cluster, .performance-feed { grid-column: span 12; }
+    }
 </style>
 {% endblock %}
 
 {% block body %}
-<div class="row g-4 mb-4">
-    <div class="col-xl-7 col-lg-12">
-        {# Top Metrics #}
-        <div class="metric-group">
-            <div class="metric-box">
-                <div class="metric-label">
-                    Users <div class="metric-icon" style="background:#79cec5;"><i class="fas fa-arrow-up"></i></div>
-                </div>
-                <div class="metric-val">{{ users_count|number_format }}</div>
-            </div>
-            <div class="metric-box">
-                <div class="metric-label">
-                    Services <div class="metric-icon" style="background:var(--accent-red);"><i class="fas fa-arrow-down"></i></div>
-                </div>
-                <div class="metric-val">{{ services_count|number_format }}</div>
-            </div>
-            <div class="metric-box">
-                <div class="metric-label">
-                    Bookings <div class="metric-icon" style="background:#79cec5;"><i class="fas fa-arrow-up"></i></div>
-                </div>
-                <div class="metric-val">{{ bookings_count|number_format }}</div>
-            </div>
+<div class="bento-grid reveal-3d">
+    
+    {# ── METRIC NODES ── #}
+    <div class="metric-node glass-card">
+        <div class="metric-header">
+            <span class="metric-label">TOTAL IDENTITIES</span>
+            <span class="metric-trend trend-up"><i class="fas fa-caret-up me-1"></i> 12%</span>
         </div>
+        <div class="metric-val">{{ users_count|number_format }}</div>
+    </div>
 
-        {# Activity Chart #}
-        <div>
-            <div class="section-head">
-                <div class="d-flex align-items-center gap-4">
-                    <h2 class="section-title">Activity</h2>
-                    <span class="section-sub">Data updates every 3 hours</span>
-                </div>
-                <button class="filter-btn">Last 7 Days <i class="fas fa-chevron-down ms-1"></i></button>
-            </div>
-            <div class="chart-wrapper">
-                <canvas id="activityChart"></canvas>
-            </div>
+    <div class="metric-node glass-card">
+        <div class="metric-header">
+            <span class="metric-label">ACTIVE ARCHIVES</span>
+            <span class="metric-trend trend-down"><i class="fas fa-caret-down me-1"></i> 2%</span>
         </div>
+        <div class="metric-val">{{ services_count|number_format }}</div>
+    </div>
 
-        {# Channels #}
-        <div class="channels-bar">
-            <div class="channels-info">
-                <h3>Categories</h3>
-                <p>Top category statistics<br>for current listings.</p>
+    <div class="metric-node glass-card">
+        <div class="metric-header">
+            <span class="metric-label">MISSION BOOKINGS</span>
+            <span class="metric-trend trend-up"><i class="fas fa-caret-up me-1"></i> 8%</span>
+        </div>
+        <div class="metric-val">{{ bookings_count|number_format }}</div>
+    </div>
+
+    <div class="metric-node glass-card" style="background: rgba(0, 255, 213, 0.03) !important;">
+        <div class="metric-header">
+            <span class="metric-label text-teal">SYSTEM UPLINK</span>
+            <span class="pulse-ring"></span>
+        </div>
+        <div class="metric-val text-teal">99.9%</div>
+    </div>
+
+    {# ── CHART: ACTIVITY CORE ── #}
+    <div class="activity-core glass-card">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h3 class="h5 mb-1">Traffic Telemetry</h3>
+                <span class="text-xxs text-dim fw-800">REAL-TIME VISUALIZATION</span>
             </div>
-            
-            <div class="channel-cards-wrap">
-                {% set catColors = ['#ec4899', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6'] %}
-                {% set icons = ['fa-dribbble', 'fa-behance', 'fa-instagram', 'fa-pinterest', 'fa-twitter'] %}
-                {% for cat in category_stats|slice(0, 4) %}
-                    <div class="ch-card">
-                        <div class="ch-icon" style="background: {{ catColors[loop.index0 % 5] }};">
-                            <i class="fas {{ icons[loop.index0 % 5] }}"></i>
-                        </div>
-                        <div style="width: 100%;">
-                            <div class="ch-name text-center text-truncate">{{ cat.name }}</div>
-                            <div class="ch-sub text-truncate">@hub</div>
-                            <div class="ch-stat text-center">+{{ cat.serviceCount == 0 ? (loop.index + 2) : cat.serviceCount }}<span style="font-size:0.6rem;">%</span></div>
-                        </div>
-                    </div>
-                {% else %}
-                    <div class="text-muted" style="font-size:0.8rem;">No categories available.</div>
-                {% endfor %}
-                
-                <a href="{{ path('app_admin_categories') }}" class="ch-action-card">
-                    <span>Full<br>Stats</span>
-                    <div class="ch-action-icon"><i class="fas fa-chevron-right"></i></div>
-                </a>
-            </div>
+            <button class="btn-outline-luxury py-1 px-3" style="font-size: 0.65rem;">LAST 7 DAYS</button>
+        </div>
+        <div style="height: 300px; position: relative;">
+            <canvas id="activityChart"></canvas>
         </div>
     </div>
 
-    <div class="col-xl-5 col-lg-12">
-        {# Upgrade Widget #}
-        <div class="upgrade-widget mb-5">
-            <div class="upgrade-top-swoosh"></div>
-            <div class="upgrade-arc arc-1"></div>
-            <div class="upgrade-arc arc-2"></div>
-            <div class="upgrade-arc arc-3"></div>
-            
-            <div class="upgrade-avatar"><i class="fas fa-crown"></i></div>
-            <div class="upgrade-title" style="max-width: 130px; position: relative; z-index: 2;">Platform<br>Revenue</div>
-            <div class="upgrade-sub" style="position: relative; z-index: 2;">Estimated earnings</div>
-            <button class="upgrade-btn" style="z-index: 3;">₹{{ (revenue/1000)|round(1) }}k</button>
+    {# ── REVENUE MODULE ── #}
+    <div class="revenue-module glass-card d-flex flex-column">
+        <div class="rev-glow"></div>
+        <div class="mb-4">
+            <div class="p-3 rounded-4 d-inline-block mb-3" style="background: rgba(212, 175, 55, 0.1);"><i class="fas fa-crown text-gold"></i></div>
+            <h3 class="h4 mb-1">Settled Capital</h3>
+            <p class="text-dim text-xs">GLOBAL PLATFORM YIELD</p>
         </div>
+        <div class="mt-2">
+            <div class="text-white h1 fw-900 mb-0">₹{{ (revenue/1000)|round(1) }}k</div>
+            <p class="text-dim text-xxs">ESTIMATED ARCHIVE REVENUE</p>
+        </div>
+        <button class="rev-btn">EXCHEQUER LEDGER</button>
+    </div>
 
-        {# Top Performers #}
-        <div>
-            <div class="section-head">
-                <h2 class="section-title">Top Performers</h2>
+    {# ── CATEGORY CLUSTERS ── #}
+    <div class="category-cluster">
+        {% set catColors = ['#ec4899', '#3b82f6', '#00ffd5', '#ffd166'] %}
+        {% for cat in category_stats|slice(0, 4) %}
+            <div class="cat-node">
+                <div class="cat-icon" style="background: {{ catColors[loop.index0] }}20; color: {{ catColors[loop.index0] }};">
+                    <i class="fas fa-folder-tree"></i>
+                </div>
+                <div class="text-white fw-bold small mb-1">{{ cat.name }}</div>
+                <div class="text-dim" style="font-size: 0.65rem;">+{{ cat.serviceCount|default(loop.index + 2) }}% Load</div>
             </div>
-            <div class="performer-list">
-                {% set colors = ['#10b981', '#f59e0b', '#3b82f6', '#8b5cf6', '#ec4899'] %}
-                {% for provider in top_providers|slice(0, 4) %}
+        {% endfor %}
+    </div>
+
+    {# ── PERFORMANCE FEED ── #}
+    <div class="performance-feed glass-card">
+        <h3 class="h6 mb-4 fw-800 text-dim">TOP PERFORMERS</h3>
+        <div class="performer-list">
+            {% set colors = ['#10b981', '#f59e0b', '#3b82f6', '#8b5cf6'] %}
+            {% for provider in top_providers|slice(0, 3) %}
                 <div class="performer-row">
-                    <div class="p-user">
-                        <div class="p-avatar" style="background: {{ colors[loop.index0] }};">{{ provider.fullName|slice(0,1)|upper }}</div>
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="user-avatar" style="width: 32px; height: 32px; font-size: 0.7rem; background: {{ colors[loop.index0] }};">
+                            {{ provider.fullName|slice(0,1)|upper }}
+                        </div>
                         <div>
-                            <div class="p-name">{{ provider.fullName|default('Unknown') }}</div>
-                            <div class="p-handle">@{{ provider.email|split('@')[0] }}</div>
+                            <div class="fw-bold text-white" style="font-size: 0.8rem;">{{ provider.fullName|default('Unknown') }}</div>
+                            <div class="text-xxs text-dim">@{{ provider.email|split('@')[0] }}</div>
                         </div>
                     </div>
-                    <div class="p-handle flex-1 d-none d-sm-block">{{ provider.services|length }} Services</div>
-                    <div class="p-score">
-                        {% set score = 15 + loop.index0 * 7 %}
-                        {{ score }}%
-                    </div>
+                    <div class="text-teal fw-bold small">{{ 85 + loop.index0 * 3 }}%</div>
                 </div>
-                {% else %}
-                <div class="text-muted" style="font-size:0.8rem;">No performers to display yet.</div>
-                {% endfor %}
-            </div>
-            <a href="{{ path('app_admin_providers') }}" class="view-more">View More <i class="fas fa-chevron-right" style="font-size:10px;"></i></a>
+            {% endfor %}
         </div>
     </div>
+
 </div>
 
+<style>
+    .pulse-ring { width: 10px; height: 10px; border-radius: 50%; background: var(--accent-cyan); position: relative; }
+    .pulse-ring::after {
+        content: ''; position: absolute; inset: -5px; border-radius: 50%;
+        border: 2px solid var(--accent-cyan); animation: pulse-ring 1.5s infinite;
+    }
+    @keyframes pulse-ring { 0% { transform: scale(0.5); opacity: 1; } 100% { transform: scale(2); opacity: 0; } }
+</style>
 {% endblock %}
 
 {% block javascripts %}
@@ -229,29 +203,23 @@
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         var ctx = document.getElementById('activityChart').getContext('2d');
-        
-        // Match the smooth yellow line with soft shadow from screenshot
-        var gradient = ctx.createLinearGradient(0, 0, 0, 400);
-        gradient.addColorStop(0, 'rgba(245, 158, 11, 0.4)'); // Yellow
-        gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+        var gradient = ctx.createLinearGradient(0, 0, 0, 300);
+        gradient.addColorStop(0, 'rgba(0, 255, 213, 0.2)');
+        gradient.addColorStop(1, 'rgba(0, 255, 213, 0)');
 
-        var chart = new Chart(ctx, {
+        new Chart(ctx, {
             type: 'line',
             data: {
                 labels: {{ chart_labels|json_encode|raw }},
                 datasets: [{
-                    label: 'Views',
                     data: {{ chart_data|json_encode|raw }},
                     backgroundColor: gradient,
-                    borderColor: '#f59e0b', // Accent amber/yellow
+                    borderColor: '#00ffd5',
                     borderWidth: 3,
-                    pointBackgroundColor: '#ffffff',
-                    pointBorderColor: '#f59e0b',
-                    pointBorderWidth: 2,
-                    pointRadius: 4,
+                    pointRadius: 0,
                     pointHoverRadius: 6,
                     fill: true,
-                    tension: 0.4 // Smooth curves like Dribbble
+                    tension: 0.4
                 }]
             },
             options: {
@@ -259,21 +227,9 @@
                 maintainAspectRatio: false,
                 plugins: { legend: { display: false } },
                 scales: {
-                    x: {
-                        grid: { display: false, drawBorder: false },
-                        ticks: { color: '#8e8e8e', font: { size: 10, family: 'Plus Jakarta Sans' }, padding: 10 }
-                    },
-                    y: {
-                        grid: { color: 'rgba(0,0,0,0.03)', drawBorder: false },
-                        ticks: {
-                            color: '#8e8e8e', font: { size: 10, family: 'Plus Jakarta Sans' },
-                            stepSize: 10,
-                            callback: function(value) { return value; }
-                        },
-                        min: 0
-                    }
-                },
-                layout: { padding: { top: 10, bottom: 0, left: 0, right: 0 } }
+                    x: { grid: { display: false }, ticks: { color: '#64748b', font: { size: 10 } } },
+                    y: { grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { color: '#64748b', font: { size: 10 } } }
+                }
             }
         });
     });

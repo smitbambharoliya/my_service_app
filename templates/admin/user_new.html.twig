@@ -1,50 +1,156 @@
 {% extends 'admin/admin_base.html.twig' %}
 
-{% block title %}Create New User - Admin Panel{% endblock %}
+{% block title %}Initialize Identity — ServiceHub Admin{% endblock %}
+{% block page_title %}Identity Constructor{% endblock %}
 
 {% block body %}
-<div class="admin-card">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:30px;">
-        <h2 style="margin:0;font-size:1.5rem;font-weight:700;">Create New User</h2>
-        <a href="{{ path('app_admin_users') }}" class="btn-admin btn-admin-outline" style="font-size:0.85rem;">
-            <i class="fas fa-arrow-left me-1"></i> Back to Users
-        </a>
+<div class="reveal-3d">
+    <div class="row g-5">
+        {# ── LEFT: FORM MODULE ── #}
+        <div class="col-lg-7">
+            <div class="glass-card p-5 border-glow-hover h-100">
+                <div class="d-flex justify-content-between align-items-center mb-5">
+                    <div>
+                        <h2 class="luxury-serif text-white mb-1">Create New Identity</h2>
+                        <p class="text-dim text-xs fw-800 letter-spacing-1">INITIALIZING DATABASE NODE</p>
+                    </div>
+                    <a href="{{ path('app_admin_users') }}" class="btn-action-spatial text-teal" title="Back to Index">
+                        <i class="fas fa-arrow-left"></i>
+                    </a>
+                </div>
+
+                <form method="post" class="spatial-form">
+                    <div class="row g-4">
+                        <div class="col-md-12 mb-2">
+                            <label class="text-xxs text-dim fw-800 d-block mb-2">FULL DESIGNATION NAME</label>
+                            <input type="text" name="fullName" class="form-control cyber-input" placeholder="e.g. Julian Vane" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="text-xxs text-dim fw-800 d-block mb-2">IDENTITY MATRIX (EMAIL)</label>
+                            <input type="email" name="email" class="form-control cyber-input" placeholder="identity@hub.com" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="text-xxs text-dim fw-800 d-block mb-2">COMM-LINK (PHONE)</label>
+                            <input type="text" name="mobile" class="form-control cyber-input" placeholder="+1 000 0000" required>
+                        </div>
+
+                        <div class="col-md-12">
+                            <label class="text-xxs text-dim fw-800 d-block mb-3">NODE PERMISSIONS (ROLE)</label>
+                            <div class="row g-3">
+                                {% set roles = [
+                                    {val: 'ROLE_USER', label: 'CUSTOMER', desc: 'Standard Access', icon: 'fa-user'},
+                                    {val: 'ROLE_PROVIDER', label: 'PROVIDER', desc: 'Fleet Access', icon: 'fa-user-tie'},
+                                    {val: 'ROLE_ADMIN', label: 'ADMIN', desc: 'Command Access', icon: 'fa-shield-halved'}
+                                ] %}
+                                {% for role in roles %}
+                                    <div class="col-md-4">
+                                        <label class="role-selector-card">
+                                            <input type="radio" name="role" value="{{ role.val }}" {{ loop.first ? 'checked' : '' }}>
+                                            <div class="role-card-ui">
+                                                <i class="fas {{ role.icon }} mb-2"></i>
+                                                <div class="fw-bold small">{{ role.label }}</div>
+                                                <div class="text-xxs opacity-50">{{ role.desc }}</div>
+                                            </div>
+                                        </label>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="col-md-12">
+                            <label class="text-xxs text-dim fw-800 d-block mb-2">TEMPORARY ACCESS CIPHER</label>
+                            <div class="position-relative">
+                                <input type="password" name="password" class="form-control cyber-input" placeholder="••••••••" required>
+                                <i class="fas fa-key position-absolute top-50 translate-middle-y end-0 me-3 text-dim opacity-30"></i>
+                            </div>
+                            <small class="text-dim text-xxs mt-2 d-block">
+                                <i class="fas fa-info-circle me-1"></i> User will be prompted to overwrite cipher upon first synchronization.
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="mt-5 pt-4 border-top border-white border-opacity-5">
+                        <button type="submit" class="btn-luxury w-100 py-3">
+                            <i class="fas fa-user-plus me-2"></i> INITIALIZE ACCOUNT
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        {# ── RIGHT: PROTOCOL PANEL ── #}
+        <div class="col-lg-5">
+            <div class="glass-card p-5 border-0" style="background: rgba(0, 255, 213, 0.02);">
+                <h3 class="luxury-serif text-teal h4 mb-4">Security Protocol</h3>
+                <div class="d-grid gap-4">
+                    <div class="d-flex gap-3">
+                        <div class="p-3 rounded-4 bg-surface border-glass text-teal h-fit"><i class="fas fa-fingerprint"></i></div>
+                        <div>
+                            <h5 class="text-white small fw-bold mb-1">Identity Verification</h5>
+                            <p class="text-dim text-xs mb-0">Newly initialized nodes require manual verification via the Command Hub before archive access is granted.</p>
+                        </div>
+                    </div>
+                    <div class="d-flex gap-3">
+                        <div class="p-3 rounded-4 bg-surface border-glass text-blue h-fit"><i class="fas fa-network-wired"></i></div>
+                        <div>
+                            <h5 class="text-white small fw-bold mb-1">Role Inheritance</h5>
+                            <p class="text-dim text-xs mb-0">Admins inherit all platform telemetry rights. Providers are restricted to the Inventory and Mission logs.</p>
+                        </div>
+                    </div>
+                    <div class="d-flex gap-3">
+                        <div class="p-3 rounded-4 bg-surface border-glass text-purple h-fit"><i class="fas fa-clock"></i></div>
+                        <div>
+                            <h5 class="text-white small fw-bold mb-1">Audit Trail</h5>
+                            <p class="text-dim text-xs mb-0">Every identity creation event is logged with your Admin ID and timestamp in the system telemetry.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-5 p-4 rounded-4 bg-surface text-center border-glass">
+                    <div class="text-xxs text-dim fw-800 mb-2">SYSTEM INTEGRITY</div>
+                    <div class="text-teal h2 fw-900 mb-0">SECURE</div>
+                </div>
+            </div>
+        </div>
     </div>
-
-    <form method="post" style="max-width: 600px;">
-        <div style="margin-bottom:20px;">
-            <label style="display:block;margin-bottom:8px;font-size:0.85rem;color:var(--text-muted);">Full Name</label>
-            <input type="text" name="fullName" class="form-control" required style="width:100%;">
-        </div>
-
-        <div style="margin-bottom:20px;">
-            <label style="display:block;margin-bottom:8px;font-size:0.85rem;color:var(--text-muted);">Email Address</label>
-            <input type="email" name="email" class="form-control" required style="width:100%;">
-        </div>
-
-        <div style="margin-bottom:20px;">
-            <label style="display:block;margin-bottom:8px;font-size:0.85rem;color:var(--text-muted);">Phone Number</label>
-            <input type="text" name="mobile" class="form-control" required style="width:100%;">
-        </div>
-
-        <div style="margin-bottom:20px;">
-            <label style="display:block;margin-bottom:8px;font-size:0.85rem;color:var(--text-muted);">Role</label>
-            <select name="role" class="form-select" required style="width:100%;">
-                <option value="ROLE_USER">Customer</option>
-                <option value="ROLE_PROVIDER">Service Provider</option>
-                <option value="ROLE_ADMIN">Administrator</option>
-            </select>
-        </div>
-
-        <div style="margin-bottom:30px;">
-            <label style="display:block;margin-bottom:8px;font-size:0.85rem;color:var(--text-muted);">Temporary Password</label>
-            <input type="password" name="password" class="form-control" required style="width:100%;">
-            <small style="color:var(--text-muted);font-size:0.75rem;">User can change this after first login.</small>
-        </div>
-
-        <button type="submit" class="btn-admin btn-admin-blue" style="width:100%;justify-content:center;padding:12px;font-weight:700;">
-            Create Account <i class="fas fa-user-plus ms-2"></i>
-        </button>
-    </form>
 </div>
+
+<style>
+    .cyber-input {
+        background: rgba(255, 255, 255, 0.04) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        color: #fff !important;
+        border-radius: 12px !important;
+        padding: 12px 16px !important;
+    }
+    .cyber-input:focus {
+        border-color: var(--accent-cyan) !important;
+        background: rgba(0, 255, 213, 0.05) !important;
+        box-shadow: 0 0 15px rgba(0, 255, 213, 0.1) !important;
+    }
+    
+    /* Role Card Selector */
+    .role-selector-card { cursor: pointer; width: 100%; }
+    .role-selector-card input { display: none; }
+    .role-card-ui {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        padding: 20px;
+        text-align: center;
+        transition: all 0.3s var(--ease-spatial);
+    }
+    .role-selector-card input:checked + .role-card-ui {
+        background: rgba(0, 255, 213, 0.1);
+        border-color: var(--accent-cyan);
+        box-shadow: 0 0 20px rgba(0, 255, 213, 0.1);
+    }
+    .role-selector-card input:checked + .role-card-ui i { color: var(--accent-cyan); }
+    .role-card-ui i { font-size: 1.5rem; color: var(--text-muted); transition: 0.3s; }
+    
+    .border-glow-hover:hover { border-color: rgba(0, 255, 213, 0.3) !important; }
+    .h-fit { height: fit-content; }
+</style>
 {% endblock %}

@@ -68,6 +68,12 @@ class Booking
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $trackingId = null;
 
+    #[ORM\Column(length: 50, nullable: true)]
+    private ?string $voucherCode = null;
+
+    #[ORM\Column(type: 'decimal', precision: 10, scale: 2, nullable: true)]
+    private ?string $voucherDiscount = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -109,22 +115,60 @@ class Booking
         return $this;
     }
 
-    public function getBookingDate(): ?\DateTimeImmutable { return $this->bookingDate; }
-    public function setBookingDate(?\DateTimeImmutable $bookingDate): static { $this->bookingDate = $bookingDate; return $this; }
+    public function getBookingDate(): ?\DateTimeImmutable
+    {
+        return $this->bookingDate;
+    }
+    public function setBookingDate(?\DateTimeImmutable $bookingDate): static
+    {
+        $this->bookingDate = $bookingDate;
+        return $this;
+    }
 
-    public function getBookingType(): string { return $this->bookingType; }
-    public function setBookingType(string $bookingType): static { $this->bookingType = $bookingType; return $this; }
+    public function getBookingType(): string
+    {
+        return $this->bookingType;
+    }
+    public function setBookingType(string $bookingType): static
+    {
+        $this->bookingType = $bookingType;
+        return $this;
+    }
 
-    public function getNotes(): ?string { return $this->notes; }
-    public function setNotes(?string $notes): static { $this->notes = $notes; return $this; }
+    public function getNotes(): ?string
+    {
+        return $this->notes;
+    }
+    public function setNotes(?string $notes): static
+    {
+        $this->notes = $notes;
+        return $this;
+    }
 
-    public function getEstimatedCost(): ?string { return $this->estimatedCost; }
-    public function setEstimatedCost(?string $estimatedCost): static { $this->estimatedCost = $estimatedCost; return $this; }
+    public function getEstimatedCost(): ?string
+    {
+        return $this->estimatedCost;
+    }
+    public function setEstimatedCost(?string $estimatedCost): static
+    {
+        $this->estimatedCost = $estimatedCost;
+        return $this;
+    }
 
-    public function getEstimationStatus(): ?string { return $this->estimationStatus; }
-    public function setEstimationStatus(?string $estimationStatus): static { $this->estimationStatus = $estimationStatus; return $this; }
+    public function getEstimationStatus(): ?string
+    {
+        return $this->estimationStatus;
+    }
+    public function setEstimationStatus(?string $estimationStatus): static
+    {
+        $this->estimationStatus = $estimationStatus;
+        return $this;
+    }
 
-    public function getReview(): ?Review { return $this->review; }
+    public function getReview(): ?Review
+    {
+        return $this->review;
+    }
     public function setReview(?Review $review): static
     {
         // unset the owning side of the relation if necessary
@@ -142,12 +186,53 @@ class Booking
         return $this;
     }
 
-    public function getLatitude(): ?string { return $this->latitude; }
-    public function setLatitude(?string $latitude): static { $this->latitude = $latitude; return $this; }
+    public function getLatitude(): ?string
+    {
+        return $this->latitude;
+    }
+    public function setLatitude(?string $latitude): static
+    {
+        $this->latitude = $latitude;
+        return $this;
+    }
 
-    public function getLongitude(): ?string { return $this->longitude; }
-    public function setLongitude(?string $longitude): static { $this->longitude = $longitude; return $this; }
+    public function getLongitude(): ?string
+    {
+        return $this->longitude;
+    }
+    public function setLongitude(?string $longitude): static
+    {
+        $this->longitude = $longitude;
+        return $this;
+    }
 
-    public function getTrackingId(): ?string { return $this->trackingId; }
-    public function setTrackingId(?string $trackingId): static { $this->trackingId = $trackingId; return $this; }
+    public function getTrackingId(): ?string
+    {
+        return $this->trackingId;
+    }
+    public function setTrackingId(?string $trackingId): static
+    {
+        $this->trackingId = $trackingId;
+        return $this;
+    }
+
+    public function getVoucherCode(): ?string
+    {
+        return $this->voucherCode;
+    }
+    public function setVoucherCode(?string $voucherCode): static
+    {
+        $this->voucherCode = $voucherCode;
+        return $this;
+    }
+
+    public function getVoucherDiscount(): ?string
+    {
+        return $this->voucherDiscount;
+    }
+    public function setVoucherDiscount(?string $voucherDiscount): static
+    {
+        $this->voucherDiscount = $voucherDiscount;
+        return $this;
+    }
 }

@@ -1,74 +1,135 @@
 {% extends 'admin/admin_base.html.twig' %}
 
-{% block title %}Manage Providers - Admin Panel{% endblock %}
+{% block title %}Artisan Fleet — ServiceHub Admin{% endblock %}
+{% block page_title %}Artisan Fleet Index{% endblock %}
 
 {% block body %}
-<div class="admin-card">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
-        <h2 style="margin:0;font-size:1.5rem;font-weight:700;">Service Providers</h2>
-        <div style="display:flex;gap:10px;">
-            <span class="badge-admin badge-admin-blue" style="font-size:0.8rem;padding:6px 12px;display:flex;align-items:center;gap:6px;">
-                <i class="fas fa-user-tie"></i> {{ providers|length }} Total Providers
-            </span>
+<div class="reveal-3d">
+    {# ── FLEET ANALYTICS HEADER ── #}
+    <div class="d-flex align-items-center justify-content-between mb-5">
+        <div>
+            <span class="text-xxs fw-800 letter-spacing-2 text-teal d-block mb-1">UNIT OVERVIEW</span>
+            <h2 class="luxury-serif text-pure mb-0">Active Artisan Fleet</h2>
+            <p class="text-dim text-xs mt-2">
+                Operational Units: <strong class="text-white">{{ providers|length }} Verified Partners</strong>
+            </p>
+        </div>
+        <div class="glass-card px-4 py-2 border-0 d-flex align-items-center gap-3">
+            <i class="fas fa-microchip text-teal animate-pulse"></i>
+            <span class="text-xxs fw-800 letter-spacing-1 text-dim">FLEET STATUS: OPTIMAL</span>
         </div>
     </div>
 
-    <div style="overflow-x:auto;">
-        <table class="admin-table">
-            <thead>
-                <tr>
-                    <th style="width:60px;">ID</th>
-                    <th>Provider Info</th>
-                    <th>Services</th>
-                    <th>Status</th>
-                    <th style="text-align:right;">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for provider in providers %}
-                <tr>
-                    <td style="color:var(--admin-text-muted);font-size:0.8rem;">{{ provider.id }}</td>
-                    <td>
-                        <div style="display:flex;align-items:center;gap:12px;">
-                            <div class="user-avatar" style="background:linear-gradient(135deg, #10b981, #059669);">{{ provider.email|slice(0,1)|upper }}</div>
+    {# ── ARTISAN GRID ── #}
+    <div class="row g-4">
+        {% for provider in providers %}
+            <div class="col-xl-6 col-xxl-4">
+                <div class="glass-card p-0 overflow-hidden border-glow-hover h-100 d-flex flex-column">
+                    {# Card Top Section #}
+                    <div class="p-4 d-flex justify-content-between align-items-start">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="provider-orb-wrap">
+                                <div class="user-orb" style="width: 54px; height: 54px; font-size: 1.4rem; background: linear-gradient(135deg, #10b981, #00ffd5);">
+                                    {{ provider.email|slice(0,1)|upper }}
+                                </div>
+                                <div class="status-dot {{ provider.isActive ? 'online' : 'offline' }}"></div>
+                            </div>
                             <div>
-                                <div style="font-weight:600;color:var(--admin-text);font-size:0.875rem;">{{ provider.fullName|default('No Name') }}</div>
-                                <div style="font-size:0.75rem;color:var(--admin-text-muted);">{{ provider.email }}</div>
+                                <h4 class="text-white fw-bold h6 mb-1">{{ provider.fullName|default('Unknown Identity') }}</h4>
+                                <div class="text-dim text-xxs font-monospace">{{ provider.email }}</div>
                             </div>
                         </div>
-                    </td>
-                    <td>
-                        <span class="badge-admin badge-admin-gray" style="font-size:0.75rem;">
-                            <i class="fas fa-tools me-1"></i> {{ provider.services|length }} Listings
-                        </span>
-                    </td>
-                    <td>
-                        {% if provider.isActive %}
-                            <span class="badge-admin badge-admin-green"><i class="fas fa-check-circle me-1"></i>Active</span>
-                        {% else %}
-                            <span class="badge-admin badge-admin-red"><i class="fas fa-ban me-1"></i>Suspended</span>
-                        {% endif %}
-                    </td>
-                    <td style="text-align:right;">
-                        <div style="display:flex;justify-content:flex-end;gap:8px;">
-                            <form action="{{ path('app_admin_user_toggle_status', {id: provider.id}) }}" method="POST" style="display:inline;">
-                                <button type="submit" class="btn-admin {{ provider.isActive ? 'btn-admin-outline' : 'btn-admin-green' }}" title="{{ provider.isActive ? 'Suspend' : 'Activate' }}" style="padding:6px 10px;font-size:0.75rem;">
-                                    <i class="fas {{ provider.isActive ? 'fa-user-slash text-danger' : 'fa-user-check' }}"></i>
-                                </button>
-                            </form>
-                            <a href="{{ path('app_service_list') }}" class="btn-admin btn-admin-blue" title="View Services" style="padding:6px 10px;font-size:0.75rem;">
-                                <i class="fas fa-eye"></i>
-                            </a>
+                        <div class="text-end">
+                            <div class="text-xxs text-dim fw-800 mb-1">UNIT ID</div>
+                            <code class="text-teal small">#{{ provider.id|slice(-6) }}</code>
                         </div>
-                    </td>
-                </tr>
-                {% else %}
-                <tr>
-                    <td colspan="5" style="text-align:center;padding:40px;color:var(--admin-text-muted);">No service providers found.</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                    </div>
+
+                    {# Card Center: Metrics #}
+                    <div class="px-4 py-3 bg-surface border-top border-bottom border-white border-opacity-5">
+                        <div class="row g-0 text-center">
+                            <div class="col-6 border-end border-white border-opacity-10">
+                                <div class="text-xxs text-dim fw-800 mb-1">INVENTORY</div>
+                                <div class="text-white small fw-bold">{{ provider.services|length }} Service Units</div>
+                            </div>
+                            <div class="col-6">
+                                <div class="text-xxs text-dim fw-800 mb-1">FIDELITY</div>
+                                <div class="text-teal small fw-bold">98.4%</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {# Card Bottom: Status & Actions #}
+                    <div class="p-4 mt-auto">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                {% if provider.isActive %}
+                                    <span class="badge-status status-active"><i class="fas fa-check-circle me-2"></i>LINK ACTIVE</span>
+                                {% else %}
+                                    <span class="badge-status status-alert"><i class="fas fa-ban me-2"></i>LINK SEVERED</span>
+                                {% endif %}
+                            </div>
+                            <div class="d-flex gap-2">
+                                <form action="{{ path('app_admin_user_toggle_status', {id: provider.id}) }}" method="POST" class="m-0">
+                                    <button type="submit" class="btn-action-spatial {{ provider.isActive ? 'text-red' : 'text-teal' }}" title="{{ provider.isActive ? 'Suspend Unit' : 'Restore Link' }}">
+                                        <i class="fas {{ provider.isActive ? 'fa-user-slash' : 'fa-user-check' }}"></i>
+                                    </button>
+                                </form>
+                                <a href="{{ path('app_service_list') }}" class="btn-action-spatial text-blue" title="View Unit Archives">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="col-12">
+                <div class="glass-card py-5 text-center border-dashed">
+                    <i class="fas fa-user-slash fs-1 text-dim mb-4"></i>
+                    <h4 class="luxury-serif">No Artisans detected</h4>
+                    <p class="text-dim small">The fleet registry is currently empty. Synchronize new providers to begin.</p>
+                </div>
+            </div>
+        {% endfor %}
     </div>
 </div>
+
+<style>
+    /* Status Orb Styling */
+    .provider-orb-wrap { position: relative; }
+    .status-dot {
+        position: absolute; bottom: 2px; right: 2px;
+        width: 14px; height: 14px; border-radius: 50%;
+        border: 3px solid #080a0f;
+    }
+    .status-dot.online { background: var(--accent-cyan); box-shadow: 0 0 10px var(--accent-cyan); }
+    .status-dot.offline { background: var(--accent-red); }
+
+    /* Interactive Hover Effects */
+    .border-glow-hover:hover {
+        border-color: rgba(0, 255, 213, 0.3) !important;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4) !important;
+        transform: translateY(-5px);
+    }
+    .bg-surface { background: rgba(255, 255, 255, 0.02); }
+
+    /* Action Buttons */
+    .btn-action-spatial {
+        width: 42px; height: 42px;
+        border-radius: 12px;
+        display: flex; align-items: center; justify-content: center;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: all 0.3s var(--ease-spatial);
+        cursor: pointer;
+    }
+    .btn-action-spatial:hover {
+        background: rgba(255, 255, 255, 0.1);
+        transform: scale(1.1);
+        border-color: currentColor;
+    }
+    .animate-pulse { animation: pulse-opacity 2s infinite; }
+    @keyframes pulse-opacity { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+</style>
 {% endblock %}

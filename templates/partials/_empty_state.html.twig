@@ -1,0 +1,61 @@
+<div class="glass-card border-dashed py-5 px-4 text-center reveal-3d" 
+     style="min-height: 400px; display: flex; flex-direction: column; justify-content: center; align-items: center; background: rgba(255,255,255,0.01);">
+    
+    {# ── SIGNAL ICON ── #}
+    <div class="mb-4 position-relative">
+        <div class="icon-pulse-ring"></div>
+        <i class="fas fa-satellite-dish animate-flicker" 
+           style="font-size: 3.5rem; color: var(--accent-teal); opacity: 0.4; filter: drop-shadow(0 0 15px rgba(0, 255, 213, 0.2));"></i>
+    </div>
+
+    {# ── TELEMETRY COPY ── #}
+    <div class="mb-4">
+        <h3 class="luxury-serif text-white mb-2" style="font-size: 1.8rem; letter-spacing: 1px;">
+            {{ title|default('Transmission Lost')|upper }}
+        </h3>
+        <div class="text-xxs text-teal fw-900 letter-spacing-3 mb-3 opacity-70">ERROR CODE: NULL_RESULT_ARCHIVE</div>
+        <p class="text-dim mx-auto mb-0" style="font-size: 0.95rem; max-width: 420px; line-height: 1.6;">
+            {{ message|default('The archival index returned no matching telemetry for your current parameters. Adjust your search string or filter coordinates.') }}
+        </p>
+    </div>
+
+    {# ── SYSTEM RESYNC ACTION ── #}
+    {% if action_url is defined %}
+        <a href="{{ action_url }}" class="btn-luxury px-5 py-3 mt-2" style="font-size: 0.7rem; letter-spacing: 2px;">
+            <i class="fas fa-sync-alt me-2"></i> {{ action_text|default('RESYNC ALL ARCHIVES')|upper }}
+        </a>
+    {% endif %}
+</div>
+
+<style>
+    /* ── EMPTY STATE ANATOMY ── */
+    .border-dashed {
+        border: 2px dashed rgba(255, 255, 255, 0.08) !important;
+    }
+
+    .icon-pulse-ring {
+        position: absolute;
+        top: 50%; left: 50%;
+        transform: translate(-50%, -50%);
+        width: 80px; height: 80px;
+        border: 1px solid var(--accent-teal);
+        border-radius: 50%;
+        opacity: 0;
+        animation: ring-expand 3s infinite;
+    }
+
+    @keyframes ring-expand {
+        0% { width: 40px; height: 40px; opacity: 0.5; }
+        100% { width: 120px; height: 120px; opacity: 0; }
+    }
+
+    .animate-flicker {
+        animation: spatial-flicker 4s infinite step-end;
+    }
+
+    @keyframes spatial-flicker {
+        0%, 100% { opacity: 0.4; }
+        95% { opacity: 0.1; transform: scale(0.98); }
+        97% { opacity: 0.6; transform: scale(1.02); }
+    }
+</style>

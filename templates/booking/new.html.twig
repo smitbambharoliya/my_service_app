@@ -1,102 +1,95 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Book {{ service.title }}{% endblock %}
+{% block title %}Initialize Protocol — {{ service.title }}{% endblock %}
 
 {% block body %}
-<div class="container py-5">
+<div class="container py-5 reveal-3d">
     <div class="row justify-content-center">
-        <div class="col-md-8 col-lg-7">
-            <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
-                <div class="card-header p-4" style="background:linear-gradient(135deg,#1e40af,#2563eb,#3b82f6);">
-                    <h2 class="mb-1 fw-bold text-white"><i class="fas fa-calendar-check me-2"></i>Book a Service</h2>
-                    <p class="mb-0 text-white opacity-75">Complete the form below to confirm your booking</p>
+        <div class="col-lg-8 col-xl-7">
+            <div class="glass-card p-0 overflow-hidden border-glow-hover">
+                {# ── MODULE HEADER ── #}
+                <div class="p-4 border-bottom border-white border-opacity-10" style="background: linear-gradient(135deg, rgba(0, 255, 213, 0.1), rgba(157, 124, 255, 0.1));">
+                    <h2 class="luxury-serif text-white mb-1"><i class="fas fa-calendar-plus me-3 text-teal"></i>Initialize Booking</h2>
+                    <p class="text-xxs text-dim fw-800 letter-spacing-2 mb-0">MISSION PARAMETER CONFIGURATION</p>
                 </div>
-                <div class="card-body p-4 p-md-5">
 
-                    {# Service Summary Card #}
-                    <div class="rounded-4 mb-4 p-3" style="background:#f8fafc;border:1px solid #e2e8f0;">
-                        <div class="d-flex justify-content-between align-items-center">
+                <div class="p-4 p-md-5">
+                    {# ── SERVICE BRIEFING UNIT ── #}
+                    <div class="p-4 rounded-4 mb-5 bg-surface border-glass">
+                        <div class="d-flex justify-content-between align-items-start">
                             <div>
-                                <div class="text-muted small text-uppercase fw-semibold" style="letter-spacing:1px;font-size:0.7rem;">{{ service.category.name }}</div>
-                                <h5 class="fw-bold mb-0 mt-1" style="color:#0f172a;">{{ service.title }}</h5>
+                                <span class="badge-status py-0 px-2 mb-2" style="font-size: 0.6rem; background: rgba(0,255,213,0.1); color: var(--accent-cyan);">
+                                    {{ service.category.name|upper }}
+                                </span>
+                                <h4 class="text-white fw-900 mb-1">{{ service.title }}</h4>
                                 {% if service.isPremium %}
-                                    <span class="badge bg-warning text-dark mt-1"><i class="fas fa-star me-1"></i>Premium</span>
+                                    <div class="text-gold text-xxs fw-800"><i class="fas fa-crown me-1"></i>PREMIUM FIDELITY</div>
                                 {% endif %}
                             </div>
                             <div class="text-end">
-                                <div class="fw-bold" style="font-size:1.4rem;color:#16a34a;">₹{{ service.price }}</div>
-                                <div class="text-muted small">Base Price</div>
+                                <div class="text-teal h3 fw-900 mb-0">₹{{ service.price|number_format }}</div>
+                                <div class="text-xxs text-dim fw-800">BASE CAPITAL</div>
                             </div>
                         </div>
-                        <p class="text-muted small mt-2 mb-0" style="border-top:1px solid #e2e8f0;padding-top:10px;">{{ service.description|slice(0, 130) }}...</p>
                     </div>
 
-                    {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+                    {{ form_start(form, {'attr': {'novalidate': 'novalidate', 'class': 'spatial-form'}}) }}
 
-                        {# Booking Mode Selection #}
-                        <div class="mb-4">
-                            <label class="form-label fw-bold mb-2" style="color:#0f172a;">
-                                <i class="fas fa-tag me-1" style="color:#2563eb;"></i> Booking Mode
-                            </label>
+                        {# ── MODE SELECTION NODES ── #}
+                        <div class="mb-5">
+                            <label class="text-xxs text-dim fw-800 letter-spacing-1 d-block mb-3">SELECT OPERATIONAL MODE</label>
                             <div class="row g-3">
                                 <div class="col-6">
-                                    <label class="booking-mode-card w-100" for="{{ form.bookingType.children['0'].vars.id ?? 'booking_bookingType_0' }}" style="cursor:pointer;">
-                                        <div class="mode-card p-3 rounded-3 text-center border-2" style="border:2px solid #e2e8f0;transition:all 0.2s;background:#fff;">
-                                            <i class="fas fa-laptop fa-2x mb-2" style="color:#2563eb;"></i>
-                                            <div class="fw-bold" style="color:#0f172a;font-size:0.9rem;">Book Online</div>
-                                            <div class="text-muted" style="font-size:0.75rem;">Remote service, confirmed instantly</div>
+                                    <label class="mode-node-wrapper w-100" for="{{ form.bookingType.children['0'].vars.id }}">
+                                        <div class="mode-node p-4 text-center">
+                                            <i class="fas fa-bolt-lightning fs-3 mb-3 text-cyan"></i>
+                                            <div class="fw-bold text-white small">ONLINE</div>
+                                            <div class="text-xxs text-dim mt-1">Remote Uplink</div>
                                         </div>
                                     </label>
                                 </div>
                                 <div class="col-6">
-                                    <label class="booking-mode-card w-100" for="{{ form.bookingType.children['1'].vars.id ?? 'booking_bookingType_1' }}" style="cursor:pointer;">
-                                        <div class="mode-card p-3 rounded-3 text-center border-2" style="border:2px solid #e2e8f0;transition:all 0.2s;background:#fff;">
-                                            <i class="fas fa-home fa-2x mb-2" style="color:#7c3aed;"></i>
-                                            <div class="fw-bold" style="color:#0f172a;font-size:0.9rem;">Visit (In-Person)</div>
-                                            <div class="text-muted" style="font-size:0.75rem;">Provider visits your location</div>
+                                    <label class="mode-node-wrapper w-100" for="{{ form.bookingType.children['1'].vars.id }}">
+                                        <div class="mode-node p-4 text-center">
+                                            <i class="fas fa-house-signal fs-3 mb-3 text-purple"></i>
+                                            <div class="fw-bold text-white small">VISIT</div>
+                                            <div class="text-xxs text-dim mt-1">Physical Deployment</div>
                                         </div>
                                     </label>
                                 </div>
                             </div>
 
-                            {# Hidden actual radio buttons #}
-                            <div class="d-none">
-                                {{ form_widget(form.bookingType) }}
-                            </div>
-
-                            {# Visit info banner #}
-                            <div id="visit-info" class="mt-2 rounded-3 p-2" style="background:#f5f3ff;border:1px solid #ddd6fe;display:none;">
-                                <div class="d-flex align-items-start gap-2">
-                                    <i class="fas fa-info-circle mt-1" style="color:#7c3aed;flex-shrink:0;"></i>
-                                    <span style="font-size:0.8rem;color:#5b21b6;">The provider will visit your location and send you an estimated cost. You can accept or reject it from your dashboard.</span>
+                            {# Logic info banner #}
+                            <div id="visit-info-box" class="mt-3 p-3 rounded-3 border-glass bg-surface reveal-3d" style="display:none;">
+                                <div class="d-flex gap-3 align-items-center">
+                                    <i class="fas fa-circle-info text-purple"></i>
+                                    <span class="text-xxs text-dim fw-600">The Artisan will transmit a calculated estimate after the initial site survey.</span>
                                 </div>
                             </div>
+
+                            <div class="d-none">{{ form_widget(form.bookingType) }}</div>
                         </div>
 
-                        {# Date & Time #}
+                        {# ── TEMPORAL COORDINATES ── #}
                         <div class="mb-4">
-                            <label class="form-label fw-bold" style="color:#0f172a;">
-                                <i class="fas fa-calendar-alt me-1" style="color:#2563eb;"></i> Preferred Date & Time
-                            </label>
-                            {{ form_widget(form.bookingDate, {'attr': {'class': 'form-control rounded-3', 'style': 'background:#f8fafc;border:1px solid #e2e8f0;'}}) }}
-                            <div class="text-danger small mt-1">{{ form_errors(form.bookingDate) }}</div>
+                            <label class="text-xxs text-dim fw-800 letter-spacing-1 d-block mb-2">TEMPORAL COORDINATES (DATE & TIME)</label>
+                            {{ form_widget(form.bookingDate, {'attr': {'class': 'cyber-input'}}) }}
+                            <div class="text-danger text-xxs mt-1">{{ form_errors(form.bookingDate) }}</div>
                         </div>
 
-                        {# Notes #}
-                        <div class="mb-4">
-                            <label class="form-label fw-bold" style="color:#0f172a;">
-                                <i class="fas fa-sticky-note me-1" style="color:#2563eb;"></i> Additional Notes
-                            </label>
-                            {{ form_widget(form.notes, {'attr': {'class': 'form-control rounded-3', 'style': 'background:#f8fafc;border:1px solid #e2e8f0;', 'placeholder': 'Your address, special requirements...'}}) }}
-                            <div class="text-danger small mt-1">{{ form_errors(form.notes) }}</div>
+                        {# ── MISSION NOTES ── #}
+                        <div class="mb-5">
+                            <label class="text-xxs text-dim fw-800 letter-spacing-1 d-block mb-2">ADDITIONAL MISSION DATA</label>
+                            {{ form_widget(form.notes, {'attr': {'class': 'cyber-input', 'rows': '4', 'placeholder': 'Input address or specific requirements...'}}) }}
                         </div>
 
-                        <div class="d-grid gap-2 mt-4">
-                            <button type="submit" class="btn btn-lg rounded-3 fw-bold shadow-sm text-white" style="background:linear-gradient(135deg,#1e40af,#2563eb);border:none;padding:14px;">
-                                <i class="fas fa-check-circle me-2"></i>Confirm Booking
+                        {# ── SUBMIT ACTIONS ── #}
+                        <div class="d-grid gap-3">
+                            <button type="submit" class="btn-luxury py-3 fs-6">
+                                <i class="fas fa-shield-check me-2"></i>CONFIRM PROTOCOL
                             </button>
-                            <a href="{{ path('app_service_show', {id: service.id}) }}" class="btn btn-outline-secondary rounded-3">
-                                <i class="fas fa-arrow-left me-1"></i>Back to Service Details
+                            <a href="{{ path('app_service_show', {id: service.id}) }}" class="btn-outline-luxury py-2 text-xxs text-center letter-spacing-1">
+                                <i class="fas fa-arrow-left me-2"></i>ABORT INITIALIZATION
                             </a>
                         </div>
 
@@ -108,61 +101,70 @@
 </div>
 
 <style>
-body { background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); min-height: 100vh; }
+    /* ── SPATIAL FORM UI ── */
+    .bg-surface { background: rgba(255, 255, 255, 0.02); }
+    .border-glass { border: 1px solid rgba(255, 255, 255, 0.08); }
 
-.mode-card:hover {
-    border-color: #2563eb !important;
-    box-shadow: 0 4px 12px rgba(37,99,235,0.15);
-    transform: translateY(-2px);
-}
-.mode-card.selected-online {
-    border-color: #2563eb !important;
-    background: #eff6ff !important;
-    box-shadow: 0 4px 14px rgba(37,99,235,0.2);
-}
-.mode-card.selected-visit {
-    border-color: #7c3aed !important;
-    background: #f5f3ff !important;
-    box-shadow: 0 4px 14px rgba(124,58,237,0.2);
-}
+    .cyber-input {
+        background: rgba(255, 255, 255, 0.04) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        color: #fff !important;
+        border-radius: 12px !important;
+        padding: 12px 16px !important;
+        width: 100%;
+        transition: all 0.3s var(--ease-spatial);
+    }
+    .cyber-input:focus {
+        border-color: var(--accent-teal) !important;
+        background: rgba(0, 255, 213, 0.03) !important;
+        box-shadow: 0 0 20px rgba(0, 255, 213, 0.1) !important;
+        outline: none;
+    }
+
+    /* ── MODE NODES ── */
+    .mode-node-wrapper { cursor: pointer; }
+    .mode-node {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        transition: all 0.4s var(--ease-spatial);
+    }
+    .mode-node:hover {
+        background: rgba(255, 255, 255, 0.05);
+        border-color: rgba(255, 255, 255, 0.2);
+        transform: translateY(-3px);
+    }
+
+    /* Active States */
+    input[value="online"]:checked ~ .row .mode-node-wrapper[for*="bookingType_0"] .mode-node {
+        border-color: var(--accent-cyan);
+        background: rgba(0, 255, 213, 0.08);
+        box-shadow: 0 0 30px rgba(0, 255, 213, 0.15);
+    }
+    input[value="visit"]:checked ~ .row .mode-node-wrapper[for*="bookingType_1"] .mode-node {
+        border-color: var(--accent-purple);
+        background: rgba(157, 124, 255, 0.08);
+        box-shadow: 0 0 30px rgba(157, 124, 255, 0.15);
+    }
+
+    .text-cyan { color: var(--accent-cyan) !important; }
+    .text-purple { color: var(--accent-purple) !important; }
 </style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const radios = document.querySelectorAll('input[name$="[bookingType]"]');
-    const cards = document.querySelectorAll('.booking-mode-card .mode-card');
-    const visitInfo = document.getElementById('visit-info');
+    const visitInfo = document.getElementById('visit-info-box');
 
-    function updateSelection() {
-        radios.forEach((radio, i) => {
-            cards[i].classList.remove('selected-online', 'selected-visit');
-            if (radio.checked) {
-                if (radio.value === 'online') {
-                    cards[i].classList.add('selected-online');
-                    visitInfo.style.display = 'none';
-                } else {
-                    cards[i].classList.add('selected-visit');
-                    visitInfo.style.display = 'block';
-                }
-            }
-        });
+    function toggleBanner() {
+        const selected = document.querySelector('input[name$="[bookingType]"]:checked').value;
+        visitInfo.style.display = (selected === 'visit') ? 'block' : 'none';
     }
 
-    // Make clicking the visual cards also toggle the radio
-    cards.forEach((card, i) => {
-        card.addEventListener('click', function () {
-            radios[i].checked = true;
-            updateSelection();
-        });
-    });
-
-    radios.forEach(radio => radio.addEventListener('change', updateSelection));
-
-    // Set default selection
-    if (radios.length > 0) {
-        radios[0].checked = true;
-        updateSelection();
-    }
+    radios.forEach(radio => radio.addEventListener('change', toggleBanner));
+    
+    // Initial Check
+    toggleBanner();
 });
 </script>
 {% endblock %}

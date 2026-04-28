@@ -1,41 +1,73 @@
-{# ── Obsidian X Macro System ── #}
+{# ── Obsidian X Spatial Macro System 2026 ── #}
 
 {% macro glass_card(params = {}) %}
-<div class="glass-card {{ params.class|default('') }}">
-    {% if params.title|default('') or params.subtitle|default('') %}
-        <div class="card-header border-0 pb-0">
-            {% if params.title|default('') %}<h3 class="text-xl mb-1">{{ params.title }}</h3>{% endif %}
-            {% if params.subtitle|default('') %}<p class="text-xs text-muted mb-0">{{ params.subtitle }}</p>{% endif %}
+    {# 
+       Params: class, title, subtitle, icon, body, footer, glow (teal|gold|purple)
+    #}
+    <div class="glass-card {{ params.class|default('') }} {{ params.glow is defined ? 'border-' ~ params.glow ~ '-glow' : '' }} reveal-3d">
+        {% if params.title|default('') or params.icon|default('') %}
+            <div class="p-4 pb-0 border-0 d-flex justify-content-between align-items-start">
+                <div>
+                    {% if params.title|default('') %}
+                        <h3 class="luxury-serif text-white h5 mb-1">{{ params.title }}</h3>
+                    {% endif %}
+                    {% if params.subtitle|default('') %}
+                        <p class="text-xxs text-dim fw-800 letter-spacing-1 mb-0">{{ params.subtitle|upper }}</p>
+                    {% endif %}
+                </div>
+                {% if params.icon|default('') %}
+                    <div class="p-2 rounded-3 bg-surface border-glass text-teal">
+                        <i class="fas {{ params.icon }}"></i>
+                    </div>
+                {% endif %}
+            </div>
+        {% endif %}
+
+        <div class="p-4">
+            {{ params.body|raw }}
         </div>
-    {% endif %}
-    <div class="p-4">
-        {{ params.body|default('')|raw }}
+
+        {% if params.footer is defined %}
+            <div class="p-3 bg-surface border-top border-white border-opacity-5">
+                {{ params.footer|raw }}
+            </div>
+        {% endif %}
     </div>
-</div>
 {% endmacro %}
 
-{% macro glow_button(label, icon = '', type = 'violet', class = '', href = '#') %}
-<a href="{{ href }}" class="btn-{{ type }} {{ class }}">
-    {% if icon %}<i class="{{ icon }}"></i>{% endif %}
-    <span>{{ label }}</span>
-</a>
+{% macro glow_button(label, icon = '', type = 'luxury', class = '', href = '#') %}
+    {# 
+       Types: luxury (teal), outline-luxury, void (red), action-spatial
+    #}
+    <a href="{{ href }}" class="btn-{{ type }} {{ class }} d-inline-flex align-items-center gap-2" style="text-decoration: none;">
+        {% if icon %}<i class="fas {{ icon }}"></i>{% endif %}
+        <span class="letter-spacing-1">{{ label|upper }}</span>
+    </a>
 {% endmacro %}
 
-{% macro pill_badge(label, status = 'confirmed', icon = '') %}
-<span class="badge-pill badge-{{ status }}">
-    {% if icon %}<i class="{{ icon }}"></i>{% endif %}
-    {{ label }}
-</span>
+{% macro status_badge(label, status = 'active', icon = '') %}
+    {# 
+       Statuses: active (teal), pending (gold), alert (red)
+    #}
+    <span class="badge-status status-{{ status }} px-3 py-1 reveal-3d">
+        {% if icon %}<i class="fas {{ icon }} me-1"></i>{% endif %}
+        <span class="font-monospace fw-900" style="font-size: 0.55rem;">{{ label|upper }}</span>
+    </span>
 {% endmacro %}
 
-{% macro kpi_card(label, value, icon, color = 'brand') %}
-<div class="glass-card p-4 d-flex align-items-center justify-content-between hover-lift">
-    <div>
-        <div class="text-xs text-muted mb-2">{{ label }}</div>
-        <div class="text-2xl fw-800 text-primary">{{ value }}</div>
+{% macro kpi_node(label, value, subtext = '', icon = '', glow = 'teal') %}
+    <div class="glass-card p-4 border-glow-hover h-100 d-flex flex-column justify-content-between border-{{ glow }}-soft">
+        <div class="d-flex justify-content-between align-items-start mb-3">
+            <div class="text-xxs text-dim fw-900 letter-spacing-2">{{ label|upper }}</div>
+            {% if icon %}
+                <i class="fas {{ icon }} text-{{ glow }} opacity-50"></i>
+            {% endif %}
+        </div>
+        <div>
+            <div class="h2 fw-900 text-white mb-1">{{ value }}</div>
+            {% if subtext %}
+                <div class="text-xxs text-{{ glow }} fw-800 font-monospace">{{ subtext|upper }}</div>
+            {% endif %}
+        </div>
     </div>
-    <div class="fs-1 opacity-25 text-{{ color == 'brand' ? 'brand-1' : 'accent-' ~ color }}">
-        <i class="{{ icon }}"></i>
-    </div>
-</div>
 {% endmacro %}

@@ -2,222 +2,223 @@
 
 {% block stylesheets %}
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+    /* ── SPATIAL TELEMETRY HUD ── */
+    .telemetry-header {
+        background: radial-gradient(circle at top left, rgba(0, 255, 213, 0.08), transparent 50%);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        padding: 80px 0 40px;
+    }
+
+    /* ── HUD COMPONENTS ── */
+    .hud-card {
+        background: rgba(10, 15, 25, 0.8);
+        backdrop-filter: blur(30px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 24px;
+        transition: all 0.4s var(--ease-spatial);
+    }
+    .hud-stat-node {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 15px;
+        background: rgba(255, 255, 255, 0.02);
+        border-radius: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    .hud-icon-wrap {
+        width: 38px; height: 38px;
+        display: flex; align-items: center; justify-content: center;
+        background: rgba(0, 255, 213, 0.1);
+        color: var(--accent-teal);
+        border-radius: 10px;
+        font-size: 1rem;
+    }
+
+    /* ── RADAR PULSE ANIMATION ── */
+    .radar-pulse {
+        width: 14px; height: 14px;
+        background: var(--accent-teal);
+        border-radius: 50%;
+        position: relative;
+        box-shadow: 0 0 15px var(--accent-teal);
+    }
+    .radar-pulse::after {
+        content: '';
+        position: absolute;
+        inset: -10px;
+        border-radius: 50%;
+        border: 2px solid var(--accent-teal);
+        animation: radar-expand 2s infinite;
+    }
+    @keyframes radar-expand {
+        0% { transform: scale(0.5); opacity: 1; }
+        100% { transform: scale(3); opacity: 0; }
+    }
+
+    /* ── MAP OVERRIDES ── */
+    #tracking-map {
+        filter: grayscale(1) invert(1) contrast(0.9) brightness(0.9) hue-rotate(150deg);
+        background: #05070a !important;
+    }
+    .leaflet-container { background: #05070a !important; }
+</style>
 {% endblock %}
 
-{% block title %}Telemetry — {{ booking.service.title }}{% endblock %}
+{% block title %}Live Telemetry — Booking #{{ booking.id|slice(0,8) }}{% endblock %}
 
 {% block body %}
-<div class="animate-fade-in" style="padding-top: 100px;">
-    {# ── 1. TELEMETRY HEADER & TIMELINE ── #}
-    <section class="py-5" style="background: linear-gradient(to bottom, var(--bg-deep), transparent);">
+<div class="reveal-3d">
+    {# ── 1. TELEMETRY HEADER ── #}
+    <section class="telemetry-header">
         <div class="container">
-            <div class="d-flex justify-content-between align-items-center mb-5">
+            <div class="d-flex justify-content-between align-items-end mb-5">
                 <div>
-                    <span class="text-teal text-xxs fw-800 letter-spacing-3 mb-2 d-block">REAL-TIME TELEMETRY</span>
-                    <h1 class="luxury-serif text-pure mb-0">Expedition Alpha-{{ booking.id }}</h1>
+                    <span class="text-teal text-xxs fw-900 letter-spacing-3 mb-2 d-block">REAL-TIME UPLINK</span>
+                    <h1 class="luxury-serif text-white mb-0" style="font-size: 3rem;">Protocol Tracking</h1>
                 </div>
-                <div class="text-end">
-                    <div class="badge-status status-active px-4">Live Satellite Link</div>
-                    <div class="text-xxs text-dim mt-2 fw-800">REFRESHING EVERY 5.0s</div>
+                <div class="text-lg-end">
+                    <div class="badge-status status-active px-4 py-2" style="font-size: 0.7rem; letter-spacing: 2px;">
+                        <span class="status-dot-sm me-2 animate-pulse"></span> PROVIDER SYNCED
+                    </div>
+                    <div class="text-xxs text-dim mt-2 fw-800">REF: #{{ booking.id|slice(0,12)|upper }}</div>
                 </div>
             </div>
 
-            {# Booking Timeline Component #}
-            <div class="booking-timeline mb-5">
-                <div class="timeline-track">
-                    <div class="timeline-progress" style="width: {{ booking.status|lower == 'pending' ? '12.5%' : (booking.status|lower == 'on-the-way' ? '62.5%' : (booking.status|lower == 'completed' ? '100%' : '37.5%')) }};"></div>
-                </div>
-                <div class="timeline-steps">
-                    <div class="step {{ booking.status|lower in ['pending', 'accepted', 'on-the-way', 'completed'] ? 'active' : '' }}">
-                        <div class="step-node"></div>
-                        <div class="step-label">PROPOSAL</div>
-                    </div>
-                    <div class="step {{ booking.status|lower in ['accepted', 'on-the-way', 'completed'] ? 'active' : '' }}">
-                        <div class="step-node"></div>
-                        <div class="step-label">CONFIRMED</div>
-                    </div>
-                    <div class="step {{ booking.status|lower in ['on-the-way', 'completed'] ? 'active' : '' }}">
-                        <div class="step-node"></div>
-                        <div class="step-label">DISPATCHED</div>
-                    </div>
-                    <div class="step {{ booking.status|lower == 'completed' ? 'active' : '' }}">
-                        <div class="step-node"></div>
-                        <div class="step-label">COMPLETED</div>
-                    </div>
+            {# Linear Mission Progress #}
+            <div class="glass-card p-4 border-0" style="background: rgba(255,255,255,0.02);">
+                <div class="row text-center g-0">
+                    {% set steps = ['Requested', 'Confirmed', 'En Route', 'Complete'] %}
+                    {% set normalizedStatus = booking.status|lower %}
+                    {% set activeIdx = normalizedStatus == 'completed' ? 3 : (normalizedStatus == 'on-the-way' ? 2 : 1) %}
+                    
+                    {% for step in steps %}
+                        <div class="col-3">
+                            <div class="text-xxs fw-900 {{ loop.index0 <= activeIdx ? 'text-teal' : 'text-dim' }} letter-spacing-1 mb-2">{{ step|upper }}</div>
+                            <div class="progress rounded-pill" style="height: 4px; background: rgba(255,255,255,0.05);">
+                                <div class="progress-bar {{ loop.index0 <= activeIdx ? 'bg-teal' : '' }}" 
+                                     style="width: {{ loop.index0 <= activeIdx ? '100%' : '0%' }}; box-shadow: {{ loop.index0 == activeIdx ? '0 0 10px var(--accent-teal)' : 'none' }}"></div>
+                            </div>
+                        </div>
+                    {% endfor %}
                 </div>
             </div>
         </div>
     </section>
 
-    {# ── 2. MAP & HUD INTERFACE ── #}
-    <section class="container mb-5">
-        <div class="row g-5">
-            {# Map Sidebar (HUD) #}
+    {# ── 2. TACTICAL GRID ── #}
+    <section class="container py-5">
+        <div class="row g-4">
+            {# LEFT: TACTICAL HUD #}
             <div class="col-xl-4">
-                <div class="glass-card mb-4 p-4 border-teal-glow">
-                    <div class="d-flex align-items-center gap-4 mb-5">
-                        <div class="user-orb" style="width: 50px; height: 50px; font-size: 1.2rem;">
+                <div class="hud-card p-4 h-100">
+                    <div class="d-flex align-items-center gap-3 mb-5">
+                        <div class="user-orb" style="width: 50px; height: 50px; border-color: var(--accent-cyan);">
                             {{ booking.service.provider.fullName|slice(0,1)|upper }}
                         </div>
                         <div>
-                            <div class="text-pure fw-bold h5 mb-0">{{ booking.service.provider.fullName }}</div>
-                            <div class="text-xxs text-teal fw-800">{{ booking.service.provider.tier|upper }} PROFESSIONAL</div>
+                            <div class="text-white fw-900 small mb-0">{{ booking.service.provider.fullName|upper }}</div>
+                            <div class="text-xxs text-teal fw-800 letter-spacing-1">ARTISAN RANK: {{ booking.service.provider.tier|upper }}</div>
                         </div>
                     </div>
 
-                    <div class="hud-stats d-grid gap-4">
-                        <div class="hud-stat">
-                            <i class="fas fa-location-dot text-teal"></i>
+                    <div class="d-grid gap-3">
+                        <div class="hud-stat-node">
+                            <div class="hud-icon-wrap"><i class="fas fa-location-crosshairs"></i></div>
                             <div>
-                                <div class="label">CURRENT SECTOR</div>
-                                <div class="value">Bhatar, Sector 7-X</div>
+                                <div class="text-xxs text-dim fw-800">COORDINATE SECTOR</div>
+                                <div class="text-white small fw-bold">Sector 7G - Urban Core</div>
                             </div>
                         </div>
-                        <div class="hud-stat">
-                            <i class="fas fa-clock text-teal"></i>
+                        <div class="hud-stat-node">
+                            <div class="hud-icon-wrap"><i class="fas fa-bolt-lightning"></i></div>
                             <div>
-                                <div class="label">EST. ARRIVAL</div>
-                                <div class="value">14.2 Minutes</div>
+                                <div class="text-xxs text-dim fw-800">TEMPORAL ESTIMATE</div>
+                                <div class="text-teal small fw-bold">~ 12.4 MINUTES</div>
                             </div>
                         </div>
-                        <div class="hud-stat">
-                            <i class="fas fa-bolt text-teal"></i>
+                        <div class="hud-stat-node">
+                            <div class="hud-icon-wrap"><i class="fas fa-signal"></i></div>
                             <div>
-                                <div class="label">PROTOCOL STATUS</div>
-                                <div class="value text-pure">{{ booking.status|upper }}</div>
+                                <div class="text-xxs text-dim fw-800">UPLINK STRENGTH</div>
+                                <div class="text-white small fw-bold">STABLE (98%)</div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="mt-5 pt-5 border-top border-glass">
+                    <div class="mt-5 pt-4 border-top border-white border-opacity-5">
                         <div class="d-grid gap-3">
-                            <a href="tel:{{ booking.service.provider.mobile }}" class="btn-luxury py-3 w-100"><i class="fas fa-phone-alt me-2"></i> ESTABLISH VOICE LINK</a>
-                            <a href="{{ path('app_customer_dashboard') }}" class="btn-outline-luxury py-3 w-100">RETURN TO MANIFEST</a>
+                            <a href="tel:{{ booking.service.provider.mobile }}" class="btn-luxury py-3"><i class="fas fa-phone-volume me-2"></i>AUDIO COMM-LINK</a>
+                            <a href="{{ path('app_customer_dashboard') }}" class="btn-outline-luxury py-3">ABORT FEED</a>
                         </div>
                     </div>
-                </div>
-
-                <div class="glass-card p-4" style="background: rgba(16, 185, 129, 0.03);">
-                    <p class="text-xxs text-dim mb-0 italic">Secure end-to-end encryption active. Telemetry data is restricted to authorized session tokens.</p>
                 </div>
             </div>
 
-            {# Main Telemetry Feed (Map) #}
+            {# RIGHT: TELEMETRY FEED (MAP) #}
             <div class="col-xl-8">
-                <div class="glass-card p-0 overflow-hidden" style="height: 650px; border-radius: 32px;">
-                    <div id="tracking-map" style="height: 100%; width: 100%; z-index: 1;"></div>
+                <div class="hud-card p-0 overflow-hidden" style="height: 600px; border-radius: 32px;">
+                    <div id="tracking-map" style="height: 100%; width: 100%;"></div>
                 </div>
             </div>
         </div>
     </section>
 </div>
 
-<style>
-    /* HUD Stats */
-    .hud-stat { display: flex; align-items: flex-start; gap: 20px; }
-    .hud-stat i { font-size: 1.1rem; margin-top: 4px; }
-    .hud-stat .label { font-size: 0.6rem; font-weight: 800; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.15em; }
-    .hud-stat .value { font-size: 0.95rem; font-weight: 700; color: var(--text-silver); }
-
-    /* Booking Timeline (Horizontal Progress) */
-    .booking-timeline { margin: 20px 0 30px; }
-    .timeline-track-h {
-        position: relative;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-    }
-    .timeline-track-h::before {
-        content: '';
-        position: absolute;
-        top: 50%; left: 0; right: 0;
-        height: 2px;
-        background: var(--glass-border);
-        transform: translateY(-50%);
-        z-index: 0;
-    }
-    .timeline-steps { display: flex; justify-content: space-between; position: relative; z-index: 1; width: 100%; }
-    .step { display: flex; flex-direction: column; align-items: center; flex: 1; }
-    .step-node {
-        width: 30px; height: 30px; border-radius: 50%;
-        border: 2px solid var(--glass-border);
-        background: var(--bg-deep);
-        display: flex; align-items: center; justify-content: center;
-        font-size: 0.7rem; color: var(--text-dim);
-        margin-bottom: 8px; transition: all 0.4s;
-        position: relative; z-index: 2;
-    }
-    .step.active .step-node {
-        border-color: var(--accent-teal);
-        background: rgba(16,185,129,0.15);
-        color: var(--accent-teal);
-        box-shadow: 0 0 15px var(--accent-teal-glow);
-    }
-    .step-label { font-size: 0.58rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-dim); text-align: center; }
-    .step.active .step-label { color: var(--accent-teal); }
-
-    /* Map Pulsing Animation */
-    @keyframes map-pulse {
-        0%   { transform: scale(1); box-shadow: 0 0 10px var(--accent-teal-glow); }
-        50%  { transform: scale(1.4); box-shadow: 0 0 30px var(--accent-teal-glow); }
-        100% { transform: scale(1); box-shadow: 0 0 10px var(--accent-teal-glow); }
-    }
-    .custom-teal-pulse {
-        background: var(--accent-teal);
-        width: 14px; height: 14px;
-        border-radius: 50%;
-        border: 3px solid #FFF;
-        animation: map-pulse 2s infinite ease-in-out;
-    }
-    .leaflet-container { background: var(--bg-deep); }
-</style>
-
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', () => {
-        const centerLat = {{ booking.latitude|default('21.1702') }};
-        const centerLng = {{ booking.longitude|default('72.8311') }};
-        const destLat = centerLat + 0.015;
-        const destLng = centerLng + 0.012;
+        const startLat = {{ booking.latitude|default('21.1702') }};
+        const startLng = {{ booking.longitude|default('72.8311') }};
+        const destLat = startLat + 0.012;
+        const destLng = startLng + 0.008;
 
-        const map = L.map('tracking-map', { zoomControl: false, attributionControl: false }).setView([centerLat, centerLng], 14);
+        const map = L.map('tracking-map', { 
+            zoomControl: false, 
+            attributionControl: false 
+        }).setView([startLat, startLng], 14);
+
+        // Cyber-Dark Tile Layer
         L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom: 19 }).addTo(map);
 
-        const tealIcon = L.divIcon({
+        // Provider Marker (Radar Pulse)
+        const radarIcon = L.divIcon({
             className: 'custom-div-icon',
-            html: '<div class="custom-teal-pulse"></div>',
+            html: '<div class="radar-pulse"></div>',
             iconSize: [14, 14], iconAnchor: [7, 7]
         });
 
+        // Destination Marker
         const destIcon = L.divIcon({
             className: 'dest-icon',
-            html: '<div class="p-2 bg-deep border-teal rounded-circle" style="box-shadow: 0 0 20px var(--accent-teal-glow);"><i class="fas fa-home text-teal" style="font-size: 16px;"></i></div>',
+            html: '<div class="p-2 bg-dark border-teal rounded-circle" style="box-shadow: 0 0 20px rgba(0,255,213,0.3); border: 2px solid var(--accent-teal);"><i class="fas fa-house-chimney text-teal" style="font-size: 14px;"></i></div>',
             iconSize: [32, 32], iconAnchor: [16, 16]
         });
 
-        L.marker([destLat, destLng], { icon: destIcon }).addTo(map).bindPopup("PRIMARY ESTATE NODE", { closeButton: false }).openPopup();
-        const providerMarker = L.marker([centerLat, centerLng], { icon: tealIcon }).addTo(map);
+        L.marker([destLat, destLng], { icon: destIcon }).addTo(map);
+        const providerMarker = L.marker([startLat, startLng], { icon: radarIcon }).addTo(map);
 
-        // Track Polyline
-        L.polyline([[centerLat, centerLng], [destLat, destLng]], {
-            color: 'var(--accent-teal)', weight: 2, opacity: 0.2, dashArray: '8, 8'
+        // Path Telemetry
+        L.polyline([[startLat, startLng], [destLat, destLng]], {
+            color: '#00ffd5', weight: 1, opacity: 0.3, dashArray: '10, 10'
         }).addTo(map);
 
-        // Smooth Simulation
+        // Simulation Loop
         let progress = 0;
-        const animateNode = () => {
+        const moveArtisan = () => {
             if (progress <= 1) {
-                const lat = centerLat + (destLat - centerLat) * progress;
-                const lng = centerLng + (destLng - centerLng) * progress;
+                const lat = startLat + (destLat - startLat) * progress;
+                const lng = startLng + (destLng - startLng) * progress;
                 providerMarker.setLatLng([lat, lng]);
-                progress += 0.005;
-                setTimeout(animateNode, 200);
+                progress += 0.003;
+                setTimeout(moveArtisan, 300);
             }
         };
+
         {% if booking.status|lower == 'on-the-way' %}
-            animateNode();
+            moveArtisan();
         {% endif %}
     });
 </script>
 {% endblock %}
-

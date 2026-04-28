@@ -1,73 +1,132 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}All Services{% endblock %}
+{% block title %}Available Services - ServiceHub{% endblock %}
 
 {% block body %}
-<div class="container mt-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div class="d-flex align-items-center gap-3">
-            <a href="{{ path('app_home') }}" class="btn btn-outline-secondary rounded-circle" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;" title="Go to Home">
-                <i class="fas fa-home"></i>
-            </a>
-            <h1 class="text-primary fw-bold mb-0">Available Services</h1>
-        </div>
-        {% if is_granted('ROLE_PROVIDER') %}
-            {% if app.user.services|length == 0 %}
-                <a href="{{ path('app_provider_onboarding') }}" class="btn btn-success rounded-pill px-4 shadow-sm">
-                    <i class="fas fa-route me-1"></i> Start provider setup
-                </a>
-            {% else %}
-                <a href="{{ path('app_service_new') }}" class="btn btn-success rounded-pill px-4 shadow-sm">
-                    <i class="fas fa-plus me-1"></i> Add My Service
-                </a>
+<section class="py-5" style="padding-top: 120px !important;">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-end flex-wrap gap-4 mb-4">
+            <div>
+                <div class="text-xxs text-teal fw-800 letter-spacing-3 mb-2">SERVICE MARKETPLACE</div>
+                <h1 class="mb-2" style="font-size: clamp(2.4rem, 5vw, 4rem);">Available Services</h1>
+                <p class="text-on-surface-variant mb-0">Browse trusted professionals, compare prices, and book the right service fast.</p>
+            </div>
+            {% if is_granted('ROLE_PROVIDER') %}
+                {% if app.user.services|length == 0 %}
+                    <a href="{{ path('app_provider_onboarding') }}" class="btn-luxury px-4 py-3">
+                        <i class="fas fa-route me-1"></i> Start Provider Setup
+                    </a>
+                {% else %}
+                    <a href="{{ path('app_service_new') }}" class="btn-luxury px-4 py-3">
+                        <i class="fas fa-plus me-1"></i> Add Service
+                    </a>
+                {% endif %}
             {% endif %}
-        {% endif %}
-    </div>
+        </div>
 
-    <div class="row">
-        {# Loop ahiya thi sharu thay che #}
-        {% for service in services %}
-            <div class="col-md-4 mb-4">
-                <div class="card h-100 {{ service.isPremium ? 'border-warning shadow-lg' : 'border-light shadow-sm' }} rounded-4">
-                    
-                    {% if service.isPremium %}
-                        <div class="card-header bg-warning text-dark text-center fw-bold small">
-                            ⭐ PREMIUM PARTNER
-                        </div>
-                    {% endif %}
+        <form method="get" action="{{ path('app_service_list') }}" class="glass-card holographic-window p-3 p-md-4 mb-5">
+            <div class="row g-3 align-items-center">
+                <div class="col-lg-7">
+                    <div class="position-relative">
+                        <i class="fas fa-magnifying-glass position-absolute" style="left: 18px; top: 50%; transform: translateY(-50%); color: var(--portal-cyan);"></i>
+                        <input type="text" name="q" value="{{ app.request.query.get('q') }}" class="luxury-input py-3" style="padding-left: 48px;" placeholder="Search services, providers, or keywords">
+                    </div>
+                </div>
+                <div class="col-lg-3">
+                    <input type="text" name="category" value="{{ app.request.query.get('category') }}" class="luxury-input py-3" placeholder="Category">
+                </div>
+                <div class="col-lg-2 d-grid">
+                    <button type="submit" class="btn-luxury py-3">Search</button>
+                </div>
+            </div>
+        </form>
 
-                    <div class="card-body p-4">
-                        {# AA LINE LOOP NI ANDAR J HOVI JOIE #}
-                        <a href="{{ path('app_service_show', {id: service.id}) }}" class="text-decoration-none text-dark d-block">
-                            <h5 class="card-title fw-bold text-uppercase">
-                                {{ service.title }}
+        <div class="row g-4">
+            {% for service in services %}
+                <div class="col-md-6 col-xl-4">
+                    <article class="glass-card service-card h-100 p-0 overflow-hidden {{ service.isPremium ? 'holographic-window' : '' }}">
+                        <div class="service-card-visual">
+                            {% if service.image is defined and service.image %}
+                                <img src="{{ asset('uploads/services/' ~ service.image) }}" alt="{{ service.title }}">
+                            {% else %}
+                                <img src="https://images.unsplash.com/photo-1581578731548-c64695cc6952?q=80&w=900&auto=format&fit=crop" alt="{{ service.title }}">
+                            {% endif %}
+                            <div class="service-card-badges">
+                                <span class="badge-status status-active">{{ service.category.name }}</span>
                                 {% if service.isPremium %}
-                                    <span class="badge bg-warning text-dark ms-2" title="Verified Provider">
-                                        <i class="fas fa-star"></i> Verified
-                                    </span>
+                                    <span class="badge-status status-pending"><i class="fas fa-star"></i> Premium</span>
                                 {% endif %}
-                            </h5>
-                        </a>
-                        
-                        <h6 class="card-subtitle mb-3 text-muted">Category: {{ service.category.name }}</h6>
-                        <p class="card-text text-muted small">{{ service.description }}</p>
-                        <hr>
-                        <div class="d-flex justify-content-between align-items-center mt-3">
-                            <span class="h5 text-success mb-0 fw-bold">₹{{ service.price }}</span>
-                            <a href="{{ path('app_service_book', {id: service.id}) }}" class="btn btn-outline-primary btn-sm rounded-pill px-3">Book Now</a>
+                            </div>
+                        </div>
+                        <div class="p-4">
+                            <a href="{{ path('app_service_show', {id: service.id}) }}" class="text-decoration-none">
+                                <h2 class="h4 mb-2">{{ service.title }}</h2>
+                            </a>
+                            <p class="text-on-surface-variant small mb-4" style="min-height: 58px;">
+                                {{ service.description|default('Professional service available through ServiceHub.')|slice(0, 125) }}{% if service.description|default('')|length > 125 %}...{% endif %}
+                            </p>
+                            <div class="d-flex align-items-center gap-3 mb-4">
+                                <div class="user-orb" style="width: 34px; height: 34px; font-size: 0.75rem;">
+                                    {{ service.provider.fullName|default('P')|slice(0, 1)|upper }}
+                                </div>
+                                <div>
+                                    <div class="text-on-surface fw-bold small">{{ service.provider.fullName|default('Verified Provider') }}</div>
+                                    <div class="text-xxs text-on-surface-variant">{{ service.provider.tier|default('Verified') }} Provider</div>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center pt-3" style="border-top: 1px solid var(--portal-line);">
+                                <div>
+                                    <div class="text-xxs text-on-surface-variant fw-800">STARTING PRICE</div>
+                                    <div class="h4 mb-0 text-on-surface">₹{{ service.price|number_format }}</div>
+                                </div>
+                                <a href="{{ path('app_service_book', {id: service.id}) }}" class="btn-luxury px-3 py-2" style="font-size: 0.75rem;">Book Now</a>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+            {% else %}
+                <div class="col-12">
+                    <div class="glass-card text-center py-5">
+                        <div class="empty-state">
+                            <i class="fas fa-search fa-3x mb-3"></i>
+                            <h4>No services available yet.</h4>
+                            <p class="text-on-surface-variant mb-0">Try a different search or come back soon.</p>
                         </div>
                     </div>
                 </div>
-            </div>
-        {% else %}
-            <div class="col-12 text-center py-5">
-                <div class="alert alert-info rounded-4 p-5 shadow-sm">
-                    <i class="fas fa-search fa-3x mb-3 opacity-25"></i>
-                    <h4>No services available yet.</h4>
-                </div>
-            </div>
-        {% endfor %}
-        {# Loop ahiya khatam thay che #}
+            {% endfor %}
+        </div>
     </div>
-</div>
+</section>
+
+<style>
+    .service-card-visual {
+        height: 220px;
+        position: relative;
+        background: rgba(255,255,255,0.06);
+        overflow: hidden;
+    }
+    .service-card-visual img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+        filter: saturate(1.05) contrast(1.05);
+        opacity: 0.9;
+        transition: transform 0.6s ease;
+    }
+    .service-card:hover .service-card-visual img {
+        transform: scale(1.06);
+    }
+    .service-card-badges {
+        position: absolute;
+        left: 16px;
+        right: 16px;
+        bottom: 16px;
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+</style>
 {% endblock %}
