@@ -36,6 +36,14 @@ final class AppConstants
     public const ROLE_PROVIDER = 'ROLE_PROVIDER';
     public const ROLE_ADMIN = 'ROLE_ADMIN';
 
+    public const ALLOWED_ROLES = [
+        self::ROLE_USER,
+        self::ROLE_PROVIDER,
+        self::ROLE_ADMIN,
+    ];
+
+    public const MIN_PASSWORD_LENGTH = 12;
+
     // Service tiers
     public const SERVICE_TIER_BASIC = 'basic';
     public const SERVICE_TIER_STANDARD = 'standard';
@@ -48,6 +56,8 @@ final class AppConstants
     // Pagination
     public const ITEMS_PER_PAGE = 12;
     public const ADMIN_ITEMS_PER_PAGE = 20;
+    public const ADMIN_PAGE_SIZE = 10;
+    public const ADMIN_COMMAND_HUB_PAGE_SIZE = 12;
     
     // Notification types
     public const NOTIFICATION_BOOKING_CREATED = 'booking_created';

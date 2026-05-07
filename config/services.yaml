@@ -8,6 +8,9 @@
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
     app.mailer_from_address: 'no-reply@servicehub.local'
+    stripe_webhook_secret: '%env(STRIPE_WEBHOOK_SECRET)%'
+    premium_plan_price: '%env(default:999.00:PREMIUM_PLAN_PRICE)%'
+
 
 services:
     # default configuration for services in *this* file

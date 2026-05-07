@@ -3,8 +3,43 @@
 {% block title %}Identity Index — ServiceHub Admin{% endblock %}
 {% block page_title %}Identity Index{% endblock %}
 
+{% block stylesheets %}
+<style>
+    .user-orb-wrap { position: relative; }
+    .status-dot {
+        position: absolute; bottom: 2px; right: 2px;
+        width: 12px; height: 12px; border-radius: 50%;
+        border: 2px solid #080a0f;
+    }
+    .status-dot.online { background: var(--accent-cyan); box-shadow: 0 0 10px var(--accent-cyan); }
+    .status-dot.offline { background: var(--accent-red); }
+
+    .border-glow-hover:hover {
+        border-color: rgba(0, 255, 213, 0.3) !important;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4) !important;
+        transform: translateY(-5px);
+    }
+    .bg-surface { background: rgba(255, 255, 255, 0.02); }
+    .border-glass { border: 1px solid rgba(255, 255, 255, 0.1); }
+    
+    .btn-action-spatial {
+        width: 40px; height: 40px;
+        border-radius: 10px;
+        display: flex; align-items: center; justify-content: center;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: all 0.3s var(--ease-spatial);
+        cursor: pointer;
+    }
+    .btn-action-spatial:hover {
+        background: rgba(255, 255, 255, 0.1);
+        transform: scale(1.1);
+        border-color: currentColor;
+    }
+</style>
+{% endblock %}
+
 {% block body %}
-<div class="reveal-3d">
     {# ── ACTION HEADER ── #}
     <div class="d-flex align-items-center justify-content-between mb-5">
         <div>
@@ -119,6 +154,7 @@
                     <div class="p-3 bg-surface border-top border-white border-opacity-5 mt-auto">
                         <div class="d-flex justify-content-center gap-3">
                             <form action="{{ path('app_admin_user_toggle_status', {id: user.id}) }}" method="POST" class="m-0" onsubmit="return confirm('Toggle node connectivity?');">
+                                <input type="hidden" name="_token" value="{{ csrf_token('toggle_status' ~ user.id) }}">
                                 <button type="submit" class="btn-action-spatial {{ user.isActive ? 'text-red' : 'text-teal' }}" title="{{ user.isActive ? 'Sever Link' : 'Restore Link' }}">
                                     <i class="fas {{ user.isActive ? 'fa-user-slash' : 'fa-user-check' }}"></i>
                                 </button>
@@ -162,37 +198,3 @@
     </div>
 </div>
 
-<style>
-    .user-orb-wrap { position: relative; }
-    .status-dot {
-        position: absolute; bottom: 2px; right: 2px;
-        width: 12px; height: 12px; border-radius: 50%;
-        border: 2px solid #080a0f;
-    }
-    .status-dot.online { background: var(--accent-cyan); box-shadow: 0 0 10px var(--accent-cyan); }
-    .status-dot.offline { background: var(--accent-red); }
-
-    .border-glow-hover:hover {
-        border-color: rgba(0, 255, 213, 0.3) !important;
-        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4) !important;
-        transform: translateY(-5px);
-    }
-    .bg-surface { background: rgba(255, 255, 255, 0.02); }
-    .border-glass { border: 1px solid rgba(255, 255, 255, 0.1); }
-    
-    .btn-action-spatial {
-        width: 40px; height: 40px;
-        border-radius: 10px;
-        display: flex; align-items: center; justify-content: center;
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        transition: all 0.3s var(--ease-spatial);
-        cursor: pointer;
-    }
-    .btn-action-spatial:hover {
-        background: rgba(255, 255, 255, 0.1);
-        transform: scale(1.1);
-        border-color: currentColor;
-    }
-</style>
-{% endblock %}

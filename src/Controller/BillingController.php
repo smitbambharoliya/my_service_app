@@ -64,7 +64,7 @@ class BillingController extends AbstractController
         /** @var \App\Entity\User $user */
         $user = $this->getUser();
 
-        $billing = $billingService->createPremiumUpgrade($user, $_ENV['PREMIUM_PLAN_PRICE'] ?? '999.00');
+        $billing = $billingService->createPremiumUpgrade($user, (string) ($this->getParameter('premium_plan_price') ?? '999.00'));
 
         $this->addFlash('info', 'Redirecting to secure gateway to complete your premium upgrade.');
 
@@ -164,7 +164,7 @@ class BillingController extends AbstractController
 
             return $this->redirect($session->url, 303);
         } catch (\Exception $e) {
-            $this->addFlash('danger', 'Stripe Gateway Error: ' . $e->getMessage());
+            $this->addFlash('danger', 'Payment gateway error. Please try again or contact support.');
             return $this->redirectToRoute('app_billing_index');
         }
     }
@@ -192,9 +192,9 @@ class BillingController extends AbstractController
     #[Route('/webhook/stripe', name: 'app_stripe_webhook', methods: ['POST'])]
     public function stripeWebhook(Request $request, EntityManagerInterface $em, EventDispatcherInterface $dispatcher): Response
     {
-        $payload = @file_get_contents('php://input');
-        $sig_header = $request->headers->get('stripe-signature');
-        $endpoint_secret = $_ENV['STRIPE_WEBHOOK_SECRET'] ?? null; // Set this in .env.local
+        $payload          = $request->getContent();
+        $sig_header       = $request->headers->get('stripe-signature');
+        $endpoint_secret  = $this->getParameter('stripe_webhook_secret');
 
         if (!$endpoint_secret) {
             return new Response('Stripe webhook secret is missing from environment.', 500);
@@ -229,7 +229,15 @@ class BillingController extends AbstractController
     #[Route('/billing/download/{id}', name: 'app_billing_download')]
     public function downloadInvoice(Billing $billing, \Knp\Bundle\SnappyBundle\Snappy\Response\PdfResponse $pdfResponse, \Knp\Snappy\Pdf $pdf): Response
     {
-        if ($billing->getUser() !== $this->getUser() && !$this->isGranted('ROLE_PROVIDER')) {
+        /** @var \App\Entity\User $currentUser */
+        $currentUser = $this->getUser();
+
+        // Access allowed for the billing's own user or an admin.
+        // (Billing has no direct Booking relation, so provider access is scoped to their own bills.)
+        $isOwner = $billing->getUser() === $currentUser;
+        $isAdmin = $this->isGranted('ROLE_ADMIN');
+
+        if (!$isOwner && !$isAdmin) {
             throw $this->createAccessDeniedException();
         }
 

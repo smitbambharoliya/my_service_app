@@ -267,6 +267,7 @@
                     <td class="text-end">
                         <div class="service-actions">
                             <form action="{{ path('app_admin_service_toggle_status', {id: service.id}) }}" method="POST" class="m-0">
+                                <input type="hidden" name="_token" value="{{ csrf_token('toggle_status' ~ service.id) }}">
                                 <button type="submit" class="service-action-btn {{ service.isActive ? 'text-red' : 'text-teal' }}" title="{{ service.isActive ? 'Hide Service' : 'Show Service' }}">
                                     <i class="fas {{ service.isActive ? 'fa-eye-slash text-danger' : 'fa-eye' }}"></i>
                                 </button>

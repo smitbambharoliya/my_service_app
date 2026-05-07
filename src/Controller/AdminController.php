@@ -112,10 +112,10 @@ final class AdminController extends AbstractController
                 ->setParameter('search', '%' . $search . '%');
         }
 
-        if ($roleFilter) {
+        if ($roleFilter && in_array($roleFilter, AppConstants::ALLOWED_ROLES, true)) {
             $queryBuilder
                 ->andWhere('u.roles LIKE :role')
-                ->setParameter('role', '%' . $roleFilter . '%');
+                ->setParameter('role', '%"' . $roleFilter . '"%');
         }
 
         if ($statusFilter !== null && $statusFilter !== '') {
@@ -129,7 +129,7 @@ final class AdminController extends AbstractController
         $pagination = $paginator->paginate(
             $queryBuilder,
             $request->query->getInt('page', 1),
-            10
+            AppConstants::ADMIN_PAGE_SIZE
         );
 
         return $this->render('admin/users.html.twig', [
@@ -159,7 +159,7 @@ final class AdminController extends AbstractController
                     implode(', ', $user->getRoles()),
                     $user->isVerified() ? 'Yes' : 'No',
                     $user->isActive() ? 'Yes' : 'No',
-                    $user->getCreatedAt()->format('Y-m-d H:i:s')
+                    $user->getCreatedAt()?->format('Y-m-d H:i:s') ?? 'N/A',
                 ];
             }
         );
@@ -231,7 +231,7 @@ final class AdminController extends AbstractController
         $pagination = $paginator->paginate(
             $queryBuilder,
             $request->query->getInt('page', 1),
-            10
+            AppConstants::ADMIN_PAGE_SIZE
         );
 
         return $this->render('admin/services.html.twig', [
@@ -298,7 +298,7 @@ final class AdminController extends AbstractController
         $pagination = $paginator->paginate(
             $queryBuilder,
             $request->query->getInt('page', 1),
-            10
+            AppConstants::ADMIN_PAGE_SIZE
         );
 
         return $this->render('admin/bookings.html.twig', [
@@ -322,12 +322,12 @@ final class AdminController extends AbstractController
                 return [
                     $booking->getId(),
                     $booking->getTrackingId(),
-                    $booking->getCustomer()->getFullName(),
-                    $booking->getService()->getTitle(),
-                    $booking->getService()->getProvider()->getFullName(),
+                    $booking->getCustomer()?->getFullName() ?? 'N/A',
+                    $booking->getService()?->getTitle() ?? 'N/A',
+                    $booking->getService()?->getProvider()?->getFullName() ?? 'N/A',
                     $booking->getStatus(),
-                    $booking->getBookingDate()->format('Y-m-d H:i:s'),
-                    $booking->getEstimatedCost() ?? 'N/A'
+                    $booking->getBookingDate()?->format('Y-m-d H:i:s') ?? 'N/A',
+                    $booking->getEstimatedCost() ?? 'N/A',
                 ];
             }
         );
@@ -349,16 +349,24 @@ final class AdminController extends AbstractController
     {
         if ($this->isCsrfTokenValid('status' . $booking->getId(), $request->request->get('_token'))) {
             $newStatus = $request->request->get('status');
-            $this->adminService->updateBookingStatus($booking, $newStatus);
-            $this->addFlash('success', 'Booking status updated to ' . ucfirst($newStatus) . '.');
+            if ($this->adminService->updateBookingStatus($booking, $newStatus)) {
+                $this->addFlash('success', 'Booking status updated to ' . ucfirst((string) $newStatus) . '.');
+            } else {
+                $this->addFlash('danger', 'Invalid booking status provided.');
+            }
         }
 
         return $this->redirectToRoute('app_admin_bookings');
     }
 
     #[Route('/users/{id}/toggle-status', name: 'app_admin_user_toggle_status', methods: ['POST'])]
-    public function toggleUserStatus(User $user): Response
+    public function toggleUserStatus(User $user, Request $request): Response
     {
+        if (!$this->isCsrfTokenValid('toggle_status' . $user->getId(), $request->request->get('_token'))) {
+            $this->addFlash('danger', 'Invalid CSRF token.');
+            return $this->redirectToRoute('app_admin_users');
+        }
+
         if ($user === $this->getUser()) {
             $this->addFlash('danger', 'You cannot suspend your own account.');
             return $this->redirectToRoute('app_admin_users');
@@ -371,8 +379,13 @@ final class AdminController extends AbstractController
     }
 
     #[Route('/services/{id}/toggle-status', name: 'app_admin_service_toggle_status', methods: ['POST'])]
-    public function toggleServiceStatus(Service $service): Response
+    public function toggleServiceStatus(Service $service, Request $request): Response
     {
+        if (!$this->isCsrfTokenValid('toggle_status' . $service->getId(), $request->request->get('_token'))) {
+            $this->addFlash('danger', 'Invalid CSRF token.');
+            return $this->redirectToRoute('app_admin_services');
+        }
+
         $status = $this->adminService->toggleServiceStatus($service);
         $this->addFlash('success', "Service '{$service->getTitle()}' is now {$status}.");
 
@@ -388,7 +401,7 @@ final class AdminController extends AbstractController
 
         $queryBuilder = $em->getRepository(User::class)->createQueryBuilder('u')
             ->where('u.roles LIKE :role')
-            ->setParameter('role', '%ROLE_PROVIDER%');
+            ->setParameter('role', '%"ROLE_PROVIDER"%');
 
         if ($search !== '') {
             $queryBuilder
@@ -407,7 +420,7 @@ final class AdminController extends AbstractController
         $providers = $paginator->paginate(
             $queryBuilder,
             $request->query->getInt('page', 1),
-            10
+            AppConstants::ADMIN_PAGE_SIZE
         );
 
         return $this->render('admin/providers.html.twig', [
@@ -422,12 +435,45 @@ final class AdminController extends AbstractController
     public function newUser(Request $request, EntityManagerInterface $em, UserPasswordHasherInterface $hasher): Response
     {
         if ($request->isMethod('POST')) {
+            if (!$this->isCsrfTokenValid('user_new', $request->request->get('_token'))) {
+                $this->addFlash('danger', 'Invalid CSRF token.');
+                return $this->render('admin/user_new.html.twig');
+            }
+
+            $email    = trim((string) $request->request->get('email', ''));
+            $fullName = trim((string) $request->request->get('fullName', ''));
+            $mobile   = trim((string) $request->request->get('mobile', ''));
+            $role     = (string) $request->request->get('role', '');
+            $password = (string) $request->request->get('password', '');
+
+            // --- Whitelist role ---
+            if (!in_array($role, AppConstants::ALLOWED_ROLES, true)) {
+                $this->addFlash('danger', 'Invalid role selected.');
+                return $this->render('admin/user_new.html.twig');
+            }
+
+            // --- Basic field validation ---
+            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                $this->addFlash('danger', 'Invalid email address.');
+                return $this->render('admin/user_new.html.twig');
+            }
+            if (strlen($password) < AppConstants::MIN_PASSWORD_LENGTH) {
+                $this->addFlash('danger', 'Password must be at least ' . AppConstants::MIN_PASSWORD_LENGTH . ' characters.');
+                return $this->render('admin/user_new.html.twig');
+            }
+
+            // --- Duplicate email check ---
+            if ($em->getRepository(User::class)->findOneBy(['email' => $email])) {
+                $this->addFlash('danger', 'A user with this email already exists.');
+                return $this->render('admin/user_new.html.twig');
+            }
+
             $user = new User();
-            $user->setEmail($request->request->get('email'));
-            $user->setFullName($request->request->get('fullName'));
-            $user->setMobile($request->request->get('mobile'));
-            $user->setRoles([$request->request->get('role')]);
-            $user->setPassword($hasher->hashPassword($user, $request->request->get('password')));
+            $user->setEmail($email);
+            $user->setFullName($fullName);
+            $user->setMobile($mobile);
+            $user->setRoles([$role]);
+            $user->setPassword($hasher->hashPassword($user, $password));
             $user->setIsVerified(true);
             $user->setIsActive(true);
 
@@ -561,9 +607,9 @@ final class AdminController extends AbstractController
                ->setParameter('search', '%' . $search . '%');
         }
 
-        if ($roleFilter) {
+        if ($roleFilter && in_array($roleFilter, AppConstants::ALLOWED_ROLES, true)) {
             $qb->andWhere('u.roles LIKE :role')
-               ->setParameter('role', '%' . $roleFilter . '%');
+               ->setParameter('role', '%"' . $roleFilter . '"%');
         }
 
         if ($statusFilter !== null && $statusFilter !== '') {
@@ -575,14 +621,14 @@ final class AdminController extends AbstractController
         $users = $paginator->paginate(
             $qb,
             $request->query->getInt('page', 1),
-            12
+            AppConstants::ADMIN_COMMAND_HUB_PAGE_SIZE
         );
 
         $stats = [
             'total' => $em->getRepository(User::class)->count([]),
             'verified' => $em->getRepository(User::class)->count(['isVerified' => true]),
-            'providers' => (int) $em->createQueryBuilder()->select('COUNT(u.id)')->from(User::class, 'u')->where('u.roles LIKE :role')->setParameter('role', '%ROLE_PROVIDER%')->getQuery()->getSingleScalarResult(),
-            'admins' => (int) $em->createQueryBuilder()->select('COUNT(u.id)')->from(User::class, 'u')->where('u.roles LIKE :role')->setParameter('role', '%ROLE_ADMIN%')->getQuery()->getSingleScalarResult(),
+            'providers' => (int) $em->createQueryBuilder()->select('COUNT(u.id)')->from(User::class, 'u')->where('u.roles LIKE :role')->setParameter('role', '%"ROLE_PROVIDER"%')->getQuery()->getSingleScalarResult(),
+            'admins' => (int) $em->createQueryBuilder()->select('COUNT(u.id)')->from(User::class, 'u')->where('u.roles LIKE :role')->setParameter('role', '%"ROLE_ADMIN"%')->getQuery()->getSingleScalarResult(),
             'suspended' => $em->getRepository(User::class)->count(['isActive' => false]),
         ];
 
@@ -656,9 +702,9 @@ final class AdminController extends AbstractController
             return $this->redirectToRoute('app_admin_user_command_hub');
         }
 
-        $newPassword = $request->request->get('new_password');
-        if (strlen($newPassword) < 6) {
-            $this->addFlash('danger', 'Password must be at least 6 characters.');
+        $newPassword = (string) $request->request->get('new_password', '');
+        if (strlen($newPassword) < AppConstants::MIN_PASSWORD_LENGTH) {
+            $this->addFlash('danger', 'Password must be at least ' . AppConstants::MIN_PASSWORD_LENGTH . ' characters.');
             return $this->redirectToRoute('app_admin_user_command_hub');
         }
 
@@ -687,9 +733,9 @@ final class AdminController extends AbstractController
                     $jsonStart = strpos($line, '{');
                     if ($jsonStart !== false) {
                         $jsonData = substr($line, $jsonStart);
-                            $data = json_decode($jsonData, true);
-                            if ($data) {
-                                $logs[] = $data;
+                        $data = json_decode($jsonData, true);
+                        if ($data) {
+                            $logs[] = $data;
                         }
                     }
                 }
